@@ -1869,20 +1869,6 @@
 
             <!-- Steering Committee & Committee Leaders Directory (Compact & Space-efficient) -->
             <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="h-8 w-8 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
-                            <i data-lucide="users" class="h-4 w-4"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display font-black text-base text-slate-900">Comité de Pilotage & Responsables des Comités</h3>
-                            <p class="text-[11px] text-slate-500">Équipe dirigeante et présidents des 11 comités d'organisation des 10 Ans.</p>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 self-start sm:self-auto font-mono">
-                        11 Responsables Actifs
-                    </span>
-                </div>
 
                 <!-- Dynamic Grid of 11 Leaders (Affichage Progressif) -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
@@ -1891,8 +1877,8 @@
                             <i data-lucide="users" class="h-5 w-5"></i>
                         </div>
                         <div>
-                            <h3 class="font-display font-black text-base text-slate-900">Comité de Pilotage & Responsables des Comités</h3>
-                            <p class="text-[11px] text-slate-500">Profils officiels des coordinateurs et responsables (Affichage progressif dès la création des comptes).</p>
+                            <h3 class="font-display font-black text-base text-slate-900">Membres des Comités & Coordinations</h3>
+                            <p class="text-[11px] text-slate-500">Contacts officiels générés à la création de chaque compte responsable.</p>
                         </div>
                     </div>
                     <span id="org-active-leaders-count" class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 self-start sm:self-auto font-mono">
@@ -3544,6 +3530,78 @@
         initializeLucideIcons();
     }
 
+    function getSoftPastelChronogrammeTheme(couleur, index) {
+        const themes = {
+            amber: {
+                cardBg: 'bg-gradient-to-r from-amber-50/90 via-orange-50/40 to-white',
+                border: 'border-amber-200/80 hover:border-amber-300',
+                badgeBg: 'bg-amber-100/90 text-amber-800 border border-amber-200',
+                timeBg: 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-xs shadow-amber-500/20',
+                iconBg: 'bg-amber-100 text-amber-600',
+                tagBg: 'bg-amber-100/80 text-amber-800',
+                dot: 'bg-amber-500'
+            },
+            purple: {
+                cardBg: 'bg-gradient-to-r from-purple-50/90 via-fuchsia-50/40 to-white',
+                border: 'border-purple-200/80 hover:border-purple-300',
+                badgeBg: 'bg-purple-100/90 text-purple-800 border border-purple-200',
+                timeBg: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-xs shadow-purple-500/20',
+                iconBg: 'bg-purple-100 text-purple-600',
+                tagBg: 'bg-purple-100/80 text-purple-800',
+                dot: 'bg-purple-500'
+            },
+            blue: {
+                cardBg: 'bg-gradient-to-r from-sky-50/90 via-blue-50/40 to-white',
+                border: 'border-sky-200/80 hover:border-sky-300',
+                badgeBg: 'bg-sky-100/90 text-sky-800 border border-sky-200',
+                timeBg: 'bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-xs shadow-sky-500/20',
+                iconBg: 'bg-sky-100 text-sky-600',
+                tagBg: 'bg-sky-100/80 text-sky-800',
+                dot: 'bg-sky-500'
+            },
+            indigo: {
+                cardBg: 'bg-gradient-to-r from-indigo-50/90 via-violet-50/40 to-white',
+                border: 'border-indigo-200/80 hover:border-indigo-300',
+                badgeBg: 'bg-indigo-100/90 text-indigo-800 border border-indigo-200',
+                timeBg: 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-xs shadow-indigo-500/20',
+                iconBg: 'bg-indigo-100 text-indigo-600',
+                tagBg: 'bg-indigo-100/80 text-indigo-800',
+                dot: 'bg-indigo-500'
+            },
+            orange: {
+                cardBg: 'bg-gradient-to-r from-orange-50/90 via-amber-50/40 to-white',
+                border: 'border-orange-200/80 hover:border-orange-300',
+                badgeBg: 'bg-orange-100/90 text-orange-800 border border-orange-200',
+                timeBg: 'bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-xs shadow-orange-500/20',
+                iconBg: 'bg-orange-100 text-orange-600',
+                tagBg: 'bg-orange-100/80 text-orange-800',
+                dot: 'bg-orange-500'
+            },
+            emerald: {
+                cardBg: 'bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-white',
+                border: 'border-emerald-200/80 hover:border-emerald-300',
+                badgeBg: 'bg-emerald-100/90 text-emerald-800 border border-emerald-200',
+                timeBg: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs shadow-emerald-500/20',
+                iconBg: 'bg-emerald-100 text-emerald-600',
+                tagBg: 'bg-emerald-100/80 text-emerald-800',
+                dot: 'bg-emerald-500'
+            },
+            rose: {
+                cardBg: 'bg-gradient-to-r from-rose-50/90 via-pink-50/40 to-white',
+                border: 'border-rose-200/80 hover:border-rose-300',
+                badgeBg: 'bg-rose-100/90 text-rose-800 border border-rose-200',
+                timeBg: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-xs shadow-rose-500/20',
+                iconBg: 'bg-rose-100 text-rose-600',
+                tagBg: 'bg-rose-100/80 text-rose-800',
+                dot: 'bg-rose-500'
+            }
+        };
+
+        const defaultCycle = ['amber', 'purple', 'blue', 'indigo', 'orange', 'rose', 'emerald'];
+        const selectedKey = couleur && themes[couleur] ? couleur : defaultCycle[index % defaultCycle.length];
+        return themes[selectedKey];
+    }
+
     function renderChronogrammeOrganisation() {
         const container = document.getElementById('organisation-chronogramme-list');
         if (!container) return;
@@ -3564,33 +3622,49 @@
         }
 
         list.forEach((item, index) => {
-            const styles = getChronogrammeBadgeClasses(item.couleur || 'orange');
-            const icon = item.icone || 'clock';
+            const theme = getSoftPastelChronogrammeTheme(item.couleur, index);
+            const icon = item.icone || 'sparkles';
 
             const actionButtonsHTML = isVis ? '' : `
-                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 w-full sm:w-auto justify-end">
-                    <button onclick="openEditChronogrammeModal('${item.id}')" class="p-2 text-slate-600 hover:text-brand-orange hover:bg-orange-50 rounded-xl transition cursor-pointer" title="Modifier cette étape">
+                <div class="flex items-center gap-1 shrink-0 self-end sm:self-center pt-2 sm:pt-0">
+                    <button onclick="openEditChronogrammeModal('${item.id}')" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white/80 rounded-xl transition cursor-pointer" title="Modifier cette étape">
                         <i data-lucide="edit-3" class="h-4 w-4"></i>
                     </button>
-                    <button onclick="requestDeleteChronogrammeItem('${item.id}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer" title="Supprimer">
+                    <button onclick="requestDeleteChronogrammeItem('${item.id}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-white/80 rounded-xl transition cursor-pointer" title="Supprimer">
                         <i data-lucide="trash-2" class="h-4 w-4"></i>
                     </button>
                 </div>
             `;
 
             container.innerHTML += `
-                <div class="p-4 rounded-2xl bg-white border border-slate-200 ${styles.border} flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-md transition">
-                    <div class="flex items-start sm:items-center gap-3 min-w-0">
-                        <div class="h-10 w-10 rounded-2xl ${styles.iconBg} flex items-center justify-center font-black shrink-0 shadow-inner">
+                <div class="p-4 sm:p-5 rounded-2xl ${theme.cardBg} border ${theme.border} shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
+                    <div class="flex items-start sm:items-center gap-3.5 min-w-0">
+                        <!-- Hour Pill -->
+                        <div class="px-3 py-2 rounded-xl ${theme.timeBg} font-mono font-bold text-xs shrink-0 flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="clock" class="h-3.5 w-3.5 opacity-80"></i>
+                            <span>${item.heureDebut} - ${item.heureFin}</span>
+                        </div>
+
+                        <!-- Icon badge -->
+                        <div class="h-10 w-10 rounded-2xl ${theme.iconBg} flex items-center justify-center font-black shrink-0 shadow-xs group-hover:scale-105 transition">
                             <i data-lucide="${icon}" class="h-5 w-5"></i>
                         </div>
-                        <div class="space-y-0.5 min-w-0">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-md font-mono font-black text-[11px] ${styles.bg}">${item.heureDebut} - ${item.heureFin}</span>
-                                <span class="text-[10px] text-slate-400 font-bold truncate">Resp : ${item.responsable}</span>
+
+                        <!-- Content Details -->
+                        <div class="space-y-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h4 class="font-display font-black text-slate-900 text-sm sm:text-base leading-tight">
+                                    ${item.titre}
+                                </h4>
+                                ${item.responsable ? `
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${theme.tagBg}">
+                                        ${item.responsable}
+                                    </span>
+                                ` : ''}
                             </div>
-                            <h4 class="font-bold text-slate-900 text-sm truncate">${item.titre}</h4>
-                            <p class="text-[11px] text-slate-500 truncate max-w-xl">${item.description || '--'}</p>
+                            <p class="text-xs text-slate-600 leading-relaxed max-w-2xl font-light">
+                                ${item.description || ''}
+                            </p>
                         </div>
                     </div>
                     ${actionButtonsHTML}
