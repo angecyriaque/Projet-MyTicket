@@ -1886,33 +1886,48 @@
 
 
             <!-- ============================================== -->
-            <!-- CHRONOGRAMME D'ACTIVITÉS (GESTION & ÉDITION)  -->
+            <!-- PROGRAMME OFFICIEL DES ACTIVITÉS (DESIGN MODERNE) -->
             <!-- ============================================== -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-                            <i data-lucide="calendar-clock" class="h-5 w-5"></i>
+            <div class="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm space-y-6">
+                <!-- Modern Soft Header -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div class="flex items-center gap-3.5">
+                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center font-black shadow-md shadow-indigo-500/20">
+                            <i data-lucide="sparkles" class="h-6 w-6"></i>
                         </div>
                         <div>
-                            <h3 id="chro-header-title" class="font-display font-black text-xl text-slate-900">Programme Officiel des Activités (10 Ans)</h3>
-                            <p id="chro-header-desc" class="text-xs text-slate-500">Consultez le déroulé officiel de la soirée du 01 Janvier 2027.</p>
+                            <div class="flex items-center gap-2">
+                                <h3 id="chro-header-title" class="font-display font-black text-xl sm:text-2xl text-slate-900 tracking-tight">Programme Officiel des Activités</h3>
+                                <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold font-mono">10 Ans</span>
+                            </div>
+                            <p id="chro-header-desc" class="text-xs text-slate-500 mt-0.5">Déroulé chronologique de la célébration • Nuit du 01 Janvier 2027 à Conty Place Gold.</p>
                         </div>
                     </div>
-                    <div class="member-only-el flex items-center gap-2">
-                        <button onclick="resetChronogrammeToDefault()" class="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer" title="Rétablir le programme d'origine">
-                            <i data-lucide="rotate-ccw" class="h-3.5 w-3.5"></i>
-                            <span>Réinitialiser</span>
-                        </button>
-                        <button onclick="openAddChronogrammeModal()" class="px-4 py-2 bg-brand-orange hover:bg-orange-600 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5 cursor-pointer">
-                            <i data-lucide="plus-circle" class="h-4 w-4"></i>
-                            <span>Ajouter une Activité</span>
-                        </button>
+
+                    <div class="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+                        <!-- Phase Filter Pills -->
+                        <div class="flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200 gap-1 text-[11px] font-bold">
+                            <button onclick="filterChronogrammePhase('all')" id="chro-filter-all" class="chro-phase-btn px-3 py-1.5 rounded-xl transition bg-white text-slate-900 shadow-2xs">Toutes les Étapes</button>
+                            <button onclick="filterChronogrammePhase('phase1')" id="chro-filter-phase1" class="chro-phase-btn px-3 py-1.5 rounded-xl transition text-slate-500 hover:text-slate-900">20h - 22h30</button>
+                            <button onclick="filterChronogrammePhase('phase2')" id="chro-filter-phase2" class="chro-phase-btn px-3 py-1.5 rounded-xl transition text-slate-500 hover:text-slate-900">22h30 - 00h30</button>
+                            <button onclick="filterChronogrammePhase('phase3')" id="chro-filter-phase3" class="chro-phase-btn px-3 py-1.5 rounded-xl transition text-slate-500 hover:text-slate-900">00h30 - 05h30</button>
+                        </div>
+
+                        <!-- Management Buttons for Members -->
+                        <div class="member-only-el flex items-center gap-1.5">
+                            <button onclick="resetChronogrammeToDefault()" class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 text-xs font-bold transition shadow-2xs cursor-pointer" title="Rétablir le programme officiel d'origine">
+                                <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+                            </button>
+                            <button onclick="openAddChronogrammeModal()" class="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="plus" class="h-3.5 w-3.5"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Chronogramme Interactive List in Organisation -->
-                <div id="organisation-chronogramme-list" class="space-y-3">
+                <!-- Modern Timeline Stream -->
+                <div id="organisation-chronogramme-list" class="space-y-4 relative">
                     <!-- Populated dynamically -->
                 </div>
             </div>
@@ -3375,70 +3390,77 @@
             heureDebut: "20:00",
             heureFin: "21:30",
             titre: "Accueil des Festivaliers & Installation aux Tables",
-            responsable: "Comité Accueil & Sécurité • Protocole",
-            description: "Émargement aux portes, contrôle d'accès QR code, orientation vers les tables réservées Gold, VIP & Classique, et cocktail de bienvenue.",
+            responsable: "Comité Accueil & Sécurité",
+            description: "Contrôle d'accès QR code, placement aux tables d'honneur (Gold, VIP, Classique) et cocktail de bienvenue.",
             icone: "user-check",
-            couleur: "amber"
+            couleur: "amber",
+            phase: "phase1"
         },
         {
             id: "CHRO-02",
             heureDebut: "21:30",
             heureFin: "22:30",
             titre: "Ouverture Officielle, Louange & Actions de Grâce",
-            responsable: "Chœur des 10 Ans & Conducteurs de Louange",
-            description: "Célébration d'ouverture, cantiques de victoire et rétrospective vidéo des 10 ans de la Nuit de Jacob.",
+            responsable: "Chœur des 10 Ans & Louange",
+            description: "Cantiques de célébration, rétrospective vidéo des 10 années de fidélité divine et prière d'ouverture.",
             icone: "sparkles",
-            couleur: "purple"
+            couleur: "purple",
+            phase: "phase1"
         },
         {
             id: "CHRO-03",
             heureDebut: "22:30",
             heureFin: "23:45",
             titre: "Message Prophétique & Enseignement Fondateur",
-            responsable: "Pasteur Principal & Orateurs Invités",
-            description: "Prédication sur le thème des 10 Ans, proclamations spirituelles et préparation au passage de la nouvelle année.",
+            responsable: "Pasteur & Orateurs Invités",
+            description: "Proclamation de la parole divine sur le jubilé d'excellence et préparation au passage de la nouvelle année.",
             icone: "book-open",
-            couleur: "blue"
+            couleur: "blue",
+            phase: "phase2"
         },
         {
             id: "CHRO-04",
             heureDebut: "23:45",
             heureFin: "00:30",
             titre: "Passage du Nouvel An 2027 & Décrets Prophétiques",
-            responsable: "Direction Spirituelle & Ensemble des Fidèles",
-            description: "Compte à rebours officiel de minuit, sonnerie du Shofar, prière d'onction, proclamation du Verset de l'Année 2027 et embrassades fraternelles.",
+            responsable: "Direction & Assemblée",
+            description: "Compte à rebours officiel de minuit, sonnerie du Shofar, proclamation du Verset de l'Année 2027 et onction.",
             icone: "crown",
-            couleur: "indigo"
+            couleur: "indigo",
+            phase: "phase2"
         },
         {
             id: "CHRO-05",
             heureDebut: "00:30",
             heureFin: "02:30",
             titre: "Grand Banquet Gastronomique & Agapes des 10 Ans",
-            responsable: "Comité Restauration & Équipe Traiteur",
-            description: "Service du dîner de gala, buffet gastronomique, rafraîchissements et partage convivial aux tables.",
+            responsable: "Comité Restauration",
+            description: "Service du dîner de gala, buffet gastronomique d'exception, rafraîchissements et partage fraternel.",
             icone: "utensils",
-            couleur: "orange"
+            couleur: "rose",
+            phase: "phase3"
         },
         {
             id: "CHRO-06",
             heureDebut: "02:30",
             heureFin: "04:30",
             titre: "Concert de Célébration, Animation, Quiz & Témoignages",
-            responsable: "Comité Animation & Jeux • Artistes Invités",
-            description: "Prestations d'artistes gospel, quiz bibliques avec récompenses et témoignages d'impact des 10 ans.",
+            responsable: "Comité Animation & Jeux",
+            description: "Prestations d'artistes invités, quiz biblique interactif, remises de trophées 10 Ans et temps forts d'adoration.",
             icone: "music",
-            couleur: "rose"
+            couleur: "pink",
+            phase: "phase3"
         },
         {
             id: "CHRO-07",
             heureDebut: "04:30",
-            heureFin: "06:00",
-            titre: "Prière de Clôture, Envoi Prophétique & Bénédiction Finale",
-            responsable: "Pasteur Principal & Conseil Pastoral",
-            description: "Imposition des mains pour l'année 2027, sainte communion, remise des livrets souvenir et départ.",
-            icone: "sun",
-            couleur: "emerald"
+            heureFin: "05:30",
+            titre: "Prière Finale & Bénédiction d'Envoi",
+            responsable: "Collège Pastoral",
+            description: "Prière d'envoi prophétique pour l'année 2027, bénédiction sacerdotale sur chaque famille et clôture festive.",
+            icone: "heart-handshake",
+            couleur: "emerald",
+            phase: "phase3"
         }
     ];
 
@@ -3522,63 +3544,89 @@
         initializeLucideIcons();
     }
 
+    let activeChronogrammePhase = 'all';
+
+    function filterChronogrammePhase(phase) {
+        activeChronogrammePhase = phase;
+        document.querySelectorAll('.chro-phase-btn').forEach(btn => {
+            btn.className = 'chro-phase-btn px-3 py-1.5 rounded-xl transition text-slate-500 hover:text-slate-900';
+        });
+        const activeBtn = document.getElementById('chro-filter-' + phase);
+        if (activeBtn) activeBtn.className = 'chro-phase-btn px-3 py-1.5 rounded-xl transition bg-white text-slate-900 shadow-2xs font-bold';
+        renderChronogrammeOrganisation();
+    }
+
     function getSoftPastelChronogrammeTheme(couleur, index) {
         const themes = [
             {
-                // 1. Ambre doux
-                cardBg: 'bg-gradient-to-r from-amber-50/80 via-orange-50/40 to-white',
-                border: 'border-amber-200/90 hover:border-amber-300',
-                timeBg: 'bg-amber-500 text-white',
-                iconBg: 'bg-amber-100 text-amber-600',
-                tagBg: 'bg-amber-100 text-amber-800'
+                // 1. Miel & Ambre Doré
+                cardBg: 'bg-gradient-to-r from-amber-50/90 via-orange-50/30 to-white',
+                border: 'border-amber-200/90 hover:border-amber-400',
+                badgeBg: 'bg-amber-100 text-amber-900 border border-amber-200/70',
+                timeBg: 'bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-xs shadow-amber-500/30',
+                iconBg: 'bg-amber-100/80 text-amber-700 border border-amber-200',
+                accentLine: 'bg-amber-400',
+                glow: 'group-hover:shadow-amber-500/10'
             },
             {
-                // 2. Violet lilas doux
-                cardBg: 'bg-gradient-to-r from-purple-50/80 via-fuchsia-50/40 to-white',
-                border: 'border-purple-200/90 hover:border-purple-300',
-                timeBg: 'bg-purple-500 text-white',
-                iconBg: 'bg-purple-100 text-purple-600',
-                tagBg: 'bg-purple-100 text-purple-800'
+                // 2. Lilas & Violet Royal
+                cardBg: 'bg-gradient-to-r from-purple-50/90 via-fuchsia-50/30 to-white',
+                border: 'border-purple-200/90 hover:border-purple-400',
+                badgeBg: 'bg-purple-100 text-purple-900 border border-purple-200/70',
+                timeBg: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-xs shadow-purple-500/30',
+                iconBg: 'bg-purple-100/80 text-purple-700 border border-purple-200',
+                accentLine: 'bg-purple-400',
+                glow: 'group-hover:shadow-purple-500/10'
             },
             {
-                // 3. Bleu ciel doux
-                cardBg: 'bg-gradient-to-r from-sky-50/80 via-blue-50/40 to-white',
-                border: 'border-sky-200/90 hover:border-sky-300',
-                timeBg: 'bg-sky-500 text-white',
-                iconBg: 'bg-sky-100 text-sky-600',
-                tagBg: 'bg-sky-100 text-sky-800'
+                // 3. Bleu Azur & Ciel Apaisant
+                cardBg: 'bg-gradient-to-r from-sky-50/90 via-blue-50/30 to-white',
+                border: 'border-sky-200/90 hover:border-sky-400',
+                badgeBg: 'bg-sky-100 text-sky-900 border border-sky-200/70',
+                timeBg: 'bg-gradient-to-br from-sky-400 to-blue-600 text-white shadow-xs shadow-sky-500/30',
+                iconBg: 'bg-sky-100/80 text-sky-700 border border-sky-200',
+                accentLine: 'bg-sky-400',
+                glow: 'group-hover:shadow-sky-500/10'
             },
             {
-                // 4. Indigo doux
-                cardBg: 'bg-gradient-to-r from-indigo-50/80 via-violet-50/40 to-white',
-                border: 'border-indigo-200/90 hover:border-indigo-300',
-                timeBg: 'bg-indigo-500 text-white',
-                iconBg: 'bg-indigo-100 text-indigo-600',
-                tagBg: 'bg-indigo-100 text-indigo-800'
+                // 4. Minuit Céleste & Or Prophétique
+                cardBg: 'bg-gradient-to-r from-indigo-50/95 via-purple-50/40 to-amber-50/30',
+                border: 'border-indigo-300 hover:border-indigo-500',
+                badgeBg: 'bg-indigo-100 text-indigo-950 border border-indigo-200 font-extrabold',
+                timeBg: 'bg-gradient-to-br from-indigo-600 via-purple-600 to-amber-500 text-white shadow-sm shadow-indigo-500/40 ring-2 ring-amber-300/60',
+                iconBg: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+                accentLine: 'bg-indigo-500',
+                glow: 'group-hover:shadow-indigo-500/20'
             },
             {
-                // 5. Corail pêche doux
-                cardBg: 'bg-gradient-to-r from-rose-50/80 via-orange-50/40 to-white',
-                border: 'border-rose-200/90 hover:border-rose-300',
-                timeBg: 'bg-rose-500 text-white',
-                iconBg: 'bg-rose-100 text-rose-600',
-                tagBg: 'bg-rose-100 text-rose-800'
+                // 5. Corail & Pêche Douce
+                cardBg: 'bg-gradient-to-r from-rose-50/90 via-orange-50/30 to-white',
+                border: 'border-rose-200/90 hover:border-rose-400',
+                badgeBg: 'bg-rose-100 text-rose-900 border border-rose-200/70',
+                timeBg: 'bg-gradient-to-br from-rose-400 to-rose-600 text-white shadow-xs shadow-rose-500/30',
+                iconBg: 'bg-rose-100/80 text-rose-700 border border-rose-200',
+                accentLine: 'bg-rose-400',
+                glow: 'group-hover:shadow-rose-500/10'
             },
             {
-                // 6. Rose poudré doux
-                cardBg: 'bg-gradient-to-r from-pink-50/80 via-rose-50/40 to-white',
-                border: 'border-pink-200/90 hover:border-pink-300',
-                timeBg: 'bg-pink-500 text-white',
-                iconBg: 'bg-pink-100 text-pink-600',
-                tagBg: 'bg-pink-100 text-pink-800'
+                // 6. Rose Pivoine & Magenta Doux
+                cardBg: 'bg-gradient-to-r from-pink-50/90 via-fuchsia-50/30 to-white',
+                border: 'border-pink-200/90 hover:border-pink-400',
+                badgeBg: 'bg-pink-100 text-pink-900 border border-pink-200/70',
+                timeBg: 'bg-gradient-to-br from-pink-400 to-fuchsia-600 text-white shadow-xs shadow-pink-500/30',
+                iconBg: 'bg-pink-100/80 text-pink-700 border border-pink-200',
+                accentLine: 'bg-pink-400',
+                glow: 'group-hover:shadow-pink-500/10'
             },
             {
-                // 7. Émeraude menthe douce
-                cardBg: 'bg-gradient-to-r from-emerald-50/80 via-teal-50/40 to-white',
-                border: 'border-emerald-200/90 hover:border-emerald-300',
-                timeBg: 'bg-emerald-500 text-white',
-                iconBg: 'bg-emerald-100 text-emerald-600',
-                tagBg: 'bg-emerald-100 text-emerald-800'
+                // 7. Émeraude & Menthe Douce
+                cardBg: 'bg-gradient-to-r from-emerald-50/90 via-teal-50/30 to-white',
+                border: 'border-emerald-200/90 hover:border-emerald-400',
+                badgeBg: 'bg-emerald-100 text-emerald-900 border border-emerald-200/70',
+                timeBg: 'bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-xs shadow-emerald-500/30',
+                iconBg: 'bg-emerald-100/80 text-emerald-700 border border-emerald-200',
+                accentLine: 'bg-emerald-400',
+                glow: 'group-hover:shadow-emerald-500/10'
             }
         ];
 
@@ -3590,14 +3638,24 @@
         if (!container) return;
         container.innerHTML = '';
 
-        const list = state.chronogramme || [];
+        const allList = state.chronogramme || [];
         const isVis = state.user && state.user.isVisitor;
+
+        // Apply phase filter
+        const list = allList.filter(item => {
+            if (activeChronogrammePhase === 'all') return true;
+            if (item.phase === activeChronogrammePhase) return true;
+            if (activeChronogrammePhase === 'phase1' && (item.heureDebut >= '20:00' && item.heureDebut < '22:30')) return true;
+            if (activeChronogrammePhase === 'phase2' && (item.heureDebut >= '22:30' || item.heureDebut < '00:30')) return true;
+            if (activeChronogrammePhase === 'phase3' && (item.heureDebut >= '00:30' && item.heureDebut <= '05:30')) return true;
+            return false;
+        });
 
         if (list.length === 0) {
             container.innerHTML = `
-                <div class="py-8 text-center text-slate-400 italic">
+                <div class="py-12 text-center text-slate-400 italic bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
                     <i data-lucide="calendar-x" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
-                    ${isVis ? 'Le programme officiel sera disponible très prochainement.' : 'Aucune activité programmée. Cliquez sur "Ajouter une Activité" pour commencer.'}
+                    <p class="text-xs">${isVis ? 'Aucune étape pour ce moment de la soirée.' : 'Aucune activité trouvée.'}</p>
                 </div>
             `;
             initializeLucideIcons();
@@ -3605,51 +3663,57 @@
         }
 
         list.forEach((item, index) => {
-            const theme = getSoftPastelChronogrammeTheme(item.couleur, index);
+            const originalIndex = allList.findIndex(x => x.id === item.id);
+            const theme = getSoftPastelChronogrammeTheme(item.couleur, originalIndex !== -1 ? originalIndex : index);
             const icon = item.icone || 'sparkles';
+            const stepNum = String((originalIndex !== -1 ? originalIndex : index) + 1).padStart(2, '0');
 
             const actionButtonsHTML = isVis ? '' : `
-                <div class="flex items-center gap-1 shrink-0 self-end sm:self-center pt-2 sm:pt-0">
-                    <button onclick="openEditChronogrammeModal('${item.id}')" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white/90 rounded-xl transition cursor-pointer shadow-2xs" title="Modifier cette étape">
+                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100/60 w-full sm:w-auto justify-end">
+                    <button onclick="openEditChronogrammeModal('${item.id}')" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl transition cursor-pointer shadow-2xs border border-transparent hover:border-slate-200" title="Modifier cette étape">
                         <i data-lucide="edit-3" class="h-4 w-4"></i>
                     </button>
-                    <button onclick="requestDeleteChronogrammeItem('${item.id}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-white/90 rounded-xl transition cursor-pointer shadow-2xs" title="Supprimer">
+                    <button onclick="requestDeleteChronogrammeItem('${item.id}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-white rounded-xl transition cursor-pointer shadow-2xs border border-transparent hover:border-slate-200" title="Supprimer">
                         <i data-lucide="trash-2" class="h-4 w-4"></i>
                     </button>
                 </div>
             `;
 
             container.innerHTML += `
-                <div class="p-4 sm:p-5 rounded-3xl ${theme.cardBg} border ${theme.border} shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 group">
-                    <div class="flex items-start sm:items-center gap-3.5 min-w-0">
-                        <!-- Hour Pill -->
-                        <div class="px-3.5 py-2 rounded-2xl ${theme.timeBg} font-mono font-bold text-xs shrink-0 flex items-center gap-1.5 shadow-xs">
-                            <i data-lucide="clock" class="h-3.5 w-3.5 opacity-90"></i>
-                            <span>${item.heureDebut} - ${item.heureFin}</span>
+                <div class="group relative p-4 sm:p-5 rounded-3xl ${theme.cardBg} border ${theme.border} shadow-xs hover:shadow-lg ${theme.glow} transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    
+                    <div class="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0">
+                        
+                        <!-- Step Index & Hour Badge -->
+                        <div class="flex flex-col items-center justify-center min-w-[85px] sm:min-w-[95px] p-2.5 rounded-2xl ${theme.timeBg} shrink-0 text-center shadow-sm">
+                            <span class="text-[9px] uppercase tracking-wider font-extrabold opacity-85">Étape #${stepNum}</span>
+                            <span class="font-mono font-black text-xs sm:text-sm tracking-tight">${item.heureDebut}</span>
+                            <span class="text-[9px] font-medium opacity-80">à ${item.heureFin}</span>
                         </div>
 
-                        <!-- Icon badge -->
-                        <div class="h-10 w-10 rounded-2xl ${theme.iconBg} flex items-center justify-center font-black shrink-0 shadow-2xs group-hover:scale-105 transition">
+                        <!-- Round Icon Badge -->
+                        <div class="h-11 w-11 rounded-2xl ${theme.iconBg} flex items-center justify-center font-black shrink-0 shadow-xs group-hover:scale-110 transition duration-300">
                             <i data-lucide="${icon}" class="h-5 w-5"></i>
                         </div>
 
-                        <!-- Content Details -->
-                        <div class="space-y-1 min-w-0">
+                        <!-- Activity Info -->
+                        <div class="space-y-1.5 min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-2">
-                                <h4 class="font-display font-black text-slate-900 text-sm sm:text-base leading-tight">
+                                <h4 class="font-display font-black text-slate-900 text-sm sm:text-base leading-snug tracking-tight">
                                     ${item.titre}
                                 </h4>
                                 ${item.responsable ? `
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${theme.tagBg}">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${theme.badgeBg}">
                                         ${item.responsable}
                                     </span>
                                 ` : ''}
                             </div>
-                            <p class="text-xs text-slate-600 leading-relaxed max-w-2xl font-light">
+                            <p class="text-xs text-slate-600 leading-relaxed font-normal">
                                 ${item.description || ''}
                             </p>
                         </div>
                     </div>
+
                     ${actionButtonsHTML}
                 </div>
             `;
