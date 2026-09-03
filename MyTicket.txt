@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTicket - Festival de la Jeunesse Chrétienne</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B132B',       /* Bleu foncé premium */
+                            darklight: '#1C2541',  /* Bleu foncé intermédiaire */
+                            orange: '#FF5722',     /* Rouge orangé dynamique */
+                            orangelight: '#FF7A50',/* Rouge orangé clair */
+                            soft: '#F4F7F6',       /* Fond doux */
+                            accent: '#3B82F6'      /* Accentuation secondaire */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.js"></script>
+    
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF5722;
+        }
+        
+        /* Custom Ticket Visual Elements */
+        .ticket-stub {
+            border-left: 2px dashed #e2e8f0;
+            position: relative;
+        }
+        .ticket-stub::before, .ticket-stub::after {
+            content: '';
+            position: absolute;
+            left: -9px;
+            width: 16px;
+            height: 16px;
+            background: #F8FAFC; /* Matches slate-50 background */
+            border-radius: 50%;
+        }
+        .ticket-stub::before { top: -8px; }
+        .ticket-stub::after { bottom: -8px; }
+        
+        /* Smooth view transitions */
+        .view-section {
+            transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+        }
+
+        /* Professional print layout inside sandboxed iframes */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #live-ticket-card, #live-ticket-card * {
+                visibility: visible;
+            }
+            #live-ticket-card {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%) scale(1.1);
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+                background-color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .ticket-stub::before, .ticket-stub::after {
+                background: white !important;
+            }
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 antialiased flex flex-col lg:flex-row overflow-hidden bg-slate-50">
+
+<div class="flex h-screen w-full overflow-hidden bg-slate-50">
+    
+    <!-- Sidebar Navigation Menu -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-brand-dark text-white transition-transform duration-300 transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto shrink-0">
+        
+        <!-- Sidebar Brand Header -->
+        <div class="flex h-20 items-center justify-between px-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-orange to-red-500 shadow-md shadow-brand-orange/30">
+                    <i data-lucide="ticket" class="h-5 w-5 text-white"></i>
+                </div>
+                <div>
+                    <span class="font-display text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-orangelight bg-clip-text text-transparent">MyTicket</span>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Édition Jeunesse</p>
+                </div>
+            </div>
+            <!-- Close Sidebar Action on Mobile -->
+            <button onclick="toggleMobileSidebar()" class="lg:hidden p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Navigation Buttons -->
+        <nav class="flex-1 space-y-1.5 px-4 py-6 overflow-y-auto">
+            <button onclick="switchView('accueil')" id="nav-accueil" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200">
+                <i data-lucide="home" class="h-5 w-5 shrink-0"></i>
+                <span>Accueil</span>
+            </button>
+
+            <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200">
+                <i data-lucide="layout-dashboard" class="h-5 w-5 shrink-0"></i>
+                <span>Tableau de bord</span>
+            </button>
+
+            <button onclick="switchView('ticket')" id="nav-ticket" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200">
+                <i data-lucide="ticket" class="h-5 w-5 shrink-0"></i>
+                <span>Mon Ticket</span>
+            </button>
+
+            <button onclick="switchView('historique')" id="nav-historique" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200">
+                <i data-lucide="history" class="h-5 w-5 shrink-0"></i>
+                <span>Historique</span>
+            </button>
+
+            <button onclick="switchView('liste')" id="nav-liste" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200">
+                <i data-lucide="users" class="h-5 w-5 shrink-0"></i>
+                <span>Participants</span>
+            </button>
+
+            <button onclick="switchView('organisation')" id="nav-organisation" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200">
+                <i data-lucide="calendar" class="h-5 w-5 shrink-0"></i>
+                <span>Organisation</span>
+            </button>
+
+            <button onclick="switchView('utilisateur')" id="nav-utilisateur" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200">
+                <i data-lucide="user" class="h-5 w-5 shrink-0"></i>
+                <span>Utilisateur</span>
+            </button>
+        </nav>
+
+        <!-- Sidebar Active User Profile Status Footer -->
+        <div class="p-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/40 transition duration-200 cursor-pointer" onclick="switchView('utilisateur')">
+                <div class="relative">
+                    <img id="sidebar-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Avatar" class="h-10 w-10 rounded-full object-cover ring-2 ring-brand-orange" onerror="this.src='https://placehold.co/100x100/FF5722/FFFFFF?text=SK'">
+                    <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-brand-dark bg-green-500"></span>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <h4 id="sidebar-user-name" class="text-sm font-semibold truncate">Sarah Kouadio</h4>
+                    <p class="text-xs text-slate-400 truncate">Membre Comité</p>
+                </div>
+                <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Central Application Framework Area -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="flex h-16 shrink-0 items-center justify-between bg-white px-6 border-b border-slate-200 lg:hidden shadow-sm">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMobileSidebar()" class="p-2 rounded-lg hover:bg-slate-100 text-slate-600 transition">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-orange text-white">
+                        <i data-lucide="ticket" class="h-4 w-4"></i>
+                    </div>
+                    <span class="font-display font-extrabold text-lg text-brand-dark">MyTicket</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="switchView('ticket')" class="bg-brand-orange text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm hover:bg-brand-orangelight transition">
+                    <i data-lucide="plus" class="h-3.5 w-3.5"></i> Inscription
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Page View Container -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto space-y-8">
+
+                <!-- HOME / ACCUEIL VIEW -->
+                <section id="view-accueil" class="view-section space-y-8">
+                    <!-- Hero Event Banner Card with high quality background visual -->
+                    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-dark via-brand-darklight to-slate-900 text-white p-6 sm:p-10 lg:p-12 shadow-2xl">
+                        <div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-25" style="background-image: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80')"></div>
+                        <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-brand-orange/25 blur-3xl pointer-events-none"></div>
+                        <div class="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-brand-accent/20 blur-3xl pointer-events-none"></div>
+                        
+                        <div class="relative z-10 max-w-2xl">
+                            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase bg-brand-orange text-white mb-6">
+                                <i data-lucide="sparkles" class="h-3.5 w-3.5"></i> Édition 2026
+                            </span>
+                            <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight mb-4">
+                                Festival de la <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange via-orange-400 to-amber-300">Jeunesse Chrétienne</span>
+                            </h1>
+                            <p class="text-slate-300 text-sm sm:text-base lg:text-lg mb-8 leading-relaxed font-light">
+                                Rejoignez des milliers de jeunes pour un week-end d'adoration, d'échanges fraternels, de concerts exceptionnels et de ressourcement. Thème de cette année : <strong class="text-white font-semibold">« Unis par la Foi, Forts par l'Esprit »</strong>.
+                            </p>
+                            <div class="flex flex-wrap gap-4">
+                                <button onclick="switchView('ticket')" class="px-6 py-3.5 rounded-xl bg-brand-orange hover:bg-brand-orangelight text-white font-bold text-sm shadow-xl shadow-brand-orange/35 hover:shadow-brand-orange/50 transition duration-300 flex items-center gap-2 transform hover:-translate-y-0.5">
+                                    <i data-lucide="ticket" class="h-5 w-5"></i> Obtenir mon Ticket
+                                </button>
+                                <button onclick="switchView('organisation')" class="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-sm transition duration-300 flex items-center gap-2">
+                                    <i data-lucide="info" class="h-5 w-5 text-brand-orangelight"></i> Infos pratiques
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Quick Navigation Grid with beautiful Unsplash photograph backgrounds -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="font-display text-xl font-extrabold text-brand-dark tracking-tight">Hub de Navigation Visuel</h2>
+                            <p class="text-xs text-slate-400 font-semibold uppercase">Cliquez sur un bouton illustré pour naviguer</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            
+                            <!-- NAV BUTTON: Dashboard -->
+                            <button onclick="switchView('dashboard')" class="group relative h-48 w-full overflow-hidden rounded-2xl text-left shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 focus:outline-none">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
+                                <div class="absolute top-4 right-4 h-10 w-10 rounded-xl bg-brand-orange/90 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                                </div>
+                                <div class="absolute bottom-5 left-5 right-5 text-white space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 rounded-lg bg-brand-orange text-white">
+                                            <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
+                                        </div>
+                                        <h3 class="font-display font-bold text-lg">Tableau de Bord</h3>
+                                    </div>
+                                    <p class="text-xs text-slate-300 font-light">Suivi en direct des entrées et statistiques globales.</p>
+                                </div>
+                            </button>
+
+                            <!-- NAV BUTTON: Mon Ticket -->
+                            <button onclick="switchView('ticket')" class="group relative h-48 w-full overflow-hidden rounded-2xl text-left shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 focus:outline-none">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
+                                <div class="absolute top-4 right-4 h-10 w-10 rounded-xl bg-brand-orange/90 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                                </div>
+                                <div class="absolute bottom-5 left-5 right-5 text-white space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 rounded-lg bg-brand-orange text-white">
+                                            <i data-lucide="ticket" class="h-5 w-5"></i>
+                                        </div>
+                                        <h3 class="font-display font-bold text-lg">Mon Ticket</h3>
+                                    </div>
+                                    <p class="text-xs text-slate-300 font-light">Générez un pass numérique ou physique personnalisé.</p>
+                                </div>
+                            </button>
+
+                            <!-- NAV BUTTON: Historique -->
+                            <button onclick="switchView('historique')" class="group relative h-48 w-full overflow-hidden rounded-2xl text-left shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 focus:outline-none">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1508962914676-134849a727f0?auto=format&fit=crop&w=600&q=80')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
+                                <div class="absolute top-4 right-4 h-10 w-10 rounded-xl bg-brand-orange/90 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                                </div>
+                                <div class="absolute bottom-5 left-5 right-5 text-white space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 rounded-lg bg-brand-orange text-white">
+                                            <i data-lucide="history" class="h-5 w-5"></i>
+                                        </div>
+                                        <h3 class="font-display font-bold text-lg">Historique</h3>
+                                    </div>
+                                    <p class="text-xs text-slate-300 font-light">Retrouvez toutes vos créations de tickets locales.</p>
+                                </div>
+                            </button>
+
+                            <!-- NAV BUTTON: Liste des Participants -->
+                            <button onclick="switchView('liste')" class="group relative h-48 w-full overflow-hidden rounded-2xl text-left shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 focus:outline-none">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
+                                <div class="absolute top-4 right-4 h-10 w-10 rounded-xl bg-brand-orange/90 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                                </div>
+                                <div class="absolute bottom-5 left-5 right-5 text-white space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 rounded-lg bg-brand-orange text-white">
+                                            <i data-lucide="users" class="h-5 w-5"></i>
+                                        </div>
+                                        <h3 class="font-display font-bold text-lg">Liste des Participants</h3>
+                                    </div>
+                                    <p class="text-xs text-slate-300 font-light">Gérez et filtrez la base de données des festivaliers.</p>
+                                </div>
+                            </button>
+
+                            <!-- NAV BUTTON: Organisation -->
+                            <button onclick="switchView('organisation')" class="group relative h-48 w-full overflow-hidden rounded-2xl text-left shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 focus:outline-none">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
+                                <div class="absolute top-4 right-4 h-10 w-10 rounded-xl bg-brand-orange/90 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                                </div>
+                                <div class="absolute bottom-5 left-5 right-5 text-white space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 rounded-lg bg-brand-orange text-white">
+                                            <i data-lucide="calendar" class="h-5 w-5"></i>
+                                        </div>
+                                        <h3 class="font-display font-bold text-lg">Organisation</h3>
+                                    </div>
+                                    <p class="text-xs text-slate-300 font-light">Découvrez le programme, les horaires et les contacts du comité.</p>
+                                </div>
+                            </button>
+
+                            <!-- NAV BUTTON: Utilisateur -->
+                            <button onclick="switchView('utilisateur')" class="group relative h-48 w-full overflow-hidden rounded-2xl text-left shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 focus:outline-none">
+                                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=600&q=80')"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
+                                <div class="absolute top-4 right-4 h-10 w-10 rounded-xl bg-brand-orange/90 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                                </div>
+                                <div class="absolute bottom-5 left-5 right-5 text-white space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 rounded-lg bg-brand-orange text-white">
+                                            <i data-lucide="user" class="h-5 w-5"></i>
+                                        </div>
+                                        <h3 class="font-display font-bold text-lg">Utilisateur</h3>
+                                    </div>
+                                    <p class="text-xs text-slate-300 font-light">Éditez les informations de votre profil administrateur local.</p>
+                                </div>
+                            </button>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DASHBOARD VIEW -->
+                <section id="view-dashboard" class="view-section hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="font-display text-2xl font-bold text-brand-dark">Tableau de Bord Global</h2>
+                            <p class="text-slate-500 text-sm">Suivi en direct du taux de remplissage et des inscriptions enregistrées.</p>
+                        </div>
+                        <div class="bg-white px-4 py-2 rounded-xl border border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-600 shadow-sm animate-pulse">
+                            <i data-lucide="clock" class="h-4 w-4 text-brand-orange"></i>
+                            <span id="dashboard-date">Mise à jour : En cours</span>
+                        </div>
+                    </div>
+
+                    <!-- Analytic widgets grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 bottom-0 translate-x-2 translate-y-2 opacity-5 group-hover:scale-110 transition duration-300 text-brand-dark">
+                                <i data-lucide="users" class="h-28 w-28"></i>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Inscriptions Totales</p>
+                                    <h3 id="stat-total-tickets" class="font-display text-3xl font-extrabold text-brand-dark mt-1">--</h3>
+                                </div>
+                                <span class="bg-brand-orange/10 text-brand-orange p-2.5 rounded-xl"><i data-lucide="ticket" class="h-5 w-5"></i></span>
+                            </div>
+                            <div class="mt-4 flex items-center gap-1.5 text-xs text-green-600 font-semibold">
+                                <i data-lucide="trending-up" class="h-4 w-4"></i>
+                                <span>Inscriptions en temps réel</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 bottom-0 translate-x-2 translate-y-2 opacity-5 group-hover:scale-110 transition duration-300 text-brand-dark">
+                                <i data-lucide="church" class="h-28 w-28"></i>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Églises Partenaires</p>
+                                    <h3 id="stat-total-churches" class="font-display text-3xl font-extrabold text-brand-dark mt-1">--</h3>
+                                </div>
+                                <span class="bg-indigo-50 text-indigo-600 p-2.5 rounded-xl"><i data-lucide="home" class="h-5 w-5"></i></span>
+                            </div>
+                            <div class="mt-4 flex items-center gap-1.5 text-xs text-indigo-600 font-semibold">
+                                <i data-lucide="layers" class="h-4 w-4"></i>
+                                <span>Diversité des communautés</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 bottom-0 translate-x-2 translate-y-2 opacity-5 group-hover:scale-110 transition duration-300 text-brand-dark">
+                                <i data-lucide="check-circle" class="h-28 w-28"></i>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Objectif de Remplissage</p>
+                                    <h3 id="stat-rate" class="font-display text-3xl font-extrabold text-brand-dark mt-1">--</h3>
+                                </div>
+                                <span class="bg-emerald-50 text-emerald-600 p-2.5 rounded-xl"><i data-lucide="check-circle" class="h-5 w-5"></i></span>
+                            </div>
+                            <div class="mt-4 w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                <div id="stat-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                            <div class="absolute right-0 bottom-0 translate-x-2 translate-y-2 opacity-5 group-hover:scale-110 transition duration-300 text-brand-dark">
+                                <i data-lucide="mail" class="h-28 w-28"></i>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Délivrance Mail</p>
+                                    <h3 id="stat-emails" class="font-display text-3xl font-extrabold text-brand-dark mt-1">100%</h3>
+                                </div>
+                                <span class="bg-amber-50 text-amber-500 p-2.5 rounded-xl"><i data-lucide="mail" class="h-5 w-5"></i></span>
+                            </div>
+                            <div class="mt-4 flex items-center gap-1.5 text-xs text-amber-600 font-semibold">
+                                <i data-lucide="shield" class="h-4 w-4"></i>
+                                <span>Canaux 100% sécurisés</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic graphic charts row -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-display font-bold text-slate-800 text-lg">Inscriptions par jour</h3>
+                                <span class="text-xs text-slate-400 font-semibold">Statistiques d'affluence</span>
+                            </div>
+                            <div class="h-64 flex items-end justify-between gap-4 pt-4 px-2">
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="text-[10px] font-bold text-slate-400">12 tickets</div>
+                                    <div class="w-full bg-slate-100 hover:bg-slate-200 rounded-lg h-16 transition-all duration-300 relative group">
+                                        <div class="absolute bottom-0 inset-x-0 bg-brand-orange/60 group-hover:bg-brand-orange rounded-lg h-[40%] transition-all"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-slate-500">Lun</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="text-[10px] font-bold text-slate-400">18 tickets</div>
+                                    <div class="w-full bg-slate-100 hover:bg-slate-200 rounded-lg h-32 transition-all duration-300 relative group">
+                                        <div class="absolute bottom-0 inset-x-0 bg-brand-orange/60 group-hover:bg-brand-orange rounded-lg h-[60%] transition-all"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-slate-500">Mar</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="text-[10px] font-bold text-slate-400">25 tickets</div>
+                                    <div class="w-full bg-slate-100 hover:bg-slate-200 rounded-lg h-44 transition-all duration-300 relative group">
+                                        <div class="absolute bottom-0 inset-x-0 bg-brand-orange/60 group-hover:bg-brand-orange rounded-lg h-[80%] transition-all"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-slate-500">Mer</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="text-[10px] font-bold text-slate-400">21 tickets</div>
+                                    <div class="w-full bg-slate-100 hover:bg-slate-200 rounded-lg h-36 transition-all duration-300 relative group">
+                                        <div class="absolute bottom-0 inset-x-0 bg-brand-orange/60 group-hover:bg-brand-orange rounded-lg h-[70%] transition-all"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-slate-500">Jeu</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center gap-2">
+                                    <div class="text-[10px] font-bold text-slate-400">48 tickets</div>
+                                    <div class="w-full bg-slate-100 hover:bg-slate-200 rounded-lg h-56 transition-all duration-300 relative group">
+                                        <div class="absolute bottom-0 inset-x-0 bg-brand-orange rounded-lg h-full transition-all"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-brand-orange">Ven</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top affiliated churches leader list -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                            <h3 class="font-display font-bold text-slate-800 text-lg">Top Églises représentées</h3>
+                            <div class="space-y-4" id="dashboard-top-churches">
+                                <!-- Dynamic church values injected by javascript -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MON TICKET / GENERATOR VIEW -->
+                <section id="view-ticket" class="view-section hidden space-y-6">
+                    <div class="text-center max-w-xl mx-auto space-y-2">
+                        <h2 class="font-display text-3xl font-bold text-brand-dark">Génération de Ticket</h2>
+                        <p class="text-slate-500 text-sm">Complétez le formulaire ci-dessous pour obtenir instantanément votre pass numérique unique.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                        
+                        <!-- Left inputs registration form card -->
+                        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm lg:col-span-5 space-y-6">
+                            <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+                                <div class="h-10 w-10 rounded-xl bg-orange-50 text-brand-orange flex items-center justify-center">
+                                    <i data-lucide="clipboard-list" class="h-5 w-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-brand-dark">Formulaire d'Inscription</h3>
+                                    <p class="text-xs text-slate-400">Tous les champs marqués d'une astérisque (*) sont requis</p>
+                                </div>
+                            </div>
+
+                            <form id="ticket-generation-form" onsubmit="generateNewTicket(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Nom *</label>
+                                        <input type="text" id="form-nom" required placeholder="Ex. Kouadio" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition text-sm">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Prénom *</label>
+                                        <input type="text" id="form-prenom" required placeholder="Ex. Jean-Eudes" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition text-sm">
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Contact 1 (WhatsApp) *</label>
+                                    <input type="tel" id="form-contact1" required placeholder="+225 07 08 09 10 11" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition text-sm">
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Contact 2</label>
+                                    <input type="tel" id="form-contact2" placeholder="+225 01 02 03 04 05" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition text-sm">
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Adresse E-mail *</label>
+                                    <input type="email" id="form-email" required placeholder="jeaneudes@gmail.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition text-sm">
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Église d'Origine *</label>
+                                    <input type="text" id="form-eglise" required placeholder="Ex. Assemblée de Dieu Angré" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition text-sm">
+                                </div>
+
+                                <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-brand-orange hover:bg-brand-orangelight text-white font-bold text-sm shadow-lg shadow-brand-orange/20 hover:shadow-brand-orange/40 transition duration-300 flex items-center justify-center gap-2 transform active:scale-95">
+                                    <i data-lucide="ticket" class="h-5 w-5"></i> Générer mon Pass d'Accès
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Real-time Ticket Preview -->
+                        <div class="lg:col-span-7 flex flex-col items-center justify-center space-y-6">
+                            
+                            <div class="w-full text-left">
+                                <span class="text-xs font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Aperçu en Temps Réel</span>
+                                <h4 class="font-display text-lg font-bold text-brand-dark">Votre Billet d'Entrée Officiel</h4>
+                            </div>
+
+                            <!-- Styled Visual Ticket Card to print directly -->
+                            <div id="live-ticket-card" class="w-full max-w-2xl bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-xl shadow-slate-100 flex flex-col sm:flex-row min-h-[250px] relative transition-all duration-300 hover:scale-[1.01]">
+                                
+                                <div class="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-b from-brand-orange to-red-500 hidden sm:block"></div>
+
+                                <!-- Left side main details inside ticket card -->
+                                <div class="flex-1 p-6 sm:pl-8 sm:pr-6 flex flex-col justify-between space-y-6">
+                                    <div class="flex justify-between items-start">
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2">
+                                                <div class="h-6 w-6 rounded bg-brand-orange text-white flex items-center justify-center">
+                                                    <i data-lucide="plus" class="h-3.5 w-3.5"></i>
+                                                </div>
+                                                <span class="font-display font-black text-brand-dark tracking-tight text-sm">FESTIVAL JEUNESSE 2026</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-400 uppercase font-semibold">« Unis par la Foi, Forts par l'Esprit »</p>
+                                        </div>
+                                        <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-brand-orange/10 text-brand-orange uppercase">PASS ACCÈS</span>
+                                    </div>
+
+                                    <!-- Core individual credentials -->
+                                    <div class="grid grid-cols-2 gap-y-4 gap-x-2 border-t border-b border-slate-100 py-4">
+                                        <div>
+                                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Participant</p>
+                                            <h4 id="ticket-display-name" class="text-sm font-bold text-brand-dark">-- Non Renseigné --</h4>
+                                        </div>
+                                        <div>
+                                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Église d'Origine</p>
+                                            <h4 id="ticket-display-church" class="text-xs font-bold text-slate-600 truncate">-- Non Renseigné --</h4>
+                                        </div>
+                                        <div>
+                                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Contacts</p>
+                                            <h4 id="ticket-display-contact" class="text-xs font-bold text-slate-600">-- Non Renseigné --</h4>
+                                        </div>
+                                        <div>
+                                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Adresse E-mail</p>
+                                            <h4 id="ticket-display-email" class="text-xs font-bold text-slate-600 truncate">-- Non Renseigné --</h4>
+                                        </div>
+                                    </div>
+
+                                    <!-- Event metadata -->
+                                    <div class="flex justify-between items-center text-[10px] font-semibold text-slate-400">
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="calendar" class="h-3.5 w-3.5 text-brand-orange"></i>
+                                            <span>Sam. 14 Nov. 2026 à 14h</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="h-3.5 w-3.5 text-brand-orange"></i>
+                                            <span>Palais de la Culture, Abidjan</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ticket Stub section -->
+                                <div class="ticket-stub bg-slate-50/50 p-6 flex flex-col justify-between items-center text-center w-full sm:w-48 border-t-2 border-dashed sm:border-t-0 sm:border-l-2 border-slate-200">
+                                    <div class="space-y-1">
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">RÉFÉRENCE</p>
+                                        <span id="ticket-display-ref" class="text-xs font-mono font-bold text-brand-dark bg-slate-100 px-2.5 py-1 rounded-md">#MYT-0000</span>
+                                    </div>
+
+                                    <!-- Generative Mock SVG QR Code representation -->
+                                    <div class="my-4 p-2 bg-white rounded-xl shadow-inner border border-slate-100">
+                                        <svg id="ticket-qr" class="w-24 h-24 text-slate-800" viewBox="0 0 100 100">
+                                            <rect x="10" y="10" width="20" height="20" fill="#0B132B"/>
+                                            <rect x="15" y="15" width="10" height="10" fill="white"/>
+                                            <rect x="70" y="10" width="20" height="20" fill="#0B132B"/>
+                                            <rect x="75" y="15" width="10" height="10" fill="white"/>
+                                            <rect x="10" y="70" width="20" height="20" fill="#0B132B"/>
+                                            <rect x="15" y="75" width="10" height="10" fill="white"/>
+                                        </svg>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase font-sans">Statut</p>
+                                        <span id="ticket-display-status" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 uppercase tracking-wide">En attente</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Print and Download active trigger buttons -->
+                            <div class="flex flex-wrap gap-4 justify-center w-full max-w-2xl">
+                                <button onclick="printTicket()" id="btn-print-ticket" disabled class="px-5 py-2.5 rounded-xl border border-slate-200 hover:border-brand-orange bg-white text-slate-600 hover:text-brand-orange font-semibold text-sm transition duration-200 flex items-center gap-2 opacity-50 cursor-not-allowed">
+                                    <i data-lucide="printer" class="h-4.5 w-4.5"></i> Imprimer mon ticket
+                                </button>
+                                <button onclick="downloadTicketImage()" id="btn-download-ticket" disabled class="px-5 py-2.5 rounded-xl bg-brand-dark hover:bg-slate-800 text-white font-semibold text-sm transition duration-200 flex items-center gap-2 shadow-md opacity-50 cursor-not-allowed">
+                                    <i data-lucide="download" class="h-4.5 w-4.5"></i> Télécharger le pass (TXT)
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- HISTORIQUE VIEW -->
+                <section id="view-historique" class="view-section hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="font-display text-2xl font-bold text-brand-dark">Vos Enregistrements Récents</h2>
+                            <p class="text-slate-500 text-sm">Gérez et réimprimez rapidement les pass enregistrés sur ce terminal.</p>
+                        </div>
+                        <button onclick="clearHistory()" class="text-xs font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i> Effacer l'historique local
+                        </button>
+                    </div>
+
+                    <!-- History dynamic collection card layout -->
+                    <div id="historique-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Dynamic items injected via script -->
+                    </div>
+
+                    <!-- History empty placeholder fallback -->
+                    <div id="historique-empty-state" class="hidden flex flex-col items-center justify-center text-center p-12 bg-white rounded-3xl border border-dashed border-slate-200 space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-full text-slate-300">
+                            <i data-lucide="history" class="h-12 w-12"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-brand-dark text-lg">Aucun historique trouvé</h4>
+                            <p class="text-slate-400 text-sm max-w-sm mx-auto mt-1">Vous n'avez pas encore généré de tickets. Allez dans l'onglet "Mon Ticket" pour vous enregistrer.</p>
+                        </div>
+                        <button onclick="switchView('ticket')" class="px-5 py-2.5 bg-brand-orange text-white rounded-xl font-semibold text-sm shadow-md hover:bg-brand-orangelight transition">
+                            Créer un pass d'accès
+                        </button>
+                    </div>
+                </section>
+
+                <!-- LISTE DES PARTICIPANTS VIEW -->
+                <section id="view-liste" class="view-section hidden space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 class="font-display text-2xl font-bold text-brand-dark">Liste des Participants</h2>
+                            <p class="text-slate-500 text-sm">Base de données globale pour le contrôle des accès.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="exportToCsv()" class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                                <i data-lucide="file-spreadsheet" class="h-4 w-4 text-emerald-600"></i> Exporter en Excel / CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtering toolbar -->
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
+                        <div class="relative flex-1 w-full">
+                            <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400"></i>
+                            <input type="text" id="search-participants-input" oninput="filterParticipants()" placeholder="Rechercher par nom, église, email, contact..." class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange transition text-sm">
+                        </div>
+                        <div class="w-full sm:w-56 shrink-0">
+                            <select id="filter-church-select" onchange="filterParticipants()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange bg-white transition text-sm text-slate-600 font-medium">
+                                <option value="">Toutes les Églises</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Attendees Data Table container -->
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                                        <th class="py-4 px-6">Réf ID</th>
+                                        <th class="py-4 px-6">Nom Complet</th>
+                                        <th class="py-4 px-6">Église d'origine</th>
+                                        <th class="py-4 px-6">Contacts</th>
+                                        <th class="py-4 px-6">Adresse E-mail</th>
+                                        <th class="py-4 px-6 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="participants-table-body" class="divide-y divide-slate-50 text-sm">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Data table empty fallback state -->
+                        <div id="table-empty-state" class="hidden flex flex-col items-center justify-center text-center p-12 bg-white space-y-3">
+                            <div class="p-3.5 bg-slate-50 rounded-full text-slate-300">
+                                <i data-lucide="search" class="h-8 w-8"></i>
+                            </div>
+                            <h4 class="font-bold text-brand-dark">Aucun résultat trouvé</h4>
+                            <p class="text-slate-400 text-xs max-w-xs">Modifiez les filtres ou lancez une nouvelle recherche.</p>
+                        </div>
+
+                        <!-- Table Footer pagination info -->
+                        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-400 font-semibold uppercase">
+                            <div id="table-showing-text">Affichage de 0 participants</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ORGANISATION VIEW -->
+                <section id="view-organisation" class="view-section hidden space-y-8">
+                    <div class="relative overflow-hidden rounded-3xl bg-brand-dark p-6 sm:p-10 text-white flex flex-col lg:flex-row gap-8 items-center">
+                        <div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-30" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80')"></div>
+                        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-orange/20 via-brand-darklight to-brand-dark opacity-60"></div>
+                        <div class="relative z-10 flex-1 space-y-4">
+                            <div class="inline-flex items-center gap-1 bg-white/10 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-brand-orangelight">
+                                <i data-lucide="info" class="h-3.5 w-3.5"></i> Fiche Logistique
+                            </div>
+                            <h2 class="font-display text-2xl sm:text-3xl font-black">Informations Organisationnelles</h2>
+                            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
+                                Le comité de coordination est à votre entière disposition pour simplifier votre intégration et faciliter les arrivées collectives.
+                            </p>
+                        </div>
+                        <div class="relative z-10 shrink-0 w-full lg:w-auto grid grid-cols-2 gap-4">
+                            <div class="bg-white/5 border border-white/10 p-4 rounded-2xl text-center backdrop-blur-sm">
+                                <p class="text-3xl font-bold text-brand-orange">14</p>
+                                <p class="text-[10px] text-slate-400 font-semibold uppercase mt-0.5">Novembre 2026</p>
+                            </div>
+                            <div class="bg-white/5 border border-white/10 p-4 rounded-2xl text-center backdrop-blur-sm">
+                                <p class="text-3xl font-bold text-blue-400">14:00</p>
+                                <p class="text-[10px] text-slate-400 font-semibold uppercase mt-0.5">Ouverture des Portes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timelines and contacts directory -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm md:col-span-7 space-y-6">
+                            <h3 class="font-display font-bold text-brand-dark text-lg border-b border-slate-100 pb-3">Programme Officiel</h3>
+                            
+                            <div class="space-y-6">
+                                <div class="flex gap-4">
+                                    <div class="shrink-0 flex flex-col items-center">
+                                        <div class="w-8 h-8 rounded-full bg-orange-100 text-brand-orange flex items-center justify-center font-bold text-sm">1</div>
+                                        <div class="w-0.5 bg-slate-100 flex-1 my-1"></div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <span class="text-[11px] font-bold text-slate-400">14h00 - 15h00</span>
+                                        <h4 class="font-bold text-brand-dark text-sm">Accueil des délégations & Églises</h4>
+                                        <p class="text-xs text-slate-500">Validation rapide des codes QR par scan, distribution des supports d'accueil.</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-4">
+                                    <div class="shrink-0 flex flex-col items-center">
+                                        <div class="w-8 h-8 rounded-full bg-orange-100 text-brand-orange flex items-center justify-center font-bold text-sm">2</div>
+                                        <div class="w-0.5 bg-slate-100 flex-1 my-1"></div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <span class="text-[11px] font-bold text-slate-400">15h00 - 17h00</span>
+                                        <h4 class="font-bold text-brand-dark text-sm">Sessions Thématiques & Louange</h4>
+                                        <p class="text-xs text-slate-500">Conférences interactives par ateliers suivies d'un moment puissant d'Adoration.</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-4">
+                                    <div class="shrink-0 flex flex-col items-center">
+                                        <div class="w-8 h-8 rounded-full bg-orange-100 text-brand-orange flex items-center justify-center font-bold text-sm">3</div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <span class="text-[11px] font-bold text-slate-400">17h00 - 20h00</span>
+                                        <h4 class="font-bold text-brand-dark text-sm">Méga Concert & Envoi Final</h4>
+                                        <p class="text-xs text-slate-500">Prestations des chantres, mots de remerciements du comité et bénédiction.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Organization leadership display card -->
+                        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm md:col-span-5 space-y-6">
+                            <h3 class="font-display font-bold text-brand-dark text-lg border-b border-slate-100 pb-3">Comité de Pilotage</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="h-10 w-10 rounded-xl object-cover ring-2 ring-slate-100" alt="Sarah Kouadio" onerror="this.src='https://placehold.co/100x100/FF5722/FFFFFF?text=SK'">
+                                    <div>
+                                        <h4 class="text-sm font-bold text-brand-dark">Sarah Kouadio</h4>
+                                        <p class="text-xs text-slate-400">Coordination & Relations Églises</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" class="h-10 w-10 rounded-xl object-cover ring-2 ring-slate-100" alt="Yao Marc" onerror="this.src='https://placehold.co/100x100/FF5722/FFFFFF?text=YM'">
+                                    <div>
+                                        <h4 class="text-sm font-bold text-brand-dark">Yao Marc-Emmanuel</h4>
+                                        <p class="text-xs text-slate-400">Président du Comité d'Organisation</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" class="h-10 w-10 rounded-xl object-cover ring-2 ring-slate-100" alt="Aude Koffi" onerror="this.src='https://placehold.co/100x100/FF5722/FFFFFF?text=AK'">
+                                    <div>
+                                        <h4 class="text-sm font-bold text-brand-dark">Aude-Eunice Koffi</h4>
+                                        <p class="text-xs text-slate-400">Trésorerie & Logistique Générale</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
+                                <h4 class="text-xs font-extrabold text-slate-500 uppercase tracking-wide">Secrétariat permanent</h4>
+                                <div class="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                                    <i data-lucide="phone" class="h-4 w-4 text-brand-orange shrink-0"></i>
+                                    <span>+225 07 45 45 45 00</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                                    <i data-lucide="mail" class="h-4 w-4 text-brand-orange shrink-0"></i>
+                                    <span>support@myticket-jeunesse.ci</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- UTILISATEUR / PROFILE VIEW -->
+                <section id="view-utilisateur" class="view-section hidden space-y-6">
+                    <div class="max-w-3xl mx-auto space-y-8">
+                        <div>
+                            <h2 class="font-display text-2xl font-bold text-brand-dark">Mon Profil Organisateur</h2>
+                            <p class="text-slate-500 text-sm">Gérez les paramètres de votre session administrative locale.</p>
+                        </div>
+
+                        <!-- Administrative user editing interface card -->
+                        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                            <div class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100">
+                                <div class="relative group">
+                                    <img id="profile-display-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="h-24 w-24 rounded-3xl object-cover ring-4 ring-brand-orange/35 shadow-lg group-hover:opacity-90 transition duration-300" alt="Sarah Profile" onerror="this.src='https://placehold.co/150x150/FF5722/FFFFFF?text=SK'">
+                                    <label for="avatar-input-file" class="absolute bottom-1 right-1 bg-brand-orange text-white p-1.5 rounded-xl cursor-pointer hover:bg-brand-orangelight shadow-md transition transform hover:scale-110">
+                                        <i data-lucide="camera" class="h-4 w-4"></i>
+                                    </label>
+                                    <input type="file" id="avatar-input-file" class="hidden" accept="image/*" onchange="uploadAvatarImage(event)">
+                                </div>
+
+                                <div class="flex-1 text-center sm:text-left space-y-1">
+                                    <div class="flex flex-col sm:flex-row items-center gap-2 justify-center sm:justify-start">
+                                        <h3 id="profile-display-name" class="font-display text-xl font-bold text-brand-dark">Sarah Kouadio</h3>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-orange/10 text-brand-orange uppercase">Session Active</span>
+                                    </div>
+                                    <p class="text-slate-500 text-sm">Rôle : Comité d'Organisation</p>
+                                    <p class="text-slate-400 text-xs">Modifié : Aujourd'hui</p>
+                                </div>
+                            </div>
+
+                            <!-- User update data form -->
+                            <form onsubmit="saveUserProfile(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-500 uppercase">Nom Complet</label>
+                                        <input type="text" id="settings-name" required value="Sarah Kouadio" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange text-sm">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-xs font-bold text-slate-500 uppercase">Rôle Affiché</label>
+                                        <input type="text" id="settings-role" required value="Membre Comité" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange text-sm">
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-bold text-slate-500 uppercase">Adresse E-mail de Session</label>
+                                    <input type="email" id="settings-email" required value="sarah.kouadio@myticket-jeunesse.ci" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-orange/40 focus:border-brand-orange text-sm">
+                                </div>
+
+                                <div class="pt-2 flex justify-end">
+                                    <button type="submit" class="px-6 py-2.5 bg-brand-orange hover:bg-brand-orangelight text-white rounded-xl font-bold text-sm shadow-md transition duration-200 flex items-center gap-2">
+                                        <i data-lucide="save" class="h-4.5 w-4.5"></i> Enregistrer les Modifications
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Toast Notification Overlay -->
+<div id="toast-notification" class="fixed bottom-6 right-6 z-50 bg-brand-dark text-white p-4 rounded-2xl shadow-xl border border-slate-800 flex items-center gap-3.5 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none max-w-sm">
+    <div id="toast-icon-bg" class="p-2 bg-brand-orange text-white rounded-xl">
+        <i id="toast-icon" data-lucide="check" class="h-5 w-5"></i>
+    </div>
+    <div class="flex-1 pr-4">
+        <h4 id="toast-title" class="text-sm font-bold">Succès !</h4>
+        <p id="toast-message" class="text-xs text-slate-300 mt-0.5">Opération effectuée.</p>
+    </div>
+</div>
+
+<!-- Custom Sandbox Print Helper Modal -->
+<div id="print-helper-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm hidden transition-all duration-300">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100 flex flex-col">
+        <!-- Modal header -->
+        <div class="bg-brand-dark text-white p-6 flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="p-1.5 bg-brand-orange rounded-lg">
+                    <i data-lucide="printer" class="h-5 w-5 text-white"></i>
+                </div>
+                <h3 class="font-display font-bold text-lg">Assistance Impression</h3>
+            </div>
+            <button onclick="closePrintModal()" class="text-slate-400 hover:text-white transition">
+                <i data-lucide="x" class="h-5 w-5"></i>
+            </button>
+        </div>
+        <!-- Modal body -->
+        <div class="p-6 space-y-4">
+            <p class="text-slate-600 text-sm leading-relaxed">
+                Le navigateur bloque l'accès direct aux fonctions d'impression du système dans cet environnement d'exécution (bac à sable).
+            </p>
+            
+            <div class="bg-orange-50 border border-brand-orange/20 p-4 rounded-2xl space-y-2">
+                <h4 class="text-xs font-bold text-brand-orange uppercase">Solutions de Secours</h4>
+                <ol class="text-xs text-slate-700 list-decimal pl-4 space-y-1 leading-relaxed">
+                    <li>Utilisez le bouton <strong class="text-brand-dark">Copier les détails</strong> pour copier le reçu complet.</li>
+                    <li>Faites une capture d'écran du billet affiché en arrière-plan.</li>
+                    <li>Utilisez la fonction d'impression native de votre navigateur (raccourci <kbd class="px-1.5 py-0.5 bg-slate-200 rounded font-semibold text-[10px]">Ctrl + P</kbd> ou <kbd class="px-1.5 py-0.5 bg-slate-200 rounded font-semibold text-[10px]">Cmd + P</kbd>).</li>
+                </ol>
+            </div>
+            
+            <div id="print-ticket-raw-preview" class="p-3 bg-slate-50 rounded-xl border border-slate-100 max-h-36 overflow-y-auto text-[11px] font-mono text-slate-500 whitespace-pre-wrap">
+                <!-- Fallback plain text loaded here dynamically -->
+            </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="bg-slate-50 px-6 py-4 flex gap-3 justify-end">
+            <button onclick="closePrintModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-100 transition">
+                Fermer
+            </button>
+            <button onclick="copyTicketDetailsFallback()" class="px-4 py-2 bg-brand-orange hover:bg-brand-orangelight text-white rounded-xl text-xs font-semibold shadow-md transition flex items-center gap-1.5">
+                <i data-lucide="copy" class="h-3.5 w-3.5"></i> Copier les détails
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // State management
+    let state = {
+        participants: [],
+        currentTicket: null,
+        user: {
+            name: "Sarah Kouadio",
+            role: "Membre Comité",
+            email: "sarah.kouadio@myticket-jeunesse.ci",
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        }
+    };
+
+    // Preloaded robust datasets of mock attendees
+    const MOCK_PARTICIPANTS = [
+        { id: "MYT-1042", nom: "N'Guessan", prenom: "Koffi Marc", contact1: "+225 07 45 89 65 32", contact2: "", email: "marc.nguessan@gmail.com", eglise: "Assemblée de Dieu Angré", dateAdded: "2026-07-01T14:32:00Z" },
+        { id: "MYT-1043", nom: "Konan", prenom: "Awa Estelle", contact1: "+225 05 12 45 78 96", contact2: "+225 01 02 03 04", email: "estelle.konan@gmail.com", eglise: "Baptiste Oeuvres", dateAdded: "2026-07-02T10:15:00Z" },
+        { id: "MYT-1044", nom: "Bamba", prenom: "Ibrahim Samuel", contact1: "+225 01 44 55 66 77", contact2: "", email: "samuel.bamba@outlook.com", eglise: "Méthodiste Unie Cocody", dateAdded: "2026-07-03T16:45:00Z" },
+        { id: "MYT-1045", nom: "Koffi", prenom: "Ruth Emmanuelle", contact1: "+225 07 00 22 33 44", contact2: "+225 05 55 66 77", email: "ruth.koffi@yahoo.fr", eglise: "Cité de Grâce", dateAdded: "2026-07-04T09:05:00Z" },
+        { id: "MYT-1046", nom: "Diomandé", prenom: "Ange David", contact1: "+225 07 77 88 99 00", contact2: "", email: "ange.diomande@gmail.com", eglise: "Assemblée de Dieu Plateau", dateAdded: "2026-07-05T11:20:00Z" },
+        { id: "MYT-1047", nom: "Zouzouko", prenom: "Marie-Grace", contact1: "+225 05 99 88 77 66", contact2: "", email: "mgracez@gmail.com", eglise: "Baptiste Oeuvres", dateAdded: "2026-07-05T15:10:00Z" },
+        { id: "MYT-1048", nom: "Dago", prenom: "Emmanuel", contact1: "+225 01 11 22 33 44", contact2: "", email: "dago.emmanuel@gmail.com", eglise: "Foursquare Marcory", dateAdded: "2026-07-06T18:30:00Z" }
+    ];
+
+    // On Load App Initialization
+    window.onload = function() {
+        // Safe loading sequences wrapping localStorage checks
+        loadStoredUser();
+        initializeParticipantsData();
+        
+        // Setup base views routers
+        switchView('accueil');
+        updateDashboardStats();
+        renderParticipantsTable();
+        populateChurchFilterOptions();
+        
+        // Init Lucide engine securely
+        initializeLucideIcons();
+    };
+
+    // Helper to safely initialize and refresh Lucide icons
+    function initializeLucideIcons() {
+        try {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        } catch (error) {
+            console.error("Lucide icons failed to load:", error);
+        }
+    }
+
+    function loadStoredUser() {
+        try {
+            const storedUser = localStorage.getItem('myticket_user');
+            if (storedUser) {
+                state.user = JSON.parse(storedUser);
+            }
+        } catch (e) {
+            console.warn("Storage profile reading blocked or inaccessible.", e);
+        }
+        applyUserStatesUI();
+    }
+
+    // Map profile changes to layout elements
+    function applyUserStatesUI() {
+        document.getElementById('sidebar-user-name').innerText = state.user.name;
+        document.getElementById('sidebar-user-avatar').src = state.user.avatar;
+        document.getElementById('profile-display-name').innerText = state.user.name;
+        document.getElementById('profile-display-avatar').src = state.user.avatar;
+        document.getElementById('settings-name').value = state.user.name;
+        document.getElementById('settings-role').value = state.user.role;
+        document.getElementById('settings-email').value = state.user.email;
+    }
+
+    function initializeParticipantsData() {
+        try {
+            const storedParticipants = localStorage.getItem('myticket_participants_v3');
+            if (storedParticipants) {
+                state.participants = JSON.parse(storedParticipants);
+            } else {
+                state.participants = [...MOCK_PARTICIPANTS];
+                localStorage.setItem('myticket_participants_v3', JSON.stringify(state.participants));
+            }
+        } catch (e) {
+            state.participants = [...MOCK_PARTICIPANTS];
+            console.warn("Storage writing blocked, fallback to active state arrays only.", e);
+        }
+    }
+
+    // Dynamic router switching
+    function switchView(viewName) {
+        document.querySelectorAll('.view-section').forEach(section => {
+            section.classList.add('hidden');
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(10px)';
+        });
+        
+        const targetSection = document.getElementById(`view-${viewName}`);
+        if (targetSection) {
+            targetSection.classList.remove('hidden');
+            setTimeout(() => {
+                targetSection.style.opacity = '1';
+                targetSection.style.transform = 'translateY(0)';
+            }, 50);
+        }
+        
+        // Handle Sidebar selected states highlighting classes
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.className = "nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-slate-300 hover:bg-slate-800/60 hover:text-white";
+        });
+        
+        const activeNavBtn = document.getElementById(`nav-${viewName}`);
+        if (activeNavBtn) {
+            activeNavBtn.className = "nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-brand-orange text-white shadow-lg shadow-brand-orange/15";
+        }
+        
+        // Auto fold sidebar on mobile routing
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.add('-translate-x-full');
+        }
+
+        // View refresh hooks
+        if (viewName === 'dashboard') {
+            updateDashboardStats();
+        } else if (viewName === 'historique') {
+            renderHistoryList();
+        } else if (viewName === 'liste') {
+            renderParticipantsTable();
+            populateChurchFilterOptions();
+        }
+        
+        document.querySelector('main').scrollTop = 0;
+        initializeLucideIcons();
+    }
+
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.remove('-translate-x-full');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+        }
+    }
+
+    function showNotification(title, message, type = 'success') {
+        const toast = document.getElementById('toast-notification');
+        const iconBg = document.getElementById('toast-icon-bg');
+        const icon = document.getElementById('toast-icon');
+        const titleEl = document.getElementById('toast-title');
+        const descEl = document.getElementById('toast-message');
+        
+        titleEl.innerText = title;
+        descEl.innerText = message;
+        
+        if (type === 'success') {
+            iconBg.className = "p-2 bg-emerald-500 text-white rounded-xl";
+            icon.setAttribute('data-lucide', 'check-circle');
+        } else if (type === 'info') {
+            iconBg.className = "p-2 bg-blue-500 text-white rounded-xl";
+            icon.setAttribute('data-lucide', 'info');
+        } else {
+            iconBg.className = "p-2 bg-red-500 text-white rounded-xl";
+            icon.setAttribute('data-lucide', 'alert-triangle');
+        }
+        
+        initializeLucideIcons();
+        toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+        }, 3500);
+    }
+
+    // Generates a deterministic custom QR grid based on registration code hash
+    function generateQRGrid(ticketId) {
+        const svg = document.getElementById('ticket-qr');
+        if (!svg) return;
+        
+        let hash = 0;
+        for (let i = 0; i < ticketId.length; i++) {
+            hash = ticketId.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        
+        let qrContent = '';
+        // Draw top-left positioning square
+        qrContent += `<rect x="5" y="5" width="22" height="22" fill="#0B132B" rx="2"/>`;
+        qrContent += `<rect x="9" y="9" width="14" height="14" fill="white" rx="1"/>`;
+        qrContent += `<rect x="12" y="12" width="8" height="8" fill="#0B132B" rx="0.5"/>`;
+        
+        // Draw top-right positioning square
+        qrContent += `<rect x="73" y="5" width="22" height="22" fill="#0B132B" rx="2"/>`;
+        qrContent += `<rect x="77" y="9" width="14" height="14" fill="white" rx="1"/>`;
+        qrContent += `<rect x="80" y="12" width="8" height="8" fill="#0B132B" rx="0.5"/>`;
+        
+        // Draw bottom-left positioning square
+        qrContent += `<rect x="5" y="73" width="22" height="22" fill="#0B132B" rx="2"/>`;
+        qrContent += `<rect x="9" y="77" width="14" height="14" fill="white" rx="1"/>`;
+        qrContent += `<rect x="12" y="80" width="8" height="8" fill="#0B132B" rx="0.5"/>`;
+        
+        // Populate random-looking grid bits dependent on seeded hash
+        for (let row = 0; row < 13; row++) {
+            for (let col = 0; col < 13; col++) {
+                // Keep corner positioning squares pristine and unmodified
+                if ((row < 4 && col < 4) || (row < 4 && col > 8) || (row > 8 && col < 4)) {
+                    continue;
+                }
+                
+                const factorValue = Math.abs(Math.sin(hash + (row * 13) + (col * 31)));
+                if (factorValue > 0.45) {
+                    const x = 5 + (col * 7);
+                    const y = 5 + (row * 7);
+                    qrContent += `<rect x="${x}" y="${y}" width="5" height="5" fill="#0B132B" rx="0.5"/>`;
+                }
+            }
+        }
+        svg.innerHTML = qrContent;
+    }
+
+    function generateNewTicket(event) {
+        event.preventDefault();
+        
+        const nom = document.getElementById('form-nom').value.trim();
+        const prenom = document.getElementById('form-prenom').value.trim();
+        const contact1 = document.getElementById('form-contact1').value.trim();
+        const contact2 = document.getElementById('form-contact2').value.trim();
+        const email = document.getElementById('form-email').value.trim();
+        const eglise = document.getElementById('form-eglise').value.trim();
+        
+        const customId = `MYT-${Math.floor(1000 + Math.random() * 9000)}`;
+        
+        const newTicket = {
+            id: customId,
+            nom: nom,
+            prenom: prenom,
+            contact1: contact1,
+            contact2: contact2 || "",
+            email: email,
+            eglise: eglise,
+            dateAdded: new Date().toISOString()
+        };
+        
+        state.participants.unshift(newTicket);
+        
+        try {
+            localStorage.setItem('myticket_participants_v3', JSON.stringify(state.participants));
+        } catch(e) {
+            console.warn("Storage quota or permissions blocked writing.", e);
+        }
+        
+        state.currentTicket = newTicket;
+        updateTicketPreviewUI(newTicket);
+        
+        // Toggle download/print buttons status
+        const btnPrint = document.getElementById('btn-print-ticket');
+        const btnDownload = document.getElementById('btn-download-ticket');
+        btnPrint.removeAttribute('disabled');
+        btnPrint.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnDownload.removeAttribute('disabled');
+        btnDownload.classList.remove('opacity-50', 'cursor-not-allowed');
+        
+        document.getElementById('ticket-generation-form').reset();
+        
+        showNotification(
+            "Inscription validée !", 
+            `Le ticket de ${prenom} ${nom} est prêt. Réf: ${customId}`, 
+            "success"
+        );
+    }
+
+    function updateTicketPreviewUI(ticket) {
+        document.getElementById('ticket-display-name').innerText = `${ticket.prenom} ${ticket.nom}`;
+        document.getElementById('ticket-display-church').innerText = ticket.eglise;
+        
+        const contactsText = ticket.contact2 ? `${ticket.contact1} / ${ticket.contact2}` : ticket.contact1;
+        document.getElementById('ticket-display-contact').innerText = contactsText;
+        document.getElementById('ticket-display-email').innerText = ticket.email;
+        document.getElementById('ticket-display-ref').innerText = `#${ticket.id}`;
+        
+        // Update QR code dynamically with seeded id
+        generateQRGrid(ticket.id);
+        
+        const statusBadge = document.getElementById('ticket-display-status');
+        statusBadge.className = "text-[9px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 uppercase tracking-wide";
+        statusBadge.innerText = "CONFIRMÉ";
+    }
+
+    function printTicket() {
+        if (!state.currentTicket) return;
+        try {
+            window.print();
+        } catch (e) {
+            console.warn("Direct window printing is restricted in this sandboxed environment:", e);
+            openPrintModal();
+        }
+    }
+
+    function openPrintModal() {
+        const modal = document.getElementById('print-helper-modal');
+        const preview = document.getElementById('print-ticket-raw-preview');
+        
+        if (!state.currentTicket) return;
+        
+        const rawText = getFormattedTicketText();
+        preview.innerText = rawText;
+        modal.classList.remove('hidden');
+    }
+
+    function closePrintModal() {
+        document.getElementById('print-helper-modal').classList.add('hidden');
+    }
+
+    function getFormattedTicketText() {
+        return `==============================================
+MYTICKET - FESTIVAL JEUNESSE CHRÉTIENNE 2026
+==============================================
+RÉFÉRENCE : #${state.currentTicket.id}
+PARTICIPANT : ${state.currentTicket.prenom} ${state.currentTicket.nom}
+ÉGLISE D'ORIGINE : ${state.currentTicket.eglise}
+CONTACTS : ${state.currentTicket.contact1} ${state.currentTicket.contact2 ? '/ ' + state.currentTicket.contact2 : ''}
+E-MAIL : ${state.currentTicket.email}
+DATE DU FESTIVAL : Samedi 14 Novembre 2026 à 14h00
+STATUT : ACCÈS CONFIRMÉ ENREGISTRÉ
+==============================================`;
+    }
+
+    function copyTicketDetailsFallback() {
+        const rawText = getFormattedTicketText();
+        
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = rawText;
+            textarea.style.position = 'fixed';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            showNotification(
+                "Détails copiés !",
+                "Les détails du pass d'accès ont été copiés au presse-papier !",
+                "success"
+            );
+            closePrintModal();
+        } catch (err) {
+            console.error("Clipboard copy failed:", err);
+            showNotification("Erreur", "La copie a échoué.", "error");
+        }
+    }
+
+    function downloadTicketImage() {
+        if (!state.currentTicket) return;
+        const ticketInfo = getFormattedTicketText();
+        
+        try {
+            const blob = new Blob([ticketInfo], { type: 'text/plain;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Ticket_${state.currentTicket.prenom}_${state.currentTicket.nom}_${state.currentTicket.id}.txt`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification(
+                "Exportation réussie",
+                "Le pass d'accès numérique a été exporté !",
+                "info"
+            );
+        } catch (err) {
+            console.warn("Download blocks detected, executing auto fallback copy:", err);
+            copyTicketDetailsFallback();
+        }
+    }
+
+    function updateDashboardStats() {
+        const total = state.participants.length;
+        document.getElementById('stat-total-tickets').innerText = total;
+        
+        const churches = [...new Set(state.participants.map(p => p.eglise.trim().toLowerCase()))];
+        document.getElementById('stat-total-churches').innerText = churches.length;
+        
+        const objective = 200;
+        const rate = Math.min(Math.round((total / objective) * 100), 100);
+        document.getElementById('stat-rate').innerText = `${rate}%`;
+        document.getElementById('stat-progress-bar').style.width = `${rate}%`;
+        
+        const counts = {};
+        state.participants.forEach(p => {
+            const ch = p.eglise.trim();
+            counts[ch] = (counts[ch] || 0) + 1;
+        });
+        
+        const sortedChurches = Object.entries(counts)
+            .sort((a,b) => b[1] - a[1])
+            .slice(0, 4);
+            
+        const topContainer = document.getElementById('dashboard-top-churches');
+        topContainer.innerHTML = '';
+        
+        if (sortedChurches.length === 0) {
+            topContainer.innerHTML = `<p class="text-xs text-slate-400 italic">Aucune donnée disponible</p>`;
+        } else {
+            sortedChurches.forEach(([name, count]) => {
+                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                topContainer.innerHTML += `
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-brand-orange"></span>
+                                <span class="font-semibold text-slate-700 truncate max-w-[140px] sm:max-w-none">${name}</span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-500">${count} (${percentage}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                            <div class="bg-brand-orange h-full rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        const currentHour = new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('dashboard-date').innerText = `Mise à jour : ${currentHour}`;
+    }
+
+    function saveUserProfile(event) {
+        event.preventDefault();
+        
+        const newName = document.getElementById('settings-name').value.trim();
+        const newRole = document.getElementById('settings-role').value.trim();
+        const newEmail = document.getElementById('settings-email').value.trim();
+        
+        state.user.name = newName;
+        state.user.role = newRole;
+        state.user.email = newEmail;
+        
+        try {
+            localStorage.setItem('myticket_user', JSON.stringify(state.user));
+        } catch(e) {
+            console.warn("Storage writing profiles blocked.", e);
+        }
+        
+        applyUserStatesUI();
+        
+        showNotification(
+            "Profil enregistré !",
+            "Les modifications de votre session ont été prises en compte.",
+            "success"
+        );
+        
+        setTimeout(() => {
+            switchView('accueil');
+        }, 800);
+    }
+
+    function uploadAvatarImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                showNotification("Format invalide", "Veuillez choisir un fichier image.", "error");
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = 128;
+                    canvas.height = 128;
+                    
+                    const minEdge = Math.min(img.width, img.height);
+                    const sourceX = (img.width - minEdge) / 2;
+                    const sourceY = (img.height - minEdge) / 2;
+                    
+                    ctx.drawImage(img, sourceX, sourceY, minEdge, minEdge, 0, 0, 128, 128);
+                    
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    state.user.avatar = compressedDataUrl;
+                    
+                    try {
+                        localStorage.setItem('myticket_user', JSON.stringify(state.user));
+                        applyUserStatesUI();
+                        showNotification(
+                            "Photo mise à jour",
+                            "Votre avatar a été enregistré avec succès !",
+                            "success"
+                        );
+                    } catch(err) {
+                        showNotification("Erreur", "Espace de stockage saturé sur votre navigateur.", "error");
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function renderParticipantsTable() {
+        const query = document.getElementById('search-participants-input').value.toLowerCase().trim();
+        const churchFilter = document.getElementById('filter-church-select').value;
+        const tbody = document.getElementById('participants-table-body');
+        
+        const filtered = state.participants.filter(p => {
+            const matchesQuery = !query || 
+                p.nom.toLowerCase().includes(query) || 
+                p.prenom.toLowerCase().includes(query) || 
+                p.email.toLowerCase().includes(query) || 
+                p.contact1.includes(query) || 
+                (p.contact2 && p.contact2.includes(query)) ||
+                p.eglise.toLowerCase().includes(query);
+                
+            const matchesChurch = !churchFilter || p.eglise === churchFilter;
+            
+            return matchesQuery && matchesChurch;
+        });
+        
+        tbody.innerHTML = '';
+        
+        if (filtered.length === 0) {
+            document.getElementById('table-empty-state').classList.remove('hidden');
+            document.getElementById('table-showing-text').innerText = "Affichage de 0 participants";
+            return;
+        }
+        
+        document.getElementById('table-empty-state').classList.add('hidden');
+        document.getElementById('table-showing-text').innerText = `Affichage de ${filtered.length} participant(s) sur ${state.participants.length}`;
+        
+        filtered.forEach(p => {
+            const contactsList = p.contact2 ? `${p.contact1} / ${p.contact2}` : p.contact1;
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50/50 transition border-b border-slate-50">
+                    <td class="py-4 px-6">
+                        <span class="font-mono font-bold text-xs text-brand-dark bg-slate-100 px-2 py-1 rounded-md">${p.id}</span>
+                    </td>
+                    <td class="py-4 px-6 font-semibold text-slate-800">
+                        <div class="flex flex-col">
+                            <span>${p.prenom} ${p.nom}</span>
+                            <span class="text-[10px] text-slate-400 font-normal">Inscrit le : ${new Date(p.dateAdded).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-slate-600 font-medium">${p.eglise}</td>
+                    <td class="py-4 px-6 text-slate-600 font-mono text-xs">${contactsList}</td>
+                    <td class="py-4 px-6 text-slate-500">${p.email}</td>
+                    <td class="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
+                        <button onclick="viewAttendeeTicket('${p.id}')" class="p-1.5 text-slate-500 hover:text-brand-orange bg-slate-100 hover:bg-orange-50 rounded-lg transition" title="Voir le ticket">
+                            <i data-lucide="eye" class="h-4.5 w-4.5"></i>
+                        </button>
+                        <button onclick="deleteParticipant('${p.id}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Supprimer">
+                            <i data-lucide="trash-2" class="h-4.5 w-4.5"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        initializeLucideIcons();
+    }
+
+    function populateChurchFilterOptions() {
+        const select = document.getElementById('filter-church-select');
+        const currentValue = select.value;
+        const uniqueChurches = [...new Set(state.participants.map(p => p.eglise.trim()))].sort();
+        
+        select.innerHTML = '<option value="">Toutes les Églises</option>';
+        uniqueChurches.forEach(church => {
+            select.innerHTML += `<option value="${church}" ${currentValue === church ? 'selected' : ''}>${church}</option>`;
+        });
+    }
+
+    function filterParticipants() {
+        renderParticipantsTable();
+    }
+
+    function deleteParticipant(participantId) {
+        state.participants = state.participants.filter(p => p.id !== participantId);
+        try {
+            localStorage.setItem('myticket_participants_v3', JSON.stringify(state.participants));
+        } catch(e) {
+            console.warn("Storage syncing blocked after record deletion.");
+        }
+        
+        renderParticipantsTable();
+        populateChurchFilterOptions();
+        
+        showNotification(
+            "Suppression effectuée",
+            `Le pass de référence ${participantId} a été supprimé.`,
+            "info"
+        );
+    }
+
+    function viewAttendeeTicket(participantId) {
+        const ticket = state.participants.find(p => p.id === participantId);
+        if (ticket) {
+            state.currentTicket = ticket;
+            updateTicketPreviewUI(ticket);
+            switchView('ticket');
+            
+            const btnPrint = document.getElementById('btn-print-ticket');
+            const btnDownload = document.getElementById('btn-download-ticket');
+            btnPrint.removeAttribute('disabled');
+            btnPrint.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnDownload.removeAttribute('disabled');
+            btnDownload.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            showNotification(
+                "Ticket Chargé",
+                `Ticket #${ticket.id} affiché pour modification/impression.`,
+                "info"
+            );
+        }
+    }
+
+    function renderHistoryList() {
+        const container = document.getElementById('historique-list-container');
+        const emptyState = document.getElementById('historique-empty-state');
+        
+        if (state.participants.length === 0) {
+            container.innerHTML = '';
+            emptyState.classList.remove('hidden');
+            return;
+        }
+        
+        emptyState.classList.add('hidden');
+        container.innerHTML = '';
+        
+        state.participants.forEach(p => {
+            container.innerHTML += `
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-1 col-span-2">
+                            <span class="text-[10px] font-mono font-bold text-slate-400">ID: #${p.id}</span>
+                            <h4 class="font-bold text-brand-dark text-base">${p.prenom} ${p.nom}</h4>
+                            <p class="text-xs text-slate-500 font-medium">${p.eglise}</p>
+                        </div>
+                        <span class="text-[9px] font-extrabold px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full shrink-0">CONFIRMÉ</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                        <div class="text-slate-400">
+                            Créé le: ${new Date(p.dateAdded).toLocaleDateString('fr-FR')}
+                        </div>
+                        <button onclick="viewAttendeeTicket('${p.id}')" class="px-3.5 py-1.5 rounded-lg bg-brand-orange/10 hover:bg-brand-orange text-brand-orange hover:text-white font-bold transition duration-200 flex items-center gap-1">
+                            <i data-lucide="eye" class="h-3.5 w-3.5"></i> Afficher
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        initializeLucideIcons();
+    }
+
+    function clearHistory() {
+        if (state.participants.length > 0) {
+            state.participants = [];
+            try {
+                localStorage.setItem('myticket_participants_v3', JSON.stringify([]));
+            } catch(e) {
+                console.warn("Clearing database from local storage is prohibited.");
+            }
+            renderHistoryList();
+            showNotification(
+                "Historique réinitialisé",
+                "Tous les participants enregistrés ont été effacés.",
+                "info"
+            );
+        }
+    }
+
+    function exportToCsv() {
+        if (state.participants.length === 0) {
+            showNotification("Erreur", "Aucune donnée disponible à exporter.", "error");
+            return;
+        }
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "ID;Nom;Prenom;Contact1;Contact2;Email;Eglise;DateInscription\r\n";
+        
+        state.participants.forEach(p => {
+            const row = `${p.id};${p.nom};${p.prenom};${p.contact1};${p.contact2 || ''};${p.email};${p.eglise};${p.dateAdded}`;
+            csvContent += row + "\r\n";
+        });
+        
+        try {
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Participants_Festival_Jeunesse_2026.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification(
+                "Exportation réussie !",
+                "Le fichier d'extraction Excel/CSV a été téléchargé.",
+                "success"
+            );
+        } catch (err) {
+            showNotification("Erreur d'exportation", "L'accès au téléchargement a été refusé par le navigateur.", "error");
+        }
+    }
+</script>
+</body>
+</html>
