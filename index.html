@@ -4274,14 +4274,14 @@
 
             notice.classList.remove('hidden');
             if (remaining === 0) {
-                notice.className = "text-[11px] font-bold p-2.5 rounded-xl border bg-red-50 text-red-800 border-red-200 flex items-center gap-1.5";
-                notice.innerHTML = `⛔ <strong>Quota atteint :</strong> Il ne reste plus aucune place disponible pour la catégorie <strong>${selectedVal}</strong>.`;
+                notice.className = "text-[11px] font-bold py-2 px-3 rounded-xl bg-red-50 text-red-800 border border-red-200 flex items-center justify-between";
+                notice.innerHTML = `<span>⛔ <strong>Complet (0/${maxQuota})</strong> • Pass ${selectedVal}</span>`;
             } else if (remaining <= 10) {
-                notice.className = "text-[11px] font-bold p-2.5 rounded-xl border bg-amber-50 text-amber-900 border-amber-200 flex items-center gap-1.5";
-                notice.innerHTML = `⚠️ <strong>Dernières places :</strong> Il ne reste plus que <strong>${remaining} place${remaining > 1 ? 's' : ''}</strong> disponible${remaining > 1 ? 's' : ''} sur ${maxQuota} pour le Pass <strong>${selectedVal}</strong> !`;
+                notice.className = "text-[11px] font-bold py-2 px-3 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 flex items-center justify-between";
+                notice.innerHTML = `<span>⚠️ <strong>Plus que ${remaining} place${remaining > 1 ? 's' : ''}</strong> sur ${maxQuota} (Pass ${selectedVal})</span>`;
             } else {
-                notice.className = "text-[11px] font-bold p-2.5 rounded-xl border bg-emerald-50 text-emerald-900 border-emerald-200 flex items-center gap-1.5";
-                notice.innerHTML = `✅ <strong>Places disponibles :</strong> Il reste actuellement <strong>${remaining} places</strong> disponibles sur ${maxQuota} pour le Pass <strong>${selectedVal}</strong> ${selectedVal === 'Invité' ? '(Réservé Direction)' : ''}.`;
+                notice.className = "text-[11px] font-bold py-2 px-3 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 flex items-center justify-between";
+                notice.innerHTML = `<span>✅ <strong>${remaining}/${maxQuota} places disponibles</strong> (Pass ${selectedVal}${selectedVal === 'Invité' ? ' - Réservé' : ''})</span>`;
             }
         } else if (notice) {
             notice.classList.add('hidden');
