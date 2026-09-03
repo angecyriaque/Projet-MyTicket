@@ -3339,144 +3339,32 @@
         paymentProofs: {}, // Registry of tracked payment transactions
         currentAnalyzedProof: null,
         finance: {
-            incomesTotal: 355000,
-            ticketsIncome: 105000,
-            donsIncome: 250000,
-            budgetTotal: 520000,
-            expensesTotal: 90000,
-            balance: 265000,
+            incomesTotal: 0,
+            ticketsIncome: 0,
+            donsIncome: 0,
+            budgetTotal: 0,
+            expensesTotal: 0,
+            balance: 0,
             accounts: {
-                especes: 265000,
+                especes: 0,
                 wave: 0,
                 orangeMoney: 0
             },
-                                    committees: [
-                {
-                    id: "ops",
-                    name: "Coordination Opérationnelle",
-                    resp: "Sarah Kouadio",
-                    type: "Coordination",
-                    color: "sky",
-                    lignesBudget: [
-                        { id: "LIG-101", categorie: "Opérations & Terrain", libelle: "Carburant, liaisons inter-comités & logistique urgente", quantite: 1, prixUnitaire: 35000, montant: 35000, statut: "Prévu", date: "2026-12-28", enregistrePar: "Sarah Kouadio" }
-                    ]
-                },
-                {
-                    id: "strat",
-                    name: "Coordination Stratégique",
-                    resp: "Yao Marc-Emmanuel",
-                    type: "Coordination",
-                    color: "amber",
-                    lignesBudget: [
-                        { id: "LIG-102", categorie: "Direction & Pilotage", libelle: "Fonds d'imprévus stratégiques, supervision et pilotage", quantite: 1, prixUnitaire: 50000, montant: 50000, statut: "Prévu", date: "2026-12-01", enregistrePar: "Yao Marc-Emmanuel" }
-                    ]
-                },
-                {
-                    id: "supervision",
-                    name: "Comité Supervision",
-                    resp: "Pasteur & Direction de Supervision",
-                    type: "Comité",
-                    color: "blue",
-                    lignesBudget: [
-                        { id: "LIG-117", categorie: "Supervision & Contrôle", libelle: "Audits, coordination générale et suivi qualité des 10 ans", quantite: 1, prixUnitaire: 60000, montant: 60000, statut: "Prévu", date: "2026-12-10", enregistrePar: "Pasteur Principal" }
-                    ]
-                },
-                {
-                    id: "spirituel",
-                    name: "Comité Spirituel",
-                    resp: "Pasteur & Équipe d'Intercession",
-                    type: "Comité",
-                    color: "indigo",
-                    lignesBudget: [
-                        { id: "LIG-103", categorie: "Honoraires & Semences", libelle: "Semences pour orateurs & conducteurs de louange", quantite: 1, prixUnitaire: 50000, montant: 50000, statut: "Effectué", date: "2026-12-20", enregistrePar: "Pasteur Principal" },
-                        { id: "LIG-104", categorie: "Fournitures Spirituelles", libelle: "Supports de prière & livrets spirituels 10 Ans", quantite: 100, prixUnitaire: 300, montant: 30000, statut: "Prévu", date: "2026-11-15", enregistrePar: "Pasteur Principal" }
-                    ]
-                },
-                {
-                    id: "communication",
-                    name: "Comité Communication & Mobilisation",
-                    resp: "Sarah Kouadio & Équipe Com",
-                    type: "Comité",
-                    color: "purple",
-                    lignesBudget: [
-                        { id: "LIG-105", categorie: "Supports Média", libelle: "Conception kakémonos, affiches HD & flyers 10 Ans", quantite: 1, prixUnitaire: 35000, montant: 35000, statut: "Prévu", date: "2026-10-10", enregistrePar: "Sarah Kouadio" },
-                        { id: "LIG-106", categorie: "Campagne Digitale", libelle: "Sponsoring Facebook OJ-TV / TikTok & visibilité", quantite: 1, prixUnitaire: 15000, montant: 15000, statut: "Prévu", date: "2026-11-01", enregistrePar: "Sarah Kouadio" }
-                    ]
-                },
-                {
-                    id: "animation",
-                    name: "Comité Animation & Jeux",
-                    resp: "Koffi Samuel",
-                    type: "Comité",
-                    color: "fuchsia",
-                    lignesBudget: [
-                        { id: "LIG-107", categorie: "Loisirs & Jeux", libelle: "Jeux bibliques interactifs, quiz et trophées 10 Ans", quantite: 1, prixUnitaire: 40000, montant: 40000, statut: "Prévu", date: "2026-11-30", enregistrePar: "Koffi Samuel" }
-                    ]
-                },
-                {
-                    id: "administratif",
-                    name: "Comité Administratif",
-                    resp: "Secrétariat Général",
-                    type: "Comité",
-                    color: "rose",
-                    lignesBudget: [
-                        { id: "LIG-108", categorie: "Fournitures Bureau", libelle: "Impressions, courriers officiels & papeterie", quantite: 1, prixUnitaire: 25000, montant: 25000, statut: "Prévu", date: "2026-10-15", enregistrePar: "Secrétariat Général" }
-                    ]
-                },
-                {
-                    id: "logistique",
-                    name: "Comité Logistique",
-                    resp: "Kouamé Eric",
-                    type: "Comité",
-                    color: "orange",
-                    lignesBudget: [
-                        { id: "LIG-109", categorie: "Prestations & Espaces", libelle: "Location salle Conty Place Gold & sonorisation", quantite: 1, prixUnitaire: 100000, montant: 100000, statut: "Effectué", date: "2026-10-01", enregistrePar: "Kouamé Eric" },
-                        { id: "LIG-110", categorie: "Mobilier & Déco", libelle: "Tables, chaises VIP et housses de prestige", quantite: 10, prixUnitaire: 5000, montant: 50000, statut: "Prévu", date: "2026-12-10", enregistrePar: "Kouamé Eric" }
-                    ]
-                },
-                {
-                    id: "financier",
-                    name: "Comité Financier",
-                    resp: "Aude-Eunice Koffi",
-                    type: "Comité",
-                    color: "emerald",
-                    lignesBudget: [
-                        { id: "LIG-111", categorie: "Audit & Trésorerie", libelle: "Registres de caisse, coffrets sécurisés & bordereaux", quantite: 1, prixUnitaire: 15000, montant: 15000, statut: "Effectué", date: "2026-08-20", enregistrePar: "Aude-Eunice Koffi" },
-                        { id: "LIG-112", categorie: "Frais Bancaires", libelle: "Frais de transactions & comptes marchands Wave/OM", quantite: 1, prixUnitaire: 20000, montant: 20000, statut: "Prévu", date: "2026-12-01", enregistrePar: "Aude-Eunice Koffi" }
-                    ]
-                },
-                {
-                    id: "restauration",
-                    name: "Comité Restauration",
-                    resp: "Mme Traoré & Équipe Traiteur",
-                    type: "Comité",
-                    color: "red",
-                    lignesBudget: [
-                        { id: "LIG-113", categorie: "Banquet & Dîner", libelle: "Buffet gastronomique & service traiteur festivaliers", quantite: 150, prixUnitaire: 2000, montant: 300000, statut: "Prévu", date: "2026-12-15", enregistrePar: "Mme Traoré" },
-                        { id: "LIG-114", categorie: "Boissons & Cocktails", libelle: "Boissons rafraîchissantes, jus naturels & packagings", quantite: 200, prixUnitaire: 300, montant: 60000, statut: "Prévu", date: "2026-12-18", enregistrePar: "Mme Traoré" }
-                    ]
-                },
-                {
-                    id: "accueil",
-                    name: "Comité Accueil & Sécurité",
-                    resp: "Brou David",
-                    type: "Comité",
-                    color: "teal",
-                    lignesBudget: [
-                        { id: "LIG-115", categorie: "Accueil & Protocole", libelle: "Bracelets de contrôle, rubans VIP & écharpes d'accueil", quantite: 1, prixUnitaire: 20000, montant: 20000, statut: "Prévu", date: "2026-12-05", enregistrePar: "Brou David" },
-                        { id: "LIG-116", categorie: "Sécurité Site", libelle: "Service d'ordre, gardiennage et sécurité du site", quantite: 1, prixUnitaire: 30000, montant: 30000, statut: "Prévu", date: "2026-12-25", enregistrePar: "Brou David" }
-                    ]
-                }
+            committees: [
+                { id: "strat", name: "Coordination Stratégique", resp: "Yao Marc-Emmanuel", type: "Coordination", color: "amber", lignesBudget: [] },
+                { id: "ops", name: "Coordination Opérationnelle", resp: "Sarah Kouadio", type: "Coordination", color: "sky", lignesBudget: [] },
+                { id: "supervision", name: "Comité Supervision", resp: "Pasteur David N'Guessan", type: "Comité", color: "purple", lignesBudget: [] },
+                { id: "spirituel", name: "Comité Spirituel", resp: "Pasteur Jérémie Brou", type: "Comité", color: "violet", lignesBudget: [] },
+                { id: "communication", name: "Comité Communication & Mobilisation", resp: "Emmanuel Kra", type: "Comité", color: "blue", lignesBudget: [] },
+                { id: "animation", name: "Comité Animation & Jeux", resp: "Chantre Esther Aka", type: "Comité", color: "pink", lignesBudget: [] },
+                { id: "administratif", name: "Comité Administratif", resp: "Kouassi Ange", type: "Comité", color: "teal", lignesBudget: [] },
+                { id: "logistique", name: "Comité Logistique", resp: "Franck Gnagne", type: "Comité", color: "cyan", lignesBudget: [] },
+                { id: "financier", name: "Comité Financier", resp: "Aude-Eunice Koffi", type: "Comité", color: "emerald", lignesBudget: [] },
+                { id: "restauration", name: "Comité Restauration", resp: "Marie-Laure Koffi", type: "Comité", color: "amber", lignesBudget: [] },
+                { id: "accueil", name: "Comité Accueil & Sécurité", resp: "Capitaine Alain Bamba", type: "Comité", color: "red", lignesBudget: [] }
             ],
-            decaissements: [
-                { id: "DEC-001", date: "2026-07-02", comite: "Restauration & Logistique", motif: "Acompte traiteur festivaliers", montant: 40000, mode: "Espèces", statut: "Approuvé" },
-                { id: "DEC-002", date: "2026-07-03", comite: "Coordinateur opérationnel", motif: "Impression badges & supports", montant: 35000, mode: "Espèces", statut: "Approuvé" },
-                { id: "DEC-003", date: "2026-07-04", comite: "Coordinateur stratégique", motif: "Logistique orateurs invités", montant: 15000, mode: "Espèces", statut: "Approuvé" }
-            ],
-            dons: [
-                { date: "2026-07-01", donateur: "Partenaire Horeb Solidarité", type: "Sponsoring", montant: 150000, compte: "Espèces" },
-                { date: "2026-07-02", donateur: "Famille Bamba & Amis", type: "Don Particulier", montant: 100000, compte: "Espèces" }
-            ]
+            decaissements: [],
+            dons: []
         }
     };
 
@@ -3542,7 +3430,24 @@
     }
 
     
+    
+    function clearLegacyCacheOnFirstRun() {
+        try {
+            const version = localStorage.getItem('myticket_clean_reset_v2');
+            if (version !== 'clean_slate_2027_v2') {
+                localStorage.removeItem('myticket_participants_v6');
+                localStorage.removeItem('myticket_payment_proofs_v6');
+                localStorage.removeItem('myticket_finance_v13');
+                localStorage.removeItem('myticket_users_v3');
+                localStorage.removeItem('myticket_active_user_v3');
+                localStorage.removeItem('myticket_user_v6');
+                localStorage.setItem('myticket_clean_reset_v2', 'clean_slate_2027_v2');
+            }
+        } catch (e) {}
+    }
+
     window.onload = function() {
+        clearLegacyCacheOnFirstRun();
         loadStoredUser();
         initializeParticipantsData();
         loadPaymentProofs();
@@ -7187,44 +7092,7 @@
         "Comité Accueil & Sécurité"
     ];
 
-    const DEFAULT_SEED_USERS = [
-        {
-            id: "USR-01",
-            name: "Yao Marc-Emmanuel",
-            comite: "Coordination Stratégique",
-            contact1: "+225 07 45 12 34 56",
-            contact2: "marc.yao@myticket.ci",
-            password: "10ANS",
-            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
-            isAdmin: true,
-            isVisitor: false,
-            dateCreation: "2026-08-01"
-        },
-        {
-            id: "USR-02",
-            name: "Sarah Kouadio",
-            comite: "Coordination Opérationnelle",
-            contact1: "+225 05 98 76 54 32",
-            contact2: "sarah.k@myticket.ci",
-            password: "10ANS",
-            avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
-            isAdmin: false,
-            isVisitor: false,
-            dateCreation: "2026-08-05"
-        },
-        {
-            id: "USR-03",
-            name: "Aude-Eunice Koffi",
-            comite: "Comité Financier",
-            contact1: "+225 01 23 45 67 89",
-            contact2: "aude.koffi@myticket.ci",
-            password: "10ANS",
-            avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=200&q=80",
-            isAdmin: false,
-            isVisitor: false,
-            dateCreation: "2026-08-10"
-        }
-    ];
+    const DEFAULT_SEED_USERS = [];
 
     function initializeUsersRegistry() {
         try {
