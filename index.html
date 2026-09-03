@@ -51,63 +51,7 @@
     
     <style>
         
-        /* Festive Luminous Fairy Light Garlands (Optimized & Lightweight) */
-        .festive-garland {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            height: 14px;
-            pointer-events: none;
-            z-index: 25;
-            overflow: hidden;
-        }
-
-        .festive-garland .garland-wire {
-            position: absolute;
-            top: -6px;
-            left: 0;
-            right: 0;
-            height: 10px;
-            border-bottom: 1.5px solid rgba(255, 215, 0, 0.4);
-            border-radius: 50%/100%;
-        }
-
-        .festive-garland .garland-bulbs {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            padding: 0 12px;
-            width: 100%;
-        }
-
-        .festive-garland .bulb {
-            width: 7px;
-            height: 10px;
-            border-radius: 50% 50% 45% 45%;
-            position: relative;
-            top: 1px;
-            opacity: 0.9;
-        }
-
-        .festive-garland .bulb::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: 1.5px;
-            width: 4px;
-            height: 2.5px;
-            background: #475569;
-            border-radius: 1px;
-        }
-
-        .bulb-gold { background: #FFD700; box-shadow: 0 0 4px #FFD700; }
-        .bulb-orange { background: #FF5A36; box-shadow: 0 0 4px #FF5A36; }
-        .bulb-purple { background: #A855F7; box-shadow: 0 0 4px #A855F7; }
-        .bulb-emerald { background: #10B981; box-shadow: 0 0 4px #10B981; }
-        .bulb-blue { background: #38BDF8; box-shadow: 0 0 4px #38BDF8; }
-        .bulb-red { background: #EF4444; box-shadow: 0 0 4px #EF4444; }
+        
 
         /* Festive Jubilee Warm Atmosphere */
         .jubilee-glow-pulse {
@@ -251,29 +195,9 @@
 <body class="min-h-screen font-sans text-slate-800 antialiased flex flex-col bg-slate-50 festive-glow">
 
 <!-- Global Top Header Bar (Matching Reference Screenshot) -->
-<header class="sticky top-0 z-50 flex h-16 bg-[#090D1F] text-white shrink-0 items-center justify-between px-4 sm:px-8 border-b border-slate-800 shadow-md relative overflow-hidden">
+<header class="sticky top-0 z-50 flex h-16 bg-[#090D1F] text-white shrink-0 items-center justify-between px-4 sm:px-8 border-b border-slate-800 shadow-md">
 
-    <!-- Luminous Festive Garland -->
-    <div class="festive-garland" aria-hidden="true">
-        <div class="garland-wire"></div>
-        <div class="garland-bulbs">
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-purple"></span>
-        </div>
-    </div>
+    
     <!-- Left Logo and Brand -->
     <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('accueil')">
         <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 shadow-lg">
@@ -312,27 +236,7 @@
             <!-- Hero Event Banner Card (Ambiance Festive & Chaleureuse du Jubilé) -->
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
 
-    <!-- Luminous Festive Garland -->
-    <div class="festive-garland" aria-hidden="true">
-        <div class="garland-wire"></div>
-        <div class="garland-bulbs">
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-purple"></span>
-        </div>
-    </div>
+    
                 <!-- Warm ambient glows -->
                 <div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-30" style="background-image: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80')"></div>
                 <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-amber-500/25 blur-3xl pointer-events-none"></div>
@@ -350,33 +254,9 @@
                         </span>
                     </div>
 
-                    <div class="relative p-2 rounded-2xl border border-amber-500/20 bg-black/20 backdrop-blur-xs mb-3 overflow-hidden">
-                        
-    <!-- Luminous Festive Garland -->
-    <div class="festive-garland" aria-hidden="true">
-        <div class="garland-wire"></div>
-        <div class="garland-bulbs">
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-purple"></span>
-        </div>
-    </div>
-                        <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight text-white pt-2">
+                    <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight text-white pt-2">
                         <strong class="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FF5A36] to-[#FF8C00] font-black drop-shadow-sm">Nuit de JACOB à Israël</strong>
                     </h1>
-                    </div>
                     
                     <p class="text-amber-300 text-xs sm:text-sm font-black uppercase tracking-wider mb-3 flex flex-wrap items-center gap-2">
                         <span class="inline-flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-xl border border-amber-400/30 backdrop-blur-sm">
@@ -2331,29 +2211,9 @@
                     </div>
 
                     <!-- Right: Quick Connect Without Existing Account -->
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-950 text-white p-6 sm:p-7 rounded-3xl border border-slate-800 shadow-xl space-y-5 relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-950 text-white p-6 sm:p-7 rounded-3xl border border-slate-800 shadow-xl space-y-5">
 
-    <!-- Luminous Festive Garland -->
-    <div class="festive-garland" aria-hidden="true">
-        <div class="garland-wire"></div>
-        <div class="garland-bulbs">
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-orange"></span>
-            <span class="bulb bulb-purple"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-blue"></span>
-            <span class="bulb bulb-gold"></span>
-            <span class="bulb bulb-red"></span>
-            <span class="bulb bulb-emerald"></span>
-            <span class="bulb bulb-purple"></span>
-        </div>
-    </div>
+    
                         <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
                             <div class="h-10 w-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
                                 <i data-lucide="user-check" class="h-5 w-5"></i>
