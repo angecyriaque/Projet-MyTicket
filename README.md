@@ -1,12 +1,12 @@
 # 🎟️ MyTicket • Nuit de JACOB à Israël 2027
-> **Application Officielle de Billetterie & Gestion • Célébration des 10 Ans de la Jeunesse EMUCI Horeb des Toits Rouges**
+> **Application Officielle de Billetterie & Gestion • Célébration des 10 Ans de la Jeunesse EMCI Horeb des Toits Rouges**
 > **Date de l événement** : 01 Janvier 2027 à *Conty Place Gold*
 
 ---
 
 ## 🌟 Présentation du Projet
 
-**MyTicket** est une application web moderne, responsive et autonome conçue pour piloter la billetterie, la gestion financière, l émargement et la coordination de la célébration des **10 Ans de la Jeunesse EMUCI Horeb**.
+**MyTicket** est une application web moderne, responsive et autonome conçue pour piloter la billetterie, la gestion financière, l émargement et la coordination de la célébration des **10 Ans de la Jeunesse EMCI Horeb**.
 
 Thème : **« 10 Années d excellence au service du DIEU Vivant »**
 
@@ -72,4 +72,4 @@ Thème : **« 10 Années d excellence au service du DIEU Vivant »**
 
 ---
 
-*Développé pour la Jeunesse EMUCI Horeb des Toits Rouges • Célébration des 10 Ans*
+*Développé pour la Jeunesse EMCI Horeb des Toits Rouges • Célébration des 10 Ans*
