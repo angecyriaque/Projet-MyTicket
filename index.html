@@ -1884,201 +1884,24 @@
                     </span>
                 </div>
 
-                <!-- Compact Grid of 11 Leaders (2 Coordinations & 9 Comités Officiels) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                    
-                    <!-- 1. Coordination Stratégique -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-orange-50/50 hover:border-orange-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Yao Marc-Emmanuel" class="h-10 w-10 rounded-full object-cover ring-2 ring-brand-orange shrink-0">
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Yao Marc-Emmanuel</h5>
-                                <p class="text-[10px] font-bold text-brand-orange truncate">Coordination Stratégique</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 07 45 12 34 56</span>
-                            </div>
+                <!-- Dynamic Grid of 11 Leaders (Affichage Progressif) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                            <i data-lucide="users" class="h-5 w-5"></i>
                         </div>
-                        <a href="https://wa.me/2250745123456?text=Bonjour%20M.%20Yao%20Marc-Emmanuel%2C%20je%20vous%20contacte%20concernant%20la%20Coordination%20Strat%C3%A9gique%20des%2010%20Ans." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 2. Coordination Opérationnelle -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-indigo-50/50 hover:border-indigo-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80" alt="Sarah Kouadio" class="h-10 w-10 rounded-full object-cover ring-2 ring-indigo-500 shrink-0">
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Sarah Kouadio</h5>
-                                <p class="text-[10px] font-bold text-indigo-600 truncate">Coordination Opérationnelle</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 05 98 76 54 32</span>
-                            </div>
+                        <div>
+                            <h3 class="font-display font-black text-base text-slate-900">Comité de Pilotage & Responsables des Comités</h3>
+                            <p class="text-[11px] text-slate-500">Profils officiels des coordinateurs et responsables (Affichage progressif dès la création des comptes).</p>
                         </div>
-                        <a href="https://wa.me/2250598765432?text=Bonjour%20Mme%20Sarah%20Kouadio%2C%20je%20vous%20contacte%20concernant%20la%20Coordination%20Op%C3%A9rationnelle%20des%2010%20Ans." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
                     </div>
+                    <span id="org-active-leaders-count" class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 self-start sm:self-auto font-mono">
+                        0 / 11 Responsables Enregistrés
+                    </span>
+                </div>
 
-                    <!-- 3. Comité Supervision -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-purple-50/50 hover:border-purple-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-purple-300">
-                                DN
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Pasteur David N'Guessan</h5>
-                                <p class="text-[10px] font-bold text-purple-600 truncate">Comité Supervision</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 07 11 22 33 44</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250711223344?text=Bonjour%20Pasteur%20David%20N%27Guessan%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Supervision." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 4. Comité Spirituel -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-violet-50/50 hover:border-violet-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-violet-100 text-violet-800 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-violet-300">
-                                JB
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Pasteur Jérémie Brou</h5>
-                                <p class="text-[10px] font-bold text-violet-700 truncate">Comité Spirituel</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 05 66 77 88 99</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250566778899?text=Bonjour%20Pasteur%20J%C3%A9r%C3%A9mie%20Brou%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Spirituel." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 5. Comité Communication & Mobilisation -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-blue-50/50 hover:border-blue-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-blue-300">
-                                EK
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Emmanuel Kra</h5>
-                                <p class="text-[10px] font-bold text-blue-600 truncate">Comité Communication</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 01 99 88 77 66</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250199887766?text=Bonjour%20M.%20Emmanuel%20Kra%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Communication%20%26%20Mobilisation." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 6. Comité Animation & Jeux -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-pink-50/50 hover:border-pink-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-pink-100 text-pink-700 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-pink-300">
-                                EA
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Chantre Esther Aka</h5>
-                                <p class="text-[10px] font-bold text-pink-600 truncate">Comité Animation & Jeux</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 05 12 34 56 78</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250512345678?text=Bonjour%20Chantre%20Esther%20Aka%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Animation%20%26%20Jeux." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 7. Comité Administratif -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-teal-50/50 hover:border-teal-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-teal-300">
-                                KA
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Kouassi Ange</h5>
-                                <p class="text-[10px] font-bold text-teal-700 truncate">Comité Administratif</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 07 22 33 44 55</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250722334455?text=Bonjour%20M.%20Kouassi%20Ange%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Administratif." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 8. Comité Logistique -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-cyan-50/50 hover:border-cyan-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-cyan-100 text-cyan-800 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-cyan-300">
-                                FG
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Franck Gnagne</h5>
-                                <p class="text-[10px] font-bold text-cyan-700 truncate">Comité Logistique</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 07 33 44 55 66</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250733445566?text=Bonjour%20M.%20Franck%20Gnagne%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Logistique." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 9. Comité Financier -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-emerald-50/50 hover:border-emerald-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <img src="https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=120&q=80" alt="Aude-Eunice Koffi" class="h-10 w-10 rounded-full object-cover ring-2 ring-emerald-500 shrink-0">
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Aude-Eunice Koffi</h5>
-                                <p class="text-[10px] font-bold text-emerald-600 truncate">Comité Financier</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 01 23 45 67 89</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250123456789?text=Bonjour%20Mme%20Aude-Eunice%20Koffi%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Financier." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 10. Comité Restauration -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-amber-50/50 hover:border-amber-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-amber-300">
-                                ML
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Marie-Laure Koffi</h5>
-                                <p class="text-[10px] font-bold text-amber-700 truncate">Comité Restauration</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 05 44 33 22 11</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250544332211?text=Bonjour%20Mme%20Marie-Laure%20Koffi%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Restauration." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
-                    <!-- 11. Comité Accueil & Sécurité -->
-                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2.5 hover:bg-red-50/50 hover:border-red-200 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="h-10 w-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-black text-xs shrink-0 ring-2 ring-red-300">
-                                AB
-                            </div>
-                            <div class="min-w-0">
-                                <h5 class="font-black text-xs text-slate-900 truncate">Capitaine Alain Bamba</h5>
-                                <p class="text-[10px] font-bold text-red-600 truncate">Comité Accueil & Sécurité</p>
-                                <span class="text-[9px] text-slate-400 font-mono block">+225 07 88 77 66 55</span>
-                            </div>
-                        </div>
-                        <a href="https://wa.me/2250788776655?text=Bonjour%20Capitaine%20Alain%20Bamba%2C%20je%20vous%20contacte%20concernant%20le%20Comit%C3%A9%20Accueil%20%26%20S%C3%A9curit%C3%A9." target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Contacter directement sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                            <span class="hidden xs:inline font-mono">WhatsApp</span>
-                        </a>
-                    </div>
-
+                <div id="organisation-leaders-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    <!-- Dynamic leader cards rendered progressively -->
                 </div>
             </div>
             </div>
@@ -3433,15 +3256,14 @@
     
     function clearLegacyCacheOnFirstRun() {
         try {
-            const version = localStorage.getItem('myticket_clean_reset_v2');
-            if (version !== 'clean_slate_2027_v2') {
-                localStorage.removeItem('myticket_participants_v6');
-                localStorage.removeItem('myticket_payment_proofs_v6');
-                localStorage.removeItem('myticket_finance_v13');
-                localStorage.removeItem('myticket_users_v3');
-                localStorage.removeItem('myticket_active_user_v3');
-                localStorage.removeItem('myticket_user_v6');
-                localStorage.setItem('myticket_clean_reset_v2', 'clean_slate_2027_v2');
+            const version = localStorage.getItem('myticket_reset_final_v3');
+            if (version !== 'clean_slate_production_v3') {
+                localStorage.clear();
+                localStorage.setItem('myticket_reset_final_v3', 'clean_slate_production_v3');
+                localStorage.setItem('myticket_participants_v6', JSON.stringify([]));
+                localStorage.setItem('myticket_payment_proofs_v6', JSON.stringify({}));
+                localStorage.setItem('myticket_users_v3', JSON.stringify([]));
+                localStorage.setItem('myticket_active_user_v3', JSON.stringify(DEFAULT_VISITOR_USER));
             }
         } catch (e) {}
     }
@@ -3656,6 +3478,7 @@
         }
 
         renderChronogrammeOrganisation();
+        renderOrganisationLeaders();
         renderChronogrammeBilletterie();
     }
 
@@ -3937,7 +3760,7 @@
         
         if (viewName === 'dashboard') updateDashboardStats();
         else if (viewName === 'ticket') { startTicketCountdown(); renderChronogrammeBilletterie(); }
-        else if (viewName === 'organisation') { renderTablePlan(); renderChronogrammeOrganisation(); }
+        else if (viewName === 'organisation') { renderTablePlan(); renderChronogrammeOrganisation(); renderOrganisationLeaders(); }
         else if (viewName === 'finance') { renderFinanceDashboard(); renderFinanceConsolidation(); }
         else if (viewName === 'reception') { renderReceptionTable(); renderTablePlan(); }
         else if (viewName === 'historique') renderHistoryList();
@@ -5687,6 +5510,84 @@
         showNotification("Export CSV Réussi", "La synthèse financière a été téléchargée.", "success");
     }
 
+    
+    function renderOrganisationLeaders() {
+        const container = document.getElementById('organisation-leaders-grid');
+        const countBadge = document.getElementById('org-active-leaders-count');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const users = state.users || [];
+        const registeredCount = OFFICIAL_COMMITTEES.filter(c => users.some(u => u.comite === c)).length;
+
+        if (countBadge) {
+            countBadge.innerText = `${registeredCount} / ${OFFICIAL_COMMITTEES.length} Responsables Enregistrés`;
+            if (registeredCount === 0) {
+                countBadge.className = "px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 self-start sm:self-auto font-mono";
+            } else {
+                countBadge.className = "px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto font-mono";
+            }
+        }
+
+        OFFICIAL_COMMITTEES.forEach((entityName) => {
+            const user = users.find(u => u.comite === entityName);
+
+            if (user) {
+                // Registered Official Leader Card (Progressive Real Profile)
+                const phoneClean = (user.contact1 || '').replace(/[^0-9+]/g, '');
+                const waUrl = phoneClean ? `https://wa.me/${phoneClean.replace('+', '')}?text=${encodeURIComponent(`Bonjour ${user.name}, je vous contacte concernant la célébration des 10 Ans (${user.comite}).`)}` : '#';
+                
+                container.innerHTML += `
+                    <div class="p-3 rounded-2xl bg-white border-2 border-emerald-200/80 shadow-xs flex items-center justify-between gap-2.5 hover:border-emerald-400 transition animate-in zoom-in-95">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <img src="${user.avatar || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2394a3b8\'%3E%3Cpath d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/%3E%3C/svg%3E'}" alt="${user.name}" class="h-11 w-11 rounded-full object-cover ring-2 ring-emerald-500 shrink-0 shadow-sm">
+                            <div class="min-w-0">
+                                <h5 class="font-black text-xs text-slate-900 truncate">${user.name}</h5>
+                                <p class="text-[10px] font-bold text-emerald-700 truncate">${user.comite}</p>
+                                <span class="text-[9px] text-slate-400 font-mono block truncate">${user.contact1 || 'Contact masqué'}</span>
+                            </div>
+                        </div>
+                        ${phoneClean ? `
+                            <a href="${waUrl}" target="_blank" class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-bold inline-flex items-center gap-1 shadow-xs transition shrink-0" title="Échanger sur WhatsApp">
+                                <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
+                                <span class="hidden xs:inline font-mono">WhatsApp</span>
+                            </a>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                // Vacant / Waiting Registration Slot (No Demo / Test Data)
+                container.innerHTML += `
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-dashed border-slate-300 flex items-center justify-between gap-2.5 opacity-85 hover:opacity-100 transition">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="h-10 w-10 rounded-2xl bg-slate-200/80 text-slate-400 flex items-center justify-center shrink-0">
+                                <i data-lucide="shield" class="h-4 w-4 text-slate-400"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h5 class="font-bold text-xs text-slate-700 truncate">${entityName}</h5>
+                                <span class="text-[10px] text-amber-600 font-bold font-mono block">🟢 Poste Vacant</span>
+                                <span class="text-[9px] text-slate-400 font-mono block">En attente d'enregistrement</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="openCreateForCommittee('${entityName}')" class="px-2.5 py-1.5 bg-slate-200 hover:bg-purple-600 hover:text-white text-slate-700 rounded-xl text-[9px] font-bold transition shrink-0 flex items-center gap-1" title="Créer le compte pour ce comité">
+                            <i data-lucide="user-plus" class="h-3 w-3"></i>
+                            <span>Créer</span>
+                        </button>
+                    </div>
+                `;
+            }
+        });
+
+        initializeLucideIcons();
+    }
+
+    function openCreateForCommittee(committeeName) {
+        switchView('utilisateur');
+        switchUserSectionTab('create');
+        const select = document.getElementById('create-comite');
+        if (select) select.value = committeeName;
+    }
+
     function renderFinanceDashboard() {
         const fin = state.finance;
         if (!fin) return;
@@ -7071,6 +6972,7 @@
         populateLoginUserSelect();
         populateGatewayUserSelect();
         updateCreateComiteDropdown();
+        renderOrganisationLeaders();
         nameInput.value = '';
         pwdInput.value = '';
         switchUserSectionTab('active');
