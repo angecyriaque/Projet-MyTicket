@@ -3289,60 +3289,84 @@
     let countdownIntervalId = null;
 
     
-    function launchFireworksShow(durationMs = 3800) {
-        if (typeof confetti !== 'function') return;
-        try {
-            const animationEnd = Date.now() + durationMs;
-            const defaults = { startVelocity: 35, spread: 360, ticks: 75, zIndex: 9999 };
+    let fireworksIntervalId = null;
+    let isFireworksRunning = false;
 
-            function randomInRange(min, max) {
-                return Math.random() * (max - min) + min;
+    function startContinuousFireworks() {
+        if (typeof confetti !== 'function') return;
+        if (isFireworksRunning) return;
+        isFireworksRunning = true;
+
+        const defaults = { startVelocity: 35, spread: 360, ticks: 80, zIndex: 9999 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        // Immediate initial grand explosion
+        confetti({
+            particleCount: 100,
+            spread: 120,
+            origin: { y: 0.6 },
+            colors: ['#FFD700', '#FF5A36', '#F59E0B', '#8B5CF6', '#10B981', '#FFFFFF']
+        });
+
+        // Continuous high-frequency fireworks bursts
+        fireworksIntervalId = setInterval(function() {
+            if (!isFireworksRunning) {
+                clearInterval(fireworksIntervalId);
+                fireworksIntervalId = null;
+                return;
             }
 
-            // Initial launch blast
-            confetti({
-                particleCount: 80,
-                spread: 100,
-                origin: { y: 0.6 },
-                colors: ['#FFD700', '#FF5A36', '#F59E0B', '#8B5CF6', '#10B981', '#FFFFFF']
-            });
+            // Burst 1: Left mortar
+            confetti(Object.assign({}, defaults, {
+                particleCount: Math.floor(randomInRange(35, 65)),
+                origin: { x: randomInRange(0.05, 0.35), y: randomInRange(0.1, 0.45) },
+                colors: ['#FFD700', '#FF5A36', '#F59E0B', '#FFFFFF', '#8B5CF6']
+            }));
 
-            const interval = setInterval(function() {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
+            // Burst 2: Right mortar
+            confetti(Object.assign({}, defaults, {
+                particleCount: Math.floor(randomInRange(35, 65)),
+                origin: { x: randomInRange(0.65, 0.95), y: randomInRange(0.1, 0.45) },
+                colors: ['#10B981', '#FFD700', '#FF5A36', '#8B5CF6', '#3B82F6']
+            }));
 
-                const particleCount = 40 * (timeLeft / durationMs);
-
-                // Left firework rocket burst
+            // Burst 3: Central majestic golden bouquet
+            if (Math.random() > 0.3) {
                 confetti(Object.assign({}, defaults, {
-                    particleCount: Math.floor(particleCount),
-                    origin: { x: randomInRange(0.1, 0.35), y: Math.random() * 0.4 + 0.1 },
-                    colors: ['#FFD700', '#FF5A36', '#F59E0B', '#FFFFFF', '#8B5CF6']
-                }));
-
-                // Right firework rocket burst
-                confetti(Object.assign({}, defaults, {
-                    particleCount: Math.floor(particleCount),
-                    origin: { x: randomInRange(0.65, 0.9), y: Math.random() * 0.4 + 0.1 },
-                    colors: ['#10B981', '#FFD700', '#FF5A36', '#8B5CF6', '#3B82F6']
-                }));
-
-                // Central high gold jubilee burst
-                confetti(Object.assign({}, defaults, {
-                    particleCount: Math.floor(particleCount * 0.8),
-                    origin: { x: randomInRange(0.4, 0.6), y: Math.random() * 0.3 + 0.15 },
+                    particleCount: Math.floor(randomInRange(45, 85)),
+                    origin: { x: randomInRange(0.35, 0.65), y: randomInRange(0.1, 0.35) },
                     colors: ['#FFD700', '#FF7A50', '#FDE68A', '#8B5CF6', '#FFFFFF']
                 }));
-            }, 260);
-        } catch(e) {
-            console.log("Fireworks error:", e);
+            }
+        }, 320);
+    }
+
+    function stopContinuousFireworks() {
+        isFireworksRunning = false;
+        if (fireworksIntervalId) {
+            clearInterval(fireworksIntervalId);
+            fireworksIntervalId = null;
+        }
+    }
+
+    function launchFireworksShow(durationMs = 4000) {
+        startContinuousFireworks();
+        if (durationMs > 0) {
+            setTimeout(() => {
+                // If user has navigated away, keep stopped; if still on accueil, continue
+                const accueilView = document.getElementById('view-accueil');
+                if (!accueilView || accueilView.classList.contains('hidden')) {
+                    stopContinuousFireworks();
+                }
+            }, durationMs);
         }
     }
 
     function triggerJubileeConfetti() {
-        launchFireworksShow(3500);
+        startContinuousFireworks();
     }
 
     function updateHomeCountdown() {
@@ -4047,8 +4071,13 @@
             activeMobBtn.className = "mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-brand-orange bg-white/10 font-bold shadow-2xs";
         }
         
-        if (viewName === 'accueil') { launchFireworksShow(3000); }
-        else if (viewName === 'dashboard') updateDashboardStats();
+        if (viewName === 'accueil') {
+            startContinuousFireworks();
+        } else {
+            stopContinuousFireworks();
+        }
+        
+        if (viewName === 'dashboard') updateDashboardStats();
         else if (viewName === 'ticket') { startTicketCountdown(); renderChronogrammeBilletterie(); }
         else if (viewName === 'organisation') { renderTablePlan(); renderChronogrammeOrganisation(); renderOrganisationLeaders(); }
         else if (viewName === 'finance') { renderFinanceDashboard(); renderFinanceConsolidation(); }
