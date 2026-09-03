@@ -51,14 +51,14 @@
     
     <style>
         
-        /* Festive Luminous Fairy Light Garlands */
+        /* Festive Luminous Fairy Light Garlands (Optimized & Lightweight) */
         .festive-garland {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             width: 100%;
-            height: 16px;
+            height: 14px;
             pointer-events: none;
             z-index: 25;
             overflow: hidden;
@@ -69,8 +69,8 @@
             top: -6px;
             left: 0;
             right: 0;
-            height: 12px;
-            border-bottom: 1.5px solid rgba(255, 215, 0, 0.45);
+            height: 10px;
+            border-bottom: 1.5px solid rgba(255, 215, 0, 0.4);
             border-radius: 50%/100%;
         }
 
@@ -78,50 +78,40 @@
             display: flex;
             justify-content: space-around;
             align-items: flex-start;
-            padding: 0 10px;
+            padding: 0 12px;
             width: 100%;
         }
 
         .festive-garland .bulb {
-            width: 8px;
-            height: 12px;
+            width: 7px;
+            height: 10px;
             border-radius: 50% 50% 45% 45%;
             position: relative;
             top: 1px;
-            animation: bulb-twinkle 1.5s infinite ease-in-out alternate;
+            opacity: 0.9;
         }
 
         .festive-garland .bulb::before {
             content: '';
             position: absolute;
-            top: -3px;
-            left: 2px;
+            top: -2px;
+            left: 1.5px;
             width: 4px;
-            height: 3px;
+            height: 2.5px;
             background: #475569;
             border-radius: 1px;
         }
 
-        .bulb-gold { background: #FFD700; box-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700; animation-delay: 0s; }
-        .bulb-orange { background: #FF5A36; box-shadow: 0 0 8px #FF5A36, 0 0 16px #FF5A36; animation-delay: 0.25s; }
-        .bulb-purple { background: #A855F7; box-shadow: 0 0 8px #A855F7, 0 0 16px #A855F7; animation-delay: 0.5s; }
-        .bulb-emerald { background: #10B981; box-shadow: 0 0 8px #10B981, 0 0 16px #10B981; animation-delay: 0.75s; }
-        .bulb-blue { background: #38BDF8; box-shadow: 0 0 8px #38BDF8, 0 0 16px #38BDF8; animation-delay: 1s; }
-        .bulb-red { background: #EF4444; box-shadow: 0 0 8px #EF4444, 0 0 16px #EF4444; animation-delay: 0.35s; }
+        .bulb-gold { background: #FFD700; box-shadow: 0 0 4px #FFD700; }
+        .bulb-orange { background: #FF5A36; box-shadow: 0 0 4px #FF5A36; }
+        .bulb-purple { background: #A855F7; box-shadow: 0 0 4px #A855F7; }
+        .bulb-emerald { background: #10B981; box-shadow: 0 0 4px #10B981; }
+        .bulb-blue { background: #38BDF8; box-shadow: 0 0 4px #38BDF8; }
+        .bulb-red { background: #EF4444; box-shadow: 0 0 4px #EF4444; }
 
-        @keyframes bulb-twinkle {
-            0% { opacity: 0.35; transform: scale(0.85); filter: brightness(0.7); }
-            50% { opacity: 1; transform: scale(1.15); filter: brightness(1.3); }
-            100% { opacity: 0.7; transform: scale(0.95); filter: brightness(1); }
-        }
-
-        /* Festive Jubilee Warm Atmosphere & Shimmer */
-        @keyframes jubilee-pulse {
-            0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), 0 0 30px rgba(255, 90, 54, 0.2); }
-            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.7), 0 0 45px rgba(255, 90, 54, 0.4); }
-        }
+        /* Festive Jubilee Warm Atmosphere */
         .jubilee-glow-pulse {
-            animation: jubilee-pulse 3s infinite ease-in-out;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
         }
         
         .step-card-hover {
@@ -3444,84 +3434,22 @@
     let countdownIntervalId = null;
 
     
-    let fireworksIntervalId = null;
-    let isFireworksRunning = false;
-
-    function startContinuousFireworks() {
+        function triggerJubileeConfetti() {
         if (typeof confetti !== 'function') return;
-        if (isFireworksRunning) return;
-        isFireworksRunning = true;
-
-        const defaults = { startVelocity: 35, spread: 360, ticks: 80, zIndex: 9999 };
-
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-        }
-
-        // Immediate initial grand explosion
-        confetti({
-            particleCount: 100,
-            spread: 120,
-            origin: { y: 0.6 },
-            colors: ['#FFD700', '#FF5A36', '#F59E0B', '#8B5CF6', '#10B981', '#FFFFFF']
-        });
-
-        // Continuous high-frequency fireworks bursts
-        fireworksIntervalId = setInterval(function() {
-            if (!isFireworksRunning) {
-                clearInterval(fireworksIntervalId);
-                fireworksIntervalId = null;
-                return;
-            }
-
-            // Burst 1: Left mortar
-            confetti(Object.assign({}, defaults, {
-                particleCount: Math.floor(randomInRange(35, 65)),
-                origin: { x: randomInRange(0.05, 0.35), y: randomInRange(0.1, 0.45) },
-                colors: ['#FFD700', '#FF5A36', '#F59E0B', '#FFFFFF', '#8B5CF6']
-            }));
-
-            // Burst 2: Right mortar
-            confetti(Object.assign({}, defaults, {
-                particleCount: Math.floor(randomInRange(35, 65)),
-                origin: { x: randomInRange(0.65, 0.95), y: randomInRange(0.1, 0.45) },
-                colors: ['#10B981', '#FFD700', '#FF5A36', '#8B5CF6', '#3B82F6']
-            }));
-
-            // Burst 3: Central majestic golden bouquet
-            if (Math.random() > 0.3) {
-                confetti(Object.assign({}, defaults, {
-                    particleCount: Math.floor(randomInRange(45, 85)),
-                    origin: { x: randomInRange(0.35, 0.65), y: randomInRange(0.1, 0.35) },
-                    colors: ['#FFD700', '#FF7A50', '#FDE68A', '#8B5CF6', '#FFFFFF']
-                }));
-            }
-        }, 320);
-    }
-
-    function stopContinuousFireworks() {
-        isFireworksRunning = false;
-        if (fireworksIntervalId) {
-            clearInterval(fireworksIntervalId);
-            fireworksIntervalId = null;
+        try {
+            confetti({
+                particleCount: 60,
+                spread: 70,
+                origin: { y: 0.65 },
+                colors: ['#FFD700', '#FF5A36', '#F59E0B', '#8B5CF6', '#10B981']
+            });
+        } catch(e) {
+            console.log("Confetti trigger:", e);
         }
     }
 
-    function launchFireworksShow(durationMs = 4000) {
-        startContinuousFireworks();
-        if (durationMs > 0) {
-            setTimeout(() => {
-                // If user has navigated away, keep stopped; if still on accueil, continue
-                const accueilView = document.getElementById('view-accueil');
-                if (!accueilView || accueilView.classList.contains('hidden')) {
-                    stopContinuousFireworks();
-                }
-            }, durationMs);
-        }
-    }
-
-    function triggerJubileeConfetti() {
-        startContinuousFireworks();
+    function launchFireworksShow(durationMs) {
+        triggerJubileeConfetti();
     }
 
     function updateHomeCountdown() {
@@ -4224,12 +4152,6 @@
         const activeMobBtn = document.getElementById(`mob-nav-${viewName}`);
         if (activeMobBtn) {
             activeMobBtn.className = "mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-brand-orange bg-white/10 font-bold shadow-2xs";
-        }
-        
-        if (viewName === 'accueil') {
-            startContinuousFireworks();
-        } else {
-            stopContinuousFireworks();
         }
         
         if (viewName === 'dashboard') updateDashboardStats();
