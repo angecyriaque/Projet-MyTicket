@@ -3779,8 +3779,8 @@
 
         if (list.length === 0) {
             container.innerHTML = `
-                <div class="py-12 text-center text-slate-400 italic bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
-                    <i data-lucide="calendar-x" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
+                <div class="col-span-full py-8 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <i data-lucide="calendar-x" class="h-6 w-6 mx-auto mb-1 opacity-50"></i>
                     <p class="text-xs">${isVis ? 'Aucune étape pour ce moment de la soirée.' : 'Aucune activité trouvée.'}</p>
                 </div>
             `;
@@ -3788,59 +3788,62 @@
             return;
         }
 
+        // Color accents for compact cards
+        const colorAccents = [
+            { border: 'border-l-4 border-l-amber-500', timeBg: 'bg-amber-500 text-white', badge: 'bg-amber-100 text-amber-900' },
+            { border: 'border-l-4 border-l-purple-600', timeBg: 'bg-purple-600 text-white', badge: 'bg-purple-100 text-purple-900' },
+            { border: 'border-l-4 border-l-sky-500', timeBg: 'bg-sky-600 text-white', badge: 'bg-sky-100 text-sky-900' },
+            { border: 'border-l-4 border-l-emerald-500', timeBg: 'bg-emerald-600 text-white', badge: 'bg-emerald-100 text-emerald-900' },
+            { border: 'border-l-4 border-l-brand-orange', timeBg: 'bg-brand-orange text-white', badge: 'bg-orange-100 text-orange-900' }
+        ];
+
         list.forEach((item, index) => {
             const originalIndex = allList.findIndex(x => x.id === item.id);
-            const theme = getSoftPastelChronogrammeTheme(item.couleur, originalIndex !== -1 ? originalIndex : index);
-            const icon = item.icone || 'sparkles';
-            const stepNum = String((originalIndex !== -1 ? originalIndex : index) + 1).padStart(2, '0');
+            const stepIndex = originalIndex !== -1 ? originalIndex : index;
+            const stepNum = String(stepIndex + 1).padStart(2, '0');
+            const accent = colorAccents[stepIndex % colorAccents.length];
 
             const actionButtonsHTML = isVis ? '' : `
-                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100/60 w-full sm:w-auto justify-end">
-                    <button onclick="openEditChronogrammeModal('${item.id}')" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl transition cursor-pointer shadow-2xs border border-transparent hover:border-slate-200" title="Modifier cette étape">
-                        <i data-lucide="edit-3" class="h-4 w-4"></i>
+                <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
+                    <button onclick="openEditChronogrammeModal('${item.id}')" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-lg transition" title="Modifier">
+                        <i data-lucide="edit-3" class="h-3.5 w-3.5"></i>
                     </button>
-                    <button onclick="requestDeleteChronogrammeItem('${item.id}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-white rounded-xl transition cursor-pointer shadow-2xs border border-transparent hover:border-slate-200" title="Supprimer">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i>
+                    <button onclick="requestDeleteChronogrammeItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-white rounded-lg transition" title="Supprimer">
+                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
                     </button>
                 </div>
             `;
 
             container.innerHTML += `
-                <div class="group relative p-4 sm:p-5 rounded-3xl ${theme.cardBg} border ${theme.border} shadow-xs hover:shadow-lg ${theme.glow} transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    
-                    <div class="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0">
+                <div class="p-3 sm:p-3.5 rounded-2xl bg-white hover:bg-slate-50/80 border border-slate-200/90 ${accent.border} shadow-2xs hover:shadow-md transition-all duration-200 flex items-center justify-between gap-3 group">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
                         
-                        <!-- Step Index & Hour Badge -->
-                        <div class="flex flex-col items-center justify-center min-w-[85px] sm:min-w-[95px] p-2.5 rounded-2xl ${theme.timeBg} shrink-0 text-center shadow-sm">
-                            <span class="text-[9px] uppercase tracking-wider font-extrabold opacity-85">Étape #${stepNum}</span>
-                            <span class="font-mono font-black text-xs sm:text-sm tracking-tight">${item.heureDebut}</span>
-                            <span class="text-[9px] font-medium opacity-80">à ${item.heureFin}</span>
+                        <!-- Compact Time Badge -->
+                        <div class="px-2.5 py-1.5 rounded-xl ${accent.timeBg} font-mono font-black text-[11px] sm:text-xs shrink-0 text-center shadow-2xs">
+                            ${item.heureDebut} — ${item.heureFin}
                         </div>
 
-                        <!-- Round Icon Badge -->
-                        <div class="h-11 w-11 rounded-2xl ${theme.iconBg} flex items-center justify-center font-black shrink-0 shadow-xs group-hover:scale-110 transition duration-300">
-                            <i data-lucide="${icon}" class="h-5 w-5"></i>
-                        </div>
-
-                        <!-- Activity Info -->
-                        <div class="space-y-1.5 min-w-0 flex-1">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <h4 class="font-display font-black text-slate-900 text-sm sm:text-base leading-snug tracking-tight">
+                        <!-- Activity Title & Details -->
+                        <div class="min-w-0 space-y-0.5 flex-1">
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-display font-black text-slate-900 text-xs sm:text-sm leading-tight truncate group-hover:text-brand-orange transition" title="${item.titre}">
                                     ${item.titre}
                                 </h4>
-                                ${item.responsable ? `
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${theme.badgeBg}">
-                                        ${item.responsable}
-                                    </span>
-                                ` : ''}
                             </div>
-                            <p class="text-xs text-slate-600 leading-relaxed font-normal">
-                                ${item.description || ''}
-                            </p>
+                            <div class="flex items-center gap-2 text-[10px] sm:text-[11px] text-slate-500">
+                                ${item.responsable ? `<span class="px-1.5 py-0.5 rounded-md ${accent.badge} font-bold text-[9px] sm:text-[10px] shrink-0 truncate max-w-[140px]">${item.responsable}</span>` : ''}
+                                <span class="text-slate-400 truncate text-[10px] sm:text-[11px] font-normal hidden sm:inline">${item.description || ''}</span>
+                            </div>
                         </div>
                     </div>
 
-                    ${actionButtonsHTML}
+                    <!-- Step Number & Actions -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="px-2 py-1 rounded-lg bg-slate-100 text-slate-600 font-mono font-black text-[10px]">
+                            #${stepNum}
+                        </span>
+                        ${actionButtonsHTML}
+                    </div>
                 </div>
             `;
         });
