@@ -3289,26 +3289,60 @@
     let countdownIntervalId = null;
 
     
-    function triggerJubileeConfetti() {
+    function launchFireworksShow(durationMs = 3800) {
         if (typeof confetti !== 'function') return;
         try {
-            const count = 180;
-            const defaults = { origin: { y: 0.65 } };
+            const animationEnd = Date.now() + durationMs;
+            const defaults = { startVelocity: 35, spread: 360, ticks: 75, zIndex: 9999 };
 
-            function fire(particleRatio, opts) {
-                confetti(Object.assign({}, defaults, opts, {
-                    particleCount: Math.floor(count * particleRatio)
-                }));
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
             }
 
-            fire(0.25, { spread: 26, startVelocity: 55, colors: ['#FFD700', '#FF5A36', '#F59E0B'] });
-            fire(0.20, { spread: 60, colors: ['#8B5CF6', '#10B981', '#FFFFFF'] });
-            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, colors: ['#FFD700', '#FF7A50', '#8B5CF6'] });
-            fire(0.10, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, colors: ['#FF5A36', '#F59E0B', '#10B981'] });
-            fire(0.10, { spread: 120, startVelocity: 45, colors: ['#FFD700', '#FFFFFF', '#FF5A36'] });
+            // Initial launch blast
+            confetti({
+                particleCount: 80,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#FFD700', '#FF5A36', '#F59E0B', '#8B5CF6', '#10B981', '#FFFFFF']
+            });
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 40 * (timeLeft / durationMs);
+
+                // Left firework rocket burst
+                confetti(Object.assign({}, defaults, {
+                    particleCount: Math.floor(particleCount),
+                    origin: { x: randomInRange(0.1, 0.35), y: Math.random() * 0.4 + 0.1 },
+                    colors: ['#FFD700', '#FF5A36', '#F59E0B', '#FFFFFF', '#8B5CF6']
+                }));
+
+                // Right firework rocket burst
+                confetti(Object.assign({}, defaults, {
+                    particleCount: Math.floor(particleCount),
+                    origin: { x: randomInRange(0.65, 0.9), y: Math.random() * 0.4 + 0.1 },
+                    colors: ['#10B981', '#FFD700', '#FF5A36', '#8B5CF6', '#3B82F6']
+                }));
+
+                // Central high gold jubilee burst
+                confetti(Object.assign({}, defaults, {
+                    particleCount: Math.floor(particleCount * 0.8),
+                    origin: { x: randomInRange(0.4, 0.6), y: Math.random() * 0.3 + 0.15 },
+                    colors: ['#FFD700', '#FF7A50', '#FDE68A', '#8B5CF6', '#FFFFFF']
+                }));
+            }, 260);
         } catch(e) {
-            console.log("Confetti trigger:", e);
+            console.log("Fireworks error:", e);
         }
+    }
+
+    function triggerJubileeConfetti() {
+        launchFireworksShow(3500);
     }
 
     function updateHomeCountdown() {
@@ -4013,7 +4047,8 @@
             activeMobBtn.className = "mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-brand-orange bg-white/10 font-bold shadow-2xs";
         }
         
-        if (viewName === 'dashboard') updateDashboardStats();
+        if (viewName === 'accueil') { launchFireworksShow(3000); }
+        else if (viewName === 'dashboard') updateDashboardStats();
         else if (viewName === 'ticket') { startTicketCountdown(); renderChronogrammeBilletterie(); }
         else if (viewName === 'organisation') { renderTablePlan(); renderChronogrammeOrganisation(); renderOrganisationLeaders(); }
         else if (viewName === 'finance') { renderFinanceDashboard(); renderFinanceConsolidation(); }
