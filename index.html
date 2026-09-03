@@ -2,7 +2,12 @@
 <html lang="fr" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="theme-color" content="#090D1F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Application Officielle de Billetterie & Gestion des 10 Ans EMUCI Horeb • Nuit de JACOB à Israël">
     <title>MyTicket - Nuit de JACOB à Israel (10 Ans)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,6 +49,30 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     
     <style>
+        /* Mobile safe-area support & Touch UI */
+        .safe-area-pb {
+            padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+        }
+        
+        /* Smooth touch scrolling without scrollbar clutter on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Fluid word break and typography alignment */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         /* Custom scrollbar styling */
         ::-webkit-scrollbar {
             width: 6px;
@@ -163,7 +192,7 @@
 </header>
 
 <!-- Main Central Application Container -->
-<main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+<main class="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 pb-28 md:pb-8">
     <div class="max-w-7xl mx-auto space-y-8">
 
         <!-- ========================================== -->
@@ -3878,6 +3907,15 @@
                 targetSection.style.transform = 'translateY(0)';
             }, 50);
         }
+
+        // Update Mobile Bottom App Bar Active State
+        document.querySelectorAll('.mob-nav-btn').forEach(btn => {
+            btn.className = "mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-slate-400 hover:text-white";
+        });
+        const activeMobBtn = document.getElementById(`mob-nav-${viewName}`);
+        if (activeMobBtn) {
+            activeMobBtn.className = "mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-brand-orange bg-white/10 font-bold shadow-2xs";
+        }
         
         if (viewName === 'dashboard') updateDashboardStats();
         else if (viewName === 'ticket') { startTicketCountdown(); renderChronogrammeBilletterie(); }
@@ -6892,6 +6930,57 @@
 
     
     function applyUserStatesUI() {
+        // Adjust Mobile Bottom Nav Bar based on Member vs Visitor Role
+        const mobGrid = document.getElementById('mobile-nav-items-grid');
+        if (mobGrid) {
+            const isMem = state.user && !state.user.isVisitor;
+            if (isMem) {
+                mobGrid.className = "grid grid-cols-5 gap-1 items-center max-w-md mx-auto text-center";
+                mobGrid.innerHTML = `
+                    <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="home" class="h-4.5 w-4.5"></i>
+                        <span class="text-[9px] mt-1 font-semibold leading-none">Accueil</span>
+                    </button>
+                    <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="ticket" class="h-4.5 w-4.5"></i>
+                        <span class="text-[9px] mt-1 font-semibold leading-none">Pass</span>
+                    </button>
+                    <button onclick="switchView('finance')" id="mob-nav-finance" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="wallet" class="h-4.5 w-4.5"></i>
+                        <span class="text-[9px] mt-1 font-semibold leading-none">Finance</span>
+                    </button>
+                    <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="calendar" class="h-4.5 w-4.5"></i>
+                        <span class="text-[9px] mt-1 font-semibold leading-none">Programme</span>
+                    </button>
+                    <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="user" class="h-4.5 w-4.5"></i>
+                        <span class="text-[9px] mt-1 font-semibold leading-none">Profil</span>
+                    </button>
+                `;
+            } else {
+                mobGrid.className = "grid grid-cols-4 gap-1 items-center max-w-md mx-auto text-center";
+                mobGrid.innerHTML = `
+                    <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-brand-orange bg-white/10 font-bold">
+                        <i data-lucide="home" class="h-5 w-5"></i>
+                        <span class="text-[10px] mt-1 font-semibold leading-none">Accueil</span>
+                    </button>
+                    <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="ticket" class="h-5 w-5"></i>
+                        <span class="text-[10px] mt-1 font-semibold leading-none">Mon Pass</span>
+                    </button>
+                    <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="calendar" class="h-5 w-5"></i>
+                        <span class="text-[10px] mt-1 font-semibold leading-none">Programme</span>
+                    </button>
+                    <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-slate-400 hover:text-white">
+                        <i data-lucide="user" class="h-5 w-5"></i>
+                        <span class="text-[10px] mt-1 font-semibold leading-none">Profil</span>
+                    </button>
+                `;
+            }
+            initializeLucideIcons();
+        }
         if (!state.user) state.user = DEFAULT_VISITOR_USER;
 
         const user = state.user;
@@ -8630,5 +8719,38 @@
 
     </div>
 </div>
+
+<!-- =========================================================
+     MOBILE APP BOTTOM NAVIGATION BAR (Visible Only on Mobile md:hidden)
+     Provides Instant Native App Feel on Smartphones
+     ========================================================= -->
+<nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090D1F]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 safe-area-pb shadow-2xl transition-transform duration-300">
+    <div class="grid grid-cols-4 gap-1 items-center max-w-md mx-auto text-center" id="mobile-nav-items-grid">
+        <!-- 1. Accueil -->
+        <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-brand-orange bg-white/10 font-bold">
+            <i data-lucide="home" class="h-5 w-5 transition-transform group-active:scale-90"></i>
+            <span class="text-[10px] mt-1 tracking-tight leading-none">Accueil</span>
+        </button>
+
+        <!-- 2. Pass / Billetterie -->
+        <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="ticket" class="h-5 w-5 transition-transform group-active:scale-90"></i>
+            <span class="text-[10px] mt-1 tracking-tight leading-none">Mon Pass</span>
+        </button>
+
+        <!-- 3. Organisation / Programme -->
+        <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="calendar" class="h-5 w-5 transition-transform group-active:scale-90"></i>
+            <span class="text-[10px] mt-1 tracking-tight leading-none">Programme</span>
+        </button>
+
+        <!-- 4. Espace Profil / Utilisateur -->
+        <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="user" class="h-5 w-5 transition-transform group-active:scale-90"></i>
+            <span class="text-[10px] mt-1 tracking-tight leading-none">Profil</span>
+        </button>
+    </div>
+</nav>
+
 </body>
 </html>
