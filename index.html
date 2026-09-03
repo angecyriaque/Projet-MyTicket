@@ -47,9 +47,24 @@
     <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     
     <style>
         /* Festive Jubilee Warm Atmosphere & Shimmer */
+        @keyframes jubilee-pulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), 0 0 30px rgba(255, 90, 54, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.7), 0 0 45px rgba(255, 90, 54, 0.4); }
+        }
+        .jubilee-glow-pulse {
+            animation: jubilee-pulse 3s infinite ease-in-out;
+        }
+        
+        .step-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .step-card-hover:hover {
+            transform: translateY(-4px);
+        }
         .festive-glow {
             background-image: radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.12) 0%, rgba(139, 92, 246, 0.06) 45%, transparent 75%);
         }
@@ -3272,6 +3287,52 @@
     // OFFICIAL EVENT COUNTDOWN TIMER (BILLETTERIE)
     // ==========================================
     let countdownIntervalId = null;
+
+    
+    function triggerJubileeConfetti() {
+        if (typeof confetti !== 'function') return;
+        try {
+            const count = 180;
+            const defaults = { origin: { y: 0.65 } };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55, colors: ['#FFD700', '#FF5A36', '#F59E0B'] });
+            fire(0.20, { spread: 60, colors: ['#8B5CF6', '#10B981', '#FFFFFF'] });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, colors: ['#FFD700', '#FF7A50', '#8B5CF6'] });
+            fire(0.10, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, colors: ['#FF5A36', '#F59E0B', '#10B981'] });
+            fire(0.10, { spread: 120, startVelocity: 45, colors: ['#FFD700', '#FFFFFF', '#FF5A36'] });
+        } catch(e) {
+            console.log("Confetti trigger:", e);
+        }
+    }
+
+    function updateHomeCountdown() {
+        const targetDate = new Date("2027-01-01T20:00:00").getTime();
+        const now = new Date().getTime();
+        const diff = targetDate - now;
+
+        if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const dEl = document.getElementById('home-count-days');
+            const hEl = document.getElementById('home-count-hours');
+            const mEl = document.getElementById('home-count-mins');
+            const sEl = document.getElementById('home-count-secs');
+
+            if (dEl) dEl.innerText = String(days).padStart(2, '0');
+            if (hEl) hEl.innerText = String(hours).padStart(2, '0');
+            if (mEl) mEl.innerText = String(mins).padStart(2, '0');
+            if (sEl) sEl.innerText = String(secs).padStart(2, '0');
+        }
+    }
 
     function startTicketCountdown() {
         // Target Date: 01 Janvier 2027 à 00:00:00 (Local Time)
