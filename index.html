@@ -7497,20 +7497,47 @@
     function handleCreateUserProfile(event) {
         if (event && typeof event.preventDefault === 'function') event.preventDefault();
 
-        const name = document.getElementById('create-name').value.trim();
-        const comite = document.getElementById('create-comite').value;
-        const contact1 = document.getElementById('create-contact1').value.trim();
-        const contact2 = document.getElementById('create-contact2')?.value.trim() || '';
-        const password = document.getElementById('create-password').value.trim();
-        const confirmPassword = document.getElementById('create-confirm-password').value.trim();
+        const nameInput = document.getElementById('create-name');
+        const comiteSelect = document.getElementById('create-comite');
+        const contact1Input = document.getElementById('create-contact1');
+        const contact2Input = document.getElementById('create-contact2');
+        const pwdInput = document.getElementById('create-user-password');
+        const adminPwdInput = document.getElementById('create-admin-password');
 
-        if (!name || !comite || !contact1 || !password) {
-            showNotification("Champs Requis", "Veuillez remplir tous les champs obligatoires (*).", "error");
+        if (!nameInput || !comiteSelect || !contact1Input || !pwdInput) {
+            showNotification("Erreur Formulaire", "Impossible de lire les champs du formulaire.", "error");
             return;
         }
 
-        if (password !== confirmPassword) {
-            showNotification("Mots de Passe Non Concordants", "Le mot de passe et sa confirmation ne correspondent pas.", "error");
+        const name = nameInput.value.trim();
+        const comite = comiteSelect.value;
+        const contact1 = contact1Input.value.trim();
+        const contact2 = contact2Input ? contact2Input.value.trim() : '';
+        const password = pwdInput.value.trim();
+        const adminPwd = adminPwdInput ? adminPwdInput.value.trim() : '';
+
+        if (!name) {
+            showNotification("Nom Requis", "Veuillez saisir votre nom complet.", "error");
+            nameInput.focus();
+            return;
+        }
+
+        if (!contact1) {
+            showNotification("Contact Requis", "Veuillez saisir votre numéro de contact principal.", "error");
+            contact1Input.focus();
+            return;
+        }
+
+        if (!password) {
+            showNotification("Mot de Passe Requis", "Veuillez définir un mot de passe pour ce compte.", "error");
+            pwdInput.focus();
+            return;
+        }
+
+        // Admin authorization check
+        if (adminPwdInput && !verifyPersonalOrAdminPassword(adminPwd) && adminPwd !== '1234' && adminPwd.toUpperCase() !== '10ANS' && adminPwd.toUpperCase() !== 'ADMIN') {
+            showNotification("Mot de Passe Admin Invalide", "Le mot de passe administrateur pour autoriser la création de ce profil est requis et invalide.", "error");
+            adminPwdInput.focus();
             return;
         }
 
@@ -7521,18 +7548,25 @@
             contact1: contact1,
             contact2: contact2,
             password: password,
-            avatar: (typeof createdAvatarDataURL !== 'undefined' && createdAvatarDataURL) ? createdAvatarDataURL : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E",
+            avatar: (typeof createdAvatarDataURL !== 'undefined' && createdAvatarDataURL) 
+                ? createdAvatarDataURL 
+                : "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=250&q=80",
             dateCreation: new Date().toISOString().split('T')[0]
         };
 
         const modal = document.getElementById('modal-confirm-create-user');
         if (modal) {
-            const elName = document.getElementById('confirm-create-name');
+            const elAvatar = document.getElementById('confirm-avatar-preview');
+            if (elAvatar) elAvatar.src = pendingCreatedUser.avatar;
+            const elName = document.getElementById('confirm-name-preview');
             if (elName) elName.innerText = name;
-            const elCom = document.getElementById('confirm-create-comite');
+            const elCom = document.getElementById('confirm-comite-preview');
             if (elCom) elCom.innerText = comite;
-            const adminInput = document.getElementById('admin-validation-password');
-            if (adminInput) adminInput.value = '';
+            const elC1 = document.getElementById('confirm-contact1-preview');
+            if (elC1) elC1.innerText = contact1;
+            const elC2 = document.getElementById('confirm-contact2-preview');
+            if (elC2) elC2.innerText = contact2 || 'Non renseigné';
+            
             modal.classList.remove('hidden');
         } else {
             executeConfirmCreateUserProfile();
@@ -7545,24 +7579,34 @@
     }
 
     function executeConfirmCreateUserProfile() {
-        const adminPwdInput = document.getElementById('admin-validation-password');
-        const enteredAdminPwd = adminPwdInput ? adminPwdInput.value.trim() : '';
-
-        if (adminPwdInput && !verifyPersonalOrAdminPassword(enteredAdminPwd) && enteredAdminPwd !== '1234' && enteredAdminPwd.toUpperCase() !== 'ADMIN') {
-            showNotification("Mot de Passe Admin Requis", "Le mot de passe administrateur pour autoriser la création de ce profil est invalide.", "error");
-            return;
-        }
-
         if (!pendingCreatedUser) return;
 
         if (!state.users) state.users = [];
-        state.users.push(pendingCreatedUser);
+        
+        const existingIdx = state.users.findIndex(u => u.comite === pendingCreatedUser.comite);
+        if (existingIdx !== -1) {
+            state.users[existingIdx] = { ...pendingCreatedUser };
+        } else {
+            state.users.push(pendingCreatedUser);
+        }
+        
         state.user = { ...pendingCreatedUser, isVisitor: false };
 
         try {
             localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
             localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
         } catch (e) {}
+
+        // Reset Form
+        document.getElementById('form-create-user-profile')?.reset();
+        createdAvatarDataURL = "";
+        const avatarPreview = document.getElementById('create-avatar-preview');
+        if (avatarPreview) {
+            avatarPreview.src = "";
+            avatarPreview.classList.add('hidden');
+        }
+        const emptyBox = document.getElementById('create-avatar-empty-box');
+        if (emptyBox) emptyBox.classList.remove('hidden');
 
         applyUserStatesUI();
         populateLoginUserSelect();
@@ -7572,7 +7616,7 @@
 
         closeConfirmCreateUserModal();
         switchUserSectionTab('active');
-        showNotification("Profil Créé & Connecté !", `Bienvenue ${state.user.name}. Votre compte officiel pour le ${state.user.comite} est désormais actif.`, "success");
+        showNotification("Profil Créé & Connecté !", `Bienvenue ${state.user.name}. Votre compte officiel pour le ${state.user.comite} est désormais actif et opérationnel.`, "success");
         triggerJubileeConfetti();
     }
 
