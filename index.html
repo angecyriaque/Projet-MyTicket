@@ -2165,107 +2165,54 @@
                 </div>
             </div>
 
-                        <!-- SUB-VIEW 2: SE CONNECTER À UN PROFIL EXISTANT OU CONNEXION RAPIDE -->
-            <div id="user-section-login" class="hidden space-y-6">
-                <div class="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                        <!-- SUB-VIEW 2: SE CONNECTER À UN COMPTE DE COMITÉ -->
+            <div id="user-section-login" class="space-y-6">
+                <div class="max-w-md mx-auto bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-lg space-y-5">
                     
-                    <!-- Left: Connect to Existing Account -->
-                    <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-md space-y-5">
-                        <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-                            <div class="h-10 w-10 rounded-2xl bg-brand-orange/10 text-brand-orange flex items-center justify-center shrink-0">
-                                <i data-lucide="log-in" class="h-5 w-5"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-display font-black text-base text-slate-900">Comptes Existants</h3>
-                                <p class="text-[11px] text-slate-500">Choisir un profil officiel</p>
+                    <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                        <div class="h-10 w-10 rounded-2xl bg-brand-orange/10 text-brand-orange flex items-center justify-center shrink-0">
+                            <i data-lucide="log-in" class="h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-black text-base text-slate-900">Connexion Organisateur</h3>
+                            <p class="text-[11px] text-slate-500">Sélectionnez votre compte de comité officiel</p>
+                        </div>
+                    </div>
+
+                    <form onsubmit="handleUserLogin(event)" class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700">Sélectionner votre Compte de Comité *</label>
+                            <select id="login-user-select" onchange="onLoginUserSelectChange()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white font-bold text-slate-900 focus:outline-none focus:border-brand-orange">
+                                <!-- Populated dynamically with all 11 committees -->
+                            </select>
+                        </div>
+
+                        <!-- Selected User Mini Card Preview -->
+                        <div id="login-selected-user-preview" class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
+                            <img id="login-preview-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Avatar" class="h-10 w-10 rounded-full object-cover ring-2 ring-brand-orange/30">
+                            <div class="min-w-0">
+                                <h4 id="login-preview-name" class="font-bold text-slate-900 text-xs truncate">Coordination Stratégique</h4>
+                                <p id="login-preview-comite" class="text-[10px] text-brand-orange font-semibold truncate">Compte Officiel</p>
                             </div>
                         </div>
 
-                        <form onsubmit="handleUserLogin(event)" class="space-y-4">
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-700">Sélectionner votre Compte de Comité *</label>
-                                <select id="login-user-select" onchange="onLoginUserSelectChange()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white font-bold text-slate-900 focus:outline-none focus:border-brand-orange">
-                                    <!-- Populated dynamically -->
-                                </select>
-                            </div>
-
-                            <!-- Selected User Mini Card Preview -->
-                            <div id="login-selected-user-preview" class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-                                <img id="login-preview-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Avatar" class="h-10 w-10 rounded-full object-cover ring-2 ring-brand-orange/30">
-                                <div class="min-w-0">
-                                    <h4 id="login-preview-name" class="font-bold text-slate-900 text-xs truncate">Yao Marc-Emmanuel</h4>
-                                    <p id="login-preview-comite" class="text-[10px] text-slate-500 font-semibold truncate">Coordination Stratégique</p>
-                                </div>
-                            </div>
-
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-700">Mot de Passe Utilisateur *</label>
-                                <input type="password" id="login-user-password" placeholder="Mot de passe du profil (ou 1234)" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-brand-orange shadow-inner">
-                            </div>
-
-                            <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
-                                <i data-lucide="log-in" class="h-4 w-4 text-brand-orange"></i>
-                                <span>Se Connecter</span>
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Right: Quick Connect Without Existing Account -->
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-950 text-white p-6 sm:p-7 rounded-3xl border border-slate-800 shadow-xl space-y-5">
-
-    
-                        <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
-                            <div class="h-10 w-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
-                                <i data-lucide="user-check" class="h-5 w-5"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-display font-black text-base text-white">Connexion Sans Compte</h3>
-                                <p class="text-[11px] text-slate-400">Accès direct avec compte utilisateur</p>
-                            </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-700">Mot de Passe Utilisateur *</label>
+                            <input type="password" id="login-user-password" placeholder="Mot de passe du profil (ou 1234)" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-brand-orange shadow-inner">
                         </div>
 
-                        <form onsubmit="handleQuickUserLogin(event)" class="space-y-3.5">
-                            <div class="space-y-1">
-                                <label class="text-xs font-bold text-slate-300">Votre Nom Complet *</label>
-                                <input type="text" id="quick-login-name" required placeholder="Ex: Kouadio Jean-Marc" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400">
-                            </div>
+                        <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="log-in" class="h-4 w-4 text-brand-orange"></i>
+                            <span>Se Connecter</span>
+                        </button>
+                    </form>
 
-                            <div class="space-y-1">
-                                <label class="text-xs font-bold text-slate-300">Comité Concerné *</label>
-                                <select id="quick-login-comite" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-bold focus:outline-none focus:border-emerald-400">
-                                    <option value="Coordination Opérationnelle">Coordination Opérationnelle</option>
-                                    <option value="Coordination Stratégique">Coordination Stratégique</option>
-                                    <option value="Comité Supervision">Comité Supervision</option>
-                                    <option value="Comité Spirituel">Comité Spirituel</option>
-                                    <option value="Comité Communication & Mobilisation">Comité Communication & Mobilisation</option>
-                                    <option value="Comité Animation & Jeux">Comité Animation & Jeux</option>
-                                    <option value="Comité Administratif">Comité Administratif</option>
-                                    <option value="Comité Logistique">Comité Logistique</option>
-                                    <option value="Comité Financier">Comité Financier</option>
-                                    <option value="Comité Restauration">Comité Restauration</option>
-                                    <option value="Comité Accueil & Sécurité">Comité Accueil & Sécurité</option>
-                                </select>
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-xs font-bold text-slate-300">Mot de Passe d'Accès *</label>
-                                <input type="password" id="quick-login-password" required placeholder="Code d'accès (ex: 1234 ou 10ANS)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-mono text-center text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400">
-                            </div>
-
-                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer mt-1">
-                                <i data-lucide="zap" class="h-4 w-4"></i>
-                                <span>Entrer & Activer Session</span>
-                            </button>
-                        </form>
+                    <div class="pt-3 border-t border-slate-100 text-center">
+                        <button onclick="switchUserSectionTab('create')" class="text-xs font-bold text-slate-600 hover:text-indigo-600 transition inline-flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="user-plus" class="h-3.5 w-3.5"></i>
+                            <span>Créer un nouveau profil officiel</span>
+                        </button>
                     </div>
-
-                </div>
-
-                <div class="text-center pt-2">
-                    <button onclick="switchUserSectionTab('create')" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black shadow-md transition inline-flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
-                        <i data-lucide="user-plus" class="h-4 w-4 text-purple-200"></i>
-                        <span>Créer un Profil</span>
-                    </button>
                 </div>
             </div>
 
@@ -7222,6 +7169,14 @@
     }
 
     function switchUserSectionTab(tab) {
+        const isVis = state.user && state.user.isVisitor;
+        
+        // Strict guard: Disconnected / visitor users cannot access 'active' (Mon Profil)
+        if (tab === 'active' && isVis) {
+            showNotification("Connexion Requise", "Veuillez vous connecter à votre compte de comité pour accéder à votre profil.", "info");
+            tab = 'login';
+        }
+
         const tabs = ['active', 'login', 'create'];
         tabs.forEach(t => {
             const sec = document.getElementById(`user-section-${t}`);
@@ -7242,67 +7197,19 @@
         initializeLucideIcons();
     }
 
-    function handleQuickUserLogin(event) {
-        event.preventDefault();
-        const nameInput = document.getElementById('quick-login-name');
-        const comiteSelect = document.getElementById('quick-login-comite');
-        const pwdInput = document.getElementById('quick-login-password');
-
-        if (!nameInput || !comiteSelect || !pwdInput) return;
-
-        const name = nameInput.value.trim();
-        const comite = comiteSelect.value;
-        const enteredPwd = pwdInput.value.trim();
-
-        if (!name) {
-            showNotification("Nom requis", "Veuillez saisir votre nom complet.", "error");
-            return;
-        }
-
-        // Validate password (standard 1234 or admin or personal)
-        if (!verifyPersonalOrAdminPassword(enteredPwd) && enteredPwd !== '1234' && enteredPwd.toUpperCase() !== 'INVITE') {
-            showNotification("Mot de passe incorrect", "Le mot de passe d'accès saisi est invalide.", "error");
-            pwdInput.value = '';
-            pwdInput.focus();
-            return;
-        }
-
-        let user = (state.users || []).find(u => u.name.toLowerCase() === name.toLowerCase());
-        if (!user) {
-            const newUserId = `USR-${String((state.users || []).length + 1).padStart(2, '0')}`;
-            user = {
-                id: newUserId,
-                name: name,
-                comite: comite,
-                contact1: "+225 00 00 00 00",
-                contact2: "",
-                password: enteredPwd,
-                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=250&q=80",
-                dateCreation: new Date().toISOString().split('T')[0]
-            };
-            if (!state.users) state.users = [];
-            state.users.push(user);
-            try {
-                localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
-            } catch(e) {}
-        }
-
-        state.user = { ...user, comite: comite, isVisitor: false };
+    function handleUserLogout() {
+        state.user = { ...DEFAULT_VISITOR_USER };
         try {
             localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
-        } catch(e) {}
+        } catch (e) {}
 
         applyUserStatesUI();
-        populateLoginUserSelect();
-        populateGatewayUserSelect();
-        updateCreateComiteDropdown();
-        renderOrganisationLeaders();
-        nameInput.value = '';
-        pwdInput.value = '';
-        switchUserSectionTab('active');
-        showNotification("Connexion Réussie !", `Bienvenue ${state.user.name}. Vous êtes connecté pour le ${comite}.`, "success");
-        triggerJubileeConfetti();
+        switchView('utilisateur');
+        switchUserSectionTab('login');
+        showNotification("Déconnexion Réussie", "Vous êtes désormais déconnecté. Le profil a été verrouillé.", "info");
     }
+
+    
 
     const OFFICIAL_COMMITTEES = [
         "Coordination Stratégique",
