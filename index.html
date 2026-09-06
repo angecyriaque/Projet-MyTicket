@@ -258,12 +258,12 @@
                         <strong class="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FF5A36] to-[#FF8C00] font-black drop-shadow-sm">Nuit de JACOB à Israël</strong>
                     </h1>
                     
-                    <p class="text-amber-300 text-xs sm:text-sm font-black uppercase tracking-wider mb-3 flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-xl border border-amber-400/30 backdrop-blur-sm">
-                            <i data-lucide="calendar" class="h-4 w-4 text-amber-400"></i> 01 Janvier 2027
+                    <p class="text-white text-xs sm:text-sm font-black uppercase tracking-wider mb-3 flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-xl border border-white/30 backdrop-blur-sm text-white">
+                            <i data-lucide="calendar" class="h-4 w-4 text-white"></i> <span class="text-white font-black">01 Janvier 2027</span>
                         </span>
-                        <span class="inline-flex items-center gap-1.5 bg-black/30 px-3 py-1 rounded-xl border border-amber-400/30 backdrop-blur-sm">
-                            <i data-lucide="map-pin" class="h-4 w-4 text-brand-orange"></i> Conty Place Gold
+                        <span class="inline-flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-xl border border-white/30 backdrop-blur-sm text-white">
+                            <i data-lucide="map-pin" class="h-4 w-4 text-white"></i> <span class="text-white font-black">Conty Place Gold</span>
                         </span>
                     </p>
                     
@@ -422,7 +422,9 @@
 
                     <!-- 2. TIKTOK : OJ HOREB -->
                     <a href="https://vt.tiktok.com/ZSqeg5HyB/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-pink-500/15 hover:bg-gradient-to-r hover:from-pink-600 hover:to-indigo-600 border border-pink-500/40 text-pink-300 hover:text-white transition duration-200 flex items-center gap-1.5 text-xs font-bold shadow-xs">
-                        <i data-lucide="video" class="h-3.5 w-3.5 text-pink-400"></i>
+                        <svg class="h-3.5 w-3.5 fill-current text-pink-300 group-hover:text-white" viewBox="0 0 24 24">
+                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                        </svg>
                         <span>OJ HOREB</span>
                         <i data-lucide="external-link" class="h-3 w-3 opacity-70"></i>
                     </a>
@@ -617,7 +619,7 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
                         <div class="absolute top-4 left-4 z-10">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-violet-500/25 backdrop-blur-md text-violet-300 border border-violet-400/30 shadow-sm">
+                            <span id="home-card-user-badge" class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-violet-500/25 backdrop-blur-md text-violet-300 border border-violet-400/30 shadow-sm">
                                 Espace Organisateur
                             </span>
                         </div>
@@ -628,14 +630,14 @@
                         <div class="absolute bottom-5 left-5 right-5 text-white space-y-2 z-10">
                             <div class="flex items-center gap-3">
                                 <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-violet-500/40 transform group-hover:rotate-6 transition duration-300 border border-white/20">
-                                    <i data-lucide="user-check" class="h-6 w-6"></i>
+                                    <i id="home-card-user-icon" data-lucide="user-check" class="h-6 w-6"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-display font-black text-xl tracking-tight text-white group-hover:text-violet-200 transition">Utilisateur</h3>
-                                    <p class="text-[11px] text-violet-200/90 font-medium">Mon Profil & Paramètres</p>
+                                    <h3 id="home-card-user-title" class="font-display font-black text-xl tracking-tight text-white group-hover:text-violet-200 transition">Utilisateur</h3>
+                                    <p id="home-card-user-sub" class="text-[11px] text-violet-200/90 font-medium">Mon Profil & Paramètres</p>
                                 </div>
                             </div>
-                            <p class="text-xs text-slate-300/95 font-light leading-relaxed">Personnalisez votre identité d'organisateur, modifiez votre photo et vos coordonnées.</p>
+                            <p id="home-card-user-desc" class="text-xs text-slate-300/95 font-light leading-relaxed">Personnalisez votre identité d'organisateur, modifiez votre photo et vos coordonnées.</p>
                         </div>
                     </button>
 
@@ -2033,7 +2035,7 @@
 
                 <!-- Navigation / Sub-Tab Switcher -->
                 <div class="flex p-1.5 bg-slate-200/80 rounded-2xl border border-slate-200 gap-1 shrink-0 self-start sm:self-auto">
-                    <button id="user-tab-btn-active" onclick="switchUserSectionTab('active')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-xs bg-white text-slate-900">
+                    <button id="user-tab-btn-active" onclick="switchUserSectionTab('active')" class="member-only-el px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-xs bg-white text-slate-900">
                         <i data-lucide="user" class="h-3.5 w-3.5 inline mr-1 text-brand-orange"></i> Mon Profil
                     </button>
                     <button id="user-tab-btn-login" onclick="switchUserSectionTab('login')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-slate-900">
@@ -7002,10 +7004,14 @@
 
     
     function applyUserStatesUI() {
+        if (!state.user) state.user = DEFAULT_VISITOR_USER;
+        const user = state.user;
+        const isVis = !!user.isVisitor;
+
         // Adjust Mobile Bottom Nav Bar based on Member vs Visitor Role
         const mobGrid = document.getElementById('mobile-nav-items-grid');
         if (mobGrid) {
-            const isMem = state.user && !state.user.isVisitor;
+            const isMem = !isVis;
             if (isMem) {
                 mobGrid.className = "grid grid-cols-5 gap-1 items-center max-w-md mx-auto text-center";
                 mobGrid.innerHTML = `
@@ -7046,17 +7052,13 @@
                         <span class="text-[10px] mt-1 font-semibold leading-none">Programme</span>
                     </button>
                     <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="user" class="h-5 w-5"></i>
-                        <span class="text-[10px] mt-1 font-semibold leading-none">Profil</span>
+                        <i data-lucide="log-in" class="h-5 w-5"></i>
+                        <span class="text-[10px] mt-1 font-semibold leading-none">Connexion</span>
                     </button>
                 `;
             }
             initializeLucideIcons();
         }
-        if (!state.user) state.user = DEFAULT_VISITOR_USER;
-
-        const user = state.user;
-        const isVis = !!user.isVisitor;
 
         // Dynamic visibility enforcement: Hide non-accessible elements for visitors
         document.querySelectorAll('.member-only-el').forEach(el => {
@@ -7086,12 +7088,27 @@
         if (headName) headName.innerText = user.name || 'Visiteur / Invité';
         if (headRole) {
             if (user.isVisitor) {
-                headRole.innerText = 'Compte Public (Visiteur)';
+                headRole.innerText = 'Compte Public (Visiteur) • Se Connecter';
                 headRole.className = 'text-[10px] text-emerald-400 font-semibold';
             } else {
                 headRole.innerText = user.comite || 'Membre Comité';
                 headRole.className = 'text-[10px] text-brand-orange font-semibold';
             }
+        }
+
+        // Update Home Module Card for User / Connexion
+        const homeCardBadge = document.getElementById('home-card-user-badge');
+        const homeCardTitle = document.getElementById('home-card-user-title');
+        const homeCardSub = document.getElementById('home-card-user-sub');
+        const homeCardDesc = document.getElementById('home-card-user-desc');
+
+        if (homeCardBadge) homeCardBadge.innerText = isVis ? "Connexion Comité" : "Espace Organisateur";
+        if (homeCardTitle) homeCardTitle.innerText = isVis ? "Se Connecter" : "Mon Profil";
+        if (homeCardSub) homeCardSub.innerText = isVis ? "Accès Organisateur" : "Mon Profil & Paramètres";
+        if (homeCardDesc) {
+            homeCardDesc.innerText = isVis 
+                ? "Connectez-vous avec votre compte de comité pour accéder aux outils de gestion et à votre profil."
+                : "Personnalisez votre identité d'organisateur, modifiez votre photo et vos coordonnées.";
         }
 
         // 2. Update Active Profile Tab Elements in #view-utilisateur
@@ -7207,14 +7224,18 @@
             const sec = document.getElementById(`user-section-${t}`);
             const btn = document.getElementById(`user-tab-btn-${t}`);
             if (sec) {
-                if (t === tab) sec.classList.remove('hidden');
+                if (t === tab && (!isVis || t !== 'active')) sec.classList.remove('hidden');
                 else sec.classList.add('hidden');
             }
             if (btn) {
-                if (t === tab) {
-                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-xs bg-white text-slate-900";
+                const isMemOnly = btn.classList.contains('member-only-el') || t === 'active';
+                const baseClass = isMemOnly ? 'member-only-el ' : '';
+                if (isVis && isMemOnly) {
+                    btn.className = `${baseClass}hidden`;
+                } else if (t === tab) {
+                    btn.className = `${baseClass}px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-xs bg-white text-slate-900`;
                 } else {
-                    btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-slate-900";
+                    btn.className = `${baseClass}px-3.5 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-slate-900`;
                 }
             }
         });
