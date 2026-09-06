@@ -958,7 +958,7 @@
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex items-center gap-2.5">
-                        <h3 class="font-display font-bold text-lg text-brand-dark">Registre des Festivaliers (Pass Actifs)</h3>
+                        <h3 class="font-display font-bold text-lg text-brand-dark">Registre des Festivaliers</h3>
                         <span id="reception-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-brand-orange/10 text-brand-orange border border-brand-orange/20 font-mono">0</span>
                     </div>
                     <div class="flex items-center gap-2">
@@ -3258,7 +3258,7 @@
         }
     };
 
-    // Preloaded robust datasets of mock attendees with Categories & Proofs
+        // Preloaded robust datasets of mock attendees with Categories & Proofs
     const MOCK_PARTICIPANTS = [
         { id: "MYT-0001", nom: "N'Guessan", prenom: "Koffi Marc", contact1: "+225 07 45 89 65 32", contact2: "", eglise: "EMCI Horeb Toits Rouges", categorie: "Gold", prix: 30000, modeReglement: "Wave Mobile", preuveReglement: "T_192837465201", checkedIn: true, checkInTime: "19:15", dateTicket: "31/08/2026 à 14:32", statut: "Validé", dateAdded: "2026-08-31T14:32:00Z" },
         { id: "MYT-0002", nom: "Konan", prenom: "Awa Estelle", contact1: "+225 05 12 45 78 96", contact2: "+225 01 02 03 04", eglise: "Assemblée de Dieu Angré", categorie: "VIP", prix: 20000, modeReglement: "Orange Money", preuveReglement: "MP260831.1420.A44120", checkedIn: true, checkInTime: "19:28", dateTicket: "31/08/2026 à 10:15", statut: "Validé", dateAdded: "2026-08-31T10:15:00Z" },
@@ -3266,7 +3266,12 @@
         { id: "MYT-0004", nom: "Koffi", prenom: "Ruth Emmanuelle", contact1: "+225 07 00 22 33 44", contact2: "+225 05 55 66 77", eglise: "Cité de Grâce", categorie: "Gold", prix: 30000, modeReglement: "Wave Mobile", preuveReglement: "T_991827364502", checkedIn: true, checkInTime: "19:40", dateTicket: "31/08/2026 à 09:05", statut: "Validé", dateAdded: "2026-08-31T09:05:00Z" },
         { id: "MYT-0005", nom: "Diomandé", prenom: "Ange David", contact1: "+225 07 77 88 99 00", contact2: "", eglise: "EMCI Plateau", categorie: "Classique", prix: 10000, modeReglement: "Espèces", preuveReglement: "REC-2027-043", checkedIn: false, checkInTime: null, dateTicket: "31/08/2026 à 11:20", statut: "Validé", dateAdded: "2026-08-31T11:20:00Z" },
         { id: "MYT-0006", nom: "Zouzouko", prenom: "Marie-Grace", contact1: "+225 05 99 88 77 66", contact2: "", eglise: "Baptiste Oeuvres", categorie: "Invité", prix: 0, modeReglement: "Offert / Gratuit", preuveReglement: "AUTORISATION-ADMIN-DIR", checkedIn: false, checkInTime: null, dateTicket: "31/08/2026 à 15:10", statut: "Validé", dateAdded: "2026-08-31T15:10:00Z" },
-        { id: "MYT-0007", nom: "Dago", prenom: "Emmanuel", contact1: "+225 01 11 22 33 44", contact2: "", eglise: "Foursquare Marcory", categorie: "VIP", prix: 20000, modeReglement: "Wave Mobile", preuveReglement: "T_554433221100", checkedIn: true, checkInTime: "19:50", dateTicket: "31/08/2026 à 18:30", statut: "Validé", dateAdded: "2026-08-31T18:30:00Z" }
+        { id: "MYT-0007", nom: "Dago", prenom: "Emmanuel", contact1: "+225 01 11 22 33 44", contact2: "", eglise: "Foursquare Marcory", categorie: "VIP", prix: 20000, modeReglement: "Wave Mobile", preuveReglement: "T_554433221100", checkedIn: true, checkInTime: "19:50", dateTicket: "31/08/2026 à 18:30", statut: "Validé", dateAdded: "2026-08-31T18:30:00Z" },
+        { id: "MYT-0008", nom: "Kouamé", prenom: "Jean-Philippe", contact1: "+225 07 89 12 34 56", contact2: "", eglise: "EMCI Horeb Toits Rouges", categorie: "Classique", prix: 10000, modeReglement: "Wave Mobile", preuveReglement: "T_667788990011", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 08:20", statut: "Validé", dateAdded: "2026-09-01T08:20:00Z" },
+        { id: "MYT-0009", nom: "Yao", prenom: "Amenan Sandrine", contact1: "+225 05 44 33 22 11", contact2: "", eglise: "Assemblée de Dieu Plateau", categorie: "VIP", prix: 20000, modeReglement: "Orange Money", preuveReglement: "MP260901.0930.B55210", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 09:30", statut: "Validé", dateAdded: "2026-09-01T09:30:00Z" },
+        { id: "MYT-0010", nom: "Traoré", prenom: "Fatou Grâce", contact1: "+225 07 11 22 33 55", contact2: "+225 01 99 88 77", eglise: "Cité de Restauration", categorie: "Gold", prix: 30000, modeReglement: "Wave Mobile", preuveReglement: "T_778899001122", checkedIn: true, checkInTime: "19:55", dateTicket: "01/09/2026 à 11:15", statut: "Validé", dateAdded: "2026-09-01T11:15:00Z" },
+        { id: "MYT-0011", nom: "Bakayoko", prenom: "Christian", contact1: "+225 01 22 33 44 55", contact2: "", eglise: "Église Baptiste Yopougon", categorie: "Classique", prix: 10000, modeReglement: "Espèces", preuveReglement: "REC-2027-044", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 14:00", statut: "Validé", dateAdded: "2026-09-01T14:00:00Z" },
+        { id: "MYT-0012", nom: "Touré", prenom: "Sarah Noëlle", contact1: "+225 05 66 77 88 99", contact2: "", eglise: "Ministère de la Réconciliation", categorie: "Invité", prix: 0, modeReglement: "Offert / Gratuit", preuveReglement: "AUTORISATION-ADMIN-DIR2", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 16:45", statut: "Validé", dateAdded: "2026-09-01T16:45:00Z" }
     ];
 
     // Seed tracked payment proofs
@@ -3366,10 +3371,10 @@
     function clearLegacyCacheOnFirstRun() {
         try {
             const version = localStorage.getItem('myticket_reset_final_v5');
-            if (version !== 'clean_slate_production_v5') {
+            if (version !== 'clean_slate_production_v6') {
                 localStorage.removeItem('myticket_reset_final_v3');
                 localStorage.removeItem('myticket_reset_final_v4');
-                localStorage.setItem('myticket_reset_final_v5', 'clean_slate_production_v5');
+                localStorage.setItem('myticket_reset_final_v5', 'clean_slate_production_v6');
                 localStorage.setItem('myticket_participants_v6', JSON.stringify(MOCK_PARTICIPANTS));
                 localStorage.setItem('myticket_payment_proofs_v6', JSON.stringify(SEED_PAYMENTS));
                 localStorage.setItem('myticket_users_v3', JSON.stringify([]));
@@ -4789,6 +4794,15 @@
         
         state.currentTicket = newTicket;
         updateTicketPreviewUI(newTicket);
+        
+        // Instant Live Synchronization across all views & registries
+        renderReceptionTable();
+        renderParticipantsTable();
+        populateChurchFilterOptions();
+        updateDashboardStats();
+        renderTablePlan();
+        if (typeof renderFinanceDashboard === 'function') renderFinanceDashboard();
+        if (typeof renderFinanceConsolidation === 'function') renderFinanceConsolidation();
         
         // Reset form inputs
         if (document.getElementById('form-nom')) document.getElementById('form-nom').value = '';
@@ -8002,6 +8016,36 @@
     }
 
     // Comprehensive ticket finder supporting numeric numbers, exact IDs, phones, and names
+    
+    // Function to calculate exact table and seat assignment for any participant
+    function getParticipantTableInfo(p) {
+        if (!p) return { tableName: "Table Non Attribuée", seatNum: "Siège --", fullTableName: "Table --" };
+        const cat = p.categorie || 'Classique';
+        const catParticipants = (state.participants || []).filter(item => (item.categorie || 'Classique') === cat);
+        const pIndex = catParticipants.findIndex(item => item.id === p.id);
+        const index = pIndex >= 0 ? pIndex : 0;
+        
+        const tableNum = Math.floor(index / 10) + 1;
+        const seatNum = (index % 10) + 1;
+        
+        let tableName = "";
+        if (cat === 'Gold') {
+            tableName = `Table ${String(tableNum).padStart(2, '0')} (Gold)`;
+        } else if (cat === 'VIP') {
+            tableName = `Table ${String(tableNum + 5).padStart(2, '0')} (VIP)`;
+        } else if (cat === 'Invité') {
+            tableName = `Table d'Honneur ${String(tableNum).padStart(2, '0')}`;
+        } else {
+            tableName = `Table ${String(tableNum + 10).padStart(2, '0')} (Béthel)`;
+        }
+        
+        return {
+            tableName: tableName,
+            seatNum: `Siège ${String(seatNum).padStart(2, '0')}`,
+            fullTableName: `${tableName} • Siège ${String(seatNum).padStart(2, '0')}`
+        };
+    }
+
     function findParticipantByQuery(query) {
         if (!query) return null;
         const raw = query.toString().trim();
