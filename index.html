@@ -48,6 +48,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     
     <style>
         
@@ -941,7 +942,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
                     <div class="sm:col-span-8 relative">
-                        <input type="text" id="reception-search-input" onkeyup="if(event.key==='Enter') executeQuickCheckIn()" placeholder="Scannez avec la douchette laser ou saisissez Réf Ticket / Nom (ex: MYT-0001)..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-800/90 text-white placeholder-slate-400 text-sm font-semibold border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-inner">
+                        <input type="text" id="reception-search-input" oninput="renderReceptionTable()" onkeyup="if(event.key==='Enter') executeQuickCheckIn()" placeholder="Saisir N° Billet (ex: 1, 0001), Réf (MYT-0001), Téléphone ou Nom..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-800/90 text-white placeholder-slate-400 text-sm font-semibold border border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-inner">
                         <i data-lucide="qr-code" class="h-5 w-5 text-emerald-400 absolute left-4 top-3.5"></i>
                     </div>
                     <div class="sm:col-span-4 flex items-center gap-3">
@@ -2830,11 +2831,17 @@
 
             <!-- Fast Manual / Upload Option inside Scanner -->
             <div class="space-y-2 text-center">
-                <p class="text-xs text-slate-400">Ou sélectionnez une photo de billet / saisissez l'ID :</p>
-                <div class="flex gap-2">
-                    <input type="text" id="modal-scanner-manual-input" placeholder="Ex: MYT-0001" class="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-white text-xs border border-slate-700 focus:outline-none focus:border-emerald-500">
-                    <button onclick="executeModalScan()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition">
-                        Valider
+                <p class="text-xs text-slate-400">Ou importez une capture de QR code / saisissez le numéro :</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <label class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
+                        <i data-lucide="image" class="h-4 w-4 text-emerald-400"></i>
+                        <span>Photo QR Code</span>
+                        <input type="file" accept="image/*" onchange="scanQRFromImageFile(event)" class="hidden">
+                    </label>
+                    <input type="text" id="modal-scanner-manual-input" onkeyup="if(event.key==='Enter') executeModalScan()" placeholder="Ex: 1, 0001, MYT-0001, 0708..." class="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-white text-xs border border-slate-700 focus:outline-none focus:border-emerald-500 font-mono font-bold">
+                    <button onclick="executeModalScan()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i data-lucide="check" class="h-4 w-4"></i>
+                        <span>Émarger</span>
                     </button>
                 </div>
             </div>
@@ -6121,13 +6128,21 @@
                             <td class="py-3 px-4 text-right">
                                 ${statutText === 'Soumis' ? `
                                     <div class="flex items-center justify-end gap-2">
-                                        <button onclick="requestCancelDisbursement('${d.id}')" class="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 transition shadow-2xs cursor-pointer" title="Annuler cette demande (mot de passe requis)">
-                                            <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
-                                        </button>
-                                        <button onclick="openPCOApprovalModal('${d.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
-                                            <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
-                                            <span>Valider Décaissement</span>
-                                        </button>
+                                        ${(isUserAuthorizedToApproveDisbursement(state.user) || (state.user && state.user.name === demandeur)) ? `
+                                            <button onclick="requestCancelDisbursement('${d.id}')" class="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-800 transition shadow-2xs cursor-pointer" title="Annuler cette demande (mot de passe requis)">
+                                                <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+                                            </button>
+                                        ` : ''}
+                                        ${isUserAuthorizedToApproveDisbursement(state.user) ? `
+                                            <button onclick="openPCOApprovalModal('${d.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
+                                                <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+                                                <span>Valider Décaissement</span>
+                                            </button>
+                                        ` : `
+                                            <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 inline-flex items-center gap-1">
+                                                <i data-lucide="clock" class="h-3 w-3 text-amber-600"></i> En attente PCO / Finance
+                                            </span>
+                                        `}
                                     </div>
                                 ` : `
                                     <span class="text-[10px] text-slate-400 italic block">Validé par : ${d.approbateur || d.validePar || 'Direction'}</span>
@@ -7942,6 +7957,20 @@
 
 
     // ==========================================
+    // AUTHORIZATION HELPERS FOR DISBURSEMENTS
+    // ==========================================
+    function isUserAuthorizedToApproveDisbursement(user) {
+        if (!user || user.isVisitor) return false;
+        return ["Coordination Stratégique", "Coordination Opérationnelle", "Comité Financier"].includes(user.comite);
+    }
+
+    function isUserAuthorizedToInitiateDisbursement(committeeName) {
+        if (!state.user || state.user.isVisitor) return false;
+        if (isUserAuthorizedToApproveDisbursement(state.user)) return true;
+        return state.user.comite === committeeName;
+    }
+
+    // ==========================================
     // RECEPTION, SCANNER & DONATION CONTROLLERS
     // ==========================================
     let receptionFilter = 'all';
@@ -7950,12 +7979,12 @@
         receptionFilter = filter;
         const btns = ['all', 'checked', 'pending'];
         btns.forEach(b => {
-            const btn = document.getElementById(`btn-reception-${b}`);
+            const btn = document.getElementById(`rec-btn-${b}`) || document.getElementById(`btn-reception-${b}`);
             if (btn) {
                 if (b === filter) {
-                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-sm transition";
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-xs transition";
                 } else {
-                    btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
                 }
             }
         });
@@ -7966,36 +7995,320 @@
         renderReceptionTable();
     }
 
-    function openLiveCameraScanner() {
-        document.getElementById('modal-camera-scanner')?.classList.remove('hidden');
-        document.getElementById('modal-qr-scanner')?.classList.remove('hidden');
+    // Comprehensive ticket finder supporting numeric numbers, exact IDs, phones, and names
+    function findParticipantByQuery(query) {
+        if (!query) return null;
+        const raw = query.toString().trim();
+        const clean = raw.replace('#', '').toLowerCase();
+        const digitsOnly = raw.replace(/\D/g, '');
+
+        // 1. Direct ID match (e.g. 'MYT-0001', 'TIC-1234', '0001')
+        let p = (state.participants || []).find(part => 
+            part.id.toLowerCase() === clean || 
+            part.id.toLowerCase() === `myt-${clean}` ||
+            `#${part.id}`.toLowerCase() === clean
+        );
+        if (p) return p;
+
+        // 2. Numeric match (e.g. user typed "1" -> matches "MYT-0001", "15" -> "MYT-0015", etc.)
+        if (digitsOnly.length > 0) {
+            const numVal = parseInt(digitsOnly, 10);
+            p = (state.participants || []).find(part => {
+                const partDigits = part.id.replace(/\D/g, '');
+                return partDigits && parseInt(partDigits, 10) === numVal;
+            });
+            if (p) return p;
+
+            // Search by contact numbers
+            p = (state.participants || []).find(part => {
+                const c1 = (part.contact1 || '').replace(/\D/g, '');
+                const c2 = (part.contact2 || '').replace(/\D/g, '');
+                return (c1 && c1.includes(digitsOnly)) || (c2 && c2.includes(digitsOnly));
+            });
+            if (p) return p;
+        }
+
+        // 3. Search by attendee name
+        p = (state.participants || []).find(part => 
+            `${part.prenom || ''} ${part.nom || ''}`.toLowerCase().includes(clean) ||
+            `${part.nom || ''} ${part.prenom || ''}`.toLowerCase().includes(clean)
+        );
+        if (p) return p;
+
+        return null;
+    }
+
+    function renderReceptionTable() {
+        const tbody = document.getElementById('reception-attendees-tbody');
+        if (!tbody) return;
+
+        const totalParticipants = (state.participants || []).length;
+        const checkedCount = (state.participants || []).filter(p => p.checkedIn).length;
+        const pendingCount = totalParticipants - checkedCount;
+        const attendanceRate = totalParticipants > 0 ? Math.round((checkedCount / totalParticipants) * 100) : 0;
+
+        const statTotal = document.getElementById('reception-stat-total');
+        const statChecked = document.getElementById('reception-stat-checked');
+        const statPending = document.getElementById('reception-stat-pending');
+        const statRate = document.getElementById('reception-stat-rate');
+
+        if (statTotal) statTotal.innerText = totalParticipants;
+        if (statChecked) statChecked.innerText = checkedCount;
+        if (statPending) statPending.innerText = pendingCount;
+        if (statRate) statRate.innerText = `${attendanceRate}%`;
+
+        const searchInput = document.getElementById('reception-search-input');
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        const digitsOnly = query.replace(/\D/g, '');
+
+        let list = (state.participants || []);
+
+        // Filter by Status Tab
+        if (receptionFilter === 'checked') {
+            list = list.filter(p => p.checkedIn);
+        } else if (receptionFilter === 'pending') {
+            list = list.filter(p => !p.checkedIn);
+        }
+
+        // Filter by Search Query (Number, ID, Name, Church, Phone)
+        if (query) {
+            const numVal = digitsOnly.length > 0 ? parseInt(digitsOnly, 10) : null;
+            list = list.filter(p => {
+                const idLower = p.id.toLowerCase();
+                const nameLower = `${p.prenom || ''} ${p.nom || ''}`.toLowerCase();
+                const churchLower = (p.eglise || '').toLowerCase();
+                const c1 = (p.contact1 || '').toLowerCase();
+                const c2 = (p.contact2 || '').toLowerCase();
+
+                if (idLower.includes(query) || nameLower.includes(query) || churchLower.includes(query) || c1.includes(query) || c2.includes(query)) {
+                    return true;
+                }
+                if (numVal !== null) {
+                    const partDigits = p.id.replace(/\D/g, '');
+                    if (partDigits && parseInt(partDigits, 10) === numVal) return true;
+                }
+                return false;
+            });
+        }
+
+        tbody.innerHTML = '';
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 italic">Aucun participant ne correspond aux critères sélectionnés.</td></tr>`;
+            return;
+        }
+
+        list.forEach(p => {
+            const tableInfo = getParticipantTableInfo(p);
+            let catColor = "text-blue-600 bg-blue-50 border-blue-200";
+            if (p.categorie === 'Gold') catColor = "text-amber-800 bg-amber-50 border-amber-300 font-black";
+            else if (p.categorie === 'VIP') catColor = "text-purple-800 bg-purple-50 border-purple-300 font-bold";
+            else if (p.categorie === 'Invité') catColor = "text-emerald-800 bg-emerald-50 border-emerald-300 font-bold";
+
+            const isChecked = !!p.checkedIn;
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="py-3 px-4 font-bold text-slate-900">
+                        ${p.prenom} ${p.nom}<br>
+                        <span class="text-[10px] text-slate-400 font-normal">${p.dateTicket || '--'}</span>
+                    </td>
+                    <td class="py-3 px-4 font-mono font-bold text-brand-orange">
+                        #${p.id}<br>
+                        <span class="text-[10px] text-slate-500 font-semibold">${tableInfo.fullTableName}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] uppercase border ${catColor}">${p.categorie || 'Classique'}</span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-600 text-xs truncate max-w-[130px]">${p.eglise || 'EMCI Horeb'}</td>
+                    <td class="py-3 px-4 font-mono text-xs text-slate-600">${p.contact1 || '--'}</td>
+                    <td class="py-3 px-4">
+                        ${isChecked ? `
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                                <i data-lucide="check-circle" class="h-3 w-3 text-emerald-600"></i> Émargé à ${p.checkInTime || '00:00'}
+                            </span>
+                        ` : `
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-300 inline-flex items-center gap-1">
+                                <i data-lucide="clock" class="h-3 w-3 text-slate-400"></i> En Attente
+                            </span>
+                        `}
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        ${isChecked ? `
+                            <button onclick="uncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition inline-flex items-center gap-1 cursor-pointer" title="Annuler l'émargement">
+                                <i data-lucide="rotate-ccw" class="h-3 w-3"></i>
+                                <span>Annuler</span>
+                            </button>
+                        ` : `
+                            <button onclick="executeCheckInForTicketId('${p.id}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                                <span>Émarger</span>
+                            </button>
+                        `}
+                    </td>
+                </tr>
+            `;
+        });
+
         initializeLucideIcons();
+    }
+
+    function uncheckParticipant(participantId) {
+        const p = (state.participants || []).find(part => part.id === participantId);
+        if (!p) return;
+        p.checkedIn = false;
+        p.checkInTime = null;
+        try {
+            localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+        } catch(e) {}
+        renderReceptionTable();
+        renderTablePlan();
+        showNotification("Émargement Annulé", `Le statut de ${p.prenom} ${p.nom} a été réinitialisé à 'En Attente'.`, "info");
+    }
+
+    // QR Camera MediaStream Handler with jsQR Real-Time Decoding
+    let qrMediaStream = null;
+    let qrScanAnimationId = null;
+
+    async function openLiveCameraScanner() {
+        const modal = document.getElementById('modal-qr-scanner');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+
+        const video = document.getElementById('qr-video-feed');
+        const manualInput = document.getElementById('modal-scanner-manual-input');
+        if (manualInput) {
+            manualInput.value = '';
+            manualInput.focus();
+        }
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
+            try {
+                qrMediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                video.srcObject = qrMediaStream;
+                video.setAttribute("playsinline", true);
+                await video.play();
+                startLiveQRDecoder(video);
+            } catch (err) {
+                console.warn("Camera stream error:", err);
+                showNotification("Accès Caméra", "Veuillez autoriser la caméra dans votre navigateur ou utiliser la saisie numérique ci-dessous.", "info");
+            }
+        }
+        initializeLucideIcons();
+    }
+
+    const qrDecodeCanvas = document.createElement('canvas');
+    const qrDecodeCtx = qrDecodeCanvas.getContext('2d', { willReadFrequently: true });
+
+    function startLiveQRDecoder(video) {
+        if (!video || !qrMediaStream) return;
+
+        function scanTick() {
+            if (!qrMediaStream) return;
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                qrDecodeCanvas.height = video.videoHeight;
+                qrDecodeCanvas.width = video.videoWidth;
+                qrDecodeCtx.drawImage(video, 0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
+                const imageData = qrDecodeCtx.getImageData(0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
+
+                if (typeof jsQR !== 'undefined') {
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert"
+                    });
+                    if (code && code.data) {
+                        // QR Code successfully read!
+                        closeLiveCameraScanner();
+                        executeCheckInForTicketId(code.data);
+                        return;
+                    }
+                }
+            }
+            qrScanAnimationId = requestAnimationFrame(scanTick);
+        }
+        qrScanAnimationId = requestAnimationFrame(scanTick);
     }
 
     function closeLiveCameraScanner() {
         document.getElementById('modal-camera-scanner')?.classList.add('hidden');
         document.getElementById('modal-qr-scanner')?.classList.add('hidden');
+
+        if (qrScanAnimationId) {
+            cancelAnimationFrame(qrScanAnimationId);
+            qrScanAnimationId = null;
+        }
+        if (qrMediaStream) {
+            qrMediaStream.getTracks().forEach(track => track.stop());
+            qrMediaStream = null;
+        }
+        const video = document.getElementById('qr-video-feed');
+        if (video) video.srcObject = null;
+    }
+
+    function scanQRFromImageFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(img, 0, 0);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                if (typeof jsQR !== 'undefined') {
+                    const code = jsQR(imgData.data, imgData.width, imgData.height);
+                    if (code && code.data) {
+                        closeLiveCameraScanner();
+                        executeCheckInForTicketId(code.data);
+                    } else {
+                        showNotification("QR Code Non Détecté", "Aucun QR code lisible n'a été trouvé sur cette photo.", "warning");
+                    }
+                } else {
+                    showNotification("Scanner", "Moteur de scan QR non prêt.", "error");
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 
     function executeModalScan() {
-        const idInput = document.getElementById('camera-scan-id-input') || document.getElementById('manual-scan-code-input');
+        const idInput = document.getElementById('modal-scanner-manual-input') || document.getElementById('camera-scan-id-input') || document.getElementById('manual-scan-code-input');
         const id = idInput ? idInput.value.trim() : '';
         if (!id) {
-            showNotification("Saisie requise", "Veuillez saisir ou scanner une référence.", "error");
+            showNotification("Saisie requise", "Veuillez saisir le numéro ou la référence du billet.", "error");
             return;
         }
-        executeCheckInForTicketId(id);
         closeLiveCameraScanner();
+        executeCheckInForTicketId(id);
+    }
+
+    function executeQuickCheckIn() {
+        const searchInput = document.getElementById('reception-search-input');
+        const query = searchInput ? searchInput.value.trim() : '';
+        if (!query) {
+            showNotification("Saisie requise", "Veuillez saisir un numéro de billet, une référence ou un nom.", "warning");
+            return;
+        }
+        executeCheckInForTicketId(query);
     }
 
     function executeCheckInForTicketId(query) {
-        const cleanQuery = query.replace('#', '').trim().toLowerCase();
-        const p = state.participants.find(part => part.id.toLowerCase() === cleanQuery || (part.contact1 && part.contact1.includes(cleanQuery)) || (part.nom && part.nom.toLowerCase().includes(cleanQuery)));
+        const p = findParticipantByQuery(query);
 
         if (p) {
             p.checkedIn = true;
-            p.checkInTime = new Date().toLocaleTimeString('fr-FR');
-            
+            const now = new Date();
+            p.checkInTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            try {
+                localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+            } catch (e) {}
+
             const tableInfo = getParticipantTableInfo(p);
             const nameEl = document.getElementById('popup-checkin-name');
             const churchEl = document.getElementById('popup-checkin-church');
@@ -8005,18 +8318,22 @@
             const timeEl = document.getElementById('popup-checkin-time');
 
             if (nameEl) nameEl.innerText = `${p.prenom} ${p.nom}`;
-            if (churchEl) churchEl.innerText = p.eglise;
+            if (churchEl) churchEl.innerText = p.eglise || 'EMCI Horeb';
             if (tableEl) tableEl.innerText = tableInfo.fullTableName;
-            if (catEl) catEl.innerText = `Pass ${p.categorie} • ${p.prix.toLocaleString('fr-FR')} FCFA`;
+            if (catEl) catEl.innerText = `Pass ${p.categorie} • ${Number(p.prix || 0).toLocaleString('fr-FR')} FCFA`;
             if (refEl) refEl.innerText = `#${p.id}`;
             if (timeEl) timeEl.innerText = p.checkInTime;
+
+            const searchInput = document.getElementById('reception-search-input');
+            if (searchInput) searchInput.value = '';
 
             document.getElementById('modal-checkin-success')?.classList.remove('hidden');
             renderReceptionTable();
             renderTablePlan();
-            showNotification("Accès Validé", `${p.prenom} ${p.nom} émargé avec succès.`, "success");
+            showNotification("Accès Validé & Émargé !", `Bienvenue ${p.prenom} ${p.nom} • ${tableInfo.fullTableName}`, "success");
+            triggerJubileeConfetti();
         } else {
-            showNotification("Billet Non Trouvé", `Aucun participant ne correspond à "${query}".`, "error");
+            showNotification("Billet Introuvable", `Aucun participant ne correspond au numéro ou nom "${query}".`, "error");
         }
     }
 
@@ -8463,12 +8780,17 @@
             const author = line.enregistrePar || state.user.name;
 
             let actionCellHTML = '';
+            const canInitiateDisb = isUserAuthorizedToInitiateDisbursement(committee.name);
+
             if (displayStatut === 'Soumis') {
                 actionCellHTML = `
-                    <div class="flex items-center justify-end">
-                        <button onclick="requestCancelDisbursementForLine('${line.id}')" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition shadow-2xs cursor-pointer" title="Annuler la demande de décaissement (mot de passe requis)">
-                            <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
-                        </button>
+                    <div class="flex items-center justify-end gap-1.5">
+                        ${canInitiateDisb ? `
+                            <button onclick="requestCancelDisbursementForLine('${line.id}')" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition shadow-2xs cursor-pointer" title="Annuler la demande de décaissement (mot de passe requis)">
+                                <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+                            </button>
+                        ` : ''}
+                        <span class="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">En Attente</span>
                     </div>
                 `;
             } else if (displayStatut === 'Effectué') {
@@ -8482,13 +8804,17 @@
             } else {
                 actionCellHTML = `
                     <div class="flex items-center justify-end gap-1.5">
-                        <button onclick="launchDisbursementForLine('${line.id}')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold shadow-xs transition flex items-center gap-1 cursor-pointer" title="Initier décaissement pour cette ligne">
-                            <i data-lucide="send" class="h-3 w-3 text-brand-orange"></i>
-                            <span>Décaisser</span>
-                        </button>
-                        <button onclick="requestDeleteExpenseLine('${committee.id}', '${line.id}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer" title="Supprimer la ligne (mot de passe requis)">
-                            <i data-lucide="trash-2" class="h-4 w-4"></i>
-                        </button>
+                        ${canInitiateDisb ? `
+                            <button onclick="launchDisbursementForLine('${line.id}')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold shadow-xs transition flex items-center gap-1 cursor-pointer" title="Initier décaissement pour cette ligne">
+                                <i data-lucide="send" class="h-3 w-3 text-brand-orange"></i>
+                                <span>Décaisser</span>
+                            </button>
+                            <button onclick="requestDeleteExpenseLine('${committee.id}', '${line.id}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer" title="Supprimer la ligne (mot de passe requis)">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            </button>
+                        ` : `
+                            <span class="text-[9px] font-semibold text-slate-400 italic">Lecture seule</span>
+                        `}
                     </div>
                 `;
             }
