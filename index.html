@@ -957,7 +957,10 @@
 
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h3 class="font-display font-bold text-lg text-brand-dark">Registre des Festivaliers</h3>
+                    <div class="flex items-center gap-2.5">
+                        <h3 class="font-display font-bold text-lg text-brand-dark">Registre des Festivaliers (Pass Actifs)</h3>
+                        <span id="reception-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-brand-orange/10 text-brand-orange border border-brand-orange/20 font-mono">0</span>
+                    </div>
                     <div class="flex items-center gap-2">
                         <button onclick="filterReception('all')" id="rec-btn-all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-orange text-white">Tous</button>
                         <button onclick="filterReception('checked')" id="rec-btn-checked" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">Émargés</button>
@@ -3362,12 +3365,13 @@
     
     function clearLegacyCacheOnFirstRun() {
         try {
-            const version = localStorage.getItem('myticket_reset_final_v3');
-            if (version !== 'clean_slate_production_v3') {
-                localStorage.clear();
-                localStorage.setItem('myticket_reset_final_v3', 'clean_slate_production_v3');
-                localStorage.setItem('myticket_participants_v6', JSON.stringify([]));
-                localStorage.setItem('myticket_payment_proofs_v6', JSON.stringify({}));
+            const version = localStorage.getItem('myticket_reset_final_v5');
+            if (version !== 'clean_slate_production_v5') {
+                localStorage.removeItem('myticket_reset_final_v3');
+                localStorage.removeItem('myticket_reset_final_v4');
+                localStorage.setItem('myticket_reset_final_v5', 'clean_slate_production_v5');
+                localStorage.setItem('myticket_participants_v6', JSON.stringify(MOCK_PARTICIPANTS));
+                localStorage.setItem('myticket_payment_proofs_v6', JSON.stringify(SEED_PAYMENTS));
                 localStorage.setItem('myticket_users_v3', JSON.stringify([]));
                 localStorage.setItem('myticket_active_user_v3', JSON.stringify(DEFAULT_VISITOR_USER));
             }
@@ -3433,7 +3437,13 @@
         try {
             const stored = localStorage.getItem('myticket_participants_v6');
             if (stored) {
-                state.participants = JSON.parse(stored);
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    state.participants = parsed;
+                } else {
+                    state.participants = [...MOCK_PARTICIPANTS];
+                    localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+                }
             } else {
                 state.participants = [...MOCK_PARTICIPANTS];
                 localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
@@ -8052,6 +8062,9 @@
         if (statChecked) statChecked.innerText = checkedCount;
         if (statPending) statPending.innerText = pendingCount;
         if (statRate) statRate.innerText = `${attendanceRate}%`;
+
+        const countBadge = document.getElementById('reception-count-badge');
+        if (countBadge) countBadge.innerText = `${totalParticipants} Participants`;
 
         const searchInput = document.getElementById('reception-search-input');
         const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
