@@ -2198,7 +2198,12 @@
 
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-700">Mot de Passe Utilisateur *</label>
-                            <input type="password" id="login-user-password" placeholder="Mot de passe du profil (ou 1234)" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-brand-orange shadow-inner">
+                            <div class="relative">
+                                <input type="password" id="login-user-password" placeholder="Mot de passe du profil (ou 1234)" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-brand-orange shadow-inner">
+                                <button type="button" onclick="togglePasswordVisibility('login-user-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-orange transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                                    <i data-lucide="eye" class="h-4 w-4"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
@@ -3059,7 +3064,12 @@
             <!-- Password Input -->
             <div class="space-y-1.5">
                 <label class="text-xs font-bold text-slate-700 block">Mot de Passe du Titulaire *</label>
-                <input type="password" id="pco-auth-code" onkeyup="if(event.key==='Enter') executePCOApproval()" placeholder="Saisir votre mot de passe d'autorisation" class="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-mono tracking-widest text-center focus:outline-none focus:border-emerald-500 shadow-inner">
+                <div class="relative">
+                    <input type="password" id="pco-auth-code" onkeyup="if(event.key==='Enter') executePCOApproval()" placeholder="Saisir votre mot de passe d'autorisation" class="w-full pl-4 pr-10 py-3 rounded-2xl border-2 border-slate-200 text-sm font-mono tracking-widest text-center focus:outline-none focus:border-emerald-500 shadow-inner">
+                    <button type="button" onclick="togglePasswordVisibility('pco-auth-code', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                        <i data-lucide="eye" class="h-4 w-4"></i>
+                    </button>
+                </div>
                 <p class="text-[10px] text-slate-400">La décision sera formellement enregistrée avec le nom de l'approbateur.</p>
             </div>
 
@@ -3353,6 +3363,21 @@
         initializeLucideIcons();
         startTicketCountdown();
     };
+
+    function togglePasswordVisibility(inputId, buttonEl) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        
+        if (buttonEl) {
+            buttonEl.setAttribute('title', isPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+            buttonEl.innerHTML = isPassword 
+                ? '<i data-lucide="eye-off" class="h-4 w-4"></i>' 
+                : '<i data-lucide="eye" class="h-4 w-4"></i>';
+            initializeLucideIcons();
+        }
+    }
 
     function initializeLucideIcons() {
         try {
