@@ -48,6 +48,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     
     <style>
@@ -4168,70 +4169,65 @@
         return `MYT-${String(maxSeq + 1).padStart(4, '0')}`;
     }
 
-    // Real High-Contrast Crisp QR Code Generator for Ticket Stub
+    // ISO/IEC 18004 Standard QR Code Generator for High-Accuracy Camera & Scanner Recognition
     function generateQRGrid(ticketId) {
         const svg = document.getElementById('ticket-qr');
-        if (!svg) return;
+        const printSvg = document.getElementById('print-qr-svg');
+        if (!svg && !printSvg) return;
 
         if (!ticketId || ticketId === 'EMPTY') {
-            svg.innerHTML = `
+            const emptyHTML = `
                 <rect width="100" height="100" fill="#f8fafc" rx="6" />
                 <path d="M20 20 h20 v20 h-20 z M60 20 h20 v20 h-20 z M20 60 h20 v20 h-20 z" fill="#cbd5e1" />
                 <text x="50" y="55" font-family="monospace" font-size="9" font-weight="bold" fill="#94a3b8" text-anchor="middle">EN ATTENTE</text>
             `;
+            if (svg) svg.innerHTML = emptyHTML;
+            if (printSvg) printSvg.innerHTML = emptyHTML;
             return;
         }
 
-        let hash = 0;
-        const seedStr = String(ticketId) + "JACOB2027";
-        for (let i = 0; i < seedStr.length; i++) {
-            hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
-            hash |= 0;
-        }
+        const cleanCode = ticketId.toString().trim();
+        
+        try {
+            if (typeof qrcode !== 'undefined') {
+                const qr = qrcode(0, 'M'); // Error correction level M (15% redundancy)
+                qr.addData(cleanCode);
+                qr.make();
 
-        const size = 21;
-        const cellSize = 100 / size;
-        let rects = '';
+                const moduleCount = qr.getModuleCount();
+                const margin = 2; // Required ISO standard quiet zone
+                const totalModules = moduleCount + margin * 2;
+                const cellSize = 100 / totalModules;
 
-        const isFinder = (r, c) => {
-            if (r < 7 && c < 7) return true;
-            if (r < 7 && c >= size - 7) return true;
-            if (r >= size - 7 && c < 7) return true;
-            return false;
-        };
-
-        const drawFinder = (startX, startY) => {
-            rects += `<rect x="${startX * cellSize}" y="${startY * cellSize}" width="${7 * cellSize}" height="${7 * cellSize}" fill="#0f172a" rx="1.5" />`;
-            rects += `<rect x="${(startX + 1) * cellSize}" y="${(startY + 1) * cellSize}" width="${5 * cellSize}" height="${5 * cellSize}" fill="#ffffff" />`;
-            rects += `<rect x="${(startX + 2) * cellSize}" y="${(startY + 2) * cellSize}" width="${3 * cellSize}" height="${3 * cellSize}" fill="#0f172a" rx="0.5" />`;
-        };
-
-        drawFinder(0, 0);
-        drawFinder(size - 7, 0);
-        drawFinder(0, size - 7);
-
-        for (let i = 7; i < size - 7; i++) {
-            if (i % 2 === 0) {
-                rects += `<rect x="${i * cellSize}" y="${6 * cellSize}" width="${cellSize}" height="${cellSize}" fill="#0f172a" />`;
-                rects += `<rect x="${6 * cellSize}" y="${i * cellSize}" width="${cellSize}" height="${cellSize}" fill="#0f172a" />`;
-            }
-        }
-
-        for (let r = 0; r < size; r++) {
-            for (let c = 0; c < size; c++) {
-                if (isFinder(r, c) || (r === 6 && c >= 7 && c < size - 7) || (c === 6 && r >= 7 && r < size - 7)) continue;
-                const bit = Math.abs(Math.sin((r * 31 + c * 17 + hash)) * 10000) % 1 > 0.48;
-                if (bit) {
-                    rects += `<rect x="${c * cellSize}" y="${r * cellSize}" width="${cellSize * 0.95}" height="${cellSize * 0.95}" fill="#0f172a" rx="0.3" />`;
+                let rects = '';
+                for (let r = 0; r < moduleCount; r++) {
+                    for (let c = 0; c < moduleCount; c++) {
+                        if (qr.isDark(r, c)) {
+                            const x = ((c + margin) * cellSize).toFixed(2);
+                            const y = ((r + margin) * cellSize).toFixed(2);
+                            const w = (cellSize + 0.05).toFixed(2); // Overlap slightly to prevent subpixel antialiasing gaps
+                            const h = (cellSize + 0.05).toFixed(2);
+                            rects += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#090D1F" />`;
+                        }
+                    }
                 }
-            }
-        }
 
-        svg.innerHTML = `
-            <rect width="100" height="100" fill="#ffffff" rx="4" />
-            ${rects}
-        `;
-    }
+                const fullSvg = `
+                    <rect width="100" height="100" fill="#ffffff" rx="4" />
+                    ${rects}
+                `;
+
+                if (svg) svg.innerHTML = fullSvg;
+                if (printSvg) printSvg.innerHTML = fullSvg;
+            } else {
+                console.warn("qrcode library not loaded yet.");
+            }
+        } catch (e) {
+            console.error("Error generating QR code:", e);
+        }
+    };
+
+
 
     // Dynamic Live Preview synchronized in real-time as user types in form
     function updateLiveTicketPreviewFromForm() {
