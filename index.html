@@ -1450,6 +1450,17 @@
                             <div id="form-category-availability-notice" class="hidden text-[11px] font-bold p-2.5 rounded-xl border transition-all"></div>
                         </div>
 
+                        <!-- Info Rappel Cadeau Mixte -->
+                        <div class="p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-300/60 flex items-center gap-2.5 text-xs text-amber-950 shadow-2xs">
+                            <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-amber-500 to-brand-orange text-white flex items-center justify-center shrink-0 shadow-xs text-sm">
+                                🎁
+                            </div>
+                            <div class="leading-tight">
+                                <span class="font-extrabold uppercase tracking-wider text-[10px] text-brand-orange block">Célébration des 10 Ans</span>
+                                <span class="font-bold text-slate-800 text-[11px]">Chaque participant est prié de venir avec un <strong class="text-amber-900 font-black">cadeau mixte</strong>.</span>
+                            </div>
+                        </div>
+
                         <!-- SECTION: ANALYSE INTELLIGENTE DE LA PREUVE DE PAIEMENT -->
                         <div id="payment-verification-container" class="space-y-2.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                             <div class="flex items-center justify-between">
@@ -1573,10 +1584,20 @@
                                         <p id="ticket-status-label" class="font-bold text-slate-500 text-[10px] font-mono truncate">--</p>
                                     </div>
                                 </div>
+
+                                <!-- Cadeau Mixte Special Note Banner on Ticket -->
+                                <div class="mt-2 py-1 px-2.5 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 rounded-xl border border-amber-300/80 flex items-center gap-2 shadow-2xs">
+                                    <span class="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md bg-gradient-to-tr from-amber-500 to-brand-orange text-white shadow-xs text-[11px]">
+                                        🎁
+                                    </span>
+                                    <p class="text-[9.5px] sm:text-[10px] font-extrabold text-amber-950 leading-tight">
+                                        <strong class="text-brand-orange uppercase">Rappel :</strong> Venir avec un <span class="underline decoration-amber-500 font-black text-amber-900">cadeau mixte</span>
+                                    </p>
+                                </div>
                             </div>
 
                             <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[8px] text-slate-400 font-mono">
-                                <span>10 Ans de Grâce • 1 Personne</span>
+                                <span>10 Ans de Grâce • 1 Personne • Cadeau Mixte</span>
                                 <span>Billet Officiel</span>
                             </div>
                         </div>
@@ -5434,7 +5455,7 @@
 
     function copyTicketDetailsFallback() {
         if (!state.currentTicket) return;
-        const text = `Pass #${state.currentTicket.id} - ${state.currentTicket.prenom} ${state.currentTicket.nom} (${state.currentTicket.categorie})`;
+        const text = `Pass #${state.currentTicket.id} - ${state.currentTicket.prenom} ${state.currentTicket.nom} (${state.currentTicket.categorie})\n🎁 Rappel : Venir avec un cadeau mixte pour la célébration des 10 Ans.`;
         navigator.clipboard.writeText(text);
         showNotification("Copié !", text, "success");
     }
@@ -8666,10 +8687,18 @@
                                 <span style="font-size: 9px; font-weight: 900; color: #059669; display: block;">✓ ACCÈS VALIDÉ</span>
                             </div>
                         </div>
+
+                        <!-- Note Cadeau Mixte en Impression -->
+                        <div style="margin-top: 4px; padding: 2px 6px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 10px;">🎁</span>
+                            <span style="font-size: 7.5px; font-weight: 800; color: #78350f; line-height: 1.1;">
+                                <strong style="color: #ea580c;">IMPORTANT :</strong> Venir avec un <span style="text-decoration: underline; font-weight: 900;">cadeau mixte</span> pour la célébration.
+                            </span>
+                        </div>
                     </div>
 
                     <div style="border-top: 1px solid #f1f5f9; padding-top: 3px; display: flex; justify-content: space-between; font-size: 7px; color: #94a3b8; font-family: monospace;">
-                        <span>10 ANS DE GRÂCE • 1 PLACE ASSISE</span>
+                        <span>10 ANS DE GRÂCE • 1 PLACE ASSISE • CADEAU MIXTE</span>
                         <span>DOCUMENT STRICTEMENT PERSONNEL</span>
                     </div>
                 </div>
