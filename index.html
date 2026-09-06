@@ -2517,6 +2517,33 @@
     </div>
 </div>
 
+
+<!-- MODAL: AUTORISATION ADMIN POUR ANNULATION D'ÉMARGEMENT -->
+<div id="modal-admin-uncheck" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95">
+        <div class="h-14 w-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-inner">
+            <i data-lucide="shield-alert" class="h-7 w-7"></i>
+        </div>
+        <div class="space-y-1">
+            <h3 class="font-display font-black text-lg text-slate-900">Annulation d'Émargement</h3>
+            <p id="admin-uncheck-desc" class="text-xs text-slate-500 leading-relaxed">Seul un <strong>Administrateur</strong> est habilité à annuler un émargement validé.</p>
+        </div>
+        <div id="admin-uncheck-auth-fields" class="space-y-3 text-left">
+            <label class="text-xs font-bold text-slate-700">Code / Mot de Passe Administrateur *</label>
+            <div class="relative">
+                <input type="password" id="admin-uncheck-code-input" onkeyup="if(event.key==='Enter') confirmAdminUncheck()" placeholder="Entrez le code admin (ex: 10ANS)" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-200 text-sm font-bold tracking-wider focus:outline-none focus:border-red-500">
+                <button type="button" onclick="togglePasswordVisibility('admin-uncheck-code-input', this)" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600">
+                    <i data-lucide="eye" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="closeAdminUncheckModal()" class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition">Fermer</button>
+            <button onclick="confirmAdminUncheck()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md transition">Valider</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODALS FOR FINANCE & PRINT -->
 <!-- MODALE DEMANDE DE DÉCAISSEMENT STRICTEMENT LIÉE AU BUDGET -->
 <div id="modal-disbursement" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
@@ -8088,7 +8115,7 @@
         return null;
     }
 
-    function renderReceptionTable() {
+        function renderReceptionTable() {
         const tbody = document.getElementById('reception-attendees-tbody');
         if (!tbody) return;
 
@@ -8186,9 +8213,9 @@
                     </td>
                     <td class="py-3 px-4 text-right">
                         ${isChecked ? `
-                            <button onclick="uncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition inline-flex items-center gap-1 cursor-pointer" title="Annuler l'émargement">
-                                <i data-lucide="rotate-ccw" class="h-3 w-3"></i>
-                                <span>Annuler</span>
+                            <button onclick="requestUncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Seul un Administrateur peut annuler l'émargement">
+                                <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-amber-600"></i>
+                                <span>Annuler (Admin)</span>
                             </button>
                         ` : `
                             <button onclick="executeCheckInForTicketId('${p.id}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
@@ -8204,7 +8231,82 @@
         initializeLucideIcons();
     }
 
-    function uncheckParticipant(participantId) {
+    // ==========================================
+    // ADMIN-ONLY CHECK-IN CANCELLATION CONTROLLERS
+    // ==========================================
+    let pendingUncheckParticipantId = null;
+
+    function isUserAdmin(user) {
+        if (!user || user.isVisitor) return false;
+        if (user.isAdmin === true || user.role === 'Administrateur' || user.role === 'PCO' || user.isSuperAdmin) return true;
+        return ["Coordination Stratégique", "Coordination Opérationnelle", "Comité Administratif", "Comité Financier", "Comité Supervision"].includes(user.comite);
+    }
+
+    function requestUncheckParticipant(participantId) {
+        const p = (state.participants || []).find(part => part.id === participantId);
+        if (!p) return;
+
+        pendingUncheckParticipantId = participantId;
+
+        // 1. If currently connected user is authenticated as Administrator, confirm directly
+        if (isUserAdmin(state.user)) {
+            if (confirm(`ADMINISTRATION : Confirmez-vous l'annulation de l'émargement de ${p.prenom} ${p.nom} (#${p.id}) pour le remettre 'En Attente' ?`)) {
+                executeUncheckParticipant(participantId);
+            }
+            return;
+        }
+
+        // 2. If non-admin or visitor, require Administrator Security Code / Password in Modal
+        const modal = document.getElementById('modal-admin-uncheck');
+        if (modal) {
+            const descEl = document.getElementById('admin-uncheck-desc');
+            if (descEl) {
+                descEl.innerHTML = `Participant : <strong class="text-slate-900">${p.prenom} ${p.nom} (#${p.id})</strong><br>Seul un <strong>Administrateur</strong> habilité peut annuler un émargement validé. Veuillez saisir le code secret d'autorisation.`;
+            }
+            const input = document.getElementById('admin-uncheck-code-input');
+            if (input) {
+                input.value = '';
+                input.type = 'password';
+            }
+            modal.classList.remove('hidden');
+            if (input) setTimeout(() => input.focus(), 100);
+            initializeLucideIcons();
+        }
+    }
+
+    function closeAdminUncheckModal() {
+        pendingUncheckParticipantId = null;
+        document.getElementById('modal-admin-uncheck')?.classList.add('hidden');
+    }
+
+    function confirmAdminUncheck() {
+        if (!pendingUncheckParticipantId) {
+            closeAdminUncheckModal();
+            return;
+        }
+
+        const input = document.getElementById('admin-uncheck-code-input');
+        const enteredCode = input ? input.value.trim() : '';
+
+        if (!enteredCode) {
+            showNotification("Code Requis", "Veuillez entrer le mot de passe administrateur pour autoriser l'annulation.", "warning");
+            return;
+        }
+
+        // Verify against master admin passwords or registered committee admin passwords
+        const isGlobalValid = verifyPersonalOrAdminPassword(enteredCode);
+        const isAccountValid = (state.users || []).some(u => isUserAdmin(u) && u.password && u.password.toUpperCase() === enteredCode.toUpperCase());
+
+        if (isGlobalValid || isAccountValid) {
+            const targetId = pendingUncheckParticipantId;
+            closeAdminUncheckModal();
+            executeUncheckParticipant(targetId);
+        } else {
+            showNotification("Accès Refusé", "Code administrateur incorrect. Seul un administrateur est habilité à annuler un émargement.", "error");
+        }
+    }
+
+    function executeUncheckParticipant(participantId) {
         const p = (state.participants || []).find(part => part.id === participantId);
         if (!p) return;
         p.checkedIn = false;
@@ -8214,7 +8316,12 @@
         } catch(e) {}
         renderReceptionTable();
         renderTablePlan();
-        showNotification("Émargement Annulé", `Le statut de ${p.prenom} ${p.nom} a été réinitialisé à 'En Attente'.`, "info");
+        updateDashboardStats();
+        showNotification("Émargement Annulé", `Le statut de ${p.prenom} ${p.nom} a été réinitialisé à 'En Attente' par l'Administrateur.`, "info");
+    }
+
+    function uncheckParticipant(participantId) {
+        requestUncheckParticipant(participantId);
     }
 
     // QR Camera MediaStream Handler with jsQR Real-Time Decoding
