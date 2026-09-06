@@ -3078,10 +3078,9 @@
             <div class="space-y-1.5">
                 <label class="text-xs font-bold text-slate-700 block">Fonction / Titulaire de l'Approbation *</label>
                 <select id="pco-approver-select" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-white font-bold text-slate-900 focus:outline-none focus:border-brand-orange">
-                    <option value="Sarah Kouadio (PCO Opérationnel)">Sarah Kouadio — PCO Opérationnel</option>
-                    <option value="Yao Marc-Emmanuel (PCO Stratégique)">Yao Marc-Emmanuel — PCO Stratégique</option>
-                    <option value="Aude-Eunice Koffi (Comité Financier)">Aude-Eunice Koffi — Comité Financier / Trésorerie</option>
+                    <!-- Dynamiquement alimenté avec les comptes créés (Coordination Stratégique, Coordination Opérationnelle, Comité Financier) -->
                 </select>
+                <p class="text-[10px] text-slate-400">Seuls les comptes créés de la Coordination Stratégique, Opérationnelle et du Comité Financier sont habilités.</p>
             </div>
 
             <!-- Password Input -->
@@ -6433,10 +6432,60 @@
     }
 
     
+    const AUTHORIZED_PCO_FINANCE_COMMITTEES = [
+        "Coordination Stratégique",
+        "Coordination Opérationnelle",
+        "Comité Financier"
+    ];
+
+    function getPCOFinanceRoleLabel(comite) {
+        if (comite === "Coordination Stratégique") return "PCO Stratégique";
+        if (comite === "Coordination Opérationnelle") return "PCO Opérationnel";
+        if (comite === "Comité Financier") return "Comité Financier / Trésorerie";
+        return comite;
+    }
+
+    function populatePCOApproversDropdown() {
+        const select = document.getElementById('pco-approver-select');
+        if (!select) return;
+
+        select.innerHTML = '';
+
+        // Filtrer strictement les comptes créés (non visiteurs) appartenant aux 3 comités autorisés
+        const validUsers = (state.users || []).filter(u => 
+            !u.isVisitor && 
+            u.name && 
+            u.name.trim() !== '' &&
+            AUTHORIZED_PCO_FINANCE_COMMITTEES.includes(u.comite)
+        );
+
+        if (validUsers.length === 0) {
+            select.innerHTML = '<option value="" disabled selected>⚠️ Aucun compte PCO ou Comité Financier créé</option>';
+            return;
+        }
+
+        validUsers.forEach((u, idx) => {
+            const roleLabel = getPCOFinanceRoleLabel(u.comite);
+            const optValue = `${u.name} (${roleLabel})`;
+            const optText = `${u.name} — ${roleLabel}`;
+
+            const isSelected = (state.user && state.user.name === u.name && state.user.comite === u.comite) || (idx === 0);
+
+            const opt = document.createElement('option');
+            opt.value = optValue;
+            opt.innerText = optText;
+            if (isSelected) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+
     function openPCOApprovalModal(disbId) {
         const dec = (state.finance.decaissements || []).find(d => d.id === disbId);
         if (!dec) return;
         targetPendingPCOApproval = dec;
+
+        // Alimentation dynamique stricte avec les vrais comptes créés
+        populatePCOApproversDropdown();
 
         const modal = document.getElementById('modal-pco-approval');
         if (modal) {
@@ -6453,6 +6502,12 @@
             if (montantEl) montantEl.innerText = `${Number(dec.montant).toLocaleString('fr-FR')} FCFA`;
             if (modeEl) modeEl.innerText = dec.mode || 'Espèces';
             if (caisseEl) caisseEl.innerText = `${state.finance.balance.toLocaleString('fr-FR')} FCFA`;
+
+            const codeInput = document.getElementById('pco-auth-code');
+            if (codeInput) {
+                codeInput.value = '';
+                setTimeout(() => codeInput.focus(), 150);
+            }
 
             modal.classList.remove('hidden');
             initializeLucideIcons();
@@ -6485,11 +6540,28 @@
     function executePCOApproval() {
         if (!targetPendingPCOApproval) return;
 
+        const select = document.getElementById('pco-approver-select');
+        if (!select || !select.value) {
+            showNotification("Sélection Requise", "Veuillez sélectionner un titulaire d'approbation parmi les comptes PCO / Finance créés.", "warning");
+            return;
+        }
+
+        const approverText = select.value;
         const codeInput = document.getElementById('pco-auth-code');
         const code = codeInput ? codeInput.value.trim() : '';
-        
-        if (!verifyPersonalOrAdminPassword(code)) {
-            showNotification("Mot de passe incorrect", "La validation du décaissement exige obligatoirement le mot de passe personnel / administrateur valide.", "error");
+
+        // Vérification du mot de passe du compte sélectionné ou admin
+        const targetUser = (state.users || []).find(u => 
+            !u.isVisitor && 
+            (`${u.name} (${getPCOFinanceRoleLabel(u.comite)})` === approverText || u.name === approverText)
+        );
+
+        const isTargetUserPwdValid = targetUser && targetUser.password && targetUser.password.trim().toUpperCase() === code.toUpperCase();
+        const isCurrentPwdValid = state.user && state.user.password && state.user.password.trim().toUpperCase() === code.toUpperCase();
+        const isGlobalValid = verifyPersonalOrAdminPassword(code);
+
+        if (!isTargetUserPwdValid && !isCurrentPwdValid && !isGlobalValid) {
+            showNotification("Mot de passe incorrect", "La validation du décaissement exige obligatoirement le mot de passe personnel du titulaire sélectionné ou le mot de passe administrateur.", "error");
             if (codeInput) {
                 codeInput.value = '';
                 codeInput.focus();
@@ -6497,7 +6569,7 @@
             return;
         }
 
-        const approverName = document.getElementById('pco-approver-select')?.value || state.user.name;
+        const approverName = approverText;
         const dec = targetPendingPCOApproval;
         dec.statut = "Effectué";
         dec.approbateur = approverName;
@@ -6526,11 +6598,28 @@
     function executePCORejection() {
         if (!targetPendingPCOApproval) return;
 
+        const select = document.getElementById('pco-approver-select');
+        if (!select || !select.value) {
+            showNotification("Sélection Requise", "Veuillez sélectionner un titulaire d'approbation parmi les comptes PCO / Finance créés.", "warning");
+            return;
+        }
+
+        const approverText = select.value;
         const codeInput = document.getElementById('pco-auth-code');
         const code = codeInput ? codeInput.value.trim() : '';
 
-        if (!verifyPersonalOrAdminPassword(code)) {
-            showNotification("Mot de passe incorrect", "Le refus / rejet d'une demande exige obligatoirement un mot de passe personnel / administrateur valide.", "error");
+        // Vérification du mot de passe du compte sélectionné ou admin
+        const targetUser = (state.users || []).find(u => 
+            !u.isVisitor && 
+            (`${u.name} (${getPCOFinanceRoleLabel(u.comite)})` === approverText || u.name === approverText)
+        );
+
+        const isTargetUserPwdValid = targetUser && targetUser.password && targetUser.password.trim().toUpperCase() === code.toUpperCase();
+        const isCurrentPwdValid = state.user && state.user.password && state.user.password.trim().toUpperCase() === code.toUpperCase();
+        const isGlobalValid = verifyPersonalOrAdminPassword(code);
+
+        if (!isTargetUserPwdValid && !isCurrentPwdValid && !isGlobalValid) {
+            showNotification("Mot de passe incorrect", "Le refus d'une demande exige obligatoirement le mot de passe personnel du titulaire sélectionné ou le mot de passe administrateur.", "error");
             if (codeInput) {
                 codeInput.value = '';
                 codeInput.focus();
@@ -6538,7 +6627,7 @@
             return;
         }
 
-        const approverName = document.getElementById('pco-approver-select')?.value || state.user.name;
+        const approverName = approverText;
 
         const dec = targetPendingPCOApproval;
         dec.statut = "Rejeté";
@@ -7310,6 +7399,7 @@
         populateLoginUserSelect();
         populateGatewayUserSelect();
         updateCreateComiteDropdown();
+        populatePCOApproversDropdown();
     }
 
     function enterAsVisitor() {
@@ -7502,6 +7592,7 @@
 
         applyUserStatesUI();
         populateLoginUserSelect();
+        populatePCOApproversDropdown();
 
         if (passwordChanged) {
             showNotification("Profil & Mot de Passe Mis à Jour !", "Vos coordonnées et votre nouveau mot de passe personnel ont été enregistrés avec succès.", "success");
@@ -7679,6 +7770,7 @@
         populateLoginUserSelect();
         populateGatewayUserSelect();
         updateCreateComiteDropdown();
+        populatePCOApproversDropdown();
         renderOrganisationLeaders();
 
         closeConfirmCreateUserModal();
