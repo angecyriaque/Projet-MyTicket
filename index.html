@@ -238,6 +238,10 @@
             <i data-lucide="users" class="h-3.5 w-3.5"></i>
             <span>Participants</span>
         </button>
+        <button onclick="switchView('apropos')" id="nav-desktop-apropos" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="info" class="h-3.5 w-3.5 text-sky-400"></i>
+            <span>À Propos</span>
+        </button>
         <button onclick="switchView('dashboard')" id="nav-desktop-dashboard" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
             <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
             <span>Tableau de Bord</span>
@@ -290,6 +294,10 @@
         <button onclick="switchView('dashboard')" id="mobstrip-dashboard" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
             <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
             <span>Stats</span>
+        </button>
+        <button onclick="switchView('apropos')" id="mobstrip-apropos" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="info" class="h-3.5 w-3.5 text-sky-400"></i>
+            <span>À Propos</span>
         </button>
         <button onclick="switchView('utilisateur')" id="mobstrip-utilisateur" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
             <i data-lucide="user" class="h-3.5 w-3.5"></i>
@@ -684,6 +692,34 @@
                                 </div>
                             </div>
                             <p class="text-xs text-slate-300/95 font-light leading-relaxed">Découvrez les détails de la grande soirée prophétique et le comité de pilotage.</p>
+                        </div>
+                    </button>
+
+                    <!-- NAV CARD: À Propos & Galerie 10 Ans (Accessible à Tous) -->
+                    <button onclick="switchView('apropos')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-sky-500/50 bg-slate-900 cursor-pointer">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80')"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
+                        
+                        <div class="absolute top-4 left-4 z-10">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-sky-500/30 backdrop-blur-md text-sky-300 border border-sky-400/40 shadow-sm flex items-center gap-1">
+                                <i data-lucide="sparkles" class="h-3 w-3"></i> Découvrir
+                            </span>
+                        </div>
+                        <div class="absolute top-4 right-4 h-10 w-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center opacity-80 group-hover:opacity-100 group-hover:bg-sky-500 transition-all duration-300 transform group-hover:scale-110 shadow-lg">
+                            <i data-lucide="arrow-up-right" class="h-5 w-5"></i>
+                        </div>
+                        
+                        <div class="absolute bottom-5 left-5 right-5 text-white space-y-2 z-10">
+                            <div class="flex items-center gap-3">
+                                <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-sky-500/40 transform group-hover:rotate-6 transition duration-300 border border-white/20">
+                                    <i data-lucide="info" class="h-6 w-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-display font-black text-xl tracking-tight text-white group-hover:text-sky-200 transition">À Propos & Galerie</h3>
+                                    <p class="text-[11px] text-sky-200/90 font-medium">Histoire, Archives & Plan d'Accès</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-300/95 font-light leading-relaxed">Explorez la rétrospective des 10 ans, la galerie média, l'itinéraire GPS et l'annuaire des 11 entités.</p>
                         </div>
                     </button>
 
@@ -2567,6 +2603,305 @@
     </div>
 </div>
 
+
+        <!-- ========================================== -->
+        <!-- 9. À PROPOS VIEW (Accessible à tous)       -->
+        <!-- ========================================== -->
+        <section id="view-apropos" class="view-section hidden space-y-8">
+            
+            <!-- Top Hero Banner -->
+            <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-7 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
+                <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-amber-500/20 blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-3xl space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition transform hover:-translate-y-0.5 cursor-pointer">
+                            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Retour Accueil
+                        </button>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 via-brand-orange to-purple-600 text-white shadow-md border border-amber-300/40">
+                            <i data-lucide="sparkles" class="h-3.5 w-3.5 text-amber-200"></i> Célébration Historique
+                        </span>
+                    </div>
+
+                    <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
+                        À Propos des <strong class="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FF5A36] to-[#FF8C00]">10 Ans de Grâce</strong>
+                    </h1>
+                    <p class="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
+                        L'<strong>EMCI Horeb des Toits Rouges</strong> célèbre une décennie d'impact spirituel, d'excellence et d'élévation prophétique. Découvrez notre histoire, les archives multimédias des éditions passées, le plan d'accès au lieu de gala et l'annuaire des 11 entités organisatrices.
+                    </p>
+
+                    <!-- Key Jubilee Facts -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Événement</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">Nuit de JACOB</strong>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Date & Heure</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">01 Janv. 2027 • 00h00</strong>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Lieu Officiel</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">Conty Place Gold</strong>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Capacité</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">250 Festivaliers VIP</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 1. GALERIE PHOTOS & VIDÉOS DES ANCIENS ÉVÉNEMENTS -->
+            <!-- ============================================== -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-xs font-black font-mono">
+                            <i data-lucide="camera" class="h-3.5 w-3.5"></i> ARCHIVES & SOUVENIRS
+                        </div>
+                        <h3 class="font-display font-black text-2xl text-slate-900">Galerie Multimédia des Éditions Passées</h3>
+                        <p class="text-xs text-slate-500">Revivez les moments forts, veillées prophétiques, agapes et louanges des années précédentes.</p>
+                    </div>
+
+                    <!-- Category Filters -->
+                    <div class="flex flex-wrap gap-2" id="gallery-filter-buttons">
+                        <button onclick="filterGalleryMedia('all')" id="gal-btn-all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-xs transition">Tous</button>
+                        <button onclick="filterGalleryMedia('photo')" id="gal-btn-photo" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Photos</button>
+                        <button onclick="filterGalleryMedia('video')" id="gal-btn-video" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Vidéos & Témoignages</button>
+                        <button onclick="filterGalleryMedia('retrospective')" id="gal-btn-retrospective" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Rétrospective 10 Ans</button>
+                    </div>
+                </div>
+
+                <!-- Gallery Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="gallery-media-grid">
+                    
+                    <!-- Item 1: Nuit de Jacob 2026 -->
+                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="photo" onclick="openGalleryPreview('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80', 'Nuit Prophétique & Adoration', 'Veillée de louange et intercession de la jeunesse EMCI Horeb.', 'Édition 2026')">
+                        <div class="aspect-video w-full overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" alt="Nuit de Jacob" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                        </div>
+                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/30">Édition 2026</span>
+                                <span class="text-[10px] text-slate-400 font-mono">01 Janv. 2026</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Grande Veillée de Louange & Adoration</h4>
+                            <p class="text-[11px] text-slate-300 line-clamp-2">Atmosphère spirituelle intense avec les chantres et la jeunesse rassemblée.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 2: Célébration Gala & Agapè -->
+                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="photo" onclick="openGalleryPreview('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80', 'Soirée de Gala & Banquet Agapè', 'Partage fraternel et communion autour des tables d\'honneur.', 'Édition 2025')">
+                        <div class="aspect-video w-full overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" alt="Banquet de Gala" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                        </div>
+                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-400/30">Édition 2025</span>
+                                <span class="text-[10px] text-slate-400 font-mono">01 Janv. 2025</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Dîner de Gala & Agapè Fraternelle</h4>
+                            <p class="text-[11px] text-slate-300 line-clamp-2">Moment d'excellence, récompenses et échanges de cadeaux mixtes.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 3: Vidéo Témoignage & Rétrospective -->
+                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="video" onclick="openGalleryPreview('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80', 'Documentaire Témoignage des 10 Ans', 'Rétrospective exclusive retraçant les 10 années d\'histoire de l\'EMCI Horeb.', 'Vidéo Officielle')">
+                        <div class="aspect-video w-full overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Documentaire Vidéo" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <div class="h-12 w-12 rounded-full bg-brand-orange/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                                    <i data-lucide="play" class="h-6 w-6 ml-0.5"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-400/30">Vidéo & Témoignages</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Archive 10 Ans</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Rétrospective Vidéo des 10 Années de Grâce</h4>
+                            <p class="text-[11px] text-slate-300 line-clamp-2">Témoignages des pasteurs, fondateurs et responsables de départements.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 4: Louange Prophétique 2024 -->
+                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="photo" onclick="openGalleryPreview('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80', 'Concert & Choeur des Chantres', 'Prestation magnifique du groupe de louange EMCI Horeb.', 'Édition 2024')">
+                        <div class="aspect-video w-full overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80" alt="Concert Louange" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                        </div>
+                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Édition 2024</span>
+                                <span class="text-[10px] text-slate-400 font-mono">01 Janv. 2024</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Concert Prophétique & Chœur de Louange</h4>
+                            <p class="text-[11px] text-slate-300 line-clamp-2">Instants d'élévation et cantiques sacrés partagés par toute la communauté.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 5: Célébration Jeunesse & Bénédiction -->
+                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="retrospective" onclick="openGalleryPreview('https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80', 'Jeunesse Dynamique & Engagée', 'Mobilisation historique des jeunes et bénédictions pour la nouvelle année.', 'Rétrospective')">
+                        <div class="aspect-video w-full overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80" alt="Jeunesse EMCI" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                        </div>
+                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-500/20 text-blue-300 border border-blue-400/30">Rétrospective</span>
+                                <span class="text-[10px] text-slate-400 font-mono">2017 - 2027</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">10 Ans de Transformation de la Jeunesse</h4>
+                            <p class="text-[11px] text-slate-300 line-clamp-2">L'impact spirituel et social de l'EMCI Horeb auprès des générations.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 6: Prière Prophétique & Minuit -->
+                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="video" onclick="openGalleryPreview('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80', 'Passage à Minuit & Proclamations', 'Le compte à rebours sacré et la proclamation des bénédictions du nouvel an.', 'Vidéo Culte')">
+                        <div class="aspect-video w-full overflow-hidden relative">
+                            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80" alt="Minuit de Jacob" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <div class="h-12 w-12 rounded-full bg-brand-orange/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                                    <i data-lucide="play" class="h-6 w-6 ml-0.5"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/30">Vidéo Culte</span>
+                                <span class="text-[10px] text-slate-400 font-mono">00h00 Minuit</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Passage Prophétique à Minuit & Onction</h4>
+                            <p class="text-[11px] text-slate-300 line-clamp-2">Prière solennelle de bénédiction pour toute la communauté réunie.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. CARTE INTERACTIVE & PLAN D'ACCÈS MAP          -->
+            <!-- ============================================== -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-black font-mono">
+                            <i data-lucide="map-pin" class="h-3.5 w-3.5"></i> LOCALISATION & ITINÉRAIRE
+                        </div>
+                        <h3 class="font-display font-black text-2xl text-slate-900">Plan d'Accès • Conty Place Gold</h3>
+                        <p class="text-xs text-slate-500">Repérez l'emplacement exact et préparez votre trajet pour le 01 Janvier 2027.</p>
+                    </div>
+
+                    <!-- GPS Quick Action Buttons -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="https://www.google.com/maps/search/?api=1&query=Conty+Place+Gold+Yopougon+Abidjan" target="_blank" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2">
+                            <i data-lucide="map" class="h-4 w-4 text-emerald-400"></i>
+                            <span>Google Maps</span>
+                        </a>
+                        <a href="https://waze.com/ul?q=Conty%20Place%20Gold%20Abidjan" target="_blank" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2">
+                            <i data-lucide="navigation" class="h-4 w-4"></i>
+                            <span>Waze GPS</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Interactive Map Frame -->
+                <div class="relative w-full rounded-2xl overflow-hidden border border-slate-300 shadow-inner h-80 sm:h-96 bg-slate-100">
+                    <iframe 
+                        title="Localisation Conty Place Gold" 
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=-4.0950%2C5.3200%2C-4.0450%2C5.3600&amp;layer=mapnik&amp;marker=5.3400%2C-4.0700" 
+                        class="w-full h-full border-0"
+                        loading="lazy">
+                    </iframe>
+                    
+                    <!-- Floating Venue Badge on Map -->
+                    <div class="absolute bottom-4 left-4 right-4 sm:right-auto bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200 shadow-xl max-w-sm flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black shrink-0 shadow-md">
+                            <i data-lucide="crown" class="h-5 w-5"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="font-black text-xs text-slate-900 truncate">Conty Place Gold</h4>
+                            <p class="text-[10px] text-slate-500 truncate">Espace de Gala VIP & Parking Gardé</p>
+                            <span class="text-[9px] text-emerald-700 font-bold font-mono">Yopougon, Abidjan • Côte d'Ivoire</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practical Access Guidelines -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                        <div class="flex items-center gap-2 text-slate-900 font-bold text-xs">
+                            <i data-lucide="car" class="h-4 w-4 text-brand-orange"></i>
+                            <span>Parking VIP & Sécurité</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Parking sécurisé surveillé par des agents professionnels. Accès direct et fluide pour tous les festivaliers.
+                        </p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                        <div class="flex items-center gap-2 text-slate-900 font-bold text-xs">
+                            <i data-lucide="clock" class="h-4 w-4 text-emerald-600"></i>
+                            <span>Horaires & Accueil</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Ouverture des portes dès <strong>23h00</strong>. Début solennel du programme à <strong>00h00</strong> le 01 Janvier 2027.
+                        </p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                        <div class="flex items-center gap-2 text-slate-900 font-bold text-xs">
+                            <i data-lucide="sparkles" class="h-4 w-4 text-purple-600"></i>
+                            <span>Commodités & Confort</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Salle de gala entièrement climatisée, 25 tables dressées de 10 places, sonorisation acoustique haut de gamme.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 3. CONTACTS DES ORGANISATEURS (11 ENTITÉS)     -->
+            <!-- ============================================== -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-black font-mono">
+                            <i data-lucide="phone-call" class="h-3.5 w-3.5"></i> CONTACTS OFFICIELS
+                        </div>
+                        <h3 class="font-display font-black text-2xl text-slate-900">Annuaire des 11 Entités & Responsables</h3>
+                        <p class="text-xs text-slate-500">Contactez directement les comités organisateurs pour toute assistance, renseignement ou partenariat.</p>
+                    </div>
+                </div>
+
+                <!-- 11 Entities Directory Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="apropos-committees-directory-grid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- MODAL: LIGHTBOX APERÇU MÉDIA GALERIE -->
+        <div id="modal-gallery-preview" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                        <span id="gal-modal-tag" class="text-[10px] font-black uppercase text-brand-orange font-mono">Archive 10 Ans</span>
+                        <h3 id="gal-modal-title" class="font-display font-black text-lg text-slate-900">Aperçu Galerie</h3>
+                    </div>
+                    <button onclick="closeGalleryPreview()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900">
+                    <img id="gal-modal-img" src="" alt="Aperçu" class="w-full h-full object-cover">
+                </div>
+                <p id="gal-modal-desc" class="text-xs text-slate-600 leading-relaxed font-medium">Description du moment fort.</p>
+            </div>
+        </div>
+
 </main>
 
 <!-- MODAL: AUTORISATION ADMIN POUR BILLET INVITÉ -->
@@ -4114,7 +4449,7 @@
     function switchView(viewName) {
         // Strict Access Control for Default Visitor Account
         if (state.user && state.user.isVisitor) {
-            const allowedViews = ['accueil', 'ticket', 'organisation', 'utilisateur'];
+            const allowedViews = ['accueil', 'ticket', 'organisation', 'utilisateur', 'apropos'];
             if (!allowedViews.includes(viewName)) {
                 showNotification(
                     "Accès Réservé", 
@@ -4156,6 +4491,7 @@
         else if (viewName === 'organisation') { renderTablePlan(); renderChronogrammeOrganisation(); renderOrganisationLeaders(); }
         else if (viewName === 'finance') { renderFinanceDashboard(); renderFinanceConsolidation(); }
         else if (viewName === 'reception') { renderReceptionTable(); renderTablePlan(); }
+        else if (viewName === 'apropos') { renderAproposCommittees(); }
         else if (viewName === 'historique') renderHistoryList();
         else if (viewName === 'liste') {
             renderParticipantsTable();
@@ -8126,6 +8462,102 @@
             }
         });
         renderReceptionTable();
+    }
+
+    
+    // ==========================================
+    // CONTROLLERS FOR SECTION À PROPOS
+    // ==========================================
+    const APROPOS_COMMITTEES_DATA = [
+        { id: "strat", name: "Coordination Stratégique (PCO)", resp: "Yao Marc-Emmanuel", phone: "+225 07 45 89 65 32", role: "Supervision générale, arbitrage & vision stratégique", icon: "crown", color: "amber" },
+        { id: "ops", name: "Coordination Opérationnelle", resp: "Sarah Kouadio", phone: "+225 05 12 45 78 96", role: "Coordination terrain & exécution du chronogramme", icon: "activity", color: "sky" },
+        { id: "supervision", name: "Comité Supervision & Conseil", resp: "Pasteur David N'Guessan", phone: "+225 07 77 88 99 00", role: "Gouvernance spirituelle & encadrement pastoral", icon: "shield-check", color: "purple" },
+        { id: "spirituel", name: "Comité Spirituel & Prière", resp: "Pasteur Jérémie Brou", phone: "+225 01 44 55 66 77", role: "Intercession continue, jeûnes & atmosphère prophétique", icon: "flame", color: "violet" },
+        { id: "finance", name: "Comité Financier & Trésorerie", resp: "Aude Bamba", phone: "+225 07 00 22 33 44", role: "Gestion budgétaire, décaissements & traçabilité", icon: "wallet", color: "emerald" },
+        { id: "logistique", name: "Comité Logistique & Restauration", resp: "Jean-Eudes Kouassi", phone: "+225 07 89 12 34 56", role: "Disposition des 25 tables, banquet & agapè", icon: "utensils", color: "orange" },
+        { id: "protocole", name: "Comité Protocole & Accueil", resp: "Michelle Tanoh", phone: "+225 05 99 88 77 66", role: "Émargement, placement VIP & sécurité festivaliers", icon: "user-check", color: "rose" },
+        { id: "communication", name: "Comité Communication & Médias", resp: "Emmanuel Kra", phone: "+225 01 11 22 33 44", role: "Mobilisation, réseaux sociaux & diffusion officielle", icon: "megaphone", color: "blue" },
+        { id: "animation", name: "Comité Animation & Louange", resp: "Chantre Esther Aka", phone: "+225 05 44 33 22 11", role: "Concert prophétique, louange & chorale", icon: "music", color: "pink" },
+        { id: "administratif", name: "Comité Administratif & Suivi", resp: "Kouassi Ange", phone: "+225 01 22 33 44 55", role: "Billetterie, attestations & registres officiels", icon: "file-text", color: "teal" },
+        { id: "technique", name: "Comité Technique & Multimédia", resp: "David Gnahoré", phone: "+225 07 11 22 33 55", role: "Sonorisation, régie lumière, captation & streaming", icon: "video", color: "indigo" }
+    ];
+
+    function renderAproposCommittees() {
+        const container = document.getElementById('apropos-committees-directory-grid');
+        if (!container) return;
+        container.innerHTML = '';
+
+        APROPOS_COMMITTEES_DATA.forEach(com => {
+            const phoneClean = com.phone.replace(/[^0-9+]/g, '');
+            const waUrl = `https://wa.me/${phoneClean.replace('+', '')}?text=${encodeURIComponent(`Bonjour ${com.resp} (${com.name}), je vous contacte concernant les 10 Ans EMCI Horeb.`)}`;
+            
+            container.innerHTML += `
+                <div class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-brand-orange hover:shadow-md transition space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-black uppercase text-slate-400 font-mono tracking-wider">${com.name}</span>
+                            <span class="p-1.5 rounded-lg bg-slate-100 text-slate-700"><i data-lucide="${com.icon || 'shield'}" class="h-3.5 w-3.5"></i></span>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-sm text-slate-900">${com.resp}</h4>
+                            <p class="text-[11px] text-slate-500 leading-snug pt-0.5">${com.role}</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                        <span class="font-mono text-xs font-bold text-slate-700 truncate">${com.phone}</span>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <a href="tel:${phoneClean}" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Appeler">
+                                <i data-lucide="phone" class="h-3.5 w-3.5"></i>
+                            </a>
+                            <a href="${waUrl}" target="_blank" class="p-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs transition" title="Contacter sur WhatsApp">
+                                <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        initializeLucideIcons();
+    }
+
+    function filterGalleryMedia(filterType) {
+        const cards = document.querySelectorAll('.gal-card');
+        cards.forEach(card => {
+            const type = card.getAttribute('data-type');
+            if (filterType === 'all' || type === filterType) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+
+        // Update button active states
+        ['all', 'photo', 'video', 'retrospective'].forEach(b => {
+            const btn = document.getElementById(`gal-btn-${b}`);
+            if (btn) {
+                if (b === filterType) {
+                    btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-xs transition cursor-pointer";
+                } else {
+                    btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
+                }
+            }
+        });
+    }
+
+    function openGalleryPreview(imgSrc, title, desc, tag) {
+        const modal = document.getElementById('modal-gallery-preview');
+        if (!modal) return;
+        document.getElementById('gal-modal-img').src = imgSrc;
+        document.getElementById('gal-modal-title').innerText = title;
+        document.getElementById('gal-modal-desc').innerText = desc;
+        document.getElementById('gal-modal-tag').innerText = tag || 'Archive Officielle';
+        modal.classList.remove('hidden');
+        initializeLucideIcons();
+    }
+
+    function closeGalleryPreview() {
+        document.getElementById('modal-gallery-preview')?.classList.add('hidden');
     }
 
     function renderReception() {
