@@ -2653,135 +2653,110 @@
                 </div>
             </div>
 
+                        <!-- ============================================== -->
+            <!-- 1. ALBUMS PHOTOS & VIDÉOS DES ÉVÉNEMENTS (GALERIE DYNAMIQUE) -->
             <!-- ============================================== -->
-            <!-- 1. GALERIE PHOTOS & VIDÉOS DES ANCIENS ÉVÉNEMENTS -->
-            <!-- ============================================== -->
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6" id="apropos-gallery-section">
+                
+                <!-- Main Header with Action Buttons -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
                     <div class="space-y-1">
                         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-xs font-black font-mono">
-                            <i data-lucide="camera" class="h-3.5 w-3.5"></i> ARCHIVES & SOUVENIRS
+                            <i data-lucide="images" class="h-3.5 w-3.5"></i> ALBUMS PHOTOS & VIDÉOS
                         </div>
-                        <h3 class="font-display font-black text-2xl text-slate-900">Galerie Multimédia des Éditions Passées</h3>
-                        <p class="text-xs text-slate-500">Revivez les moments forts, veillées prophétiques, agapes et louanges des années précédentes.</p>
+                        <h3 class="font-display font-black text-2xl text-slate-900">Albums & Rétrospectives Multimédias</h3>
+                        <p class="text-xs text-slate-500">Parcourez les albums souvenirs des éditions passées, visualisez les photos et vidéos ou créez vos propres albums.</p>
                     </div>
 
-                    <!-- Category Filters -->
-                    <div class="flex flex-wrap gap-2" id="gallery-filter-buttons">
-                        <button onclick="filterGalleryMedia('all')" id="gal-btn-all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-xs transition">Tous</button>
-                        <button onclick="filterGalleryMedia('photo')" id="gal-btn-photo" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Photos</button>
-                        <button onclick="filterGalleryMedia('video')" id="gal-btn-video" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Vidéos & Témoignages</button>
-                        <button onclick="filterGalleryMedia('retrospective')" id="gal-btn-retrospective" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Rétrospective 10 Ans</button>
+                    <!-- Actions Bar: Create Album & Add Media -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button onclick="openCreateAlbumModal()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                            <i data-lucide="folder-plus" class="h-4 w-4"></i>
+                            <span>Créer un Album</span>
+                        </button>
+                        <button onclick="openAddMediaModal()" class="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                            <i data-lucide="upload" class="h-4 w-4 text-emerald-400"></i>
+                            <span>Ajouter Photos / Vidéos</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Gallery Cards Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="gallery-media-grid">
+                <!-- VIEW A: LIST OF ALBUMS (GRID) -->
+                <div id="gallery-albums-view-wrapper" class="space-y-6">
+                    <!-- Album Categories Filter Pills & Stats -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
+                        <div class="flex flex-wrap gap-1.5" id="album-filter-buttons">
+                            <button onclick="filterAlbumsByCategory('all')" id="alb-btn-all" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-2xs transition cursor-pointer">Tous les Albums</button>
+                            <button onclick="filterAlbumsByCategory('Célébrations')" id="alb-btn-celebrations" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Célébrations</button>
+                            <button onclick="filterAlbumsByCategory('Banquets & Gala')" id="alb-btn-banquets" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Banquets & Gala</button>
+                            <button onclick="filterAlbumsByCategory('Louange & Concerts')" id="alb-btn-louange" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Louange & Concerts</button>
+                            <button onclick="filterAlbumsByCategory('Rétrospective 10 Ans')" id="alb-btn-retrospective" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Rétrospective 10 Ans</button>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-mono font-bold text-slate-600 shrink-0">
+                            <span id="gallery-total-albums-count" class="px-2.5 py-1 rounded-xl bg-purple-100 text-purple-800 border border-purple-200">0 Albums</span>
+                            <span id="gallery-total-medias-count" class="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-800 border border-amber-200">0 Médias</span>
+                        </div>
+                    </div>
+
+                    <!-- Albums Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="gallery-albums-grid">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- VIEW B: INSIDE SINGLE ALBUM (DETAIL MEDIA GRID) -->
+                <div id="gallery-single-album-view" class="space-y-6 hidden">
                     
-                    <!-- Item 1: Nuit de Jacob 2026 -->
-                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="photo" onclick="openGalleryPreview('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80', 'Nuit Prophétique & Adoration', 'Veillée de louange et intercession de la jeunesse EMCI Horeb.', 'Édition 2026')">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80" alt="Nuit de Jacob" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                    <!-- Back Button & Album Hero Header -->
+                    <div class="p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white shadow-xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <button onclick="closeSingleAlbumView()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition cursor-pointer">
+                                <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Retour aux Albums
+                            </button>
+                            <span id="album-detail-category-badge" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                                Célébrations
+                            </span>
                         </div>
-                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
-                            <div class="flex items-center justify-between">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/30">Édition 2026</span>
-                                <span class="text-[10px] text-slate-400 font-mono">01 Janv. 2026</span>
-                            </div>
-                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Grande Veillée de Louange & Adoration</h4>
-                            <p class="text-[11px] text-slate-300 line-clamp-2">Atmosphère spirituelle intense avec les chantres et la jeunesse rassemblée.</p>
-                        </div>
-                    </div>
 
-                    <!-- Item 2: Célébration Gala & Agapè -->
-                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="photo" onclick="openGalleryPreview('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80', 'Soirée de Gala & Banquet Agapè', 'Partage fraternel et communion autour des tables d\'honneur.', 'Édition 2025')">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" alt="Banquet de Gala" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
-                        </div>
-                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
-                            <div class="flex items-center justify-between">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-400/30">Édition 2025</span>
-                                <span class="text-[10px] text-slate-400 font-mono">01 Janv. 2025</span>
-                            </div>
-                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Dîner de Gala & Agapè Fraternelle</h4>
-                            <p class="text-[11px] text-slate-300 line-clamp-2">Moment d'excellence, récompenses et échanges de cadeaux mixtes.</p>
-                        </div>
-                    </div>
-
-                    <!-- Item 3: Vidéo Témoignage & Rétrospective -->
-                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="video" onclick="openGalleryPreview('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80', 'Documentaire Témoignage des 10 Ans', 'Rétrospective exclusive retraçant les 10 années d\'histoire de l\'EMCI Horeb.', 'Vidéo Officielle')">
-                        <div class="aspect-video w-full overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Documentaire Vidéo" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
-                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <div class="h-12 w-12 rounded-full bg-brand-orange/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                                    <i data-lucide="play" class="h-6 w-6 ml-0.5"></i>
+                        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                            <div class="space-y-1.5 max-w-2xl">
+                                <div class="flex items-center gap-2 text-slate-400 text-xs font-mono">
+                                    <span id="album-detail-year">2026</span>
+                                    <span>•</span>
+                                    <span id="album-detail-createdby">Par Direction EMCI</span>
                                 </div>
+                                <h3 id="album-detail-title" class="font-display font-black text-2xl sm:text-3xl text-white">Titre de l'Album</h3>
+                                <p id="album-detail-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">Description de l'album.</p>
                             </div>
-                        </div>
-                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
-                            <div class="flex items-center justify-between">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-400/30">Vidéo & Témoignages</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Archive 10 Ans</span>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button onclick="openAddMediaModal(currentViewingAlbumId)" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md transition flex items-center gap-1.5 cursor-pointer">
+                                    <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                                    <span>Ajouter dans cet Album</span>
+                                </button>
                             </div>
-                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Rétrospective Vidéo des 10 Années de Grâce</h4>
-                            <p class="text-[11px] text-slate-300 line-clamp-2">Témoignages des pasteurs, fondateurs et responsables de départements.</p>
                         </div>
                     </div>
 
-                    <!-- Item 4: Louange Prophétique 2024 -->
-                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="photo" onclick="openGalleryPreview('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80', 'Concert & Choeur des Chantres', 'Prestation magnifique du groupe de louange EMCI Horeb.', 'Édition 2024')">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80" alt="Concert Louange" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                    <!-- Inner Album Media Filter -->
+                    <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="filterInnerAlbumMedias('all')" id="inner-filter-all" class="px-3 py-1 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-2xs">Tous les Médias</button>
+                            <button onclick="filterInnerAlbumMedias('photo')" id="inner-filter-photo" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">Photos 📷</button>
+                            <button onclick="filterInnerAlbumMedias('video')" id="inner-filter-video" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">Vidéos 🎥</button>
                         </div>
-                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
-                            <div class="flex items-center justify-between">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Édition 2024</span>
-                                <span class="text-[10px] text-slate-400 font-mono">01 Janv. 2024</span>
-                            </div>
-                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Concert Prophétique & Chœur de Louange</h4>
-                            <p class="text-[11px] text-slate-300 line-clamp-2">Instants d'élévation et cantiques sacrés partagés par toute la communauté.</p>
-                        </div>
+                        <span id="album-inner-media-count" class="text-xs font-mono font-bold text-slate-500">0 Médias</span>
                     </div>
 
-                    <!-- Item 5: Célébration Jeunesse & Bénédiction -->
-                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="retrospective" onclick="openGalleryPreview('https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80', 'Jeunesse Dynamique & Engagée', 'Mobilisation historique des jeunes et bénédictions pour la nouvelle année.', 'Rétrospective')">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80" alt="Jeunesse EMCI" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
-                        </div>
-                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
-                            <div class="flex items-center justify-between">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-500/20 text-blue-300 border border-blue-400/30">Rétrospective</span>
-                                <span class="text-[10px] text-slate-400 font-mono">2017 - 2027</span>
-                            </div>
-                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">10 Ans de Transformation de la Jeunesse</h4>
-                            <p class="text-[11px] text-slate-300 line-clamp-2">L'impact spirituel et social de l'EMCI Horeb auprès des générations.</p>
-                        </div>
+                    <!-- Inner Album Medias Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="album-inner-medias-grid">
+                        <!-- Populated dynamically via JS -->
                     </div>
-
-                    <!-- Item 6: Prière Prophétique & Minuit -->
-                    <div class="gal-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 text-white shadow-sm hover:shadow-xl transition cursor-pointer" data-type="video" onclick="openGalleryPreview('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80', 'Passage à Minuit & Proclamations', 'Le compte à rebours sacré et la proclamation des bénédictions du nouvel an.', 'Vidéo Culte')">
-                        <div class="aspect-video w-full overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80" alt="Minuit de Jacob" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
-                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <div class="h-12 w-12 rounded-full bg-brand-orange/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                                    <i data-lucide="play" class="h-6 w-6 ml-0.5"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-4 space-y-1.5 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90">
-                            <div class="flex items-center justify-between">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/30">Vidéo Culte</span>
-                                <span class="text-[10px] text-slate-400 font-mono">00h00 Minuit</span>
-                            </div>
-                            <h4 class="font-bold text-sm text-white group-hover:text-amber-300 transition">Passage Prophétique à Minuit & Onction</h4>
-                            <p class="text-[11px] text-slate-300 line-clamp-2">Prière solennelle de bénédiction pour toute la communauté réunie.</p>
-                        </div>
-                    </div>
-
                 </div>
+
             </div>
 
-            <!-- ============================================== -->
+            <!-- ==============================================
             <!-- 2. CARTE INTERACTIVE & PLAN D'ACCÈS MAP          -->
             <!-- ============================================== -->
             <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
@@ -2883,46 +2858,255 @@
 
         </section>
 
-        <!-- MODAL: LIGHTBOX APERÇU MÉDIA GALERIE -->
-        <div id="modal-gallery-preview" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
-            <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-4 shadow-2xl border border-slate-100 animate-in zoom-in-95">
+        
+        <!-- =========================================================
+             MODAL 1: CRÉATION D'UN NOUVEL ALBUM
+             ========================================================= -->
+        <div id="modal-create-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div>
-                        <span id="gal-modal-tag" class="text-[10px] font-black uppercase text-brand-orange font-mono">Archive 10 Ans</span>
-                        <h3 id="gal-modal-title" class="font-display font-black text-lg text-slate-900">Aperçu Galerie</h3>
+                    <div class="flex items-center gap-2.5">
+                        <div class="h-10 w-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                            <i data-lucide="folder-plus" class="h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-black text-lg text-slate-900">Créer un Nouvel Album</h3>
+                            <p class="text-xs text-slate-500">Créez un dossier thématique pour vos photos et vidéos.</p>
+                        </div>
                     </div>
-                    <button onclick="closeGalleryPreview()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                    <button onclick="closeCreateAlbumModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
                         <i data-lucide="x" class="h-5 w-5"></i>
                     </button>
                 </div>
-                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900">
-                    <img id="gal-modal-img" src="" alt="Aperçu" class="w-full h-full object-cover">
-                </div>
-                <p id="gal-modal-desc" class="text-xs text-slate-600 leading-relaxed font-medium">Description du moment fort.</p>
+
+                <form onsubmit="handleCreateAlbumSubmit(event)" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-700">Titre de l'Album *</label>
+                        <input type="text" id="album-form-title" required placeholder="ex: Célébration des 10 Ans - Soirée de Gala" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-purple-600">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-700">Année / Édition *</label>
+                            <input type="text" id="album-form-year" required value="2026" placeholder="ex: 2026" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold font-mono focus:outline-none focus:border-purple-600">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-700">Catégorie *</label>
+                            <select id="album-form-category" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-purple-600">
+                                <option value="Célébrations">Célébrations</option>
+                                <option value="Banquets & Gala">Banquets & Gala</option>
+                                <option value="Louange & Concerts">Louange & Concerts</option>
+                                <option value="Vidéos & Témoignages">Vidéos & Témoignages</option>
+                                <option value="Rétrospective 10 Ans">Rétrospective 10 Ans</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-700">Description de l'Album</label>
+                        <textarea id="album-form-desc" rows="2" placeholder="Décrivez l'événement, les moments clés ou les thèmes abordés..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-purple-600"></textarea>
+                    </div>
+
+                    <!-- Image de Couverture: Upload ou URL -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-700">Photo de Couverture de l'Album</label>
+                        <div class="flex items-center gap-3">
+                            <div class="h-16 w-24 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                <img id="album-form-cover-preview" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80" alt="Preview" class="h-full w-full object-cover">
+                            </div>
+                            <div class="flex-1 space-y-1.5">
+                                <input type="file" id="album-form-cover-file" accept="image/*" onchange="handleAlbumCoverFileUpload(event)" class="text-[11px] text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
+                                <input type="url" id="album-form-cover-url" placeholder="Ou coller une URL d'image..." oninput="handleAlbumCoverUrlInput(this.value)" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] focus:outline-none focus:border-purple-600">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-700">Créé par / Auteur</label>
+                        <input type="text" id="album-form-author" placeholder="Nom de l'auteur ou du comité" class="w-full px-4 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-purple-600">
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeCreateAlbumModal()" class="flex-1 px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition">Annuler</button>
+                        <button type="submit" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="check" class="h-4 w-4"></i>
+                            <span>Créer l'Album</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
-</main>
+        <!-- =========================================================
+             MODAL 2: AJOUT DE PHOTOS / VIDÉOS DANS UN ALBUM
+             ========================================================= -->
+        <div id="modal-add-media-to-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                            <i data-lucide="upload" class="h-5 w-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-black text-lg text-slate-900">Ajouter un Média à un Album</h3>
+                            <p class="text-xs text-slate-500">Ajoutez des photos ou vidéos souvenirs dans un album.</p>
+                        </div>
+                    </div>
+                    <button onclick="closeAddMediaModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
 
-<!-- MODAL: AUTORISATION ADMIN POUR BILLET INVITÉ -->
-<div id="modal-admin-guest" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center">
-        <div class="h-14 w-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
-            <i data-lucide="shield-alert" class="h-7 w-7"></i>
+                <form onsubmit="handleAddMediaSubmit(event)" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-700">Sélectionner l'Album Cible *</label>
+                        <select id="media-form-album-select" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-600">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-700">Type de Média *</label>
+                            <select id="media-form-type" onchange="toggleMediaTypeInputs(this.value)" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-600">
+                                <option value="photo">Photo 📷</option>
+                                <option value="video">Vidéo 🎥</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-700">Date du Souvenir</label>
+                            <input type="text" id="media-form-date" placeholder="ex: 01/01/2026" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-mono focus:outline-none focus:border-emerald-600">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-700">Titre du Média *</label>
+                        <input type="text" id="media-form-title" required placeholder="ex: Prière prophétique & onction" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-600">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-700">Légende / Description</label>
+                        <textarea id="media-form-desc" rows="2" placeholder="Précisez le moment, les personnes présentes, l'atmosphère..." class="w-full px-4 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-emerald-600"></textarea>
+                    </div>
+
+                    <!-- Source du Média (Fichier ou URL) -->
+                    <div class="space-y-2 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                        <label class="text-xs font-bold text-slate-800 block">Fichier / Source Média *</label>
+                        
+                        <!-- Upload Fichier -->
+                        <div class="space-y-1">
+                            <input type="file" id="media-form-file" accept="image/*,video/*" onchange="handleMediaFileUpload(event)" class="w-full text-xs text-slate-600 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-800 hover:file:bg-emerald-200 cursor-pointer">
+                            <span class="text-[10px] text-slate-400 block">Formats acceptés : JPG, PNG, WebP, MP4, WebM.</span>
+                        </div>
+
+                        <!-- URL Alternative -->
+                        <div class="pt-2 border-t border-slate-200 space-y-1">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Ou Lien Web / Vidéo Embed :</span>
+                            <input type="url" id="media-form-url" placeholder="https://..." oninput="handleMediaUrlInput(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-emerald-600">
+                        </div>
+
+                        <!-- Preview Box -->
+                        <div id="media-form-preview-box" class="h-32 w-full rounded-xl bg-slate-200 overflow-hidden hidden items-center justify-center relative mt-2">
+                            <img id="media-form-image-preview" src="" alt="Preview" class="h-full w-full object-cover">
+                            <video id="media-form-video-preview" controls class="h-full w-full object-cover hidden"></video>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-700">Auteur / Photographe</label>
+                        <input type="text" id="media-form-author" placeholder="ex: Comité Médias, Frère Jean..." class="w-full px-4 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-emerald-600">
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeAddMediaModal()" class="flex-1 px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition">Annuler</button>
+                        <button type="submit" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="check" class="h-4 w-4"></i>
+                            <span>Enregistrer le Média</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="space-y-1">
-            <h3 class="font-display font-black text-lg text-slate-900">Accès Réservé Administrateur</h3>
-            <p class="text-xs text-slate-500 leading-relaxed">L'émission d'un pass <strong>Invité (Gratuit)</strong> nécessite la saisie du code de sécurité de la Direction.</p>
+
+        <!-- =========================================================
+             MODAL 3: VISIONNEUSE PHOTO / VIDÉO EN DIAPORAMA (LIGHTBOX INTERACTIVE)
+             ========================================================= -->
+        <div id="modal-gallery-preview" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-2 sm:p-4 hidden">
+            <div class="relative w-full max-w-4xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 text-white flex flex-col max-h-[95vh] animate-in zoom-in-95">
+                
+                <!-- Lightbox Top Header Bar -->
+                <div class="flex items-center justify-between p-4 border-b border-slate-800/80 bg-slate-950/80 shrink-0">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span id="gal-modal-tag" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-orange text-white font-mono shrink-0">Photo</span>
+                        <div class="min-w-0">
+                            <h4 id="gal-modal-title" class="font-display font-black text-sm sm:text-base text-white truncate">Titre du Média</h4>
+                            <p id="gal-modal-album-name" class="text-[10px] text-slate-400 font-mono truncate">Album : --</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        <!-- Slideshow Auto-Play Toggle -->
+                        <button onclick="toggleSlideshowPlay()" id="slideshow-toggle-btn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1.5 text-slate-200 cursor-pointer" title="Lancer / Arrêter le Diaporama automatique">
+                            <i data-lucide="play" id="slideshow-play-icon" class="h-3.5 w-3.5 text-amber-400"></i>
+                            <span id="slideshow-play-text" class="hidden sm:inline">Diaporama</span>
+                        </button>
+
+                        <!-- Download Button -->
+                        <button onclick="downloadCurrentGalleryMedia()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer" title="Télécharger">
+                            <i data-lucide="download" class="h-4 w-4"></i>
+                        </button>
+
+                        <!-- Close Button -->
+                        <button onclick="closeGalleryPreview()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer" title="Fermer">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lightbox Media Stage (Center View with Nav Arrows) -->
+                <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[420px] max-h-[65vh]">
+                    
+                    <!-- Prev Button -->
+                    <button onclick="galleryNavigatePrev()" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-slate-900/80 hover:bg-brand-orange text-white backdrop-blur-md flex items-center justify-center transition shadow-lg cursor-pointer transform hover:scale-110">
+                        <i data-lucide="chevron-left" class="h-6 w-6"></i>
+                    </button>
+
+                    <!-- Photo Display -->
+                    <img id="gal-modal-img" src="" alt="Aperçu" class="max-h-full max-w-full object-contain select-none transition-opacity duration-300">
+
+                    <!-- Video Player Display -->
+                    <div id="gal-modal-video-container" class="w-full h-full flex items-center justify-center hidden">
+                        <video id="gal-modal-video-player" controls class="max-h-full max-w-full rounded-lg"></video>
+                    </div>
+
+                    <!-- Next Button -->
+                    <button onclick="galleryNavigateNext()" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-slate-900/80 hover:bg-brand-orange text-white backdrop-blur-md flex items-center justify-center transition shadow-lg cursor-pointer transform hover:scale-110">
+                        <i data-lucide="chevron-right" class="h-6 w-6"></i>
+                    </button>
+                </div>
+
+                <!-- Lightbox Bottom Caption & Metadata Bar -->
+                <div class="p-4 bg-slate-950/90 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                    <div class="space-y-0.5 min-w-0">
+                        <p id="gal-modal-desc" class="text-xs text-slate-300 font-normal leading-relaxed">Description détaillée du moment fort.</p>
+                        <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+                            <span id="gal-modal-author">Auteur : --</span>
+                            <span>•</span>
+                            <span id="gal-modal-date">Date : --</span>
+                        </div>
+                    </div>
+
+                    <!-- Position Counter (ex: 3 / 12) -->
+                    <div class="shrink-0 flex items-center gap-2">
+                        <span id="gal-modal-counter" class="px-3 py-1 rounded-xl bg-slate-800 text-amber-300 font-mono text-xs font-black border border-slate-700">
+                            1 / 1
+                        </span>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <div class="space-y-2">
-            <input type="password" id="admin-guest-code-input" placeholder="Code secret (ex: 10ANS)" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-center text-sm font-bold tracking-widest focus:outline-none focus:border-brand-orange">
-        </div>
-        <div class="flex gap-3">
-            <button onclick="cancelAdminGuestAuth()" class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold">Annuler</button>
-            <button onclick="verifyAdminGuestAuth()" class="flex-1 px-4 py-2.5 bg-brand-orange hover:bg-brand-orangelight text-white rounded-xl text-xs font-bold shadow-md">Valider</button>
-        </div>
-    </div>
-</div>
+
 
 
 <!-- MODAL: AUTORISATION ADMIN POUR ANNULATION D'ÉMARGEMENT -->
@@ -4491,7 +4675,7 @@
         else if (viewName === 'organisation') { renderTablePlan(); renderChronogrammeOrganisation(); renderOrganisationLeaders(); }
         else if (viewName === 'finance') { renderFinanceDashboard(); renderFinanceConsolidation(); }
         else if (viewName === 'reception') { renderReceptionTable(); renderTablePlan(); }
-        else if (viewName === 'apropos') { renderAproposCommittees(); }
+        else if (viewName === 'apropos') { initializeGalleryAlbumsData(); renderGalleryAlbums(); renderAproposCommittees(); }
         else if (viewName === 'historique') renderHistoryList();
         else if (viewName === 'liste') {
             renderParticipantsTable();
@@ -8465,8 +8649,757 @@
     }
 
     
+    
     // ==========================================
-    // CONTROLLERS FOR SECTION À PROPOS
+    // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM
+    // ==========================================
+    const SEED_GALLERY_ALBUMS = [
+        {
+            id: "alb-2026-benediction",
+            title: "Nuit de Jacob 2026 - Veillée de Bénédictions",
+            year: "2026",
+            category: "Célébrations",
+            description: "Grande veillée d'intercession, de proclamations prophétiques et de louange de la jeunesse EMCI Horeb.",
+            coverUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Direction EMCI Horeb",
+            createdAt: "2026-01-02",
+            items: [
+                {
+                    id: "med-2026-1",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+                    title: "Atmosphère de Ferveur & Prière",
+                    description: "Chants d'adoration et intercession collective lors de la Nuit de Jacob.",
+                    author: "Comité Médias EMCI",
+                    date: "01/01/2026"
+                },
+                {
+                    id: "med-2026-2",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
+                    title: "Passage Solennel de Minuit",
+                    description: "Compte à rebours du nouvel an et prières de bénédictions sur les familles.",
+                    author: "Comité Animation",
+                    date: "01/01/2026"
+                },
+                {
+                    id: "med-2026-3",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
+                    title: "Chœur des Chantres & Musiciens",
+                    description: "Prestation musicale magnifique et louange prophétique continue.",
+                    author: "Chantre Esther Aka",
+                    date: "01/01/2026"
+                },
+                {
+                    id: "med-2026-4",
+                    type: "video",
+                    url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
+                    title: "Extraits Vidéo & Proclamations Pastorales",
+                    description: "Revue vidéo des moments prophétiques de la nuit du nouvel an.",
+                    author: "Comité Technique & Vidéo",
+                    date: "01/01/2026"
+                }
+            ]
+        },
+        {
+            id: "alb-2025-gala",
+            title: "Soirée de Gala & Banquet Agapè 2025",
+            year: "2025",
+            category: "Banquets & Gala",
+            description: "Partage fraternel, agapè et communion autour des tables d'honneur et remise de distinctions.",
+            coverUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Comité Protocole & Logistique",
+            createdAt: "2025-01-02",
+            items: [
+                {
+                    id: "med-2025-1",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+                    title: "Disposition des Tables de Prestige",
+                    description: "Décoration de gala faste africaine et tables de fête dressées.",
+                    author: "Comité Logistique",
+                    date: "01/01/2025"
+                },
+                {
+                    id: "med-2025-2",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
+                    title: "Partage des Cadeaux Mixtes",
+                    description: "Échanges de présents et célébration fraternelle entre festivaliers.",
+                    author: "Sarah Kouadio",
+                    date: "01/01/2025"
+                },
+                {
+                    id: "med-2025-3",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+                    title: "Toast du Nouvel An & Bénédictions",
+                    description: "Proclamation solennelle de santé et prospérité pour la communauté.",
+                    author: "Pasteur David N'Guessan",
+                    date: "01/01/2025"
+                }
+            ]
+        },
+        {
+            id: "alb-2024-louange",
+            title: "Concert Prophétique & Louange des Chantres 2024",
+            year: "2024",
+            category: "Louange & Concerts",
+            description: "Instants d'élévation spirituelle, cantiques sacrés et adoration avec tous les groupes musicaux.",
+            coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Comité Animation & Louange",
+            createdAt: "2024-01-02",
+            items: [
+                {
+                    id: "med-2024-1",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
+                    title: "Concert d'Adoration en Direct",
+                    description: "Chantres réunis pour une prestation inoubliable.",
+                    author: "Chantre Esther Aka",
+                    date: "01/01/2024"
+                },
+                {
+                    id: "med-2024-2",
+                    type: "video",
+                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
+                    title: "Cantiques Sacrés & Chœur EMCI",
+                    description: "Extraits live de la soirée de louange.",
+                    author: "David Gnahoré",
+                    date: "01/01/2024"
+                }
+            ]
+        },
+        {
+            id: "alb-10ans-retrospective",
+            title: "Rétrospective Historique des 10 Ans (2017 - 2027)",
+            year: "2026",
+            category: "Rétrospective 10 Ans",
+            description: "Documentaire exclusif et souvenirs inoubliables retraçant une décennie de foi, de grâce et d'impact.",
+            coverUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Comité Communication & Direction",
+            createdAt: "2026-08-15",
+            items: [
+                {
+                    id: "med-retro-1",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
+                    title: "Origines & Fondation de l'EMCI Horeb",
+                    description: "Les premiers pas de la communauté des Toits Rouges en 2017.",
+                    author: "Direction Pastorale",
+                    date: "2017"
+                },
+                {
+                    id: "med-retro-2",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
+                    title: "Croissance de la Jeunesse",
+                    description: "Évolution des départements, ministères et actions caritatives.",
+                    author: "Yao Marc-Emmanuel",
+                    date: "2020"
+                },
+                {
+                    id: "med-retro-3",
+                    type: "video",
+                    url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
+                    title: "Témoignages Vidéo des Fondateurs",
+                    description: "Récits vibrants sur les 10 ans de fidélité divine.",
+                    author: "Emmanuel Kra",
+                    date: "2026"
+                }
+            ]
+        }
+    ];
+
+    let currentViewingAlbumId = null;
+    let currentActiveMediaList = [];
+    let currentLightboxIndex = 0;
+    let slideshowIntervalId = null;
+    let isSlideshowPlaying = false;
+    let currentAlbumCategoryFilter = 'all';
+    let currentInnerMediaFilter = 'all';
+
+    function initializeGalleryAlbumsData() {
+        try {
+            const stored = localStorage.getItem('myticket_gallery_albums_v1');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    state.galleryAlbums = parsed;
+                } else {
+                    state.galleryAlbums = [...SEED_GALLERY_ALBUMS];
+                    localStorage.setItem('myticket_gallery_albums_v1', JSON.stringify(state.galleryAlbums));
+                }
+            } else {
+                state.galleryAlbums = [...SEED_GALLERY_ALBUMS];
+                localStorage.setItem('myticket_gallery_albums_v1', JSON.stringify(state.galleryAlbums));
+            }
+        } catch (e) {
+            state.galleryAlbums = [...SEED_GALLERY_ALBUMS];
+        }
+    }
+
+    function saveGalleryAlbumsData() {
+        try {
+            localStorage.setItem('myticket_gallery_albums_v1', JSON.stringify(state.galleryAlbums));
+        } catch (e) {}
+    }
+
+    function renderGalleryAlbums() {
+        const grid = document.getElementById('gallery-albums-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const albums = state.galleryAlbums || [];
+        
+        let filtered = albums;
+        if (currentAlbumCategoryFilter !== 'all') {
+            filtered = albums.filter(a => a.category === currentAlbumCategoryFilter);
+        }
+
+        // Update overall counters
+        let totalMedias = 0;
+        let totalPhotos = 0;
+        let totalVideos = 0;
+        albums.forEach(a => {
+            const items = a.items || [];
+            totalMedias += items.length;
+            totalPhotos += items.filter(m => m.type === 'photo').length;
+            totalVideos += items.filter(m => m.type === 'video').length;
+        });
+
+        const totalAlbumsBadge = document.getElementById('gallery-total-albums-count');
+        const totalMediasBadge = document.getElementById('gallery-total-medias-count');
+        if (totalAlbumsBadge) totalAlbumsBadge.innerText = `${albums.length} Album${albums.length > 1 ? 's' : ''}`;
+        if (totalMediasBadge) totalMediasBadge.innerText = `${totalMedias} Média${totalMedias > 1 ? 's' : ''} (${totalPhotos}📷 • ${totalVideos}🎥)`;
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full py-12 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200 p-8 space-y-3">
+                    <div class="h-12 w-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mx-auto">
+                        <i data-lucide="folder" class="h-6 w-6"></i>
+                    </div>
+                    <h4 class="font-bold text-sm text-slate-700">Aucun album trouvé dans cette catégorie</h4>
+                    <p class="text-xs text-slate-400">Soyez le premier à créer un album photo ou vidéo pour les 10 Ans !</p>
+                    <button onclick="openCreateAlbumModal()" class="px-4 py-2 bg-brand-orange text-white rounded-xl text-xs font-bold shadow-sm">Créer un Album</button>
+                </div>
+            `;
+            initializeLucideIcons();
+            return;
+        }
+
+        filtered.forEach(album => {
+            const items = album.items || [];
+            const photoCount = items.filter(m => m.type === 'photo').length;
+            const videoCount = items.filter(m => m.type === 'video').length;
+            const cover = album.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80';
+
+            grid.innerHTML += `
+                <div class="group relative bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                    
+                    <!-- Cover Image -->
+                    <div class="relative aspect-video w-full overflow-hidden bg-slate-900 cursor-pointer" onclick="openSingleAlbumView('${album.id}')">
+                        <img src="${cover}" alt="${album.title}" class="h-full w-full object-cover group-hover:scale-105 transition duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+
+                        <!-- Category & Year Badges -->
+                        <div class="absolute top-3 left-3 flex items-center gap-1.5">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/60 backdrop-blur-md text-amber-300 border border-amber-400/40">
+                                ${album.year || '2026'}
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/30">
+                                ${album.category || 'Célébrations'}
+                            </span>
+                        </div>
+
+                        <!-- Media Counter Badge on Cover -->
+                        <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-xl bg-slate-900/90 text-white backdrop-blur-md text-[10px] font-mono font-bold flex items-center gap-1.5 border border-slate-700 shadow-md">
+                            <span>📷 ${photoCount}</span>
+                            <span>•</span>
+                            <span>🎥 ${videoCount}</span>
+                        </div>
+                    </div>
+
+                    <!-- Album Info & Actions -->
+                    <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                        <div class="space-y-1.5 cursor-pointer" onclick="openSingleAlbumView('${album.id}')">
+                            <h4 class="font-display font-black text-base text-slate-900 group-hover:text-brand-orange transition leading-snug">${album.title}</h4>
+                            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">${album.description || 'Album photo et vidéo de la célébration.'}</p>
+                            <span class="text-[10px] text-slate-400 font-mono block pt-1">Créé par : ${album.createdBy || 'Direction'}</span>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button onclick="openSingleAlbumView('${album.id}')" class="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i data-lucide="eye" class="h-3.5 w-3.5 text-amber-400"></i>
+                                <span>Ouvrir l'Album</span>
+                            </button>
+                            <button onclick="openAddMediaModal('${album.id}')" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition cursor-pointer" title="Ajouter des photos ou vidéos dans cet album">
+                                <i data-lucide="plus" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        initializeLucideIcons();
+    }
+
+    function filterAlbumsByCategory(cat) {
+        currentAlbumCategoryFilter = cat;
+        ['all', 'celebrations', 'banquets', 'louange', 'retrospective'].forEach(b => {
+            const btn = document.getElementById(`alb-btn-${b}`);
+            if (btn) {
+                const targetCat = b === 'all' ? 'all' : (b === 'celebrations' ? 'Célébrations' : (b === 'banquets' ? 'Banquets & Gala' : (b === 'louange' ? 'Louange & Concerts' : 'Rétrospective 10 Ans')));
+                if (targetCat === cat) {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-2xs transition cursor-pointer";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer";
+                }
+            }
+        });
+        renderGalleryAlbums();
+    }
+
+    function openSingleAlbumView(albumId) {
+        const album = (state.galleryAlbums || []).find(a => a.id === albumId);
+        if (!album) return;
+
+        currentViewingAlbumId = albumId;
+        document.getElementById('gallery-albums-view-wrapper')?.classList.add('hidden');
+        const detailView = document.getElementById('gallery-single-album-view');
+        if (detailView) detailView.classList.remove('hidden');
+
+        document.getElementById('album-detail-title').innerText = album.title;
+        document.getElementById('album-detail-desc').innerText = album.description || 'Album photo et vidéo officiel.';
+        document.getElementById('album-detail-year').innerText = `Édition ${album.year || '2026'}`;
+        document.getElementById('album-detail-createdby').innerText = `Par ${album.createdBy || 'Direction'}`;
+        document.getElementById('album-detail-category-badge').innerText = album.category || 'Célébrations';
+
+        currentInnerMediaFilter = 'all';
+        renderAlbumInnerMedias();
+        window.scrollTo({ top: document.getElementById('apropos-gallery-section').offsetTop - 80, behavior: 'smooth' });
+    }
+
+    function closeSingleAlbumView() {
+        currentViewingAlbumId = null;
+        document.getElementById('gallery-single-album-view')?.classList.add('hidden');
+        document.getElementById('gallery-albums-view-wrapper')?.classList.remove('hidden');
+        renderGalleryAlbums();
+    }
+
+    function renderAlbumInnerMedias() {
+        const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
+        const grid = document.getElementById('album-inner-medias-grid');
+        const countBadge = document.getElementById('album-inner-media-count');
+        if (!album || !grid) return;
+
+        grid.innerHTML = '';
+        const items = album.items || [];
+        
+        let filtered = items;
+        if (currentInnerMediaFilter !== 'all') {
+            filtered = items.filter(m => m.type === currentInnerMediaFilter);
+        }
+
+        currentActiveMediaList = filtered;
+        if (countBadge) countBadge.innerText = `${filtered.length} / ${items.length} Média${items.length > 1 ? 's' : ''}`;
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full py-12 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200 p-8 space-y-3">
+                    <div class="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                        <i data-lucide="camera" class="h-6 w-6"></i>
+                    </div>
+                    <h4 class="font-bold text-sm text-slate-700">Aucun média disponible dans ce filtre</h4>
+                    <p class="text-xs text-slate-400">Ajoutez des photos ou vidéos pour alimenter cet album !</p>
+                    <button onclick="openAddMediaModal('${album.id}')" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer">+ Ajouter un Média</button>
+                </div>
+            `;
+            initializeLucideIcons();
+            return;
+        }
+
+        filtered.forEach((media, index) => {
+            const isVideo = media.type === 'video';
+            grid.innerHTML += `
+                <div class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm hover:shadow-xl transition cursor-pointer" onclick="openLightboxForMediaIndex(${index})">
+                    <div class="aspect-square w-full overflow-hidden relative">
+                        <img src="${media.url}" alt="${media.title}" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
+                        
+                        ${isVideo ? `
+                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <div class="h-11 w-11 rounded-full bg-brand-orange/95 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                                    <i data-lucide="play" class="h-5 w-5 ml-0.5"></i>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div class="absolute top-2.5 left-2.5">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-black/70 text-white backdrop-blur-md">
+                                ${isVideo ? '🎥 Vidéo' : '📷 Photo'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90 text-white space-y-1">
+                        <h5 class="font-bold text-xs text-white truncate group-hover:text-amber-300 transition">${media.title}</h5>
+                        <p class="text-[10px] text-slate-300 line-clamp-1">${media.description || 'Moment fort 10 ans'}</p>
+                        <div class="flex items-center justify-between text-[9px] text-slate-400 font-mono pt-1">
+                            <span class="truncate">${media.author || 'EMCI'}</span>
+                            <span>${media.date || ''}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        initializeLucideIcons();
+    }
+
+    function filterInnerAlbumMedias(type) {
+        currentInnerMediaFilter = type;
+        ['all', 'photo', 'video'].forEach(b => {
+            const btn = document.getElementById(`inner-filter-${b}`);
+            if (btn) {
+                if (b === type) {
+                    btn.className = "px-3 py-1 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-2xs";
+                } else {
+                    btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
+                }
+            }
+        });
+        renderAlbumInnerMedias();
+    }
+
+    // LIGHTBOX / SLIDESHOW CONTROLLERS
+    function openLightboxForMediaIndex(index) {
+        if (!currentActiveMediaList || currentActiveMediaList.length === 0) return;
+        currentLightboxIndex = index;
+        updateLightboxDisplay();
+
+        const modal = document.getElementById('modal-gallery-preview');
+        if (modal) modal.classList.remove('hidden');
+        initializeLucideIcons();
+    }
+
+    function updateLightboxDisplay() {
+        const media = currentActiveMediaList[currentLightboxIndex];
+        if (!media) return;
+
+        const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
+        const albumName = album ? album.title : 'Album Souvenir';
+
+        document.getElementById('gal-modal-title').innerText = media.title;
+        document.getElementById('gal-modal-album-name').innerText = `Album : ${albumName}`;
+        document.getElementById('gal-modal-desc').innerText = media.description || 'Moment fort immortalisé lors des 10 Ans EMCI Horeb.';
+        document.getElementById('gal-modal-author').innerText = `Auteur : ${media.author || 'Direction EMCI'}`;
+        document.getElementById('gal-modal-date').innerText = `Date : ${media.date || '2026'}`;
+        document.getElementById('gal-modal-tag').innerText = media.type === 'video' ? '🎥 Vidéo Officielle' : '📷 Photo Officielle';
+        document.getElementById('gal-modal-counter').innerText = `${currentLightboxIndex + 1} / ${currentActiveMediaList.length}`;
+
+        const imgEl = document.getElementById('gal-modal-img');
+        const videoBox = document.getElementById('gal-modal-video-container');
+        const videoPlayer = document.getElementById('gal-modal-video-player');
+
+        if (media.type === 'video') {
+            if (imgEl) imgEl.classList.add('hidden');
+            if (videoBox) videoBox.classList.remove('hidden');
+            if (videoPlayer) {
+                videoPlayer.src = media.url;
+                videoPlayer.load();
+            }
+        } else {
+            if (videoBox) videoBox.classList.add('hidden');
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer.src = '';
+            }
+            if (imgEl) {
+                imgEl.classList.remove('hidden');
+                imgEl.src = media.url;
+            }
+        }
+    }
+
+    function galleryNavigateNext() {
+        if (!currentActiveMediaList || currentActiveMediaList.length === 0) return;
+        currentLightboxIndex = (currentLightboxIndex + 1) % currentActiveMediaList.length;
+        updateLightboxDisplay();
+    }
+
+    function galleryNavigatePrev() {
+        if (!currentActiveMediaList || currentActiveMediaList.length === 0) return;
+        currentLightboxIndex = (currentLightboxIndex - 1 + currentActiveMediaList.length) % currentActiveMediaList.length;
+        updateLightboxDisplay();
+    }
+
+    function toggleSlideshowPlay() {
+        isSlideshowPlaying = !isSlideshowPlaying;
+        const btn = document.getElementById('slideshow-toggle-btn');
+        const icon = document.getElementById('slideshow-play-icon');
+        const text = document.getElementById('slideshow-play-text');
+
+        if (isSlideshowPlaying) {
+            if (btn) btn.className = "px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md";
+            if (icon) icon.setAttribute('data-lucide', 'pause');
+            if (text) text.innerText = "Pause";
+            slideshowIntervalId = setInterval(galleryNavigateNext, 4000);
+        } else {
+            if (btn) btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1.5 text-slate-200 cursor-pointer";
+            if (icon) icon.setAttribute('data-lucide', 'play');
+            if (text) text.innerText = "Diaporama";
+            if (slideshowIntervalId) clearInterval(slideshowIntervalId);
+            slideshowIntervalId = null;
+        }
+        initializeLucideIcons();
+    }
+
+    function downloadCurrentGalleryMedia() {
+        const media = currentActiveMediaList[currentLightboxIndex];
+        if (!media || !media.url) return;
+        const link = document.createElement('a');
+        link.href = media.url;
+        link.download = `EMCI_10Ans_${(media.title || 'Photo').replace(/\s+/g, '_')}.${media.type === 'video' ? 'mp4' : 'jpg'}`;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showNotification("Téléchargement Lancé", "Le fichier média est en cours de téléchargement.", "success");
+    }
+
+    function closeGalleryPreview() {
+        if (slideshowIntervalId) clearInterval(slideshowIntervalId);
+        slideshowIntervalId = null;
+        isSlideshowPlaying = false;
+        const videoPlayer = document.getElementById('gal-modal-video-player');
+        if (videoPlayer) {
+            videoPlayer.pause();
+            videoPlayer.src = '';
+        }
+        document.getElementById('modal-gallery-preview')?.classList.add('hidden');
+    }
+
+    // CREATE ALBUM MODAL CONTROLLERS
+    let temporaryAlbumCoverDataUrl = null;
+
+    function openCreateAlbumModal() {
+        const modal = document.getElementById('modal-create-album');
+        if (!modal) return;
+        document.getElementById('album-form-title').value = '';
+        document.getElementById('album-form-desc').value = '';
+        document.getElementById('album-form-cover-url').value = '';
+        document.getElementById('album-form-cover-file').value = '';
+        document.getElementById('album-form-author').value = state.user && !state.user.isVisitor ? state.user.name : 'Visiteur / Membre EMCI';
+        document.getElementById('album-form-cover-preview').src = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80';
+        temporaryAlbumCoverDataUrl = null;
+        modal.classList.remove('hidden');
+        initializeLucideIcons();
+    }
+
+    function closeCreateAlbumModal() {
+        document.getElementById('modal-create-album')?.classList.add('hidden');
+    }
+
+    function handleAlbumCoverFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            temporaryAlbumCoverDataUrl = e.target.result;
+            const preview = document.getElementById('album-form-cover-preview');
+            if (preview) preview.src = temporaryAlbumCoverDataUrl;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleAlbumCoverUrlInput(url) {
+        if (url && url.startsWith('http')) {
+            const preview = document.getElementById('album-form-cover-preview');
+            if (preview) preview.src = url;
+        }
+    }
+
+    function handleCreateAlbumSubmit(e) {
+        e.preventDefault();
+        const title = document.getElementById('album-form-title').value.trim();
+        const year = document.getElementById('album-form-year').value.trim() || '2026';
+        const category = document.getElementById('album-form-category').value;
+        const description = document.getElementById('album-form-desc').value.trim();
+        const author = document.getElementById('album-form-author').value.trim() || 'Direction EMCI';
+        const urlInput = document.getElementById('album-form-cover-url').value.trim();
+
+        const coverUrl = temporaryAlbumCoverDataUrl || urlInput || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80';
+
+        const newAlbum = {
+            id: `alb-${Date.now()}`,
+            title: title,
+            year: year,
+            category: category,
+            description: description,
+            coverUrl: coverUrl,
+            createdBy: author,
+            createdAt: new Date().toISOString().split('T')[0],
+            items: []
+        };
+
+        if (!state.galleryAlbums) state.galleryAlbums = [];
+        state.galleryAlbums.unshift(newAlbum);
+        saveGalleryAlbumsData();
+
+        closeCreateAlbumModal();
+        renderGalleryAlbums();
+        showNotification("Album Créé avec Succès !", `L'album "${title}" a été ajouté. Vous pouvez maintenant y insérer des photos et vidéos.`, "success");
+        triggerJubileeConfetti();
+    }
+
+    // ADD MEDIA MODAL CONTROLLERS
+    let temporaryMediaDataUrl = null;
+
+    function openAddMediaModal(targetAlbumId) {
+        const modal = document.getElementById('modal-add-media-to-album');
+        if (!modal) return;
+
+        const select = document.getElementById('media-form-album-select');
+        if (select) {
+            select.innerHTML = '';
+            (state.galleryAlbums || []).forEach(a => {
+                select.innerHTML += `<option value="${a.id}" ${targetAlbumId === a.id ? 'selected' : ''}>${a.title} (${a.year})</option>`;
+            });
+        }
+
+        document.getElementById('media-form-title').value = '';
+        document.getElementById('media-form-desc').value = '';
+        document.getElementById('media-form-date').value = new Date().toLocaleDateString('fr-FR');
+        document.getElementById('media-form-url').value = '';
+        document.getElementById('media-form-file').value = '';
+        document.getElementById('media-form-author').value = state.user && !state.user.isVisitor ? state.user.name : 'Contributeur EMCI';
+        document.getElementById('media-form-preview-box')?.classList.add('hidden');
+        temporaryMediaDataUrl = null;
+
+        modal.classList.remove('hidden');
+        initializeLucideIcons();
+    }
+
+    function closeAddMediaModal() {
+        document.getElementById('modal-add-media-to-album')?.classList.add('hidden');
+    }
+
+    function toggleMediaTypeInputs(type) {
+        const fileInput = document.getElementById('media-form-file');
+        if (fileInput) {
+            fileInput.accept = type === 'video' ? 'video/*' : 'image/*';
+        }
+    }
+
+    function handleMediaFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const isVideo = file.type.startsWith('video');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            temporaryMediaDataUrl = e.target.result;
+            const previewBox = document.getElementById('media-form-preview-box');
+            const imgPreview = document.getElementById('media-form-image-preview');
+            const vidPreview = document.getElementById('media-form-video-preview');
+
+            if (previewBox) previewBox.classList.remove('hidden');
+
+            if (isVideo) {
+                if (imgPreview) imgPreview.classList.add('hidden');
+                if (vidPreview) {
+                    vidPreview.classList.remove('hidden');
+                    vidPreview.src = temporaryMediaDataUrl;
+                }
+                const typeSelect = document.getElementById('media-form-type');
+                if (typeSelect) typeSelect.value = 'video';
+            } else {
+                if (vidPreview) vidPreview.classList.add('hidden');
+                if (imgPreview) {
+                    imgPreview.classList.remove('hidden');
+                    imgPreview.src = temporaryMediaDataUrl;
+                }
+                const typeSelect = document.getElementById('media-form-type');
+                if (typeSelect) typeSelect.value = 'photo';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleMediaUrlInput(url) {
+        if (url && url.startsWith('http')) {
+            const previewBox = document.getElementById('media-form-preview-box');
+            const imgPreview = document.getElementById('media-form-image-preview');
+            const vidPreview = document.getElementById('media-form-video-preview');
+            const type = document.getElementById('media-form-type')?.value;
+
+            if (previewBox) previewBox.classList.remove('hidden');
+            if (type === 'video') {
+                if (imgPreview) imgPreview.classList.add('hidden');
+                if (vidPreview) {
+                    vidPreview.classList.remove('hidden');
+                    vidPreview.src = url;
+                }
+            } else {
+                if (vidPreview) vidPreview.classList.add('hidden');
+                if (imgPreview) {
+                    imgPreview.classList.remove('hidden');
+                    imgPreview.src = url;
+                }
+            }
+        }
+    }
+
+    function handleAddMediaSubmit(e) {
+        e.preventDefault();
+        const albumId = document.getElementById('media-form-album-select').value;
+        const type = document.getElementById('media-form-type').value;
+        const title = document.getElementById('media-form-title').value.trim();
+        const desc = document.getElementById('media-form-desc').value.trim();
+        const date = document.getElementById('media-form-date').value.trim() || '2026';
+        const author = document.getElementById('media-form-author').value.trim() || 'Contributeur';
+        const urlInput = document.getElementById('media-form-url').value.trim();
+
+        const mediaUrl = temporaryMediaDataUrl || urlInput || (type === 'video' ? 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80' : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80');
+
+        const album = (state.galleryAlbums || []).find(a => a.id === albumId);
+        if (!album) {
+            showNotification("Erreur", "L'album sélectionné est introuvable.", "error");
+            return;
+        }
+
+        if (!album.items) album.items = [];
+
+        const newMedia = {
+            id: `med-${Date.now()}`,
+            type: type,
+            url: mediaUrl,
+            title: title,
+            description: desc,
+            author: author,
+            date: date
+        };
+
+        album.items.unshift(newMedia);
+        saveGalleryAlbumsData();
+
+        closeAddMediaModal();
+
+        if (currentViewingAlbumId === albumId) {
+            renderAlbumInnerMedias();
+        } else {
+            renderGalleryAlbums();
+        }
+
+        showNotification("Média Ajouté avec Succès !", `"${title}" a été ajouté dans l'album "${album.title}".`, "success");
+        triggerJubileeConfetti();
+    }
+
+
+    // ==========================================
+    // 11 COMMITTEES DIRECTORY CONTROLLERS
     // ==========================================
     const APROPOS_COMMITTEES_DATA = [
         { id: "strat", name: "Coordination Stratégique (PCO)", resp: "Yao Marc-Emmanuel", phone: "+225 07 45 89 65 32", role: "Supervision générale, arbitrage & vision stratégique", icon: "crown", color: "amber" },
@@ -8519,45 +9452,6 @@
             `;
         });
         initializeLucideIcons();
-    }
-
-    function filterGalleryMedia(filterType) {
-        const cards = document.querySelectorAll('.gal-card');
-        cards.forEach(card => {
-            const type = card.getAttribute('data-type');
-            if (filterType === 'all' || type === filterType) {
-                card.classList.remove('hidden');
-            } else {
-                card.classList.add('hidden');
-            }
-        });
-
-        // Update button active states
-        ['all', 'photo', 'video', 'retrospective'].forEach(b => {
-            const btn = document.getElementById(`gal-btn-${b}`);
-            if (btn) {
-                if (b === filterType) {
-                    btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-xs transition cursor-pointer";
-                } else {
-                    btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
-                }
-            }
-        });
-    }
-
-    function openGalleryPreview(imgSrc, title, desc, tag) {
-        const modal = document.getElementById('modal-gallery-preview');
-        if (!modal) return;
-        document.getElementById('gal-modal-img').src = imgSrc;
-        document.getElementById('gal-modal-title').innerText = title;
-        document.getElementById('gal-modal-desc').innerText = desc;
-        document.getElementById('gal-modal-tag').innerText = tag || 'Archive Officielle';
-        modal.classList.remove('hidden');
-        initializeLucideIcons();
-    }
-
-    function closeGalleryPreview() {
-        document.getElementById('modal-gallery-preview')?.classList.add('hidden');
     }
 
     function renderReception() {
