@@ -192,6 +192,145 @@
                 overflow: hidden !important;
             }
         }
+    
+        /* =========================================================
+           PREMIUM DIAPORAMA TRANSITIONS & ANIMATIONS ENGINE
+           ========================================================= */
+        @keyframes diapoKenBurns {
+            0% {
+                transform: scale(1.0) translate(0, 0);
+            }
+            50% {
+                transform: scale(1.10) translate(-1.5%, -1%);
+            }
+            100% {
+                transform: scale(1.05) translate(1%, 0.8%);
+            }
+        }
+        .anim-kenburns {
+            animation: diapoKenBurns 10s ease-in-out infinite alternate !important;
+            transform-origin: center center;
+        }
+
+        @keyframes diapoFadeSmooth {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .anim-fade {
+            animation: diapoFadeSmooth 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoSlideInRight {
+            0% {
+                opacity: 0;
+                transform: perspective(1000px) rotateY(-18deg) translateX(80px) scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(1000px) rotateY(0deg) translateX(0) scale(1);
+            }
+        }
+        @keyframes diapoSlideInLeft {
+            0% {
+                opacity: 0;
+                transform: perspective(1000px) rotateY(18deg) translateX(-80px) scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(1000px) rotateY(0deg) translateX(0) scale(1);
+            }
+        }
+        .anim-slide-next {
+            animation: diapoSlideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+        .anim-slide-prev {
+            animation: diapoSlideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoDreamyBlur {
+            0% {
+                opacity: 0;
+                filter: blur(25px) brightness(1.3);
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0px) brightness(1);
+                transform: scale(1);
+            }
+        }
+        .anim-blur {
+            animation: diapoDreamyBlur 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoCubeFlip {
+            0% {
+                opacity: 0;
+                transform: perspective(1200px) rotateX(25deg) scale(0.88);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(1200px) rotateX(0deg) scale(1);
+            }
+        }
+        .anim-cube {
+            animation: diapoCubeFlip 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoPulseGlow {
+            0% {
+                opacity: 0;
+                filter: drop-shadow(0 0 35px rgba(245, 158, 11, 0.8)) brightness(1.2);
+                transform: scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 0px transparent) brightness(1);
+                transform: scale(1);
+            }
+        }
+        .anim-pulse {
+            animation: diapoPulseGlow 0.6s ease-out forwards !important;
+        }
+
+        /* Diaporama progress bar */
+        #slideshow-progress-bar {
+            height: 3px;
+            background: linear-gradient(90deg, #F59E0B, #FF5A36, #FDE68A);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+            transition: width 0.05s linear;
+        }
+
+        /* Diaporama interactive thumbnail item */
+        .diapo-thumb-item {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .diapo-thumb-item:hover {
+            transform: scale(1.08) translateY(-2px);
+            border-color: rgba(245, 158, 11, 0.6);
+        }
+        .diapo-thumb-item.active {
+            border-color: #F59E0B !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+            transform: scale(1.12) translateY(-2px);
+        }
+
+        /* Enhanced Album Cards 3D Tilt & Sheen */
+        .album-card-interactive {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .album-card-interactive:hover {
+            transform: translateY(-6px) scale(1.015);
+            box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.18), 0 0 25px -5px rgba(245, 158, 11, 0.15);
+        }
+
     </style>
 </head>
 <body class="min-h-screen font-sans text-slate-800 antialiased flex flex-col bg-slate-50 festive-glow">
@@ -3029,26 +3168,57 @@
         </div>
 
         <!-- =========================================================
-             MODAL 3: VISIONNEUSE PHOTO / VIDÉO EN DIAPORAMA (LIGHTBOX INTERACTIVE)
+             MODAL: VISIONNEUSE DE MÉDIA & DIAPORAMA CINÉMATIQUE (PREMIUM)
              ========================================================= -->
-        <div id="modal-gallery-preview" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-2 sm:p-4 hidden">
-            <div class="relative w-full max-w-4xl bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 text-white flex flex-col max-h-[95vh] animate-in zoom-in-95">
+        <div id="modal-gallery-preview" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 hidden transition-all duration-300">
+            <div id="gal-modal-container" class="relative w-full max-w-5xl bg-slate-900/95 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 text-white flex flex-col max-h-[96vh] animate-in zoom-in-95">
                 
                 <!-- Lightbox Top Header Bar -->
-                <div class="flex items-center justify-between p-4 border-b border-slate-800/80 bg-slate-950/80 shrink-0">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <span id="gal-modal-tag" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-orange text-white font-mono shrink-0">Photo</span>
+                <div class="flex flex-wrap items-center justify-between p-3 sm:p-4 border-b border-slate-800/80 bg-slate-950/90 shrink-0 gap-2">
+                    <!-- Media & Album Title -->
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <span id="gal-modal-tag" class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-brand-orange text-slate-950 font-mono shrink-0 shadow-sm">Photo</span>
                         <div class="min-w-0">
-                            <h4 id="gal-modal-title" class="font-display font-black text-sm sm:text-base text-white truncate">Titre du Média</h4>
+                            <h4 id="gal-modal-title" class="font-display font-black text-sm sm:text-base text-white truncate drop-shadow-sm">Titre du Média</h4>
                             <p id="gal-modal-album-name" class="text-[10px] text-slate-400 font-mono truncate">Album : --</p>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2 shrink-0">
+                    <!-- Diaporama Controls & Toolbar -->
+                    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        
+                        <!-- Transition Selector Dropdown -->
+                        <div class="relative inline-block text-left" title="Style de transition du Diaporama">
+                            <select id="slideshow-transition-select" onchange="setSlideshowTransition(this.value)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold rounded-xl px-2.5 py-1.5 border border-slate-700 focus:outline-none focus:border-amber-400 cursor-pointer">
+                                <option value="kenburns">🎬 Cinéma (Ken Burns)</option>
+                                <option value="fade">✨ Fondu Doux</option>
+                                <option value="slide">🪄 Glissement 3D</option>
+                                <option value="blur">🔮 Flou Artistique</option>
+                                <option value="cube">💫 Cube 3D Flip</option>
+                                <option value="pulse">💥 Éclat & Glow</option>
+                                <option value="random">🎲 Aléatoire Magique</option>
+                            </select>
+                        </div>
+
+                        <!-- Speed Selector Dropdown -->
+                        <div class="relative inline-block text-left" title="Vitesse de défilement">
+                            <select id="slideshow-speed-select" onchange="setSlideshowSpeed(this.value)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl px-2 py-1.5 border border-slate-700 focus:outline-none focus:border-amber-400 cursor-pointer">
+                                <option value="2500">⚡ 2.5s (Rapide)</option>
+                                <option value="4000" selected>⏱️ 4s (Normal)</option>
+                                <option value="6000">🌿 6s (Posé)</option>
+                                <option value="8000">🧘 8s (Zen)</option>
+                            </select>
+                        </div>
+
                         <!-- Slideshow Auto-Play Toggle -->
-                        <button onclick="toggleSlideshowPlay()" id="slideshow-toggle-btn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1.5 text-slate-200 cursor-pointer" title="Lancer / Arrêter le Diaporama automatique">
+                        <button onclick="toggleSlideshowPlay()" id="slideshow-toggle-btn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1.5 text-slate-200 cursor-pointer shadow" title="Lancer / Arrêter le Diaporama automatique (Espace)">
                             <i data-lucide="play" id="slideshow-play-icon" class="h-3.5 w-3.5 text-amber-400"></i>
                             <span id="slideshow-play-text" class="hidden sm:inline">Diaporama</span>
+                        </button>
+
+                        <!-- Fullscreen Toggle Button -->
+                        <button onclick="toggleGalleryFullscreen()" id="gal-fullscreen-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer" title="Mode Plein Écran (Touche F)">
+                            <i data-lucide="maximize" class="h-4 w-4"></i>
                         </button>
 
                         <!-- Download Button -->
@@ -3057,59 +3227,75 @@
                         </button>
 
                         <!-- Close Button -->
-                        <button onclick="closeGalleryPreview()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer" title="Fermer">
+                        <button onclick="closeGalleryPreview()" class="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white transition cursor-pointer" title="Fermer (Échap)">
                             <i data-lucide="x" class="h-5 w-5"></i>
                         </button>
                     </div>
                 </div>
 
+                <!-- Animated Live Progress Bar for Slideshow -->
+                <div class="w-full bg-slate-950 overflow-hidden h-[3px]">
+                    <div id="slideshow-progress-bar" style="width: 0%;"></div>
+                </div>
+
                 <!-- Lightbox Media Stage (Center View with Nav Arrows) -->
-                <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[420px] max-h-[65vh]">
+                <div id="gal-stage-container" class="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[440px] max-h-[62vh] select-none">
                     
                     <!-- Prev Button -->
-                    <button onclick="galleryNavigatePrev()" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-slate-900/80 hover:bg-brand-orange text-white backdrop-blur-md flex items-center justify-center transition shadow-lg cursor-pointer transform hover:scale-110">
-                        <i data-lucide="chevron-left" class="h-6 w-6"></i>
+                    <button onclick="galleryNavigatePrev()" class="absolute left-3 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-slate-900/80 hover:bg-amber-500 hover:text-slate-950 text-white backdrop-blur-md flex items-center justify-center transition shadow-2xl cursor-pointer transform hover:scale-110 border border-white/10" title="Précédent (Flèche Gauche)">
+                        <i data-lucide="chevron-left" class="h-7 w-7"></i>
                     </button>
 
-                    <!-- Photo Display -->
-                    <img id="gal-modal-img" src="" alt="Aperçu" class="max-h-full max-w-full object-contain select-none transition-opacity duration-300">
+                    <!-- Photo Display Frame -->
+                    <div id="gal-photo-wrapper" class="w-full h-full flex items-center justify-center p-2">
+                        <img id="gal-modal-img" src="" alt="Aperçu" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl select-none">
+                    </div>
 
-                    <!-- Video Player Display -->
-                    <div id="gal-modal-video-container" class="w-full h-full flex items-center justify-center hidden">
-                        <video id="gal-modal-video-player" controls class="max-h-full max-w-full rounded-lg"></video>
+                    <!-- Video Player Display Frame -->
+                    <div id="gal-modal-video-container" class="w-full h-full flex items-center justify-center hidden p-2">
+                        <video id="gal-modal-video-player" controls class="max-h-full max-w-full rounded-xl shadow-2xl"></video>
                     </div>
 
                     <!-- Next Button -->
-                    <button onclick="galleryNavigateNext()" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-slate-900/80 hover:bg-brand-orange text-white backdrop-blur-md flex items-center justify-center transition shadow-lg cursor-pointer transform hover:scale-110">
-                        <i data-lucide="chevron-right" class="h-6 w-6"></i>
+                    <button onclick="galleryNavigateNext()" class="absolute right-3 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-slate-900/80 hover:bg-amber-500 hover:text-slate-950 text-white backdrop-blur-md flex items-center justify-center transition shadow-2xl cursor-pointer transform hover:scale-110 border border-white/10" title="Suivant (Flèche Droite)">
+                        <i data-lucide="chevron-right" class="h-7 w-7"></i>
                     </button>
+
+                    <!-- Slideshow Indicator Badge (Floating on Top Right) -->
+                    <div id="gal-slideshow-indicator" class="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-amber-500/90 text-slate-950 font-black text-[10px] tracking-wider uppercase backdrop-blur-md shadow-lg flex items-center gap-1.5 hidden animate-pulse">
+                        <span class="h-2 w-2 rounded-full bg-rose-600 animate-ping"></span>
+                        Diaporama en cours
+                    </div>
                 </div>
 
                 <!-- Lightbox Bottom Caption & Metadata Bar -->
-                <div class="p-4 bg-slate-950/90 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                    <div class="space-y-0.5 min-w-0">
-                        <p id="gal-modal-desc" class="text-xs text-slate-300 font-normal leading-relaxed">Description détaillée du moment fort.</p>
-                        <div class="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
-                            <span id="gal-modal-author">Auteur : --</span>
-                            <span>•</span>
-                            <span id="gal-modal-date">Date : --</span>
+                <div class="p-3 sm:p-4 bg-slate-950/95 border-t border-slate-800/80 flex flex-col gap-3 shrink-0">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="space-y-0.5 min-w-0">
+                            <p id="gal-modal-desc" class="text-xs sm:text-sm text-slate-200 font-medium line-clamp-2">Légende du média...</p>
+                            <div class="flex items-center gap-3 text-[11px] text-slate-400 font-mono">
+                                <span id="gal-modal-author" class="text-amber-400/90">Auteur : --</span>
+                                <span>•</span>
+                                <span id="gal-modal-date">Date : --</span>
+                            </div>
+                        </div>
+
+                        <!-- Media Counter Badge -->
+                        <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                            <span id="gal-modal-counter" class="px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs font-mono font-bold text-amber-400">1 / 1</span>
                         </div>
                     </div>
 
-                    <!-- Position Counter (ex: 3 / 12) -->
-                    <div class="shrink-0 flex items-center gap-2">
-                        <span id="gal-modal-counter" class="px-3 py-1 rounded-xl bg-slate-800 text-amber-300 font-mono text-xs font-black border border-slate-700">
-                            1 / 1
-                        </span>
+                    <!-- Interactive Thumbnails Strip Carousel -->
+                    <div id="gal-thumbnails-strip" class="flex items-center gap-2 overflow-x-auto py-1 px-0.5 scrollbar-thin scrollbar-thumb-slate-700">
+                        <!-- Dynamic Thumbnails Rendered Here -->
                     </div>
                 </div>
 
             </div>
         </div>
 
-
-
-<!-- MODAL: AUTORISATION ADMIN POUR ANNULATION D'ÉMARGEMENT -->
+        <!-- MODAL: AUTORISATION ADMIN POUR ANNULATION D'ÉMARGEMENT -->
 <div id="modal-admin-uncheck" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95">
         <div class="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-inner border border-red-100">
@@ -8651,7 +8837,7 @@
     
     
     // ==========================================
-    // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM
+    // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM (PREMIUM ENGINE)
     // ==========================================
     const SEED_GALLERY_ALBUMS = [
         {
@@ -8671,417 +8857,417 @@
                     title: "Atmosphère de Ferveur & Prière",
                     description: "Chants d'adoration et intercession collective lors de la Nuit de Jacob.",
                     author: "Comité Médias EMCI",
-                    date: "01/01/2026"
+                    date: "02 Janvier 2026"
                 },
                 {
                     id: "med-2026-2",
                     type: "photo",
-                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
-                    title: "Passage Solennel de Minuit",
-                    description: "Compte à rebours du nouvel an et prières de bénédictions sur les familles.",
-                    author: "Comité Animation",
-                    date: "01/01/2026"
+                    url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
+                    title: "La Chorale en Pleine Louange",
+                    description: "Harmonies célestes et chants de gloire inspirés.",
+                    author: "Département Louange",
+                    date: "02 Janvier 2026"
                 },
                 {
                     id: "med-2026-3",
                     type: "photo",
-                    url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
-                    title: "Chœur des Chantres & Musiciens",
-                    description: "Prestation musicale magnifique et louange prophétique continue.",
-                    author: "Chantre Esther Aka",
-                    date: "01/01/2026"
+                    url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
+                    title: "Communion Fraternelle & Partage",
+                    description: "Accueil chaleureux des fidèles et des invités d'honneur.",
+                    author: "Comité Accueil & Protocole",
+                    date: "02 Janvier 2026"
                 },
                 {
                     id: "med-2026-4",
                     type: "video",
-                    url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
-                    title: "Extraits Vidéo & Proclamations Pastorales",
-                    description: "Revue vidéo des moments prophétiques de la nuit du nouvel an.",
-                    author: "Comité Technique & Vidéo",
-                    date: "01/01/2026"
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                    title: "Clip Récapitulatif de la Nuit",
+                    description: "Moments forts, prières et actions de grâce en vidéo.",
+                    author: "Production Multimédia EMCI",
+                    date: "02 Janvier 2026"
                 }
             ]
         },
         {
             id: "alb-2025-gala",
-            title: "Soirée de Gala & Banquet Agapè 2025",
+            title: "Gala des 10 Ans & Soirée d'Honneur 2025",
             year: "2025",
-            category: "Banquets & Gala",
-            description: "Partage fraternel, agapè et communion autour des tables d'honneur et remise de distinctions.",
-            coverUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
-            createdBy: "Comité Protocole & Logistique",
-            createdAt: "2025-01-02",
+            category: "Célébrations",
+            description: "Dîner de reconnaissance, distinction des pionniers et célébration des actions de grâce pour la première décennie.",
+            coverUrl: "https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Comité d'Organisation",
+            createdAt: "2025-11-15",
             items: [
                 {
                     id: "med-2025-1",
                     type: "photo",
-                    url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
-                    title: "Disposition des Tables de Prestige",
-                    description: "Décoration de gala faste africaine et tables de fête dressées.",
-                    author: "Comité Logistique",
-                    date: "01/01/2025"
+                    url: "https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&w=1200&q=80",
+                    title: "Allocution d'Ouverture Pastorale",
+                    description: "Rappel de la vision divine et bénédiction des familles.",
+                    author: "Secrétariat Général",
+                    date: "15 Novembre 2025"
                 },
                 {
                     id: "med-2025-2",
                     type: "photo",
-                    url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
-                    title: "Partage des Cadeaux Mixtes",
-                    description: "Échanges de présents et célébration fraternelle entre festivaliers.",
-                    author: "Sarah Kouadio",
-                    date: "01/01/2025"
+                    url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80",
+                    title: "Hommage aux Bâtisseurs & Pionniers",
+                    description: "Remise des tableaux d'honneur aux serviteurs dévoués.",
+                    author: "Commission Distinctions",
+                    date: "15 Novembre 2025"
                 },
                 {
                     id: "med-2025-3",
                     type: "photo",
-                    url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
-                    title: "Toast du Nouvel An & Bénédictions",
-                    description: "Proclamation solennelle de santé et prospérité pour la communauté.",
-                    author: "Pasteur David N'Guessan",
-                    date: "01/01/2025"
+                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
+                    title: "Prestation Artistique & Chants d'Action de Grâce",
+                    description: "Spectacle gospel et cantiques d'adoration.",
+                    author: "Équipe Louange",
+                    date: "15 Novembre 2025"
                 }
             ]
         },
         {
-            id: "alb-2024-louange",
-            title: "Concert Prophétique & Louange des Chantres 2024",
+            id: "alb-2024-prepa",
+            title: "Coulisses & Préparatifs Techniques 2024",
             year: "2024",
-            category: "Louange & Concerts",
-            description: "Instants d'élévation spirituelle, cantiques sacrés et adoration avec tous les groupes musicaux.",
-            coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
-            createdBy: "Comité Animation & Louange",
-            createdAt: "2024-01-02",
+            category: "Coulisses",
+            description: "Mobilisation des équipes logistique, sonorisation, accueil et sécurité pour l'aménagement du temple.",
+            coverUrl: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Pôle Logistique EMCI",
+            createdAt: "2024-09-20",
             items: [
                 {
                     id: "med-2024-1",
                     type: "photo",
-                    url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
-                    title: "Concert d'Adoration en Direct",
-                    description: "Chantres réunis pour une prestation inoubliable.",
-                    author: "Chantre Esther Aka",
-                    date: "01/01/2024"
+                    url: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1200&q=80",
+                    title: "Installation de la Scène Principale & Lumières",
+                    description: "Calibrage des projecteurs et essais des pupitres.",
+                    author: "Comité Technique",
+                    date: "20 Septembre 2024"
                 },
                 {
                     id: "med-2024-2",
-                    type: "video",
-                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
-                    title: "Cantiques Sacrés & Chœur EMCI",
-                    description: "Extraits live de la soirée de louange.",
-                    author: "David Gnahoré",
-                    date: "01/01/2024"
-                }
-            ]
-        },
-        {
-            id: "alb-10ans-retrospective",
-            title: "Rétrospective Historique des 10 Ans (2017 - 2027)",
-            year: "2026",
-            category: "Rétrospective 10 Ans",
-            description: "Documentaire exclusif et souvenirs inoubliables retraçant une décennie de foi, de grâce et d'impact.",
-            coverUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
-            createdBy: "Comité Communication & Direction",
-            createdAt: "2026-08-15",
-            items: [
-                {
-                    id: "med-retro-1",
                     type: "photo",
-                    url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
-                    title: "Origines & Fondation de l'EMCI Horeb",
-                    description: "Les premiers pas de la communauté des Toits Rouges en 2017.",
-                    author: "Direction Pastorale",
-                    date: "2017"
+                    url: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=80",
+                    title: "Répétition Générale des Choristes & Musiciens",
+                    description: "Ajustement des micros et des instruments.",
+                    author: "Direction Musicale",
+                    date: "21 Septembre 2024"
                 },
                 {
-                    id: "med-retro-2",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
-                    title: "Croissance de la Jeunesse",
-                    description: "Évolution des départements, ministères et actions caritatives.",
-                    author: "Yao Marc-Emmanuel",
-                    date: "2020"
-                },
-                {
-                    id: "med-retro-3",
+                    id: "med-2024-3",
                     type: "video",
-                    url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
-                    title: "Témoignages Vidéo des Fondateurs",
-                    description: "Récits vibrants sur les 10 ans de fidélité divine.",
-                    author: "Emmanuel Kra",
-                    date: "2026"
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    title: "Visite Guidée des Installations",
+                    description: "Tour d'inspection du complexe Conty Place Gold.",
+                    author: "Pôle Sécurité & Accueil",
+                    date: "22 Septembre 2024"
                 }
             ]
         }
     ];
 
-    let currentViewingAlbumId = null;
-    let currentActiveMediaList = [];
-    let currentLightboxIndex = 0;
-    let slideshowIntervalId = null;
-    let isSlideshowPlaying = false;
-    let currentAlbumCategoryFilter = 'all';
-    let currentInnerMediaFilter = 'all';
-
     function initializeGalleryAlbumsData() {
-        try {
-            const stored = localStorage.getItem('myticket_gallery_albums_v1');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    state.galleryAlbums = parsed;
-                } else {
-                    state.galleryAlbums = [...SEED_GALLERY_ALBUMS];
-                    localStorage.setItem('myticket_gallery_albums_v1', JSON.stringify(state.galleryAlbums));
-                }
-            } else {
-                state.galleryAlbums = [...SEED_GALLERY_ALBUMS];
-                localStorage.setItem('myticket_gallery_albums_v1', JSON.stringify(state.galleryAlbums));
+        const saved = localStorage.getItem('myticket_gallery_albums_v1');
+        if (saved) {
+            try {
+                state.galleryAlbums = JSON.parse(saved);
+            } catch (e) {
+                console.error("Erreur de parsing des albums enregistrés:", e);
+                state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
             }
-        } catch (e) {
-            state.galleryAlbums = [...SEED_GALLERY_ALBUMS];
+        } else {
+            state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
+            saveGalleryAlbumsData();
         }
     }
 
     function saveGalleryAlbumsData() {
-        try {
+        if (state.galleryAlbums) {
             localStorage.setItem('myticket_gallery_albums_v1', JSON.stringify(state.galleryAlbums));
-        } catch (e) {}
+        }
     }
 
-    function renderGalleryAlbums() {
-        const grid = document.getElementById('gallery-albums-grid');
-        if (!grid) return;
-        grid.innerHTML = '';
+    let currentGalleryCategoryFilter = 'all';
+    let currentGallerySearchQuery = '';
+    let currentViewingAlbumId = null;
 
-        const albums = state.galleryAlbums || [];
-        
-        let filtered = albums;
-        if (currentAlbumCategoryFilter !== 'all') {
-            filtered = albums.filter(a => a.category === currentAlbumCategoryFilter);
+    function renderGalleryAlbums() {
+        initializeGalleryAlbumsData();
+        const grid = document.getElementById('gallery-albums-grid');
+        const emptyState = document.getElementById('gallery-empty-state');
+        if (!grid) return;
+
+        let albums = state.galleryAlbums || [];
+
+        // Apply Category filter
+        if (currentGalleryCategoryFilter !== 'all') {
+            albums = albums.filter(a => a.category === currentGalleryCategoryFilter);
         }
 
-        // Update overall counters
-        let totalMedias = 0;
+        // Apply Search query filter
+        if (currentGallerySearchQuery && currentGallerySearchQuery.trim() !== '') {
+            const q = currentGallerySearchQuery.toLowerCase().trim();
+            albums = albums.filter(a => 
+                (a.title && a.title.toLowerCase().includes(q)) ||
+                (a.description && a.description.toLowerCase().includes(q)) ||
+                (a.category && a.category.toLowerCase().includes(q)) ||
+                (a.year && a.year.toString().includes(q))
+            );
+        }
+
+        // Update Overall Stats
+        const allAlbums = state.galleryAlbums || [];
         let totalPhotos = 0;
         let totalVideos = 0;
-        albums.forEach(a => {
-            const items = a.items || [];
-            totalMedias += items.length;
-            totalPhotos += items.filter(m => m.type === 'photo').length;
-            totalVideos += items.filter(m => m.type === 'video').length;
+        allAlbums.forEach(alb => {
+            (alb.items || []).forEach(item => {
+                if (item.type === 'video') totalVideos++;
+                else totalPhotos++;
+            });
         });
 
-        const totalAlbumsBadge = document.getElementById('gallery-total-albums-count');
-        const totalMediasBadge = document.getElementById('gallery-total-medias-count');
-        if (totalAlbumsBadge) totalAlbumsBadge.innerText = `${albums.length} Album${albums.length > 1 ? 's' : ''}`;
-        if (totalMediasBadge) totalMediasBadge.innerText = `${totalMedias} Média${totalMedias > 1 ? 's' : ''} (${totalPhotos}📷 • ${totalVideos}🎥)`;
+        const statAlbEl = document.getElementById('gal-stat-total-albums');
+        const statPhotoEl = document.getElementById('gal-stat-total-photos');
+        const statVideoEl = document.getElementById('gal-stat-total-videos');
+        if (statAlbEl) statAlbEl.innerText = allAlbums.length;
+        if (statPhotoEl) statPhotoEl.innerText = totalPhotos;
+        if (statVideoEl) statVideoEl.innerText = totalVideos;
 
-        if (filtered.length === 0) {
-            grid.innerHTML = `
-                <div class="col-span-full py-12 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200 p-8 space-y-3">
-                    <div class="h-12 w-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mx-auto">
-                        <i data-lucide="folder" class="h-6 w-6"></i>
-                    </div>
-                    <h4 class="font-bold text-sm text-slate-700">Aucun album trouvé dans cette catégorie</h4>
-                    <p class="text-xs text-slate-400">Soyez le premier à créer un album photo ou vidéo pour les 10 Ans !</p>
-                    <button onclick="openCreateAlbumModal()" class="px-4 py-2 bg-brand-orange text-white rounded-xl text-xs font-bold shadow-sm">Créer un Album</button>
-                </div>
-            `;
-            initializeLucideIcons();
+        if (albums.length === 0) {
+            grid.innerHTML = '';
+            if (emptyState) emptyState.classList.remove('hidden');
             return;
         }
 
-        filtered.forEach(album => {
-            const items = album.items || [];
-            const photoCount = items.filter(m => m.type === 'photo').length;
-            const videoCount = items.filter(m => m.type === 'video').length;
-            const cover = album.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80';
+        if (emptyState) emptyState.classList.add('hidden');
 
-            grid.innerHTML += `
-                <div class="group relative bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between">
-                    
-                    <!-- Cover Image -->
-                    <div class="relative aspect-video w-full overflow-hidden bg-slate-900 cursor-pointer" onclick="openSingleAlbumView('${album.id}')">
-                        <img src="${cover}" alt="${album.title}" class="h-full w-full object-cover group-hover:scale-105 transition duration-700">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+        grid.innerHTML = albums.map(alb => {
+            const itemCount = (alb.items || []).length;
+            const photoCount = (alb.items || []).filter(i => i.type !== 'video').length;
+            const videoCount = (alb.items || []).filter(i => i.type === 'video').length;
+            const cover = alb.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80';
 
-                        <!-- Category & Year Badges -->
-                        <div class="absolute top-3 left-3 flex items-center gap-1.5">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/60 backdrop-blur-md text-amber-300 border border-amber-400/40">
-                                ${album.year || '2026'}
+            return `
+                <div onclick="openSingleAlbumView('${alb.id}')" class="album-card-interactive group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1">
+                    <!-- Album Cover Container -->
+                    <div class="relative h-52 bg-slate-900 overflow-hidden">
+                        <img src="${cover}" alt="${alb.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 opacity-90 group-hover:opacity-100">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
+                        
+                        <!-- Badges on Cover -->
+                        <div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-900/80 text-amber-400 backdrop-blur-md border border-amber-400/30 font-mono">
+                                ${alb.category || 'Souvenir'}
                             </span>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 backdrop-blur-md text-white border border-white/30">
-                                ${album.category || 'Célébrations'}
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-orange/90 text-white backdrop-blur-md font-mono">
+                                ${alb.year || '2026'}
                             </span>
                         </div>
 
-                        <!-- Media Counter Badge on Cover -->
-                        <div class="absolute bottom-3 right-3 px-2.5 py-1 rounded-xl bg-slate-900/90 text-white backdrop-blur-md text-[10px] font-mono font-bold flex items-center gap-1.5 border border-slate-700 shadow-md">
-                            <span>📷 ${photoCount}</span>
-                            <span>•</span>
-                            <span>🎥 ${videoCount}</span>
+                        <!-- Media Counter Badge -->
+                        <div class="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/10 text-white text-xs font-mono font-bold flex items-center gap-2">
+                            <span>${photoCount} 📷</span>
+                            ${videoCount > 0 ? `<span>• ${videoCount} 🎥</span>` : ''}
                         </div>
                     </div>
 
-                    <!-- Album Info & Actions -->
-                    <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
-                        <div class="space-y-1.5 cursor-pointer" onclick="openSingleAlbumView('${album.id}')">
-                            <h4 class="font-display font-black text-base text-slate-900 group-hover:text-brand-orange transition leading-snug">${album.title}</h4>
-                            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">${album.description || 'Album photo et vidéo de la célébration.'}</p>
-                            <span class="text-[10px] text-slate-400 font-mono block pt-1">Créé par : ${album.createdBy || 'Direction'}</span>
+                    <!-- Album Info Body -->
+                    <div class="p-5 flex-1 flex flex-col justify-between space-y-3 bg-gradient-to-b from-white to-slate-50/50">
+                        <div>
+                            <h4 class="font-display font-black text-slate-900 text-base group-hover:text-amber-600 transition line-clamp-1">${alb.title}</h4>
+                            <p class="text-xs text-slate-500 font-medium line-clamp-2 mt-1">${alb.description || 'Album des célébrations et souvenirs.'}</p>
                         </div>
 
-                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <button onclick="openSingleAlbumView('${album.id}')" class="flex-1 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                <i data-lucide="eye" class="h-3.5 w-3.5 text-amber-400"></i>
-                                <span>Ouvrir l'Album</span>
-                            </button>
-                            <button onclick="openAddMediaModal('${album.id}')" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition cursor-pointer" title="Ajouter des photos ou vidéos dans cet album">
-                                <i data-lucide="plus" class="h-4 w-4"></i>
-                            </button>
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-mono">
+                            <span class="truncate">Par ${alb.createdBy || 'Direction EMCI'}</span>
+                            <span class="text-amber-600 font-bold group-hover:translate-x-1 transition flex items-center gap-1">Ouvrir <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i></span>
                         </div>
                     </div>
                 </div>
             `;
-        });
+        }).join('');
 
         initializeLucideIcons();
     }
 
-    function filterAlbumsByCategory(cat) {
-        currentAlbumCategoryFilter = cat;
-        ['all', 'celebrations', 'banquets', 'louange', 'retrospective'].forEach(b => {
-            const btn = document.getElementById(`alb-btn-${b}`);
-            if (btn) {
-                const targetCat = b === 'all' ? 'all' : (b === 'celebrations' ? 'Célébrations' : (b === 'banquets' ? 'Banquets & Gala' : (b === 'louange' ? 'Louange & Concerts' : 'Rétrospective 10 Ans')));
-                if (targetCat === cat) {
-                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-2xs transition cursor-pointer";
-                } else {
-                    btn.className = "px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer";
-                }
+    function filterGalleryByCategory(category) {
+        currentGalleryCategoryFilter = category;
+        const buttons = document.querySelectorAll('.gallery-category-btn');
+        buttons.forEach(btn => {
+            if (btn.getAttribute('data-category') === category) {
+                btn.className = "gallery-category-btn px-4 py-2 rounded-xl text-xs font-black transition bg-slate-900 text-white shadow-sm cursor-pointer";
+            } else {
+                btn.className = "gallery-category-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer";
             }
         });
+        renderGalleryAlbums();
+    }
+
+    function filterGalleryBySearch(query) {
+        currentGallerySearchQuery = query;
         renderGalleryAlbums();
     }
 
     function openSingleAlbumView(albumId) {
+        currentViewingAlbumId = albumId;
         const album = (state.galleryAlbums || []).find(a => a.id === albumId);
         if (!album) return;
 
-        currentViewingAlbumId = albumId;
-        document.getElementById('gallery-albums-view-wrapper')?.classList.add('hidden');
-        const detailView = document.getElementById('gallery-single-album-view');
-        if (detailView) detailView.classList.remove('hidden');
+        const albumsViewWrapper = document.getElementById('gallery-albums-view-wrapper');
+        const singleAlbumView = document.getElementById('gallery-single-album-view');
 
-        document.getElementById('album-detail-title').innerText = album.title;
-        document.getElementById('album-detail-desc').innerText = album.description || 'Album photo et vidéo officiel.';
-        document.getElementById('album-detail-year').innerText = `Édition ${album.year || '2026'}`;
-        document.getElementById('album-detail-createdby').innerText = `Par ${album.createdBy || 'Direction'}`;
-        document.getElementById('album-detail-category-badge').innerText = album.category || 'Célébrations';
+        if (albumsViewWrapper) albumsViewWrapper.classList.add('hidden');
+        if (singleAlbumView) singleAlbumView.classList.remove('hidden');
 
-        currentInnerMediaFilter = 'all';
-        renderAlbumInnerMedias();
-        window.scrollTo({ top: document.getElementById('apropos-gallery-section').offsetTop - 80, behavior: 'smooth' });
+        document.getElementById('album-view-title').innerText = album.title;
+        document.getElementById('album-view-category').innerText = album.category || 'Album Officiel';
+        document.getElementById('album-view-year').innerText = album.year || '2026';
+        document.getElementById('album-view-desc').innerText = album.description || '';
+        document.getElementById('album-view-author').innerText = `Créé par ${album.createdBy || 'Direction EMCI'}`;
+
+        renderAlbumInnerMedias(album);
+        window.scrollTo({ top: document.getElementById('view-apropos').offsetTop - 20, behavior: 'smooth' });
     }
 
     function closeSingleAlbumView() {
         currentViewingAlbumId = null;
-        document.getElementById('gallery-single-album-view')?.classList.add('hidden');
-        document.getElementById('gallery-albums-view-wrapper')?.classList.remove('hidden');
+        const albumsViewWrapper = document.getElementById('gallery-albums-view-wrapper');
+        const singleAlbumView = document.getElementById('gallery-single-album-view');
+
+        if (singleAlbumView) singleAlbumView.classList.add('hidden');
+        if (albumsViewWrapper) albumsViewWrapper.classList.remove('hidden');
+
         renderGalleryAlbums();
     }
 
-    function renderAlbumInnerMedias() {
-        const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
-        const grid = document.getElementById('album-inner-medias-grid');
-        const countBadge = document.getElementById('album-inner-media-count');
-        if (!album || !grid) return;
+    function renderAlbumInnerMedias(album) {
+        const grid = document.getElementById('album-medias-grid');
+        const emptyState = document.getElementById('album-medias-empty-state');
+        if (!grid) return;
 
-        grid.innerHTML = '';
         const items = album.items || [];
-        
-        let filtered = items;
-        if (currentInnerMediaFilter !== 'all') {
-            filtered = items.filter(m => m.type === currentInnerMediaFilter);
-        }
+        const photoCount = items.filter(i => i.type !== 'video').length;
+        const videoCount = items.filter(i => i.type === 'video').length;
 
-        currentActiveMediaList = filtered;
-        if (countBadge) countBadge.innerText = `${filtered.length} / ${items.length} Média${items.length > 1 ? 's' : ''}`;
+        document.getElementById('album-view-count').innerText = `${photoCount} photo(s) • ${videoCount} vidéo(s)`;
 
-        if (filtered.length === 0) {
-            grid.innerHTML = `
-                <div class="col-span-full py-12 text-center text-slate-400 bg-slate-50 rounded-3xl border border-dashed border-slate-200 p-8 space-y-3">
-                    <div class="h-12 w-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-                        <i data-lucide="camera" class="h-6 w-6"></i>
-                    </div>
-                    <h4 class="font-bold text-sm text-slate-700">Aucun média disponible dans ce filtre</h4>
-                    <p class="text-xs text-slate-400">Ajoutez des photos ou vidéos pour alimenter cet album !</p>
-                    <button onclick="openAddMediaModal('${album.id}')" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer">+ Ajouter un Média</button>
-                </div>
-            `;
-            initializeLucideIcons();
+        if (items.length === 0) {
+            grid.innerHTML = '';
+            if (emptyState) emptyState.classList.remove('hidden');
             return;
         }
 
-        filtered.forEach((media, index) => {
-            const isVideo = media.type === 'video';
-            grid.innerHTML += `
-                <div class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm hover:shadow-xl transition cursor-pointer" onclick="openLightboxForMediaIndex(${index})">
-                    <div class="aspect-square w-full overflow-hidden relative">
-                        <img src="${media.url}" alt="${media.title}" class="h-full w-full object-cover group-hover:scale-105 transition duration-500">
-                        
-                        ${isVideo ? `
-                            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                <div class="h-11 w-11 rounded-full bg-brand-orange/95 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                                    <i data-lucide="play" class="h-5 w-5 ml-0.5"></i>
-                                </div>
-                            </div>
-                        ` : ''}
+        if (emptyState) emptyState.classList.add('hidden');
 
-                        <div class="absolute top-2.5 left-2.5">
-                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-black/70 text-white backdrop-blur-md">
-                                ${isVideo ? '🎥 Vidéo' : '📷 Photo'}
+        grid.innerHTML = items.map((media, idx) => {
+            const isVideo = media.type === 'video';
+            return `
+                <div onclick="openLightboxForMediaIndex(${idx})" class="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 aspect-square cursor-pointer transform hover:-translate-y-1">
+                    <img src="${isVideo ? (media.thumbnail || album.coverUrl) : media.url}" alt="${media.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                        <p class="text-white text-xs font-black font-display truncate drop-shadow">${media.title || 'Média'}</p>
+                        <p class="text-slate-300 text-[10px] font-mono truncate">${media.author || 'EMCI Horeb'}</p>
+                    </div>
+
+                    ${isVideo ? `
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span class="h-12 w-12 rounded-full bg-brand-orange/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                                <i data-lucide="play" class="h-6 w-6 fill-white"></i>
                             </span>
                         </div>
-                    </div>
-
-                    <div class="p-3 bg-gradient-to-t from-slate-950 via-slate-900 to-slate-900/90 text-white space-y-1">
-                        <h5 class="font-bold text-xs text-white truncate group-hover:text-amber-300 transition">${media.title}</h5>
-                        <p class="text-[10px] text-slate-300 line-clamp-1">${media.description || 'Moment fort 10 ans'}</p>
-                        <div class="flex items-center justify-between text-[9px] text-slate-400 font-mono pt-1">
-                            <span class="truncate">${media.author || 'EMCI'}</span>
-                            <span>${media.date || ''}</span>
-                        </div>
-                    </div>
+                        <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/80 text-[10px] text-amber-400 font-mono font-bold backdrop-blur-md">
+                            🎥 Vidéo
+                        </span>
+                    ` : `
+                        <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/80 text-[10px] text-white font-mono font-bold backdrop-blur-md opacity-0 group-hover:opacity-100 transition">
+                            📷 Photo
+                        </span>
+                    `}
                 </div>
             `;
-        });
+        }).join('');
 
         initializeLucideIcons();
     }
 
-    function filterInnerAlbumMedias(type) {
-        currentInnerMediaFilter = type;
-        ['all', 'photo', 'video'].forEach(b => {
-            const btn = document.getElementById(`inner-filter-${b}`);
-            if (btn) {
-                if (b === type) {
-                    btn.className = "px-3 py-1 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-2xs";
-                } else {
-                    btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200";
-                }
-            }
-        });
-        renderAlbumInnerMedias();
-    }
+    // =========================================================
+    // ADVANCED DIAPORAMA / LIGHTBOX SYSTEM CONTROLLERS
+    // =========================================================
+    let currentLightboxIndex = 0;
+    let currentActiveMediaList = [];
+    let isSlideshowPlaying = false;
+    let slideshowIntervalId = null;
+    let slideshowProgressIntervalId = null;
+    let slideshowSpeedMs = 4000;
+    let slideshowTransitionType = 'kenburns'; // 'kenburns', 'fade', 'slide', 'blur', 'cube', 'pulse', 'random'
+    let progressStartTime = 0;
+    let isGalleryFullscreen = false;
+    let navigationDirection = 'next'; // 'next' or 'prev'
 
-    // LIGHTBOX / SLIDESHOW CONTROLLERS
+    const TRANSITION_LIST = ['kenburns', 'fade', 'slide', 'blur', 'cube', 'pulse'];
+
     function openLightboxForMediaIndex(index) {
-        if (!currentActiveMediaList || currentActiveMediaList.length === 0) return;
+        const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
+        if (!album || !album.items || album.items.length === 0) return;
+
+        currentActiveMediaList = album.items;
         currentLightboxIndex = index;
+        navigationDirection = 'next';
+        
         updateLightboxDisplay();
+        renderLightboxThumbnails();
 
         const modal = document.getElementById('modal-gallery-preview');
         if (modal) modal.classList.remove('hidden');
         initializeLucideIcons();
+
+        // Attach Swipe & Touch listeners
+        setupLightboxTouchGestures();
+    }
+
+    function setSlideshowTransition(type) {
+        slideshowTransitionType = type;
+        applyCurrentTransitionEffect();
+    }
+
+    function setSlideshowSpeed(ms) {
+        slideshowSpeedMs = parseInt(ms, 10) || 4000;
+        if (isSlideshowPlaying) {
+            restartSlideshowTimers();
+        }
+    }
+
+    function applyCurrentTransitionEffect() {
+        const imgEl = document.getElementById('gal-modal-img');
+        if (!imgEl) return;
+
+        // Remove all transition animation classes
+        imgEl.classList.remove('anim-kenburns', 'anim-fade', 'anim-slide-next', 'anim-slide-prev', 'anim-blur', 'anim-cube', 'anim-pulse');
+
+        let effect = slideshowTransitionType;
+        if (effect === 'random') {
+            const randIdx = Math.floor(Math.random() * TRANSITION_LIST.length);
+            effect = TRANSITION_LIST[randIdx];
+        }
+
+        // Force browser reflow to restart CSS animation cleanly
+        void imgEl.offsetWidth;
+
+        if (effect === 'kenburns') {
+            imgEl.classList.add('anim-kenburns');
+        } else if (effect === 'fade') {
+            imgEl.classList.add('anim-fade');
+        } else if (effect === 'slide') {
+            imgEl.classList.add(navigationDirection === 'next' ? 'anim-slide-next' : 'anim-slide-prev');
+        } else if (effect === 'blur') {
+            imgEl.classList.add('anim-blur');
+        } else if (effect === 'cube') {
+            imgEl.classList.add('anim-cube');
+        } else if (effect === 'pulse') {
+            imgEl.classList.add('anim-pulse');
+        }
     }
 
     function updateLightboxDisplay() {
@@ -9091,7 +9277,7 @@
         const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
         const albumName = album ? album.title : 'Album Souvenir';
 
-        document.getElementById('gal-modal-title').innerText = media.title;
+        document.getElementById('gal-modal-title').innerText = media.title || 'Média de Célébration';
         document.getElementById('gal-modal-album-name').innerText = `Album : ${albumName}`;
         document.getElementById('gal-modal-desc').innerText = media.description || 'Moment fort immortalisé lors des 10 Ans EMCI Horeb.';
         document.getElementById('gal-modal-author').innerText = `Auteur : ${media.author || 'Direction EMCI'}`;
@@ -9119,20 +9305,75 @@
             if (imgEl) {
                 imgEl.classList.remove('hidden');
                 imgEl.src = media.url;
+                applyCurrentTransitionEffect();
             }
+        }
+
+        highlightActiveThumbnail();
+    }
+
+    function renderLightboxThumbnails() {
+        const container = document.getElementById('gal-thumbnails-strip');
+        if (!container) return;
+
+        container.innerHTML = currentActiveMediaList.map((media, idx) => {
+            const isVideo = media.type === 'video';
+            const thumbUrl = media.url || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80';
+            const isActive = idx === currentLightboxIndex;
+
+            return `
+                <div onclick="jumpToLightboxMedia(${idx})" id="diapo-thumb-${idx}" class="diapo-thumb-item shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 ${isActive ? 'active border-amber-400' : 'border-slate-800 opacity-60 hover:opacity-100'} relative">
+                    <img src="${thumbUrl}" class="w-full h-full object-cover select-none">
+                    ${isVideo ? `<span class="absolute bottom-1 right-1 text-[8px] bg-black/80 text-amber-400 px-1 rounded font-mono">🎥</span>` : ''}
+                </div>
+            `;
+        }).join('');
+
+        highlightActiveThumbnail();
+    }
+
+    function highlightActiveThumbnail() {
+        currentActiveMediaList.forEach((_, idx) => {
+            const el = document.getElementById(`diapo-thumb-${idx}`);
+            if (el) {
+                if (idx === currentLightboxIndex) {
+                    el.className = "diapo-thumb-item active shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 border-amber-400 relative";
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    el.className = "diapo-thumb-item shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 border-slate-800 opacity-60 hover:opacity-100 relative";
+                }
+            }
+        });
+    }
+
+    function jumpToLightboxMedia(idx) {
+        if (idx === currentLightboxIndex) return;
+        navigationDirection = idx > currentLightboxIndex ? 'next' : 'prev';
+        currentLightboxIndex = idx;
+        updateLightboxDisplay();
+        if (isSlideshowPlaying) {
+            restartSlideshowTimers();
         }
     }
 
     function galleryNavigateNext() {
         if (!currentActiveMediaList || currentActiveMediaList.length === 0) return;
+        navigationDirection = 'next';
         currentLightboxIndex = (currentLightboxIndex + 1) % currentActiveMediaList.length;
         updateLightboxDisplay();
+        if (isSlideshowPlaying) {
+            restartSlideshowTimers();
+        }
     }
 
     function galleryNavigatePrev() {
         if (!currentActiveMediaList || currentActiveMediaList.length === 0) return;
+        navigationDirection = 'prev';
         currentLightboxIndex = (currentLightboxIndex - 1 + currentActiveMediaList.length) % currentActiveMediaList.length;
         updateLightboxDisplay();
+        if (isSlideshowPlaying) {
+            restartSlideshowTimers();
+        }
     }
 
     function toggleSlideshowPlay() {
@@ -9140,21 +9381,132 @@
         const btn = document.getElementById('slideshow-toggle-btn');
         const icon = document.getElementById('slideshow-play-icon');
         const text = document.getElementById('slideshow-play-text');
+        const indicator = document.getElementById('gal-slideshow-indicator');
 
         if (isSlideshowPlaying) {
-            if (btn) btn.className = "px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md";
+            if (btn) btn.className = "px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black text-xs transition flex items-center gap-1.5 cursor-pointer shadow-lg shadow-amber-500/20";
             if (icon) icon.setAttribute('data-lucide', 'pause');
             if (text) text.innerText = "Pause";
-            slideshowIntervalId = setInterval(galleryNavigateNext, 4000);
+            if (indicator) indicator.classList.remove('hidden');
+
+            restartSlideshowTimers();
         } else {
             if (btn) btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1.5 text-slate-200 cursor-pointer";
             if (icon) icon.setAttribute('data-lucide', 'play');
             if (text) text.innerText = "Diaporama";
-            if (slideshowIntervalId) clearInterval(slideshowIntervalId);
-            slideshowIntervalId = null;
+            if (indicator) indicator.classList.add('hidden');
+
+            stopSlideshowTimers();
+            resetProgressBar();
         }
         initializeLucideIcons();
     }
+
+    function restartSlideshowTimers() {
+        stopSlideshowTimers();
+        progressStartTime = Date.now();
+        
+        // Progress bar ticker (updates every 50ms)
+        slideshowProgressIntervalId = setInterval(() => {
+            const elapsed = Date.now() - progressStartTime;
+            const pct = Math.min(100, (elapsed / slideshowSpeedMs) * 100);
+            const bar = document.getElementById('slideshow-progress-bar');
+            if (bar) bar.style.width = `${pct}%`;
+        }, 50);
+
+        // Next slide trigger
+        slideshowIntervalId = setTimeout(() => {
+            galleryNavigateNext();
+        }, slideshowSpeedMs);
+    }
+
+    function stopSlideshowTimers() {
+        if (slideshowIntervalId) {
+            clearTimeout(slideshowIntervalId);
+            slideshowIntervalId = null;
+        }
+        if (slideshowProgressIntervalId) {
+            clearInterval(slideshowProgressIntervalId);
+            slideshowProgressIntervalId = null;
+        }
+    }
+
+    function resetProgressBar() {
+        const bar = document.getElementById('slideshow-progress-bar');
+        if (bar) bar.style.width = '0%';
+    }
+
+    function toggleGalleryFullscreen() {
+        const modalContainer = document.getElementById('gal-modal-container');
+        if (!modalContainer) return;
+
+        if (!document.fullscreenElement) {
+            if (modalContainer.requestFullscreen) {
+                modalContainer.requestFullscreen();
+            } else if (modalContainer.webkitRequestFullscreen) {
+                modalContainer.webkitRequestFullscreen();
+            } else if (modalContainer.msRequestFullscreen) {
+                modalContainer.msRequestFullscreen();
+            }
+            isGalleryFullscreen = true;
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            isGalleryFullscreen = false;
+        }
+    }
+
+    function setupLightboxTouchGestures() {
+        const stage = document.getElementById('gal-stage-container');
+        if (!stage || stage.hasTouchBound) return;
+        stage.hasTouchBound = true;
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        stage.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        stage.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchEndX - touchStartX;
+            if (Math.abs(diff) > 50) {
+                if (diff < 0) {
+                    galleryNavigateNext(); // Swiped left -> Next
+                } else {
+                    galleryNavigatePrev(); // Swiped right -> Prev
+                }
+            }
+        }, { passive: true });
+    }
+
+    // Keyboard Shortcuts for Diaporama
+    window.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('modal-gallery-preview');
+        if (!modal || modal.classList.contains('hidden')) return;
+
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            galleryNavigateNext();
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            galleryNavigatePrev();
+        } else if (e.key === ' ' || e.code === 'Space') {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                toggleSlideshowPlay();
+            }
+        } else if (e.key === 'f' || e.key === 'F') {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                toggleGalleryFullscreen();
+            }
+        } else if (e.key === 'Escape') {
+            closeGalleryPreview();
+        }
+    });
 
     function downloadCurrentGalleryMedia() {
         const media = currentActiveMediaList[currentLightboxIndex];
@@ -9170,13 +9522,16 @@
     }
 
     function closeGalleryPreview() {
-        if (slideshowIntervalId) clearInterval(slideshowIntervalId);
-        slideshowIntervalId = null;
+        stopSlideshowTimers();
+        resetProgressBar();
         isSlideshowPlaying = false;
         const videoPlayer = document.getElementById('gal-modal-video-player');
         if (videoPlayer) {
             videoPlayer.pause();
             videoPlayer.src = '';
+        }
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
         }
         document.getElementById('modal-gallery-preview')?.classList.add('hidden');
     }
