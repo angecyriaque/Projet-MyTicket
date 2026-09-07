@@ -211,6 +211,39 @@
         </div>
     </div>
 
+
+    <!-- Central Desktop Navigation Bar (Visible on Large Screens or Phone in Mode Ordinateur) -->
+    <nav id="desktop-header-nav" class="hidden lg:flex items-center gap-1 bg-slate-950/70 p-1 rounded-2xl border border-slate-800/80 shadow-inner">
+        <button onclick="switchView('accueil')" id="nav-desktop-accueil" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-brand-orange bg-white/10 shadow-xs cursor-pointer">
+            <i data-lucide="home" class="h-3.5 w-3.5"></i>
+            <span>Accueil</span>
+        </button>
+        <button onclick="switchView('ticket')" id="nav-desktop-ticket" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="ticket" class="h-3.5 w-3.5"></i>
+            <span>Pass & Billets</span>
+        </button>
+        <button onclick="switchView('finance')" id="nav-desktop-finance" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="wallet" class="h-3.5 w-3.5 text-amber-300"></i>
+            <span>Finances</span>
+        </button>
+        <button onclick="switchView('reception')" id="nav-desktop-reception" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="check-square" class="h-3.5 w-3.5 text-emerald-400"></i>
+            <span>Réception</span>
+        </button>
+        <button onclick="switchView('organisation')" id="nav-desktop-organisation" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="layout-grid" class="h-3.5 w-3.5 text-purple-300"></i>
+            <span>Plan des Tables</span>
+        </button>
+        <button onclick="switchView('liste')" id="nav-desktop-liste" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="users" class="h-3.5 w-3.5"></i>
+            <span>Participants</span>
+        </button>
+        <button onclick="switchView('dashboard')" id="nav-desktop-dashboard" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
+            <span>Tableau de Bord</span>
+        </button>
+    </nav>
+
     <!-- Right User Profile Status -->
     <div class="flex items-center gap-3 cursor-pointer p-1.5 rounded-2xl hover:bg-white/10 transition" onclick="switchView('utilisateur')" title="Gérer mon profil utilisateur ou changer de compte">
         <div class="relative">
@@ -226,6 +259,45 @@
         </span>
     </div>
 </header>
+
+<!-- Mobile & Tablet Responsive Sub-Navigation Strip (Visible on mobile screens) -->
+<div id="mobile-tabs-strip-container" class="lg:hidden sticky top-16 z-40 bg-[#0B132B]/95 backdrop-blur-xl border-b border-slate-800/90 px-3 py-2 overflow-x-auto no-scrollbar shadow-md">
+    <div class="flex items-center gap-1.5 min-w-max" id="mobile-subnav-items">
+        <button onclick="switchView('accueil')" id="mobstrip-accueil" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-brand-orange bg-white/10 border border-brand-orange/30 shadow-2xs cursor-pointer">
+            <i data-lucide="home" class="h-3.5 w-3.5"></i>
+            <span>Accueil</span>
+        </button>
+        <button onclick="switchView('ticket')" id="mobstrip-ticket" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="ticket" class="h-3.5 w-3.5"></i>
+            <span>Mon Pass</span>
+        </button>
+        <button onclick="switchView('finance')" id="mobstrip-finance" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="wallet" class="h-3.5 w-3.5 text-amber-300"></i>
+            <span>Finances</span>
+        </button>
+        <button onclick="switchView('reception')" id="mobstrip-reception" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="check-square" class="h-3.5 w-3.5 text-emerald-400"></i>
+            <span>Réception</span>
+        </button>
+        <button onclick="switchView('organisation')" id="mobstrip-organisation" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="layout-grid" class="h-3.5 w-3.5 text-purple-300"></i>
+            <span>Tables</span>
+        </button>
+        <button onclick="switchView('liste')" id="mobstrip-liste" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="users" class="h-3.5 w-3.5"></i>
+            <span>Participants</span>
+        </button>
+        <button onclick="switchView('dashboard')" id="mobstrip-dashboard" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
+            <span>Stats</span>
+        </button>
+        <button onclick="switchView('utilisateur')" id="mobstrip-utilisateur" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="user" class="h-3.5 w-3.5"></i>
+            <span>Profil</span>
+        </button>
+    </div>
+</div>
+
 
 <!-- Main Central Application Container -->
 <main class="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 pb-28 md:pb-8">
@@ -8589,7 +8661,7 @@
         renderTablePlan();
     }
 
-    function renderTablePlan() {
+        function renderTablePlan() {
         const container = document.getElementById('table-plan-grid') || document.getElementById('tables-grid-container');
         if (!container) return;
 
@@ -8607,7 +8679,7 @@
         let totalOccupiedSeats = 0;
 
         filteredCats.forEach(cat => {
-            const catParticipants = (state.participants || []).filter(p => p.categorie === cat);
+            const catParticipants = (state.participants || []).filter(p => (p.categorie || 'Classique') === cat);
             const numTablesForCat = Math.max(1, Math.ceil(catParticipants.length / 10));
 
             for (let tableNum = 1; tableNum <= numTablesForCat; tableNum++) {
@@ -8621,67 +8693,123 @@
                 if (occupiedCount === 10) fullTables++;
                 else if (occupiedCount > 0) fillingTables++;
 
-                let catBadgeBg = 'bg-blue-100 text-blue-800 border-blue-200';
-                let activeSeatBg = 'bg-blue-600 text-white shadow-xs';
+                let catBadgeBg = 'bg-blue-100 text-blue-900 border-blue-300';
+                let activeSeatBg = 'bg-blue-600 text-white font-bold shadow-xs';
+                let catBorder = 'border-blue-200';
+                let fullCatName = `Table ${cat}`;
+                
                 if (cat === 'Gold') { 
-                    catBadgeBg = 'bg-amber-100 text-amber-900 border-amber-300 font-black'; 
+                    catBadgeBg = 'bg-amber-100 text-amber-950 border-amber-400 font-black'; 
                     activeSeatBg = 'bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 font-black shadow-xs';
+                    catBorder = 'border-amber-300/80';
+                    fullCatName = `Table ${String(tableNum).padStart(2, '0')} (Gold)`;
                 } else if (cat === 'VIP') { 
-                    catBadgeBg = 'bg-orange-100 text-orange-900 border-orange-300 font-bold'; 
+                    catBadgeBg = 'bg-orange-100 text-orange-950 border-orange-400 font-bold'; 
                     activeSeatBg = 'bg-gradient-to-tr from-[#FF5A36] to-orange-500 text-white font-bold shadow-xs';
+                    catBorder = 'border-orange-300/80';
+                    fullCatName = `Table ${String(tableNum + 5).padStart(2, '0')} (VIP)`;
                 } else if (cat === 'Invité') { 
-                    catBadgeBg = 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold'; 
+                    catBadgeBg = 'bg-emerald-100 text-emerald-950 border-emerald-400 font-bold'; 
                     activeSeatBg = 'bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold shadow-xs';
+                    catBorder = 'border-emerald-300/80';
+                    fullCatName = `Table d'Honneur ${String(tableNum).padStart(2, '0')}`;
+                } else {
+                    fullCatName = `Table ${String(tableNum + 10).padStart(2, '0')} (Béthel)`;
                 }
 
-                // Compact 10 seat chips (2 rows of 5) with cursor hover tooltips
+                // Visual 2x5 Seat Matrix
                 let seatChips = '';
                 for (let seat = 1; seat <= 10; seat++) {
                     const guest = tableGuests[seat - 1];
                     if (guest) {
-                        const tooltipText = `Siège ${seat} : ${guest.prenom} ${guest.nom} (${guest.eglise || 'Non renseigné'}) • #${guest.id} [${guest.checkedIn ? 'Émargé / Présent' : 'En attente'}]`;
+                        const tooltipText = `Siège ${String(seat).padStart(2, '0')} : ${guest.prenom} ${guest.nom} (${guest.eglise || 'EMCI Horeb'}) • #${guest.id} [${guest.checkedIn ? 'Émargé' : 'En attente'}]`;
                         seatChips += `
-                            <div title="${tooltipText}" class="group relative flex flex-col items-center justify-center h-8 rounded-lg ${activeSeatBg} cursor-pointer transition transform hover:scale-110 hover:z-20 border ${guest.checkedIn ? 'border-emerald-300 ring-2 ring-emerald-400/50' : 'border-white/20'}">
-                                <span class="text-[10px] font-mono leading-none">S${seat}</span>
-                                ${guest.checkedIn ? '<span class="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-emerald-400 border border-white"></span>' : ''}
+                            <div title="${tooltipText}" class="group relative flex flex-col items-center justify-center h-9 sm:h-8 rounded-xl ${activeSeatBg} cursor-pointer transition transform hover:scale-105 border ${guest.checkedIn ? 'border-emerald-300 ring-2 ring-emerald-400/60' : 'border-white/30'}">
+                                <span class="text-[11px] sm:text-[10px] font-mono font-bold leading-none">S${String(seat).padStart(2, '0')}</span>
+                                ${guest.checkedIn ? '<span class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white shadow-xs"></span>' : ''}
                             </div>
                         `;
                     } else {
-                        const tooltipText = `Siège ${seat} : Place Libre / Disponible`;
+                        const tooltipText = `Siège ${String(seat).padStart(2, '0')} : Place Libre`;
                         seatChips += `
-                            <div title="${tooltipText}" class="flex items-center justify-center h-8 rounded-lg bg-slate-100 text-slate-400 text-[10px] font-mono border border-dashed border-slate-200 cursor-default hover:bg-slate-200/60 transition">
-                                S${seat}
+                            <div title="${tooltipText}" class="flex items-center justify-center h-9 sm:h-8 rounded-xl bg-slate-100 text-slate-400 text-[11px] sm:text-[10px] font-mono border border-dashed border-slate-300 cursor-default">
+                                S${String(seat).padStart(2, '0')}
                             </div>
                         `;
                     }
                 }
 
+                // Explicit, Legible List of Seated Attendees on the Table Card (Perfect for Mobile & Touch)
+                let guestsListHtml = '';
+                if (tableGuests.length > 0) {
+                    guestsListHtml = '<div class="space-y-1.5 pt-2 border-t border-slate-100">';
+                    guestsListHtml += '<span class="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Festivaliers Installés :</span>';
+                    tableGuests.forEach((g, gIdx) => {
+                        guestsListHtml += `
+                            <div class="flex items-center justify-between text-xs p-1.5 rounded-lg bg-slate-50 border border-slate-200/70">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="font-mono font-black text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">S${String(gIdx + 1).padStart(2, '0')}</span>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 truncate text-xs">${g.prenom} ${g.nom}</p>
+                                        <p class="text-[10px] text-slate-500 truncate">${g.eglise || 'EMCI Horeb'} • #${g.id}</p>
+                                    </div>
+                                </div>
+                                ${g.checkedIn ? `
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 flex items-center gap-1">
+                                        <i data-lucide="check" class="h-3 w-3"></i> Émargé
+                                    </span>
+                                ` : `
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-300 shrink-0">
+                                        En attente
+                                    </span>
+                                `}
+                            </div>
+                        `;
+                    });
+                    guestsListHtml += '</div>';
+                } else {
+                    guestsListHtml = `
+                        <div class="pt-2 border-t border-slate-100 text-center py-2 text-xs text-slate-400 italic">
+                            Aucun festivalier affecté pour le moment (10 places libres).
+                        </div>
+                    `;
+                }
+
                 const occupancyPct = Math.round((occupiedCount / 10) * 100);
 
                 container.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition space-y-3">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border ${catBorder} shadow-sm hover:shadow-md transition space-y-3.5">
+                        <div class="flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
                             <div>
-                                <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 font-mono">Table ${cat}</span>
-                                <h4 class="font-display font-black text-sm text-slate-900">Table N°${tableNum}</h4>
+                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Catégorie ${cat}</span>
+                                <h4 class="font-display font-black text-base sm:text-lg text-slate-900">${fullCatName}</h4>
                             </div>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black border ${catBadgeBg}">
+                            <span class="px-3 py-1 rounded-full text-xs font-mono font-black border ${catBadgeBg} shrink-0">
                                 ${occupiedCount}/10 (${checkedInCount} présent${checkedInCount > 1 ? 's' : ''})
                             </span>
                         </div>
 
                         <!-- Progress Bar -->
-                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                            <div class="h-1.5 rounded-full ${cat === 'Gold' ? 'bg-amber-500' : (cat === 'VIP' ? 'bg-[#FF5A36]' : (cat === 'Invité' ? 'bg-emerald-500' : 'bg-blue-600'))}" style="width: ${occupancyPct}%;"></div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-[10px] font-bold text-slate-500">
+                                <span>Remplissage de la table</span>
+                                <span>${occupancyPct}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                                <div class="h-2 rounded-full ${cat === 'Gold' ? 'bg-amber-500' : (cat === 'VIP' ? 'bg-[#FF5A36]' : (cat === 'Invité' ? 'bg-emerald-500' : 'bg-blue-600'))}" style="width: ${occupancyPct}%;"></div>
+                            </div>
                         </div>
 
-                        <!-- Compact 2x5 Seat Matrix -->
-                        <div class="space-y-1">
-                            <span class="text-[9px] text-slate-400 font-semibold block uppercase">10 Sièges (Survoler pour détails) :</span>
-                            <div class="grid grid-cols-5 gap-1.5">
+                        <!-- 2x5 Seat Matrix -->
+                        <div class="space-y-1.5">
+                            <span class="text-[10px] text-slate-500 font-bold block uppercase">Disposition des 10 Sièges :</span>
+                            <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
                                 ${seatChips}
                             </div>
                         </div>
+
+                        <!-- Seated Attendees List -->
+                        ${guestsListHtml}
                     </div>
                 `;
             }
