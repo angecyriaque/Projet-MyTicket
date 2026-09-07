@@ -2807,16 +2807,9 @@
                         <p class="text-xs text-slate-500">Parcourez les albums souvenirs des éditions passées, visualisez les photos et vidéos ou créez vos propres albums.</p>
                     </div>
 
-                    <!-- Actions Bar: Create Album & Add Media -->
-                    <div class="flex flex-wrap items-center gap-2.5">
-                        <button onclick="openCreateAlbumModal()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
-                            <i data-lucide="folder-plus" class="h-4 w-4"></i>
-                            <span>Créer un Album</span>
-                        </button>
-                        <button onclick="openAddMediaModal()" class="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
-                            <i data-lucide="upload" class="h-4 w-4 text-emerald-400"></i>
-                            <span>Ajouter Photos / Vidéos</span>
-                        </button>
+                    <!-- Actions Bar: Dynamic based on Admin vs Visitor -->
+                    <div id="gallery-admin-actions-bar" class="flex flex-wrap items-center gap-2.5">
+                        <!-- Rendered dynamically by renderGalleryAlbums() based on isUserAdmin -->
                     </div>
                 </div>
 
@@ -2868,11 +2861,8 @@
                                 <p id="album-detail-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">Description de l'album.</p>
                             </div>
 
-                            <div class="flex items-center gap-2 shrink-0">
-                                <button onclick="openAddMediaModal(currentViewingAlbumId)" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md transition flex items-center gap-1.5 cursor-pointer">
-                                    <i data-lucide="plus-circle" class="h-4 w-4"></i>
-                                    <span>Ajouter dans cet Album</span>
-                                </button>
+                            <div id="album-view-admin-actions-bar" class="flex items-center gap-2 shrink-0">
+                                <!-- Rendered dynamically by openSingleAlbumView() based on isUserAdmin -->
                             </div>
                         </div>
                     </div>
@@ -8837,7 +8827,7 @@
     
     
     // ==========================================
-    // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM (PREMIUM ENGINE)
+    // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM (PREMIUM ENGINE - ADMIN GUARDED)
     // ==========================================
     const SEED_GALLERY_ALBUMS = [
         {
@@ -8997,7 +8987,33 @@
         initializeGalleryAlbumsData();
         const grid = document.getElementById('gallery-albums-grid');
         const emptyState = document.getElementById('gallery-empty-state');
+        const actionsBar = document.getElementById('gallery-admin-actions-bar');
         if (!grid) return;
+
+        const isAdmin = isUserAdmin(state.user);
+
+        // Update Top Header Actions Bar based on Admin vs Visitor
+        if (actionsBar) {
+            if (isAdmin) {
+                actionsBar.innerHTML = `
+                    <button onclick="openCreateAlbumModal()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                        <i data-lucide="folder-plus" class="h-4 w-4"></i>
+                        <span>Créer un Album</span>
+                    </button>
+                    <button onclick="openAddMediaModal()" class="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                        <i data-lucide="upload" class="h-4 w-4 text-emerald-400"></i>
+                        <span>Ajouter Photos / Vidéos</span>
+                    </button>
+                `;
+            } else {
+                actionsBar.innerHTML = `
+                    <div class="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold select-none shadow-2xs">
+                        <i data-lucide="eye" class="h-4 w-4 text-amber-500"></i>
+                        <span>Mode Consultation Visiteur</span>
+                    </div>
+                `;
+            }
+        }
 
         let albums = state.galleryAlbums || [];
 
@@ -9050,14 +9066,14 @@
             const cover = alb.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80';
 
             return `
-                <div onclick="openSingleAlbumView('${alb.id}')" class="album-card-interactive group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1">
+                <div onclick="openSingleAlbumView('${alb.id}')" class="album-card-interactive group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1 relative">
                     <!-- Album Cover Container -->
                     <div class="relative h-52 bg-slate-900 overflow-hidden">
                         <img src="${cover}" alt="${alb.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 opacity-90 group-hover:opacity-100">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
                         
                         <!-- Badges on Cover -->
-                        <div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
+                        <div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap z-10">
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-900/80 text-amber-400 backdrop-blur-md border border-amber-400/30 font-mono">
                                 ${alb.category || 'Souvenir'}
                             </span>
@@ -9066,8 +9082,15 @@
                             </span>
                         </div>
 
+                        ${isAdmin ? `
+                            <!-- Admin Delete Album Button -->
+                            <button onclick="event.stopPropagation(); deleteAlbum('${alb.id}')" class="absolute top-3 right-3 p-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white backdrop-blur-md transition shadow-md opacity-0 group-hover:opacity-100 z-20 cursor-pointer" title="Supprimer cet album">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            </button>
+                        ` : ''}
+
                         <!-- Media Counter Badge -->
-                        <div class="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/10 text-white text-xs font-mono font-bold flex items-center gap-2">
+                        <div class="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/10 text-white text-xs font-mono font-bold flex items-center gap-2 z-10">
                             <span>${photoCount} 📷</span>
                             ${videoCount > 0 ? `<span>• ${videoCount} 🎥</span>` : ''}
                         </div>
@@ -9117,6 +9140,7 @@
 
         const albumsViewWrapper = document.getElementById('gallery-albums-view-wrapper');
         const singleAlbumView = document.getElementById('gallery-single-album-view');
+        const actionsBar = document.getElementById('album-view-admin-actions-bar');
 
         if (albumsViewWrapper) albumsViewWrapper.classList.add('hidden');
         if (singleAlbumView) singleAlbumView.classList.remove('hidden');
@@ -9126,6 +9150,31 @@
         document.getElementById('album-view-year').innerText = album.year || '2026';
         document.getElementById('album-view-desc').innerText = album.description || '';
         document.getElementById('album-view-author').innerText = `Créé par ${album.createdBy || 'Direction EMCI'}`;
+
+        const isAdmin = isUserAdmin(state.user);
+
+        // Update Single Album Actions Bar based on Admin vs Visitor
+        if (actionsBar) {
+            if (isAdmin) {
+                actionsBar.innerHTML = `
+                    <button onclick="openAddMediaModal(currentViewingAlbumId)" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                        <span>Ajouter Photos / Vidéos</span>
+                    </button>
+                    <button onclick="deleteAlbum(currentViewingAlbumId)" class="px-3.5 py-2.5 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-xl text-xs font-bold border border-rose-500/30 transition flex items-center gap-1.5 cursor-pointer" title="Supprimer cet album">
+                        <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        <span class="hidden sm:inline">Supprimer</span>
+                    </button>
+                `;
+            } else {
+                actionsBar.innerHTML = `
+                    <div class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 text-slate-300 text-xs font-mono select-none">
+                        <i data-lucide="eye" class="h-3.5 w-3.5 text-amber-400"></i>
+                        <span>Mode Consultation</span>
+                    </div>
+                `;
+            }
+        }
 
         renderAlbumInnerMedias(album);
         window.scrollTo({ top: document.getElementById('view-apropos').offsetTop - 20, behavior: 'smooth' });
@@ -9143,10 +9192,16 @@
     }
 
     function renderAlbumInnerMedias(album) {
+        if (!album) {
+            album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
+        }
+        if (!album) return;
+
         const grid = document.getElementById('album-medias-grid');
         const emptyState = document.getElementById('album-medias-empty-state');
         if (!grid) return;
 
+        const isAdmin = isUserAdmin(state.user);
         const items = album.items || [];
         const photoCount = items.filter(i => i.type !== 'video').length;
         const videoCount = items.filter(i => i.type === 'video').length;
@@ -9170,6 +9225,13 @@
                         <p class="text-white text-xs font-black font-display truncate drop-shadow">${media.title || 'Média'}</p>
                         <p class="text-slate-300 text-[10px] font-mono truncate">${media.author || 'EMCI Horeb'}</p>
                     </div>
+
+                    ${isAdmin ? `
+                        <!-- Admin Delete Single Media Button -->
+                        <button onclick="event.stopPropagation(); deleteAlbumMedia('${album.id}', '${media.id}')" class="absolute top-2 left-2 p-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white backdrop-blur-md transition shadow-md opacity-0 group-hover:opacity-100 z-20 cursor-pointer" title="Supprimer ce média">
+                            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                        </button>
+                    ` : ''}
 
                     ${isVideo ? `
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -9536,17 +9598,24 @@
         document.getElementById('modal-gallery-preview')?.classList.add('hidden');
     }
 
-    // CREATE ALBUM MODAL CONTROLLERS
+    // =========================================================
+    // CREATE ALBUM MODAL CONTROLLERS (ADMIN ONLY)
+    // =========================================================
     let temporaryAlbumCoverDataUrl = null;
 
     function openCreateAlbumModal() {
+        if (!isUserAdmin(state.user)) {
+            showNotification("Accès Réservé", "Seuls les administrateurs sont autorisés à créer des albums.", "warning");
+            return;
+        }
+
         const modal = document.getElementById('modal-create-album');
         if (!modal) return;
         document.getElementById('album-form-title').value = '';
         document.getElementById('album-form-desc').value = '';
         document.getElementById('album-form-cover-url').value = '';
         document.getElementById('album-form-cover-file').value = '';
-        document.getElementById('album-form-author').value = state.user && !state.user.isVisitor ? state.user.name : 'Visiteur / Membre EMCI';
+        document.getElementById('album-form-author').value = state.user ? (state.user.name || 'Direction EMCI') : 'Direction EMCI';
         document.getElementById('album-form-cover-preview').src = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80';
         temporaryAlbumCoverDataUrl = null;
         modal.classList.remove('hidden');
@@ -9578,6 +9647,11 @@
 
     function handleCreateAlbumSubmit(e) {
         e.preventDefault();
+        if (!isUserAdmin(state.user)) {
+            showNotification("Action Non Autorisée", "Seuls les administrateurs sont habilités à créer un album.", "error");
+            return;
+        }
+
         const title = document.getElementById('album-form-title').value.trim();
         const year = document.getElementById('album-form-year').value.trim() || '2026';
         const category = document.getElementById('album-form-category').value;
@@ -9605,34 +9679,66 @@
 
         closeCreateAlbumModal();
         renderGalleryAlbums();
-        showNotification("Album Créé avec Succès !", `L'album "${title}" a été ajouté. Vous pouvez maintenant y insérer des photos et vidéos.`, "success");
+        showNotification("Album Créé avec Succès !", `L'album "${title}" a été ajouté à la galerie.`, "success");
         triggerJubileeConfetti();
     }
 
-    // ADD MEDIA MODAL CONTROLLERS
+    function deleteAlbum(albumId) {
+        if (!isUserAdmin(state.user)) {
+            showNotification("Action Non Autorisée", "Seul un administrateur peut supprimer un album.", "error");
+            return;
+        }
+
+        const album = (state.galleryAlbums || []).find(a => a.id === albumId);
+        const title = album ? album.title : "cet album";
+
+        if (!confirm(`Êtes-vous sûr de vouloir supprimer définitivement l'album "${title}" et tous ses médias ?`)) {
+            return;
+        }
+
+        state.galleryAlbums = (state.galleryAlbums || []).filter(a => a.id !== albumId);
+        saveGalleryAlbumsData();
+
+        if (currentViewingAlbumId === albumId) {
+            closeSingleAlbumView();
+        } else {
+            renderGalleryAlbums();
+        }
+
+        showNotification("Album Supprimé", `L'album "${title}" a été retiré de la galerie.`, "info");
+    }
+
+    // =========================================================
+    // ADD MEDIA MODAL CONTROLLERS (ADMIN ONLY)
+    // =========================================================
     let temporaryMediaDataUrl = null;
 
     function openAddMediaModal(targetAlbumId) {
+        if (!isUserAdmin(state.user)) {
+            showNotification("Accès Réservé", "Seuls les administrateurs sont autorisés à ajouter des photos ou vidéos.", "warning");
+            return;
+        }
+
         const modal = document.getElementById('modal-add-media-to-album');
         if (!modal) return;
 
         const select = document.getElementById('media-form-album-select');
         if (select) {
-            select.innerHTML = '';
-            (state.galleryAlbums || []).forEach(a => {
-                select.innerHTML += `<option value="${a.id}" ${targetAlbumId === a.id ? 'selected' : ''}>${a.title} (${a.year})</option>`;
-            });
+            const albums = state.galleryAlbums || [];
+            select.innerHTML = albums.map(alb => `
+                <option value="${alb.id}" ${(targetAlbumId && targetAlbumId === alb.id) ? 'selected' : ''}>${alb.title} (${alb.year || '2026'})</option>
+            `).join('');
         }
 
         document.getElementById('media-form-title').value = '';
         document.getElementById('media-form-desc').value = '';
-        document.getElementById('media-form-date').value = new Date().toLocaleDateString('fr-FR');
         document.getElementById('media-form-url').value = '';
         document.getElementById('media-form-file').value = '';
-        document.getElementById('media-form-author').value = state.user && !state.user.isVisitor ? state.user.name : 'Contributeur EMCI';
-        document.getElementById('media-form-preview-box')?.classList.add('hidden');
-        temporaryMediaDataUrl = null;
+        document.getElementById('media-form-author').value = state.user ? (state.user.name || 'Direction EMCI') : 'Direction EMCI';
+        document.getElementById('media-form-date').value = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
+        temporaryMediaDataUrl = null;
+        document.getElementById('media-form-preview-container').classList.add('hidden');
         modal.classList.remove('hidden');
         initializeLucideIcons();
     }
@@ -9641,43 +9747,39 @@
         document.getElementById('modal-add-media-to-album')?.classList.add('hidden');
     }
 
-    function toggleMediaTypeInputs(type) {
-        const fileInput = document.getElementById('media-form-file');
-        if (fileInput) {
-            fileInput.accept = type === 'video' ? 'video/*' : 'image/*';
+    function handleMediaTypeChange(type) {
+        const hint = document.getElementById('media-type-hint');
+        if (hint) {
+            hint.innerText = type === 'video' ? 'Format vidéo MP4, WebM ou lien direct streaming vidéo' : 'Format photo JPEG, PNG, WEBP haute définition';
         }
     }
 
     function handleMediaFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-
-        const isVideo = file.type.startsWith('video');
         const reader = new FileReader();
+        const type = document.getElementById('media-form-type').value;
+
         reader.onload = function(e) {
             temporaryMediaDataUrl = e.target.result;
-            const previewBox = document.getElementById('media-form-preview-box');
-            const imgPreview = document.getElementById('media-form-image-preview');
-            const vidPreview = document.getElementById('media-form-video-preview');
+            const container = document.getElementById('media-form-preview-container');
+            const imgPreview = document.getElementById('media-form-preview-img');
+            const videoPreview = document.getElementById('media-form-preview-video');
 
-            if (previewBox) previewBox.classList.remove('hidden');
+            if (container) container.classList.remove('hidden');
 
-            if (isVideo) {
+            if (type === 'video') {
                 if (imgPreview) imgPreview.classList.add('hidden');
-                if (vidPreview) {
-                    vidPreview.classList.remove('hidden');
-                    vidPreview.src = temporaryMediaDataUrl;
+                if (videoPreview) {
+                    videoPreview.classList.remove('hidden');
+                    videoPreview.src = temporaryMediaDataUrl;
                 }
-                const typeSelect = document.getElementById('media-form-type');
-                if (typeSelect) typeSelect.value = 'video';
             } else {
-                if (vidPreview) vidPreview.classList.add('hidden');
+                if (videoPreview) videoPreview.classList.add('hidden');
                 if (imgPreview) {
                     imgPreview.classList.remove('hidden');
                     imgPreview.src = temporaryMediaDataUrl;
                 }
-                const typeSelect = document.getElementById('media-form-type');
-                if (typeSelect) typeSelect.value = 'photo';
             }
         };
         reader.readAsDataURL(file);
@@ -9685,20 +9787,21 @@
 
     function handleMediaUrlInput(url) {
         if (url && url.startsWith('http')) {
-            const previewBox = document.getElementById('media-form-preview-box');
-            const imgPreview = document.getElementById('media-form-image-preview');
-            const vidPreview = document.getElementById('media-form-video-preview');
-            const type = document.getElementById('media-form-type')?.value;
+            const container = document.getElementById('media-form-preview-container');
+            const imgPreview = document.getElementById('media-form-preview-img');
+            const videoPreview = document.getElementById('media-form-preview-video');
+            const type = document.getElementById('media-form-type').value;
 
-            if (previewBox) previewBox.classList.remove('hidden');
+            if (container) container.classList.remove('hidden');
+
             if (type === 'video') {
                 if (imgPreview) imgPreview.classList.add('hidden');
-                if (vidPreview) {
-                    vidPreview.classList.remove('hidden');
-                    vidPreview.src = url;
+                if (videoPreview) {
+                    videoPreview.classList.remove('hidden');
+                    videoPreview.src = url;
                 }
             } else {
-                if (vidPreview) vidPreview.classList.add('hidden');
+                if (videoPreview) videoPreview.classList.add('hidden');
                 if (imgPreview) {
                     imgPreview.classList.remove('hidden');
                     imgPreview.src = url;
@@ -9709,15 +9812,20 @@
 
     function handleAddMediaSubmit(e) {
         e.preventDefault();
+        if (!isUserAdmin(state.user)) {
+            showNotification("Action Non Autorisée", "Seuls les administrateurs sont habilités à ajouter des médias.", "error");
+            return;
+        }
+
         const albumId = document.getElementById('media-form-album-select').value;
         const type = document.getElementById('media-form-type').value;
         const title = document.getElementById('media-form-title').value.trim();
         const desc = document.getElementById('media-form-desc').value.trim();
         const date = document.getElementById('media-form-date').value.trim() || '2026';
-        const author = document.getElementById('media-form-author').value.trim() || 'Contributeur';
+        const author = document.getElementById('media-form-author').value.trim() || 'Direction EMCI';
         const urlInput = document.getElementById('media-form-url').value.trim();
 
-        const mediaUrl = temporaryMediaDataUrl || urlInput || (type === 'video' ? 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80' : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80');
+        const mediaUrl = temporaryMediaDataUrl || urlInput || (type === 'video' ? 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80');
 
         const album = (state.galleryAlbums || []).find(a => a.id === albumId);
         if (!album) {
@@ -9743,7 +9851,7 @@
         closeAddMediaModal();
 
         if (currentViewingAlbumId === albumId) {
-            renderAlbumInnerMedias();
+            renderAlbumInnerMedias(album);
         } else {
             renderGalleryAlbums();
         }
@@ -9752,6 +9860,28 @@
         triggerJubileeConfetti();
     }
 
+    function deleteAlbumMedia(albumId, mediaId) {
+        if (!isUserAdmin(state.user)) {
+            showNotification("Action Non Autorisée", "Seul un administrateur peut supprimer un média.", "error");
+            return;
+        }
+
+        const album = (state.galleryAlbums || []).find(a => a.id === albumId);
+        if (!album) return;
+
+        const media = (album.items || []).find(m => m.id === mediaId);
+        const title = media ? media.title : "ce média";
+
+        if (!confirm(`Voulez-vous vraiment supprimer ${title} de cet album ?`)) {
+            return;
+        }
+
+        album.items = (album.items || []).filter(m => m.id !== mediaId);
+        saveGalleryAlbumsData();
+
+        renderAlbumInnerMedias(album);
+        showNotification("Média Supprimé", `${title} a été retiré de l'album.`, "info");
+    }
 
     // ==========================================
     // 11 COMMITTEES DIRECTORY CONTROLLERS
