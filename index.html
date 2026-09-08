@@ -331,6 +331,30 @@
             box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.18), 0 0 25px -5px rgba(245, 158, 11, 0.15);
         }
 
+    
+        /* High-Contrast Mobile Optimization & Visual Clarity */
+        @media (max-width: 640px) {
+            /* Prevent iOS automatic input zoom */
+            input, select, textarea {
+                font-size: 14px !important;
+            }
+
+            /* Responsive touch targets */
+            button, a, input[type="button"], input[type="submit"] {
+                min-height: 38px;
+            }
+
+            /* Clear card elevation on mobile */
+            .mobile-card-elevated {
+                box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+            }
+
+            /* Responsive typography clamping for phone screens */
+            .font-display {
+                letter-spacing: -0.02em;
+            }
+        }
+
     </style>
 </head>
 <body class="min-h-screen font-sans text-slate-800 antialiased flex flex-col bg-slate-50 festive-glow">
@@ -1130,7 +1154,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                     <div class="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                         <i data-lucide="users" class="h-6 w-6"></i>
@@ -1215,7 +1239,13 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
+                <!-- Mobile Cards View for Smartphones (< 640px) -->
+                <div id="reception-attendees-mobile-cards" class="block sm:hidden space-y-3">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <!-- Desktop / Tablet Table View (>= 640px) -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200">
                             <tr>
@@ -5718,6 +5748,32 @@
         }
     }
 
+    function viewAttendeeTicket(id) {
+        const p = (state.participants || []).find(part => 
+            part.id === id || 
+            part.id.toLowerCase() === (id || '').toLowerCase() ||
+            `#${part.id}`.toLowerCase() === (id || '').toLowerCase() ||
+            part.id.replace(/\D/g, '') === (id || '').replace(/\D/g, '')
+        );
+        if (!p) {
+            showNotification("Billet Introuvable", `Aucun billet trouvé pour l'identifiant ${id}`, "error");
+            return;
+        }
+        state.currentTicket = p;
+        switchView('ticket');
+        updateTicketPreviewUI(p);
+        
+        // Scroll smoothly to ticket preview card on mobile
+        setTimeout(() => {
+            const ticketCard = document.getElementById('live-ticket-card');
+            if (ticketCard) {
+                ticketCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 200);
+
+        showNotification("Pass Chargé", `Affichage du pass de ${p.prenom} ${p.nom}`, "info");
+    }
+
     function updateTicketPreviewUI(ticket) {
         const card = document.getElementById('live-ticket-card');
         const badge = document.getElementById('ticket-badge-category');
@@ -8679,9 +8735,10 @@
         const query = (document.getElementById('search-participants-input')?.value || '').toLowerCase().trim();
         const churchFilter = document.getElementById('filter-church-select')?.value || '';
         const tbody = document.getElementById('participants-table-body');
-        if (!tbody) return;
+        const mobileContainer = document.getElementById('participants-mobile-cards');
+        if (!tbody && !mobileContainer) return;
         
-        const filtered = state.participants.filter(p => {
+        const filtered = (state.participants || []).filter(p => {
             const matchesQuery = !query || 
                 p.nom.toLowerCase().includes(query) || 
                 p.prenom.toLowerCase().includes(query) || 
@@ -8694,74 +8751,96 @@
             return matchesQuery && matchesChurch;
         });
 
-        tbody.innerHTML = '';
-        filtered.forEach(p => {
-            let catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Classique (10.000 F)</span>`;
-            if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-400">GOLD (30.000 F)</span>`;
-            else if (p.categorie === 'VIP') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">VIP (20.000 F)</span>`;
-            else if (p.categorie === 'Invité') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Invité (Gratuit)</span>`;
+        // 1. Desktop Table
+        if (tbody) {
+            tbody.innerHTML = '';
+            filtered.forEach(p => {
+                let catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Classique (10.000 F)</span>`;
+                if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-400">GOLD (30.000 F)</span>`;
+                else if (p.categorie === 'VIP') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">VIP (20.000 F)</span>`;
+                else if (p.categorie === 'Invité') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Invité (Gratuit)</span>`;
 
-            tbody.innerHTML += `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="py-3.5 px-6">
-                        <div class="font-mono text-[10px] font-bold text-slate-400">#${p.id}</div>
-                        <div class="font-bold text-slate-900 text-sm">${p.prenom} ${p.nom}</div>
-                    </td>
-                    <td class="py-3.5 px-6">${catBadge}</td>
-                    <td class="py-3.5 px-6 font-medium text-slate-600">${p.eglise}</td>
-                    <td class="py-3.5 px-6 font-medium text-slate-600">${p.contact1}</td>
-                    <td class="py-3.5 px-6 text-slate-600 text-xs">
-                        <span class="font-bold text-slate-800">${p.modeReglement || 'Espèces'}</span><br>
-                        <span class="text-[10px] text-brand-orange font-mono font-bold">${p.preuveReglement || '-'}</span>
-                    </td>
-                    <td class="py-3.5 px-6 text-right space-x-2">
-                        <button onclick="viewAttendeeTicket('${p.id}')" class="p-1.5 text-slate-500 hover:text-brand-orange bg-slate-100 hover:bg-orange-50 rounded-lg transition" title="Voir le Pass">
-                            <i data-lucide="eye" class="h-4 w-4"></i>
-                        </button>
-                        <button onclick="deleteParticipant('${p.id}')" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Supprimer">
-                            <i data-lucide="trash-2" class="h-4 w-4"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3.5 px-6">
+                            <div class="font-mono text-[10px] font-bold text-slate-500">#${p.id}</div>
+                            <div class="font-bold text-slate-900 text-sm">${p.prenom} ${p.nom}</div>
+                        </td>
+                        <td class="py-3.5 px-6">${catBadge}</td>
+                        <td class="py-3.5 px-6 font-medium text-slate-700">${p.eglise}</td>
+                        <td class="py-3.5 px-6 font-medium text-slate-700 font-mono">${p.contact1}</td>
+                        <td class="py-3.5 px-6 text-slate-700 text-xs">
+                            <span class="font-bold text-slate-900">${p.modeReglement || 'Espèces'}</span><br>
+                            <span class="text-[10px] text-brand-orange font-mono font-bold">${p.preuveReglement || '-'}</span>
+                        </td>
+                        <td class="py-3.5 px-6 text-right space-x-2">
+                            <button onclick="viewAttendeeTicket('${p.id}')" class="p-2 text-slate-600 hover:text-brand-orange bg-slate-100 hover:bg-orange-50 rounded-xl transition cursor-pointer" title="Voir le Pass">
+                                <i data-lucide="eye" class="h-4 w-4"></i>
+                            </button>
+                            <button onclick="deleteParticipant('${p.id}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer" title="Supprimer">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 2. Mobile Cards (Ultra clear for smartphones)
+        if (mobileContainer) {
+            mobileContainer.innerHTML = '';
+            if (filtered.length === 0) {
+                mobileContainer.innerHTML = `<div class="p-6 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-xs">Aucun participant trouvé.</div>`;
+            } else {
+                filtered.forEach(p => {
+                    let catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-200">Classique</span>`;
+                    if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-400">GOLD (30.000 F)</span>`;
+                    else if (p.categorie === 'VIP') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-950 border border-purple-300">VIP (20.000 F)</span>`;
+                    else if (p.categorie === 'Invité') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-950 border border-emerald-300">Invité</span>`;
+
+                    mobileContainer.innerHTML += `
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3">
+                            <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+                                <div>
+                                    <div class="font-black text-slate-900 text-sm sm:text-base leading-tight">${p.prenom} ${p.nom}</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">${p.eglise || 'EMCI Horeb'}</div>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="font-mono font-black text-xs text-brand-orange px-2 py-0.5 rounded-lg bg-orange-50 border border-orange-200/60 block">#${p.id}</span>
+                                    <div class="mt-1">${catBadge}</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase block">Contact</span>
+                                    <a href="tel:${(p.contact1||'').replace(/\s+/g, '')}" class="font-mono font-bold text-indigo-600 text-[11px] flex items-center gap-1 truncate">
+                                        <i data-lucide="phone" class="h-3 w-3"></i> ${p.contact1 || '--'}
+                                    </a>
+                                </div>
+                                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase block">Paiement</span>
+                                    <span class="font-bold text-slate-800 text-[11px] block truncate">${p.modeReglement || 'Espèces'}</span>
+                                    <span class="text-[9px] text-brand-orange font-mono font-bold block truncate">${p.preuveReglement || '-'}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
+                                <button onclick="viewAttendeeTicket('${p.id}')" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                                    <i data-lucide="ticket" class="h-3.5 w-3.5 text-amber-400"></i>
+                                    <span>Voir le Pass</span>
+                                </button>
+                                <button onclick="deleteParticipant('${p.id}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl border border-rose-200 transition cursor-pointer" title="Supprimer">
+                                    <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
         initializeLucideIcons();
-    }
-
-    function populateChurchFilterOptions() {
-        const select = document.getElementById('filter-church-select');
-        if (!select) return;
-        const unique = [...new Set(state.participants.map(p => p.eglise.trim()))].sort();
-        select.innerHTML = '<option value="">Toutes les Églises</option>';
-        unique.forEach(c => {
-            select.innerHTML += `<option value="${c}">${c}</option>`;
-        });
-    }
-
-    function filterParticipants() {
-        renderParticipantsTable();
-    }
-
-    function deleteParticipant(participantId) {
-        if (confirm("Supprimer ce participant de la liste ?")) {
-            state.participants = state.participants.filter(p => p.id !== participantId);
-            try {
-                localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
-            } catch(e) {}
-            renderParticipantsTable();
-            updateDashboardStats();
-            renderReceptionTable();
-            showNotification("Participant supprimé", "La liste a été mise à jour.", "info");
-        }
-    }
-
-    function viewAttendeeTicket(participantId) {
-        const ticket = state.participants.find(p => p.id === participantId);
-        if (ticket) {
-            state.currentTicket = ticket;
-            updateTicketPreviewUI(ticket);
-            switchView('ticket');
-        }
     }
 
     function renderHistoryList() {
@@ -10085,7 +10164,8 @@
 
         function renderReceptionTable() {
         const tbody = document.getElementById('reception-attendees-tbody');
-        if (!tbody) return;
+        const mobileContainer = document.getElementById('reception-attendees-mobile-cards');
+        if (!tbody && !mobileContainer) return;
 
         const totalParticipants = (state.participants || []).length;
         const checkedCount = (state.participants || []).filter(p => p.checkedIn).length;
@@ -10139,78 +10219,140 @@
             });
         }
 
-        tbody.innerHTML = '';
-        if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 italic">Aucun participant ne correspond aux critères sélectionnés.</td></tr>`;
-            return;
+        // 1. Populate Desktop Table
+        if (tbody) {
+            tbody.innerHTML = '';
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 italic font-mono">Aucun participant ne correspond aux critères sélectionnés.</td></tr>`;
+            } else {
+                list.forEach(p => {
+                    const tableInfo = getParticipantTableInfo(p);
+                    let catColor = "text-blue-700 bg-blue-50 border-blue-200 font-bold";
+                    if (p.categorie === 'Gold') catColor = "text-amber-900 bg-amber-50 border-amber-300 font-black";
+                    else if (p.categorie === 'VIP') catColor = "text-purple-900 bg-purple-50 border-purple-300 font-bold";
+                    else if (p.categorie === 'Invité') catColor = "text-emerald-900 bg-emerald-50 border-emerald-300 font-bold";
+
+                    const isChecked = !!p.checkedIn;
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="py-3.5 px-4 font-bold text-slate-900">
+                                ${p.prenom} ${p.nom}<br>
+                                <span class="text-[10px] text-slate-500 font-normal font-mono">${p.dateTicket || '--'}</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-mono font-black text-brand-orange">
+                                #${p.id}<br>
+                                <span class="text-[10px] text-slate-600 font-semibold">${tableInfo.fullTableName}</span>
+                            </td>
+                            <td class="py-3.5 px-4">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] uppercase border ${catColor}">${p.categorie || 'Classique'}</span>
+                            </td>
+                            <td class="py-3.5 px-4 text-slate-700 text-xs truncate max-w-[130px] font-medium">${p.eglise || 'EMCI Horeb'}</td>
+                            <td class="py-3.5 px-4 font-mono text-xs text-slate-700 font-medium">${p.contact1 || '--'}</td>
+                            <td class="py-3.5 px-4">
+                                ${isChecked ? `
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                                        <i data-lucide="check-circle" class="h-3.5 w-3.5 text-emerald-600"></i> Émargé à ${p.checkInTime || '00:00'}
+                                    </span>
+                                ` : `
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-300 inline-flex items-center gap-1">
+                                        <i data-lucide="clock" class="h-3.5 w-3.5 text-slate-400"></i> En Attente
+                                    </span>
+                                `}
+                            </td>
+                            <td class="py-3.5 px-4 text-right">
+                                ${isChecked ? `
+                                    <button onclick="requestUncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Seul un Administrateur peut annuler l'émargement">
+                                        <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-amber-600"></i>
+                                        <span>Annuler (Admin)</span>
+                                    </button>
+                                ` : `
+                                    <button onclick="executeCheckInForTicketId('${p.id}')" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
+                                        <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                                        <span>Émarger</span>
+                                    </button>
+                                `}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
         }
 
-        list.forEach(p => {
-            const tableInfo = getParticipantTableInfo(p);
-            let catColor = "text-blue-600 bg-blue-50 border-blue-200";
-            if (p.categorie === 'Gold') catColor = "text-amber-800 bg-amber-50 border-amber-300 font-black";
-            else if (p.categorie === 'VIP') catColor = "text-purple-800 bg-purple-50 border-purple-300 font-bold";
-            else if (p.categorie === 'Invité') catColor = "text-emerald-800 bg-emerald-50 border-emerald-300 font-bold";
+        // 2. Populate Mobile Cards (Clear visual layout for smartphones)
+        if (mobileContainer) {
+            mobileContainer.innerHTML = '';
+            if (list.length === 0) {
+                mobileContainer.innerHTML = `<div class="p-6 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-xs">Aucun participant ne correspond aux critères.</div>`;
+            } else {
+                list.forEach(p => {
+                    const tableInfo = getParticipantTableInfo(p);
+                    let catColor = "text-blue-700 bg-blue-50 border-blue-200 font-bold";
+                    if (p.categorie === 'Gold') catColor = "text-amber-900 bg-amber-50 border-amber-300 font-black";
+                    else if (p.categorie === 'VIP') catColor = "text-purple-900 bg-purple-50 border-purple-300 font-bold";
+                    else if (p.categorie === 'Invité') catColor = "text-emerald-900 bg-emerald-50 border-emerald-300 font-bold";
 
-            const isChecked = !!p.checkedIn;
-            tbody.innerHTML += `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="py-3 px-4 font-bold text-slate-900">
-                        ${p.prenom} ${p.nom}<br>
-                        <span class="text-[10px] text-slate-400 font-normal">${p.dateTicket || '--'}</span>
-                    </td>
-                    <td class="py-3 px-4 font-mono font-bold text-brand-orange">
-                        #${p.id}<br>
-                        <span class="text-[10px] text-slate-500 font-semibold">${tableInfo.fullTableName}</span>
-                    </td>
-                    <td class="py-3 px-4">
-                        <span class="px-2.5 py-1 rounded-full text-[10px] uppercase border ${catColor}">${p.categorie || 'Classique'}</span>
-                    </td>
-                    <td class="py-3 px-4 text-slate-600 text-xs truncate max-w-[130px]">${p.eglise || 'EMCI Horeb'}</td>
-                    <td class="py-3 px-4 font-mono text-xs text-slate-600">${p.contact1 || '--'}</td>
-                    <td class="py-3 px-4">
-                        ${isChecked ? `
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
-                                <i data-lucide="check-circle" class="h-3 w-3 text-emerald-600"></i> Émargé à ${p.checkInTime || '00:00'}
-                            </span>
-                        ` : `
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-300 inline-flex items-center gap-1">
-                                <i data-lucide="clock" class="h-3 w-3 text-slate-400"></i> En Attente
-                            </span>
-                        `}
-                    </td>
-                    <td class="py-3 px-4 text-right">
-                        ${isChecked ? `
-                            <button onclick="requestUncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Seul un Administrateur peut annuler l'émargement">
-                                <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-amber-600"></i>
-                                <span>Annuler (Admin)</span>
-                            </button>
-                        ` : `
-                            <button onclick="executeCheckInForTicketId('${p.id}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
-                                <i data-lucide="check" class="h-3.5 w-3.5"></i>
-                                <span>Émarger</span>
-                            </button>
-                        `}
-                    </td>
-                </tr>
-            `;
-        });
+                    const isChecked = !!p.checkedIn;
+                    mobileContainer.innerHTML += `
+                        <div class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3">
+                            <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+                                <div>
+                                    <div class="font-black text-slate-900 text-sm sm:text-base leading-tight">${p.prenom} ${p.nom}</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">${p.eglise || 'EMCI Horeb'}</div>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="font-mono font-black text-xs text-brand-orange px-2 py-0.5 rounded-lg bg-orange-50 border border-orange-200/60 block">#${p.id}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] uppercase border ${catColor} inline-block mt-1">${p.categorie || 'Classique'}</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase block">Placement</span>
+                                    <span class="font-bold text-slate-800 text-[11px] truncate block">${tableInfo.fullTableName}</span>
+                                </div>
+                                <div class="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase block">Contact</span>
+                                    <a href="tel:${(p.contact1||'').replace(/\s+/g, '')}" class="font-mono font-bold text-indigo-600 text-[11px] flex items-center gap-1 truncate">
+                                        <i data-lucide="phone" class="h-3 w-3"></i> ${p.contact1 || '--'}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2 pt-1">
+                                <div>
+                                    ${isChecked ? `
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                                            <i data-lucide="check-circle" class="h-3 w-3 text-emerald-600"></i> Émargé à ${p.checkInTime || '00:00'}
+                                        </span>
+                                    ` : `
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-300 inline-flex items-center gap-1">
+                                            <i data-lucide="clock" class="h-3 w-3 text-slate-400"></i> En Attente
+                                        </span>
+                                    `}
+                                </div>
+                                <div>
+                                    ${isChecked ? `
+                                        <button onclick="requestUncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition inline-flex items-center gap-1 cursor-pointer">
+                                            <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-amber-600"></i>
+                                            <span>Annuler (Admin)</span>
+                                        </button>
+                                    ` : `
+                                        <button onclick="executeCheckInForTicketId('${p.id}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
+                                            <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                                            <span>Émarger</span>
+                                        </button>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
 
         initializeLucideIcons();
     }
 
-        // ==========================================
-    // ADMIN-ONLY CHECK-IN CANCELLATION CONTROLLERS
-    // ==========================================
-    let pendingUncheckParticipantId = null;
-
-    function isUserAdmin(user) {
-        if (!user || user.isVisitor) return false;
-        if (user.isAdmin === true || user.role === 'Administrateur' || user.role === 'PCO' || user.isSuperAdmin) return true;
-        return ["Coordination Stratégique", "Coordination Opérationnelle", "Comité Administratif", "Comité Financier", "Comité Supervision"].includes(user.comite);
-    }
-
-    // Opens modal requiring mandatory Administrator Password entry
     function requestUncheckParticipant(participantId) {
         const p = (state.participants || []).find(part => part.id === participantId);
         if (!p) return;
@@ -11383,29 +11525,35 @@
      Provides Instant Native App Feel on Smartphones
      ========================================================= -->
 <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#090D1F]/95 backdrop-blur-xl border-t border-slate-800/80 px-2 py-1.5 safe-area-pb shadow-2xl transition-transform duration-300">
-    <div class="grid grid-cols-4 gap-1 items-center max-w-md mx-auto text-center" id="mobile-nav-items-grid">
+    <div class="grid grid-cols-5 gap-1 items-center max-w-md mx-auto text-center" id="mobile-nav-items-grid">
         <!-- 1. Accueil -->
-        <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-brand-orange bg-white/10 font-bold">
-            <i data-lucide="home" class="h-5 w-5 transition-transform group-active:scale-90"></i>
-            <span class="text-[10px] mt-1 tracking-tight leading-none">Accueil</span>
+        <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 text-brand-orange bg-white/10 font-bold">
+            <i data-lucide="home" class="h-4.5 w-4.5 transition-transform group-active:scale-90"></i>
+            <span class="text-[9px] mt-0.5 tracking-tight leading-none font-bold">Accueil</span>
         </button>
 
         <!-- 2. Pass / Billetterie -->
-        <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-slate-400 hover:text-white">
-            <i data-lucide="ticket" class="h-5 w-5 transition-transform group-active:scale-90"></i>
-            <span class="text-[10px] mt-1 tracking-tight leading-none">Mon Pass</span>
+        <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="ticket" class="h-4.5 w-4.5 transition-transform group-active:scale-90"></i>
+            <span class="text-[9px] mt-0.5 tracking-tight leading-none font-medium">Billets</span>
         </button>
 
-        <!-- 3. Organisation / Programme -->
-        <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-slate-400 hover:text-white">
-            <i data-lucide="calendar" class="h-5 w-5 transition-transform group-active:scale-90"></i>
-            <span class="text-[10px] mt-1 tracking-tight leading-none">Programme</span>
+        <!-- 3. Réception (Check-in) -->
+        <button onclick="switchView('reception')" id="mob-nav-reception" class="member-only-el mob-nav-btn group flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="check-square" class="h-4.5 w-4.5 transition-transform group-active:scale-90 text-emerald-400"></i>
+            <span class="text-[9px] mt-0.5 tracking-tight leading-none font-medium">Réception</span>
         </button>
 
-        <!-- 4. Espace Profil / Utilisateur -->
-        <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 text-slate-400 hover:text-white">
-            <i data-lucide="user" class="h-5 w-5 transition-transform group-active:scale-90"></i>
-            <span class="text-[10px] mt-1 tracking-tight leading-none">Profil</span>
+        <!-- 4. Organisation / Tables -->
+        <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="layout-grid" class="h-4.5 w-4.5 transition-transform group-active:scale-90 text-purple-400"></i>
+            <span class="text-[9px] mt-0.5 tracking-tight leading-none font-medium">Tables</span>
+        </button>
+
+        <!-- 5. À Propos (Galerie, GPS, Contacts) -->
+        <button onclick="switchView('apropos')" id="mob-nav-apropos" class="mob-nav-btn group flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 text-slate-400 hover:text-white">
+            <i data-lucide="info" class="h-4.5 w-4.5 transition-transform group-active:scale-90 text-sky-400"></i>
+            <span class="text-[9px] mt-0.5 tracking-tight leading-none font-medium">À Propos</span>
         </button>
     </div>
 </nav>
