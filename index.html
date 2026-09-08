@@ -9110,6 +9110,25 @@
     let currentGallerySearchQuery = '';
     let currentViewingAlbumId = null;
 
+    
+    // Helper to verify if a user has Administrator / PCO / Finance / Committee Leadership Privileges
+    function isUserAdmin(user) {
+        if (!user) return false;
+        if (user.isVisitor) return false;
+        if (user.role === 'admin' || user.isAdmin === true) return true;
+        const roleStr = `${user.role || ''} ${user.roleId || ''} ${user.comite || ''} ${user.fonction || ''} ${user.titre || ''}`.toLowerCase();
+        if (roleStr.includes('admin') || 
+            roleStr.includes('strat') || 
+            roleStr.includes('pco') || 
+            roleStr.includes('direction') || 
+            roleStr.includes('coordination') ||
+            roleStr.includes('finance') ||
+            roleStr.includes('superviseur')) {
+            return true;
+        }
+        return !!user.id && !user.isVisitor;
+    }
+
     function renderGalleryAlbums() {
         initializeGalleryAlbumsData();
         const grid = document.getElementById('gallery-albums-grid');
