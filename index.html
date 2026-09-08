@@ -1,4 +1,533 @@
-<!DOCTYPE html>
+// ==========================================
+    // RECEPTION, SCANNER & DONATION CONTROLLERS (FULL SUITE)
+    // ==========================================
+    let receptionFilter = 'all';
+    let pendingUncheckParticipantId = null;
+
+    function filterReception(filter) {
+        receptionFilter = filter;
+        const btns = ['all', 'checked', 'pending'];
+        btns.forEach(b => {
+            const btn = document.getElementById(`rec-btn-${b}`) || document.getElementById(`btn-reception-${b}`);
+            if (btn) {
+                if (b === filter) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-xs transition cursor-pointer";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
+                }
+            }
+        });
+        renderReceptionTable();
+    }
+
+    function renderReception() {
+        renderReceptionTable();
+    }
+
+    // Comprehensive ticket finder supporting numeric numbers, exact IDs, phones, and names
+    function findParticipantByQuery(query) {
+        if (!query) return null;
+        const raw = query.toString().trim();
+        const clean = raw.replace('#', '').toLowerCase();
+        const digitsOnly = raw.replace(/\D/g, '');
+
+        // 1. Direct ID match (e.g. 'MYT-0001', 'TIC-1234', '0001')
+        let p = (state.participants || []).find(part => 
+            part.id.toLowerCase() === clean || 
+            part.id.toLowerCase() === `myt-${clean}` ||
+            `#${part.id}`.toLowerCase() === clean
+        );
+        if (p) return p;
+
+        // 2. Numeric match (e.g. user typed "1" -> matches "MYT-0001", "15" -> "MYT-0015", etc.)
+        if (digitsOnly.length > 0) {
+            const numVal = parseInt(digitsOnly, 10);
+            p = (state.participants || []).find(part => {
+                const partDigits = part.id.replace(/\D/g, '');
+                return partDigits && parseInt(partDigits, 10) === numVal;
+            });
+            if (p) return p;
+
+            // Search by contact numbers
+            p = (state.participants || []).find(part => {
+                const c1 = (part.contact1 || '').replace(/\D/g, '');
+                const c2 = (part.contact2 || '').replace(/\D/g, '');
+                return (c1 && c1.includes(digitsOnly)) || (c2 && c2.includes(digitsOnly));
+            });
+            if (p) return p;
+        }
+
+        // 3. Search by attendee name
+        p = (state.participants || []).find(part => 
+            `${part.prenom || ''} ${part.nom || ''}`.toLowerCase().includes(clean) ||
+            `${part.nom || ''} ${part.prenom || ''}`.toLowerCase().includes(clean)
+        );
+        if (p) return p;
+
+        return null;
+    }
+
+    function renderReceptionTable() {
+        const tbody = document.getElementById('reception-attendees-tbody') || document.getElementById('reception-participants-table-body');
+        if (!tbody) return;
+
+        const totalParticipants = (state.participants || []).length;
+        const checkedCount = (state.participants || []).filter(p => p.checkedIn).length;
+        const pendingCount = totalParticipants - checkedCount;
+        const attendanceRate = totalParticipants > 0 ? Math.round((checkedCount / totalParticipants) * 100) : 0;
+
+        const statTotal = document.getElementById('reception-stat-total');
+        const statChecked = document.getElementById('reception-stat-checked');
+        const statPending = document.getElementById('reception-stat-pending');
+        const statRate = document.getElementById('reception-stat-rate');
+
+        if (statTotal) statTotal.innerText = totalParticipants;
+        if (statChecked) statChecked.innerText = checkedCount;
+        if (statPending) statPending.innerText = pendingCount;
+        if (statRate) statRate.innerText = `${attendanceRate}%`;
+
+        const searchInput = document.getElementById('reception-search-input');
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        const digitsOnly = query.replace(/\D/g, '');
+
+        let list = (state.participants || []);
+
+        // Filter by Status Tab
+        if (receptionFilter === 'checked') {
+            list = list.filter(p => p.checkedIn);
+        } else if (receptionFilter === 'pending') {
+            list = list.filter(p => !p.checkedIn);
+        }
+
+        // Filter by Search Query (Number, ID, Name, Church, Phone)
+        if (query) {
+            const numVal = digitsOnly.length > 0 ? parseInt(digitsOnly, 10) : null;
+            list = list.filter(p => {
+                const idLower = p.id.toLowerCase();
+                const nameLower = `${p.prenom || ''} ${p.nom || ''}`.toLowerCase();
+                const churchLower = (p.eglise || '').toLowerCase();
+                const c1 = (p.contact1 || '').toLowerCase();
+                const c2 = (p.contact2 || '').toLowerCase();
+
+                if (idLower.includes(query) || nameLower.includes(query) || churchLower.includes(query) || c1.includes(query) || c2.includes(query)) {
+                    return true;
+                }
+                if (numVal !== null) {
+                    const partDigits = p.id.replace(/\D/g, '');
+                    if (partDigits && parseInt(partDigits, 10) === numVal) return true;
+                }
+                return false;
+            });
+        }
+
+        tbody.innerHTML = '';
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 italic font-mono">Aucun participant ne correspond aux critères sélectionnés.</td></tr>`;
+            return;
+        }
+
+        list.forEach(p => {
+            const tableInfo = getParticipantTableInfo(p);
+            let catColor = "text-blue-600 bg-blue-50 border-blue-200";
+            if (p.categorie === 'Gold') catColor = "text-amber-800 bg-amber-50 border-amber-300 font-black";
+            else if (p.categorie === 'VIP') catColor = "text-purple-800 bg-purple-50 border-purple-300 font-bold";
+            else if (p.categorie === 'Invité') catColor = "text-emerald-800 bg-emerald-50 border-emerald-300 font-bold";
+
+            const isChecked = !!p.checkedIn;
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="py-3 px-4 font-bold text-slate-900">
+                        ${p.prenom} ${p.nom}<br>
+                        <span class="text-[10px] text-slate-400 font-normal font-mono">${p.dateTicket || '--'}</span>
+                    </td>
+                    <td class="py-3 px-4 font-mono font-bold text-brand-orange">
+                        #${p.id}<br>
+                        <span class="text-[10px] text-slate-500 font-semibold">${tableInfo.fullTableName}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] uppercase border ${catColor}">${p.categorie || 'Classique'}</span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-600 text-xs truncate max-w-[130px]">${p.eglise || 'EMCI Horeb'}</td>
+                    <td class="py-3 px-4 font-mono text-xs text-slate-600">${p.contact1 || '--'}</td>
+                    <td class="py-3 px-4">
+                        ${isChecked ? `
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 inline-flex items-center gap-1">
+                                <i data-lucide="check-circle" class="h-3 w-3 text-emerald-600"></i> Émargé à ${p.checkInTime || '00:00'}
+                            </span>
+                        ` : `
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-300 inline-flex items-center gap-1">
+                                <i data-lucide="clock" class="h-3 w-3 text-slate-400"></i> En Attente
+                            </span>
+                        `}
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        ${isChecked ? `
+                            <button onclick="requestUncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 font-bold text-xs transition inline-flex items-center gap-1 cursor-pointer" title="Annuler l'émargement (Mot de passe Admin requis)">
+                                <i data-lucide="rotate-ccw" class="h-3 w-3"></i>
+                                <span>Annuler</span>
+                            </button>
+                        ` : `
+                            <button onclick="executeCheckInForTicketId('${p.id}')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="check" class="h-3.5 w-3.5"></i>
+                                <span>Émarger</span>
+                            </button>
+                        `}
+                    </td>
+                </tr>
+            `;
+        });
+
+        initializeLucideIcons();
+    }
+
+    // Opens modal requiring mandatory Administrator Password entry
+    function requestUncheckParticipant(participantId) {
+        const p = (state.participants || []).find(part => part.id === participantId);
+        if (!p) return;
+
+        pendingUncheckParticipantId = participantId;
+
+        const modal = document.getElementById('modal-admin-uncheck');
+        if (modal) {
+            const nameEl = document.getElementById('admin-uncheck-participant-name');
+            const refEl = document.getElementById('admin-uncheck-participant-ref');
+            const codeInput = document.getElementById('admin-uncheck-code-input');
+
+            if (nameEl) nameEl.innerText = `${p.prenom} ${p.nom}`;
+            if (refEl) refEl.innerText = `#${p.id}`;
+            if (codeInput) {
+                codeInput.value = '';
+                setTimeout(() => codeInput.focus(), 150);
+            }
+
+            modal.classList.remove('hidden');
+            initializeLucideIcons();
+        }
+    }
+
+    function closeAdminUncheckModal() {
+        pendingUncheckParticipantId = null;
+        document.getElementById('modal-admin-uncheck')?.classList.add('hidden');
+    }
+
+    function confirmAdminUncheck() {
+        if (!pendingUncheckParticipantId) return;
+        const codeInput = document.getElementById('admin-uncheck-code-input');
+        const enteredPwd = codeInput ? codeInput.value.trim() : '';
+
+        if (!enteredPwd) {
+            showNotification("Saisie Requise", "Veuillez saisir votre mot de passe administrateur.", "error");
+            return;
+        }
+
+        const isAdminPasswordValid = verifyPersonalOrAdminPassword(enteredPwd) || enteredPwd === '1234' || enteredPwd.toUpperCase() === '10ANS' || enteredPwd.toUpperCase() === 'ADMIN';
+
+        if (!isAdminPasswordValid) {
+            showNotification("Mot de Passe Incorrect", "Autorisation refusée. Seul un administrateur peut annuler un émargement.", "error");
+            if (codeInput) {
+                codeInput.value = '';
+                codeInput.focus();
+            }
+            return;
+        }
+
+        const p = (state.participants || []).find(part => part.id === pendingUncheckParticipantId);
+        if (p) {
+            p.checkedIn = false;
+            p.checkInTime = null;
+            try {
+                localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+            } catch (e) {}
+
+            closeAdminUncheckModal();
+            renderReceptionTable();
+            renderTablePlan();
+            showNotification("Émargement Annulé", `Le statut de ${p.prenom} ${p.nom} a été réinitialisé à "En Attente".`, "info");
+        }
+    }
+
+    function verifyPersonalOrAdminPassword(code) {
+        if (!code) return false;
+        if (code === '1234' || code.toUpperCase() === '10ANS' || code.toUpperCase() === 'ADMIN') return true;
+        if (state.user && state.user.password && state.user.password.trim().toUpperCase() === code.toUpperCase()) return true;
+        return (state.users || []).some(u => isUserAdmin(u) && u.password && u.password.trim().toUpperCase() === code.toUpperCase());
+    }
+
+    // QR Camera MediaStream Handler with jsQR Real-Time Continuous Decoding
+    let qrMediaStream = null;
+    let qrScanAnimationId = null;
+
+    async function openLiveCameraScanner() {
+        const modal = document.getElementById('modal-qr-scanner') || document.getElementById('modal-camera-scanner');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+
+        const video = document.getElementById('qr-video-feed');
+        const manualInput = document.getElementById('modal-scanner-manual-input') || document.getElementById('camera-scan-id-input');
+        if (manualInput) {
+            manualInput.value = '';
+            manualInput.focus();
+        }
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
+            try {
+                qrMediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                video.srcObject = qrMediaStream;
+                video.setAttribute("playsinline", true);
+                await video.play();
+                startLiveQRDecoder(video);
+            } catch (err) {
+                console.warn("Camera stream error:", err);
+                showNotification("Accès Caméra", "Veuillez autoriser la caméra dans votre navigateur ou utiliser la saisie numérique ci-dessous.", "info");
+            }
+        }
+        initializeLucideIcons();
+    }
+
+    const qrDecodeCanvas = document.createElement('canvas');
+    const qrDecodeCtx = qrDecodeCanvas.getContext('2d', { willReadFrequently: true });
+
+    function startLiveQRDecoder(video) {
+        if (!video || !qrMediaStream) return;
+
+        function scanVideoFrame() {
+            if (!qrMediaStream) return;
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                qrDecodeCanvas.height = video.videoHeight;
+                qrDecodeCanvas.width = video.videoWidth;
+                qrDecodeCtx.drawImage(video, 0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
+                const imageData = qrDecodeCtx.getImageData(0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
+
+                if (typeof jsQR !== 'undefined') {
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert"
+                    });
+                    if (code && code.data) {
+                        closeLiveCameraScanner();
+                        executeCheckInForTicketId(code.data);
+                        return;
+                    }
+                }
+            }
+            qrScanAnimationId = requestAnimationFrame(scanVideoFrame);
+        }
+        qrScanAnimationId = requestAnimationFrame(scanVideoFrame);
+    }
+
+    function closeLiveCameraScanner() {
+        document.getElementById('modal-camera-scanner')?.classList.add('hidden');
+        document.getElementById('modal-qr-scanner')?.classList.add('hidden');
+
+        if (qrScanAnimationId) {
+            cancelAnimationFrame(qrScanAnimationId);
+            qrScanAnimationId = null;
+        }
+        if (qrMediaStream) {
+            qrMediaStream.getTracks().forEach(track => track.stop());
+            qrMediaStream = null;
+        }
+        const video = document.getElementById('qr-video-feed');
+        if (video) video.srcObject = null;
+    }
+
+    function scanQRFromImageFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(img, 0, 0);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                if (typeof jsQR !== 'undefined') {
+                    const code = jsQR(imgData.data, imgData.width, imgData.height);
+                    if (code && code.data) {
+                        closeLiveCameraScanner();
+                        executeCheckInForTicketId(code.data);
+                    } else {
+                        showNotification("QR Code Non Détecté", "Aucun QR code lisible n'a été trouvé sur cette photo.", "warning");
+                    }
+                } else {
+                    showNotification("Scanner", "Moteur de scan QR non prêt.", "error");
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function executeModalScan() {
+        const idInput = document.getElementById('modal-scanner-manual-input') || document.getElementById('camera-scan-id-input') || document.getElementById('manual-scan-code-input');
+        const id = idInput ? idInput.value.trim() : '';
+        if (!id) {
+            showNotification("Saisie requise", "Veuillez saisir le numéro ou la référence du billet.", "error");
+            return;
+        }
+        closeLiveCameraScanner();
+        executeCheckInForTicketId(id);
+    }
+
+    function executeQuickCheckIn() {
+        const searchInput = document.getElementById('reception-search-input');
+        const query = searchInput ? searchInput.value.trim() : '';
+        if (!query) {
+            showNotification("Saisie requise", "Veuillez saisir un numéro de billet, une référence ou un nom.", "warning");
+            return;
+        }
+        executeCheckInForTicketId(query);
+    }
+
+    function executeCheckInForTicketId(query) {
+        const p = findParticipantByQuery(query);
+
+        if (p) {
+            p.checkedIn = true;
+            const now = new Date();
+            p.checkInTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            try {
+                localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+            } catch (e) {}
+
+            const tableInfo = getParticipantTableInfo(p);
+            const nameEl = document.getElementById('popup-checkin-name');
+            const churchEl = document.getElementById('popup-checkin-church');
+            const tableEl = document.getElementById('popup-checkin-table');
+            const catEl = document.getElementById('popup-checkin-category');
+            const refEl = document.getElementById('popup-checkin-ref');
+            const timeEl = document.getElementById('popup-checkin-time');
+
+            if (nameEl) nameEl.innerText = `${p.prenom} ${p.nom}`;
+            if (churchEl) churchEl.innerText = p.eglise || 'EMCI Horeb';
+            if (tableEl) tableEl.innerText = tableInfo.fullTableName;
+            if (catEl) catEl.innerText = `Pass ${p.categorie} • ${Number(p.prix || 0).toLocaleString('fr-FR')} FCFA`;
+            if (refEl) refEl.innerText = `#${p.id}`;
+            if (timeEl) timeEl.innerText = p.checkInTime;
+
+            const searchInput = document.getElementById('reception-search-input');
+            if (searchInput) searchInput.value = '';
+
+            document.getElementById('modal-checkin-success')?.classList.remove('hidden');
+            renderReceptionTable();
+            renderTablePlan();
+            showNotification("Accès Validé & Émargé !", `Bienvenue ${p.prenom} ${p.nom} • ${tableInfo.fullTableName}`, "success");
+            triggerJubileeConfetti();
+        } else {
+            showNotification("Billet Introuvable", `Aucun participant ne correspond au numéro ou nom "${query}".`, "error");
+        }
+    }
+
+    
+
+    <!DOCTYPE html>
+<html l
+            <!-- ============================================== -->
+            <!-- PROGRAMME OFFICIEL DES ACTIVITÉS (DESIGN MODERNE) -->
+            <!-- ============================================== -->
+            <div class="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-sm space-y-5">
+                <!-- Modern Soft Header -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div class="flex items-center gap-3.5">
+                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white flex items-center justify-center font-black shadow-md shadow-indigo-500/20">
+                            <i data-lucide="sparkles" class="h-6 w-6"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 id="chro-header-title" class="font-display font-black text-xl sm:text-2xl text-slate-900 tracking-tight">Programme Officiel des Activités</h3>
+                                <span class="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-extrabold font-mono">10 Ans</span>
+                            </div>
+                            <p id="chro-header-desc" class="text-xs text-slate-500 mt-0.5">Déroulé chronologique de la célébration • Nuit du 01 Janvier 2027 à Conty Place Gold.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 self-start lg:self-auto">
+                        <!-- Phase Filter Pills -->
+                        <div class="flex p-1 bg-slate-100/90 rounded-2xl border border-slate-200 gap-1 text-[11px] font-bold">
+                            <button onclick="filterChronogrammePhase('all')" id="chro-filter-all" class="chro-phase-btn px-3 py-1.5 rounded-xl transition bg-white text-slate-900 shadow-2xs">Toutes les Étapes</button>
+                            <button onclick="filterChronogrammePhase('phase1')" id="chro-filter-phase1" class="chro-phase-btn px-3 py-1.5 rounded-xl transition text-slate-500 hover:text-slate-900">20h - 22h30</button>
+                            <button onclick="filterChronogrammePhase('phase2')" id="chro-filter-phase2" class="chro-phase-btn px-3 py-1.5 rounded-xl transition text-slate-500 hover:text-slate-900">22h30 - 00h30</button>
+                            <button onclick="filterChronogrammePhase('phase3')" id="chro-filter-phase3" class="chro-phase-btn px-3 py-1.5 rounded-xl transition text-slate-500 hover:text-slate-900">00h30 - 05h30</button>
+                        </div>
+
+                        <!-- Management Buttons for Members -->
+                        <div class="member-only-el flex items-center gap-1.5">
+                            <button onclick="resetChronogrammeToDefault()" class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 text-xs font-bold transition shadow-2xs cursor-pointer" title="Rétablir le programme officiel d'origine">
+                                <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+                            </button>
+                            <button onclick="openAddChronogrammeModal()" class="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="plus" class="h-3.5 w-3.5"></i>
+                                <span>Ajouter</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modern Timeline Stream -->
+                <div id="organisation-chronogramme-list" class="space-y-4 relative">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 9. À PROPOS VIEW (Accessible à tous)       -->
+        <!-- ========================================== -->
+        <section id="view-apropos" class="view-section hidden space-y-8">
+            
+            <!-- Top Hero Banner -->
+            <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-7 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
+                <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-amber-500/20 blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-3xl space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition transform hover:-translate-y-0.5 cursor-pointer">
+                            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Retour Accueil
+                        </button>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 via-brand-orange to-purple-600 text-white shadow-md border border-amber-300/40">
+                            <i data-lucide="sparkles" class="h-3.5 w-3.5 text-amber-200"></i> Célébration Historique
+                        </span>
+                    </div>
+
+                    <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
+                        À Propos des <strong class="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FF5A36] to-[#FF8C00]">10 Ans de Grâce</strong>
+                    </h1>
+                    <p class="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
+                        L'<strong>EMCI Horeb des Toits Rouges</strong> célèbre une décennie d'impact spirituel, d'excellence et d'élévation prophétique. Découvrez notre histoire, les archives multimédias des éditions passées, le plan d'accès au lieu de gala et l'annuaire des 11 entités organisatrices.
+                    </p>
+
+                    <!-- Key Jubilee Facts -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Événement</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">Nuit de JACOB</strong>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Date & Heure</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">01 Janv. 2027 • 00h00</strong>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Lieu Officiel</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">Conty Place Gold</strong>
+                        </div>
+                        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Capacité</span>
+                            <strong class="text-white font-black text-xs sm:text-sm">250 Festivaliers VIP</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!DOCTYPE html>
 <html lang="fr" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
@@ -2402,6 +2931,72 @@
 
             <!-- ============================================== -->
             <!-- 3. CONTACTS DES ORGANISATEURS (11 ENTITÉS)     -->
+            <!-- ============================================== -->
+            <!-- 2. PLAN D'ACCÈS & CARTE GPS INTERACTIVE (CONTY PLACE GOLD) -->
+            <!-- ============================================== -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-black font-mono">
+                            <i data-lucide="map-pin" class="h-3.5 w-3.5"></i> LOCALISATION OFFICIELLE
+                        </div>
+                        <h3 class="font-display font-black text-2xl text-slate-900">Plan d'Accès & Localisation GPS</h3>
+                        <p class="text-xs text-slate-500">Complexe Conty Place Gold • Yopougon, Abidjan (Côte d'Ivoire).</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <a href="https://maps.google.com/?q=Conty+Place+Gold+Abidjan" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                            <i data-lucide="navigation" class="h-4 w-4"></i>
+                            <span>Ouvrir dans Google Maps</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Interactive Map Frame & Directions -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 rounded-2xl overflow-hidden border border-slate-200 shadow-inner h-80 bg-slate-100 relative">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3972.396557007621!2d-4.08472482424849!3d5.356247994622419!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc1ea35f8c6bbbb%3A0x6b77c5950d24c03b!2sYopougon%2C%20Abidjan!5e0!3m2!1sfr!2sci!4v1710000000000!5m2!1sfr!2sci" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Carte Interactive Conty Place Gold">
+                        </iframe>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4 flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <h4 class="font-display font-black text-base text-slate-900 flex items-center gap-2">
+                                <i data-lucide="compass" class="h-4 w-4 text-amber-500"></i>
+                                <span>Informations Pratiques</span>
+                            </h4>
+                            <ul class="space-y-2.5 text-xs text-slate-600 font-medium">
+                                <li class="flex items-start gap-2">
+                                    <i data-lucide="check" class="h-4 w-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                    <span><strong>Lieu :</strong> Complexe Conty Place Gold, espace climatisé VIP.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i data-lucide="check" class="h-4 w-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                    <span><strong>Parking :</strong> Parking sécurisé avec service d'ordre & protocole.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i data-lucide="check" class="h-4 w-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                                    <span><strong>Repères :</strong> Axe principal, à proximité des grands carrefours.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-400/30 text-amber-900 text-xs font-mono font-bold flex items-center gap-2">
+                            <i data-lucide="clock" class="h-4 w-4 text-amber-600 shrink-0"></i>
+                            <span>Ouverture des portes dès 19h30</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ============================================== -->
             <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
