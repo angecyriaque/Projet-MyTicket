@@ -2499,10 +2499,14 @@
                         </button>
                     </form>
 
-                    <div class="pt-3 border-t border-slate-100 text-center">
+                    <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-center">
                         <button onclick="switchUserSectionTab('create')" class="text-xs font-bold text-slate-600 hover:text-indigo-600 transition inline-flex items-center gap-1.5 cursor-pointer">
                             <i data-lucide="user-plus" class="h-3.5 w-3.5"></i>
                             <span>Créer un nouveau profil officiel</span>
+                        </button>
+                        <button onclick="deleteAllUserAccounts()" class="text-[11px] font-bold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition inline-flex items-center gap-1 cursor-pointer" title="Purge administrative de tous les comptes">
+                            <i data-lucide="trash-2" class="h-3 w-3"></i>
+                            <span>Supprimer tous les comptes</span>
                         </button>
                     </div>
                 </div>
@@ -4160,13 +4164,14 @@
     
     function clearLegacyCacheOnFirstRun() {
         try {
-            const version = localStorage.getItem('myticket_reset_final_prod_v1');
-            if (version !== 'production_clean_ready') {
+            const version = localStorage.getItem('myticket_reset_final_prod_v2');
+            if (version !== 'production_clean_no_users_v2') {
                 const keysToRemove = [
                     'myticket_reset_final_v3',
                     'myticket_reset_final_v4',
                     'myticket_reset_final_v5',
                     'myticket_reset_final_v6',
+                    'myticket_reset_final_prod_v1',
                     'myticket_participants_v6',
                     'myticket_payment_proofs_v6',
                     'myticket_users_v3',
@@ -4177,12 +4182,12 @@
                     'myticket_gallery_albums_v1'
                 ];
                 keysToRemove.forEach(k => localStorage.removeItem(k));
-                localStorage.setItem('myticket_reset_final_prod_v1', 'production_clean_ready');
+                localStorage.setItem('myticket_reset_final_prod_v2', 'production_clean_no_users_v2');
                 localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
                 localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify({}));
-                localStorage.setItem('myticket_users_v3', JSON.stringify([]));
+                localStorage.setItem('myticket_users_v4', JSON.stringify([]));
                 localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify([]));
-                localStorage.setItem('myticket_active_user_v3', JSON.stringify(DEFAULT_VISITOR_USER));
+                localStorage.setItem('myticket_active_user_v4', JSON.stringify(DEFAULT_VISITOR_USER));
             }
         } catch (e) {}
     }
@@ -4234,9 +4239,15 @@
 
     function loadStoredUser() {
         try {
-            const storedUser = localStorage.getItem('myticket_user_v6');
-            if (storedUser) state.user = JSON.parse(storedUser);
-        } catch (e) {}
+            const storedUser = localStorage.getItem('myticket_active_user_v4');
+            if (storedUser) {
+                state.user = JSON.parse(storedUser);
+            } else {
+                state.user = { ...DEFAULT_VISITOR_USER };
+            }
+        } catch (e) {
+            state.user = { ...DEFAULT_VISITOR_USER };
+        }
         applyUserStatesUI();
     }
 
@@ -8244,7 +8255,7 @@
     function handleUserLogout() {
         state.user = { ...DEFAULT_VISITOR_USER };
         try {
-            localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
+            localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
         } catch (e) {}
 
         applyUserStatesUI();
@@ -8271,17 +8282,49 @@
 
     const DEFAULT_SEED_USERS = [];
 
+    
+    // ==========================================
+    // ADMINISTRATIVE ACTION: PURGE ALL USER ACCOUNTS
+    // ==========================================
+    function deleteAllUserAccounts() {
+        const pwd = prompt("Sécurité Administrateur : Entrez le mot de passe admin (ou 1234 / 10ANS) pour CONFIRMER la suppression de TOUS les comptes utilisateurs :");
+        if (!pwd) return;
+        
+        if (!verifyPersonalOrAdminPassword(pwd) && pwd !== '1234' && pwd.toUpperCase() !== '10ANS' && pwd.toUpperCase() !== 'ADMIN') {
+            showNotification("Mot de Passe Invalide", "Mot de passe administrateur incorrect.", "error");
+            return;
+        }
+
+        state.users = [];
+        state.user = { ...DEFAULT_VISITOR_USER };
+        try {
+            localStorage.setItem('myticket_users_v4', JSON.stringify([]));
+            localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
+        } catch(e) {}
+
+        applyUserStatesUI();
+        populateLoginUserSelect();
+        populateGatewayUserSelect();
+        updateCreateComiteDropdown();
+        populatePCOApproversDropdown();
+        renderOrganisationLeaders();
+        switchView('utilisateur');
+        switchUserSectionTab('login');
+        showNotification("Comptes Supprimés", "Tous les comptes utilisateurs ont été supprimés avec succès. L'application est réinitialisée en mode visiteur.", "success");
+    }
+
     function initializeUsersRegistry() {
         try {
-            const stored = localStorage.getItem('myticket_users_v3');
+            const stored = localStorage.getItem('myticket_users_v4');
             if (stored) {
-                state.users = JSON.parse(stored);
+                const parsed = JSON.parse(stored);
+                state.users = Array.isArray(parsed) ? parsed : [];
             } else {
-                state.users = [...DEFAULT_SEED_USERS];
-                localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
+                state.users = [];
+                localStorage.setItem('myticket_users_v4', JSON.stringify([]));
             }
         } catch (e) {
-            state.users = [...DEFAULT_SEED_USERS];
+            state.users = [];
         }
 
         populateLoginUserSelect();
@@ -8359,13 +8402,13 @@
             if (!state.users) state.users = [];
             state.users.push(user);
             try {
-                localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
+                localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
             } catch(e) {}
         }
 
         state.user = { ...user, isVisitor: false };
         try {
-            localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
+            localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
         } catch (e) {}
 
         applyUserStatesUI();
@@ -8412,13 +8455,13 @@
             if (!state.users) state.users = [];
             state.users.push(user);
             try {
-                localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
+                localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
             } catch(e) {}
         }
 
         state.user = { ...user, isVisitor: false };
         try {
-            localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
+            localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
         } catch (e) {}
 
         applyUserStatesUI();
@@ -8474,8 +8517,8 @@
         }
 
         try {
-            localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
-            localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
+            localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
+            localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
         } catch (e) {}
 
         applyUserStatesUI();
@@ -8500,8 +8543,8 @@
                     if (idx !== -1) state.users[idx].avatar = state.user.avatar;
                 }
                 try {
-                    localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
-                    localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
+                    localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
+                    localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
                 } catch (err) {}
                 applyUserStatesUI();
                 showNotification("Photo Modifiée", "Votre photo de profil a été mise à jour.", "success");
@@ -8639,8 +8682,8 @@
         state.user = { ...pendingCreatedUser, isVisitor: false };
 
         try {
-            localStorage.setItem('myticket_users_v3', JSON.stringify(state.users));
-            localStorage.setItem('myticket_active_user_v3', JSON.stringify(state.user));
+            localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
+            localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
         } catch (e) {}
 
         // Reset Form
