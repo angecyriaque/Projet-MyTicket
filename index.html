@@ -4066,27 +4066,10 @@
     };
 
         // Preloaded robust datasets of mock attendees with Categories & Proofs
-    const MOCK_PARTICIPANTS = [
-        { id: "MYT-0001", nom: "N'Guessan", prenom: "Koffi Marc", contact1: "+225 07 45 89 65 32", contact2: "", eglise: "EMCI Horeb Toits Rouges", categorie: "Gold", prix: 30000, modeReglement: "Wave Mobile", preuveReglement: "T_192837465201", checkedIn: true, checkInTime: "19:15", dateTicket: "31/08/2026 à 14:32", statut: "Validé", dateAdded: "2026-08-31T14:32:00Z" },
-        { id: "MYT-0002", nom: "Konan", prenom: "Awa Estelle", contact1: "+225 05 12 45 78 96", contact2: "+225 01 02 03 04", eglise: "Assemblée de Dieu Angré", categorie: "VIP", prix: 20000, modeReglement: "Orange Money", preuveReglement: "MP260831.1420.A44120", checkedIn: true, checkInTime: "19:28", dateTicket: "31/08/2026 à 10:15", statut: "Validé", dateAdded: "2026-08-31T10:15:00Z" },
-        { id: "MYT-0003", nom: "Bamba", prenom: "Ibrahim Samuel", contact1: "+225 01 44 55 66 77", contact2: "", eglise: "Méthodiste Unie Cocody", categorie: "Classique", prix: 10000, modeReglement: "Espèces", preuveReglement: "REC-2027-042", checkedIn: false, checkInTime: null, dateTicket: "31/08/2026 à 16:45", statut: "Validé", dateAdded: "2026-08-31T16:45:00Z" },
-        { id: "MYT-0004", nom: "Koffi", prenom: "Ruth Emmanuelle", contact1: "+225 07 00 22 33 44", contact2: "+225 05 55 66 77", eglise: "Cité de Grâce", categorie: "Gold", prix: 30000, modeReglement: "Wave Mobile", preuveReglement: "T_991827364502", checkedIn: true, checkInTime: "19:40", dateTicket: "31/08/2026 à 09:05", statut: "Validé", dateAdded: "2026-08-31T09:05:00Z" },
-        { id: "MYT-0005", nom: "Diomandé", prenom: "Ange David", contact1: "+225 07 77 88 99 00", contact2: "", eglise: "EMCI Plateau", categorie: "Classique", prix: 10000, modeReglement: "Espèces", preuveReglement: "REC-2027-043", checkedIn: false, checkInTime: null, dateTicket: "31/08/2026 à 11:20", statut: "Validé", dateAdded: "2026-08-31T11:20:00Z" },
-        { id: "MYT-0006", nom: "Zouzouko", prenom: "Marie-Grace", contact1: "+225 05 99 88 77 66", contact2: "", eglise: "Baptiste Oeuvres", categorie: "Invité", prix: 0, modeReglement: "Offert / Gratuit", preuveReglement: "AUTORISATION-ADMIN-DIR", checkedIn: false, checkInTime: null, dateTicket: "31/08/2026 à 15:10", statut: "Validé", dateAdded: "2026-08-31T15:10:00Z" },
-        { id: "MYT-0007", nom: "Dago", prenom: "Emmanuel", contact1: "+225 01 11 22 33 44", contact2: "", eglise: "Foursquare Marcory", categorie: "VIP", prix: 20000, modeReglement: "Wave Mobile", preuveReglement: "T_554433221100", checkedIn: true, checkInTime: "19:50", dateTicket: "31/08/2026 à 18:30", statut: "Validé", dateAdded: "2026-08-31T18:30:00Z" },
-        { id: "MYT-0008", nom: "Kouamé", prenom: "Jean-Philippe", contact1: "+225 07 89 12 34 56", contact2: "", eglise: "EMCI Horeb Toits Rouges", categorie: "Classique", prix: 10000, modeReglement: "Wave Mobile", preuveReglement: "T_667788990011", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 08:20", statut: "Validé", dateAdded: "2026-09-01T08:20:00Z" },
-        { id: "MYT-0009", nom: "Yao", prenom: "Amenan Sandrine", contact1: "+225 05 44 33 22 11", contact2: "", eglise: "Assemblée de Dieu Plateau", categorie: "VIP", prix: 20000, modeReglement: "Orange Money", preuveReglement: "MP260901.0930.B55210", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 09:30", statut: "Validé", dateAdded: "2026-09-01T09:30:00Z" },
-        { id: "MYT-0010", nom: "Traoré", prenom: "Fatou Grâce", contact1: "+225 07 11 22 33 55", contact2: "+225 01 99 88 77", eglise: "Cité de Restauration", categorie: "Gold", prix: 30000, modeReglement: "Wave Mobile", preuveReglement: "T_778899001122", checkedIn: true, checkInTime: "19:55", dateTicket: "01/09/2026 à 11:15", statut: "Validé", dateAdded: "2026-09-01T11:15:00Z" },
-        { id: "MYT-0011", nom: "Bakayoko", prenom: "Christian", contact1: "+225 01 22 33 44 55", contact2: "", eglise: "Église Baptiste Yopougon", categorie: "Classique", prix: 10000, modeReglement: "Espèces", preuveReglement: "REC-2027-044", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 14:00", statut: "Validé", dateAdded: "2026-09-01T14:00:00Z" },
-        { id: "MYT-0012", nom: "Touré", prenom: "Sarah Noëlle", contact1: "+225 05 66 77 88 99", contact2: "", eglise: "Ministère de la Réconciliation", categorie: "Invité", prix: 0, modeReglement: "Offert / Gratuit", preuveReglement: "AUTORISATION-ADMIN-DIR2", checkedIn: false, checkInTime: null, dateTicket: "01/09/2026 à 16:45", statut: "Validé", dateAdded: "2026-09-01T16:45:00Z" }
-    ];
+    const MOCK_PARTICIPANTS = [];
 
     // Seed tracked payment proofs
-    const SEED_PAYMENTS = {
-        "T_192837465201": { reference: "T_192837465201", mode: "Wave Mobile", montantTotal: 50000, montantUtilise: 30000, soldeDisponible: 20000, tickets: ["MYT-0001"] },
-        "MP260831.1420.A44120": { reference: "MP260831.1420.A44120", mode: "Orange Money", montantTotal: 20000, montantUtilise: 20000, soldeDisponible: 0, tickets: ["MYT-0002"] },
-        "REC-2027-042": { reference: "REC-2027-042", mode: "Espèces", montantTotal: 10000, montantUtilise: 10000, soldeDisponible: 0, tickets: ["MYT-0003"] }
-    };
+    const SEED_PAYMENTS = {};
 
     // On Load Initialization
 
@@ -4177,14 +4160,28 @@
     
     function clearLegacyCacheOnFirstRun() {
         try {
-            const version = localStorage.getItem('myticket_reset_final_v5');
-            if (version !== 'clean_slate_production_v6') {
-                localStorage.removeItem('myticket_reset_final_v3');
-                localStorage.removeItem('myticket_reset_final_v4');
-                localStorage.setItem('myticket_reset_final_v5', 'clean_slate_production_v6');
-                localStorage.setItem('myticket_participants_v6', JSON.stringify(MOCK_PARTICIPANTS));
-                localStorage.setItem('myticket_payment_proofs_v6', JSON.stringify(SEED_PAYMENTS));
+            const version = localStorage.getItem('myticket_reset_final_prod_v1');
+            if (version !== 'production_clean_ready') {
+                const keysToRemove = [
+                    'myticket_reset_final_v3',
+                    'myticket_reset_final_v4',
+                    'myticket_reset_final_v5',
+                    'myticket_reset_final_v6',
+                    'myticket_participants_v6',
+                    'myticket_payment_proofs_v6',
+                    'myticket_users_v3',
+                    'myticket_active_user_v3',
+                    'myticket_user_v6',
+                    'myticket_finance_v13',
+                    'myticket_finance_v10',
+                    'myticket_gallery_albums_v1'
+                ];
+                keysToRemove.forEach(k => localStorage.removeItem(k));
+                localStorage.setItem('myticket_reset_final_prod_v1', 'production_clean_ready');
+                localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
+                localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify({}));
                 localStorage.setItem('myticket_users_v3', JSON.stringify([]));
+                localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify([]));
                 localStorage.setItem('myticket_active_user_v3', JSON.stringify(DEFAULT_VISITOR_USER));
             }
         } catch (e) {}
@@ -4247,47 +4244,42 @@
 
     function initializeParticipantsData() {
         try {
-            const stored = localStorage.getItem('myticket_participants_v6');
+            const stored = localStorage.getItem('myticket_participants_v7');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    state.participants = parsed;
-                } else {
-                    state.participants = [...MOCK_PARTICIPANTS];
-                    localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
-                }
+                state.participants = Array.isArray(parsed) ? parsed : [];
             } else {
-                state.participants = [...MOCK_PARTICIPANTS];
-                localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+                state.participants = [];
+                localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
             }
         } catch (e) {
-            state.participants = [...MOCK_PARTICIPANTS];
+            state.participants = [];
         }
     }
 
     function loadPaymentProofs() {
         try {
-            const storedProofs = localStorage.getItem('myticket_payment_proofs_v6');
+            const storedProofs = localStorage.getItem('myticket_payment_proofs_v7');
             if (storedProofs) {
                 state.paymentProofs = JSON.parse(storedProofs);
             } else {
-                state.paymentProofs = { ...SEED_PAYMENTS };
-                localStorage.setItem('myticket_payment_proofs_v6', JSON.stringify(state.paymentProofs));
+                state.paymentProofs = {};
+                localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify({}));
             }
         } catch(e) {
-            state.paymentProofs = { ...SEED_PAYMENTS };
+            state.paymentProofs = {};
         }
     }
 
     function savePaymentProofs() {
         try {
-            localStorage.setItem('myticket_payment_proofs_v6', JSON.stringify(state.paymentProofs));
+            localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify(state.paymentProofs));
         } catch(e) {}
     }
 
     function saveFinanceState() {
         try {
-            localStorage.setItem('myticket_finance_v13', JSON.stringify(state.finance));
+            localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
         } catch (e) {}
     }
 
@@ -4298,7 +4290,7 @@
 
     function loadFinanceData() {
         try {
-            const storedFin = localStorage.getItem('myticket_finance_v13');
+            const storedFin = localStorage.getItem('myticket_finance_v14');
             if (storedFin) {
                 const parsed = JSON.parse(storedFin);
                 if (parsed && Array.isArray(parsed.committees)) {
@@ -4325,7 +4317,7 @@
 
     function saveFinanceState() {
         try {
-            localStorage.setItem('myticket_finance_v10', JSON.stringify(state.finance));
+            localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
         } catch (e) {}
     }
 
@@ -5624,7 +5616,7 @@
         state.participants.unshift(newTicket);
         
         try {
-            localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
         } catch(e) {}
         
         state.currentTicket = newTicket;
@@ -7590,7 +7582,7 @@
             const now = new Date();
             attendee.checkInTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             try {
-                localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+                localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
             } catch (e) {}
             renderReceptionTable();
             document.getElementById('reception-search-input').value = '';
@@ -8698,7 +8690,10 @@
         // 1. Desktop Table
         if (tbody) {
             tbody.innerHTML = '';
-            filtered.forEach(p => {
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-400 italic text-xs">Aucun participant enregistré pour le moment.</td></tr>`;
+            } else {
+                filtered.forEach(p => {
                 let catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Classique (10.000 F)</span>`;
                 if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-400">GOLD (30.000 F)</span>`;
                 else if (p.categorie === 'VIP') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">VIP (20.000 F)</span>`;
@@ -8728,6 +8723,7 @@
                     </tr>
                 `;
             });
+        }
         }
 
         // 2. Mobile Cards (Ultra clear for smartphones)
@@ -8830,7 +8826,7 @@
         if (confirm("Réinitialiser tout l'historique ?")) {
             state.participants = [];
             try {
-                localStorage.setItem('myticket_participants_v6', JSON.stringify([]));
+                localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
             } catch(e) {}
             renderHistoryList();
             updateDashboardStats();
@@ -8900,153 +8896,25 @@
     // ==========================================
     // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM (PREMIUM ENGINE - ADMIN GUARDED)
     // ==========================================
-    const SEED_GALLERY_ALBUMS = [
-        {
-            id: "alb-2026-benediction",
-            title: "Nuit de Jacob 2026 - Veillée de Bénédictions",
-            year: "2026",
-            category: "Célébrations",
-            description: "Grande veillée d'intercession, de proclamations prophétiques et de louange de la jeunesse EMCI Horeb.",
-            coverUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
-            createdBy: "Direction EMCI Horeb",
-            createdAt: "2026-01-02",
-            items: [
-                {
-                    id: "med-2026-1",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80",
-                    title: "Atmosphère de Ferveur & Prière",
-                    description: "Chants d'adoration et intercession collective lors de la Nuit de Jacob.",
-                    author: "Comité Médias EMCI",
-                    date: "02 Janvier 2026"
-                },
-                {
-                    id: "med-2026-2",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
-                    title: "La Chorale en Pleine Louange",
-                    description: "Harmonies célestes et chants de gloire inspirés.",
-                    author: "Département Louange",
-                    date: "02 Janvier 2026"
-                },
-                {
-                    id: "med-2026-3",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=1200&q=80",
-                    title: "Communion Fraternelle & Partage",
-                    description: "Accueil chaleureux des fidèles et des invités d'honneur.",
-                    author: "Comité Accueil & Protocole",
-                    date: "02 Janvier 2026"
-                },
-                {
-                    id: "med-2026-4",
-                    type: "video",
-                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                    title: "Clip Récapitulatif de la Nuit",
-                    description: "Moments forts, prières et actions de grâce en vidéo.",
-                    author: "Production Multimédia EMCI",
-                    date: "02 Janvier 2026"
-                }
-            ]
-        },
-        {
-            id: "alb-2025-gala",
-            title: "Gala des 10 Ans & Soirée d'Honneur 2025",
-            year: "2025",
-            category: "Célébrations",
-            description: "Dîner de reconnaissance, distinction des pionniers et célébration des actions de grâce pour la première décennie.",
-            coverUrl: "https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&w=1200&q=80",
-            createdBy: "Comité d'Organisation",
-            createdAt: "2025-11-15",
-            items: [
-                {
-                    id: "med-2025-1",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&w=1200&q=80",
-                    title: "Allocution d'Ouverture Pastorale",
-                    description: "Rappel de la vision divine et bénédiction des familles.",
-                    author: "Secrétariat Général",
-                    date: "15 Novembre 2025"
-                },
-                {
-                    id: "med-2025-2",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80",
-                    title: "Hommage aux Bâtisseurs & Pionniers",
-                    description: "Remise des tableaux d'honneur aux serviteurs dévoués.",
-                    author: "Commission Distinctions",
-                    date: "15 Novembre 2025"
-                },
-                {
-                    id: "med-2025-3",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
-                    title: "Prestation Artistique & Chants d'Action de Grâce",
-                    description: "Spectacle gospel et cantiques d'adoration.",
-                    author: "Équipe Louange",
-                    date: "15 Novembre 2025"
-                }
-            ]
-        },
-        {
-            id: "alb-2024-prepa",
-            title: "Coulisses & Préparatifs Techniques 2024",
-            year: "2024",
-            category: "Coulisses",
-            description: "Mobilisation des équipes logistique, sonorisation, accueil et sécurité pour l'aménagement du temple.",
-            coverUrl: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1200&q=80",
-            createdBy: "Pôle Logistique EMCI",
-            createdAt: "2024-09-20",
-            items: [
-                {
-                    id: "med-2024-1",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&w=1200&q=80",
-                    title: "Installation de la Scène Principale & Lumières",
-                    description: "Calibrage des projecteurs et essais des pupitres.",
-                    author: "Comité Technique",
-                    date: "20 Septembre 2024"
-                },
-                {
-                    id: "med-2024-2",
-                    type: "photo",
-                    url: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=80",
-                    title: "Répétition Générale des Choristes & Musiciens",
-                    description: "Ajustement des micros et des instruments.",
-                    author: "Direction Musicale",
-                    date: "21 Septembre 2024"
-                },
-                {
-                    id: "med-2024-3",
-                    type: "video",
-                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                    title: "Visite Guidée des Installations",
-                    description: "Tour d'inspection du complexe Noces d'Or.",
-                    author: "Pôle Sécurité & Accueil",
-                    date: "22 Septembre 2024"
-                }
-            ]
-        }
-    ];
+    const SEED_GALLERY_ALBUMS = [];
 
     function initializeGalleryAlbumsData() {
-        const saved = localStorage.getItem('myticket_gallery_albums_v1');
+        const saved = localStorage.getItem('myticket_gallery_albums_v2');
         if (saved) {
             try {
                 state.galleryAlbums = JSON.parse(saved);
             } catch (e) {
-                console.error("Erreur de parsing des albums enregistrés:", e);
-                state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
+                state.galleryAlbums = [];
             }
         } else {
-            state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
+            state.galleryAlbums = [];
             saveGalleryAlbumsData();
         }
     }
 
     function saveGalleryAlbumsData() {
         if (state.galleryAlbums) {
-            localStorage.setItem('myticket_gallery_albums_v1', JSON.stringify(state.galleryAlbums));
+            localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
         }
     }
 
@@ -9170,8 +9038,24 @@
         if (statVideoEl) statVideoEl.innerText = totalVideos;
 
         if (albums.length === 0) {
-            grid.innerHTML = '';
-            if (emptyState) emptyState.classList.remove('hidden');
+            grid.innerHTML = `
+                <div class="col-span-full p-12 text-center bg-slate-50/80 rounded-3xl border border-dashed border-slate-300 space-y-3">
+                    <div class="inline-flex p-4 rounded-full bg-amber-50 text-amber-500 mb-1">
+                        <i data-lucide="image" class="h-8 w-8"></i>
+                    </div>
+                    <h4 class="font-display font-black text-slate-800 text-base">Aucun album photo / vidéo pour le moment</h4>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">Les administrateurs et responsables peuvent créer des albums officiels et y ajouter des photos et vidéos pour immortaliser la célébration des 10 Ans.</p>
+                    ${isAdmin ? `
+                        <div class="pt-2">
+                            <button onclick="openCreateAlbumModal()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                                <i data-lucide="folder-plus" class="h-4 w-4"></i>
+                                <span>Créer le Premier Album</span>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            initializeLucideIcons();
             return;
         }
 
@@ -10503,7 +10387,7 @@
         p.checkedIn = false;
         p.checkInTime = null;
         try {
-            localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
         } catch(e) {}
         renderReceptionTable();
         renderTablePlan();
@@ -10656,7 +10540,7 @@
             p.checkInTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
             try {
-                localStorage.setItem('myticket_participants_v6', JSON.stringify(state.participants));
+                localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
             } catch (e) {}
 
             const tableInfo = getParticipantTableInfo(p);
