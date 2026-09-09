@@ -1,6 +1,6 @@
 # 🎟️ MyTicket • Nuit de JACOB à Israël 2027
 > **Application Officielle de Billetterie & Gestion • Célébration des 10 Ans de la Jeunesse EMCI Horeb des Toits Rouges**
-> **Date de l événement** : 01 Janvier 2027 à *Conty Place Gold*
+> **Date de l événement** : 01 Janvier 2027 à *Noces d'Or (09 BP 1799 ABIDJAN)*
 
 ---
 
