@@ -380,109 +380,33 @@
     </div>
 
 
-    <!-- Central Desktop Navigation Bar (Visible on Large Screens or Phone in Mode Ordinateur) -->
-    <nav id="desktop-header-nav" class="hidden lg:flex items-center gap-1 bg-slate-950/70 p-1 rounded-2xl border border-slate-800/80 shadow-inner">
-        <button onclick="switchView('accueil')" id="nav-desktop-accueil" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-brand-orange bg-white/10 shadow-xs cursor-pointer">
-            <i data-lucide="home" class="h-3.5 w-3.5"></i>
-            <span>Accueil</span>
+    <!-- Right Header Actions: Status Indicator (Clignotant Vert Connecté) & User Profile -->
+    <div class="flex items-center gap-2.5 sm:gap-4">
+        <!-- Green Blinking Cloud Status Indicator -->
+        <button onclick="openCloudSyncModal()" id="cloud-sync-status-btn" class="px-3 py-1.5 rounded-full bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold flex items-center gap-2 transition-all duration-200 shadow-sm shadow-emerald-950 cursor-pointer" title="Statut de la Base de Données Cloud Temps Réel (Cliquez pour diagnostics et sauvegardes)">
+            <span class="relative flex h-2.5 w-2.5">
+                <span id="cloud-sync-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span id="cloud-sync-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-xs shadow-emerald-400"></span>
+            </span>
+            <span id="cloud-sync-text" class="text-emerald-400 font-sans font-bold text-xs tracking-wide">Connecté</span>
         </button>
-        <button onclick="switchView('ticket')" id="nav-desktop-ticket" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="ticket" class="h-3.5 w-3.5"></i>
-            <span>Pass & Billets</span>
-        </button>
-        <button onclick="switchView('finance')" id="nav-desktop-finance" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="wallet" class="h-3.5 w-3.5 text-amber-300"></i>
-            <span>Finances</span>
-        </button>
-        <button onclick="switchView('reception')" id="nav-desktop-reception" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="check-square" class="h-3.5 w-3.5 text-emerald-400"></i>
-            <span>Réception</span>
-        </button>
-        <button onclick="switchView('organisation')" id="nav-desktop-organisation" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="layout-grid" class="h-3.5 w-3.5 text-purple-300"></i>
-            <span>Plan des Tables</span>
-        </button>
-        <button onclick="switchView('liste')" id="nav-desktop-liste" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="users" class="h-3.5 w-3.5"></i>
-            <span>Participants</span>
-        </button>
-        <button onclick="switchView('apropos')" id="nav-desktop-apropos" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="info" class="h-3.5 w-3.5 text-sky-400"></i>
-            <span>À Propos</span>
-        </button>
-        <button onclick="switchView('dashboard')" id="nav-desktop-dashboard" class="member-only-el header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
-            <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
-            <span>Tableau de Bord</span>
-        </button>
-    </nav>
 
-    
-    <!-- Cloud Realtime Database Status Badge -->
-    <button onclick="openCloudSyncModal()" id="cloud-sync-status-btn" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700/80 text-slate-300 text-xs font-mono font-bold flex items-center gap-2 transition shadow-2xs cursor-pointer" title="Statut de la Base de Données Cloud Temps Réel">
-        <span class="relative flex h-2 w-2">
-            <span id="cloud-sync-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span id="cloud-sync-dot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-        </span>
-        <span id="cloud-sync-text" class="hidden md:inline text-emerald-400 font-mono text-[11px]">Cloud Synchronisé</span>
-    </button>
-
-    <!-- Right User Profile Status -->
-    <div class="flex items-center gap-3 cursor-pointer p-1.5 rounded-2xl hover:bg-white/10 transition" onclick="switchView('utilisateur')" title="Gérer mon profil utilisateur ou changer de compte">
-        <div class="relative">
-            <img id="header-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Avatar" class="h-9 w-9 rounded-full bg-slate-800 p-1.5 ring-2 ring-slate-600 shadow-md">
-            <span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#090D1F] bg-emerald-500"></span>
+        <!-- Right User Profile Status -->
+        <div class="flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 rounded-2xl hover:bg-white/10 transition" onclick="switchView('utilisateur')" title="Gérer mon profil utilisateur ou changer de compte">
+            <div class="relative">
+                <img id="header-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Avatar" class="h-9 w-9 rounded-full bg-slate-800 p-1.5 ring-2 ring-slate-600 shadow-md">
+                <span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#090D1F] bg-emerald-500"></span>
+            </div>
+            <div class="hidden sm:flex flex-col items-end">
+                <span id="header-user-name" class="text-xs font-bold text-slate-100">Yao Marc-Emmanuel</span>
+                <span id="header-user-role" class="text-[10px] text-brand-orange font-semibold">Coordination Stratégique</span>
+            </div>
+            <span class="hidden md:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white/15 text-white/90 border border-white/20">
+                <i data-lucide="refresh-cw" class="h-3 w-3"></i> Changer
+            </span>
         </div>
-        <div class="hidden sm:flex flex-col items-end">
-            <span id="header-user-name" class="text-xs font-bold text-slate-100">Yao Marc-Emmanuel</span>
-            <span id="header-user-role" class="text-[10px] text-brand-orange font-semibold">Coordination Stratégique</span>
-        </div>
-        <span class="hidden md:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white/15 text-white/90 border border-white/20">
-            <i data-lucide="refresh-cw" class="h-3 w-3"></i> Changer
-        </span>
     </div>
 </header>
-
-<!-- Mobile & Tablet Responsive Sub-Navigation Strip (Visible on mobile screens) -->
-<div id="mobile-tabs-strip-container" class="lg:hidden sticky top-16 z-40 bg-[#0B132B]/95 backdrop-blur-xl border-b border-slate-800/90 px-3 py-2 overflow-x-auto no-scrollbar shadow-md">
-    <div class="flex items-center gap-1.5 min-w-max" id="mobile-subnav-items">
-        <button onclick="switchView('accueil')" id="mobstrip-accueil" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-brand-orange bg-white/10 border border-brand-orange/30 shadow-2xs cursor-pointer">
-            <i data-lucide="home" class="h-3.5 w-3.5"></i>
-            <span>Accueil</span>
-        </button>
-        <button onclick="switchView('ticket')" id="mobstrip-ticket" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="ticket" class="h-3.5 w-3.5"></i>
-            <span>Mon Pass</span>
-        </button>
-        <button onclick="switchView('finance')" id="mobstrip-finance" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="wallet" class="h-3.5 w-3.5 text-amber-300"></i>
-            <span>Finances</span>
-        </button>
-        <button onclick="switchView('reception')" id="mobstrip-reception" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="check-square" class="h-3.5 w-3.5 text-emerald-400"></i>
-            <span>Réception</span>
-        </button>
-        <button onclick="switchView('organisation')" id="mobstrip-organisation" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="layout-grid" class="h-3.5 w-3.5 text-purple-300"></i>
-            <span>Tables</span>
-        </button>
-        <button onclick="switchView('liste')" id="mobstrip-liste" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="users" class="h-3.5 w-3.5"></i>
-            <span>Participants</span>
-        </button>
-        <button onclick="switchView('dashboard')" id="mobstrip-dashboard" class="member-only-el mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
-            <span>Stats</span>
-        </button>
-        <button onclick="switchView('apropos')" id="mobstrip-apropos" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="info" class="h-3.5 w-3.5 text-sky-400"></i>
-            <span>À Propos</span>
-        </button>
-        <button onclick="switchView('utilisateur')" id="mobstrip-utilisateur" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
-            <i data-lucide="user" class="h-3.5 w-3.5"></i>
-            <span>Profil</span>
-        </button>
-    </div>
-</div>
 
 
 <!-- Main Central Application Container -->
@@ -4535,14 +4459,14 @@
 
             if (isOnline) {
                 if (ping) ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                dot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
-                text.innerText = "Cloud Synchronisé";
-                text.className = "hidden md:inline text-emerald-400 font-mono text-[11px] font-bold";
+                dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-xs shadow-emerald-400";
+                text.innerText = "Connecté";
+                text.className = "text-emerald-400 font-sans text-xs font-bold tracking-wide";
             } else {
                 if (ping) ping.className = "hidden";
-                dot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
-                text.innerText = "Mode Hors-Ligne";
-                text.className = "hidden md:inline text-amber-400 font-mono text-[11px] font-bold";
+                dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500";
+                text.innerText = "Hors-Ligne";
+                text.className = "text-amber-400 font-sans text-xs font-bold tracking-wide";
             }
         }
     };
