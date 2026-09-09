@@ -4052,17 +4052,17 @@
                 orangeMoney: 0
             },
             committees: [
-                { id: "strat", name: "Coordination Stratégique", resp: "Yao Marc-Emmanuel", type: "Coordination", color: "amber", lignesBudget: [] },
-                { id: "ops", name: "Coordination Opérationnelle", resp: "Sarah Kouadio", type: "Coordination", color: "sky", lignesBudget: [] },
-                { id: "supervision", name: "Comité Supervision", resp: "Pasteur David N'Guessan", type: "Comité", color: "purple", lignesBudget: [] },
-                { id: "spirituel", name: "Comité Spirituel", resp: "Pasteur Jérémie Brou", type: "Comité", color: "violet", lignesBudget: [] },
-                { id: "communication", name: "Comité Communication & Mobilisation", resp: "Emmanuel Kra", type: "Comité", color: "blue", lignesBudget: [] },
-                { id: "animation", name: "Comité Animation & Jeux", resp: "Chantre Esther Aka", type: "Comité", color: "pink", lignesBudget: [] },
-                { id: "administratif", name: "Comité Administratif", resp: "Kouassi Ange", type: "Comité", color: "teal", lignesBudget: [] },
-                { id: "logistique", name: "Comité Logistique", resp: "Franck Gnagne", type: "Comité", color: "cyan", lignesBudget: [] },
-                { id: "financier", name: "Comité Financier", resp: "Aude-Eunice Koffi", type: "Comité", color: "emerald", lignesBudget: [] },
-                { id: "restauration", name: "Comité Restauration", resp: "Marie-Laure Koffi", type: "Comité", color: "amber", lignesBudget: [] },
-                { id: "accueil", name: "Comité Accueil & Sécurité", resp: "Capitaine Alain Bamba", type: "Comité", color: "red", lignesBudget: [] }
+                { id: "strat", name: "Coordination Stratégique", resp: "", type: "Coordination", color: "amber", lignesBudget: [] },
+                { id: "ops", name: "Coordination Opérationnelle", resp: "", type: "Coordination", color: "sky", lignesBudget: [] },
+                { id: "supervision", name: "Comité Supervision", resp: "", type: "Comité", color: "purple", lignesBudget: [] },
+                { id: "spirituel", name: "Comité Spirituel", resp: "", type: "Comité", color: "violet", lignesBudget: [] },
+                { id: "communication", name: "Comité Communication & Mobilisation", resp: "", type: "Comité", color: "blue", lignesBudget: [] },
+                { id: "animation", name: "Comité Animation & Jeux", resp: "", type: "Comité", color: "pink", lignesBudget: [] },
+                { id: "administratif", name: "Comité Administratif", resp: "", type: "Comité", color: "teal", lignesBudget: [] },
+                { id: "logistique", name: "Comité Logistique", resp: "", type: "Comité", color: "cyan", lignesBudget: [] },
+                { id: "financier", name: "Comité Financier", resp: "", type: "Comité", color: "emerald", lignesBudget: [] },
+                { id: "restauration", name: "Comité Restauration", resp: "", type: "Comité", color: "amber", lignesBudget: [] },
+                { id: "accueil", name: "Comité Accueil & Sécurité", resp: "", type: "Comité", color: "red", lignesBudget: [] }
             ],
             decaissements: [],
             dons: []
@@ -10009,18 +10009,18 @@
     // ==========================================
     // 11 COMMITTEES DIRECTORY CONTROLLERS (AVEC PHOTOS DE PROFIL & SYNCHRO COMPTES)
     // ==========================================
-    const APROPOS_COMMITTEES_DATA = [
-        { id: "strat", name: "Coordination Stratégique (PCO)", resp: "Yao Marc-Emmanuel", phone: "+225 07 45 89 65 32", role: "Supervision générale, arbitrage & vision stratégique", icon: "crown", color: "from-amber-500 to-amber-600", defaultPhoto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
-        { id: "op", name: "PCO Opérationnel & Logistique", resp: "Kouassi Jean-Philippe", phone: "+225 05 12 34 56 78", role: "Coordination terrain, gestion du site Noces d'Or & timing", icon: "clipboard-list", color: "from-blue-500 to-indigo-600", defaultPhoto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" },
-        { id: "fin", name: "Comité Finances & Trésorerie", resp: "Mme Bakayoko Esther", phone: "+225 01 23 45 67 89", role: "Recouvrement des pass, validation des décaissements & budget", icon: "wallet", color: "from-emerald-500 to-teal-600", defaultPhoto: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" },
-        { id: "sec", name: "Secrétariat Général & Inscriptions", resp: "Koffi Sarah", phone: "+225 07 11 22 33 44", role: "Registre des festivaliers, attribution des pass & badges", icon: "file-text", color: "from-purple-500 to-pink-600", defaultPhoto: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80" },
-        { id: "com", name: "Communication & Relations Publiques", resp: "Touré David", phone: "+225 05 99 88 77 66", role: "Médias, affichage, réseaux sociaux, diffusion OJ-TV & TikTok", icon: "megaphone", color: "from-rose-500 to-red-600", defaultPhoto: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80" },
-        { id: "acc", name: "Accueil, Réception & Émargement", resp: "Diomandé Ruth", phone: "+225 07 88 99 00 11", role: "Check-in QR code, placement aux 25 tables VIP & badges", icon: "scan-line", color: "from-teal-500 to-emerald-600", defaultPhoto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" },
-        { id: "res", name: "Restauration & Service Traiteur", resp: "Konan Marie-Laure", phone: "+225 01 98 76 54 32", role: "Banquet des 250 convives, menu gastronomique & rafraîchissements", icon: "utensils", color: "from-amber-600 to-orange-600", defaultPhoto: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80" },
-        { id: "secu", name: "Sécurité & Protocole", resp: "Capitaine Traoré Samuel", phone: "+225 05 44 33 22 11", role: "Service d'ordre, filtrage aux portes & parking sécurisé", icon: "shield-check", color: "from-slate-700 to-slate-900", defaultPhoto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80" },
-        { id: "spi", name: "Comité Spirituel & Intercession", resp: "Pasteur N'Guessan Daniel", phone: "+225 07 33 44 55 66", role: "Veille de prière, liturgie, onction & temps de bénédiction", icon: "flame", color: "from-violet-600 to-purple-700", defaultPhoto: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=400&q=80" },
-        { id: "lou", name: "Louange & Groupe Musical", resp: "Chantre Emmanuel & Équipe", phone: "+225 05 22 33 44 55", role: "Concert de célébration, chants d'action de grâce & adoration", icon: "music", color: "from-cyan-500 to-blue-600", defaultPhoto: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80" },
-        { id: "tech", name: "Technique, Sonorisation & Lumières", resp: "Gohi Boris", phone: "+225 01 66 77 88 99", role: "Régie audio/vidéo, captation live, écrans géants & jeux de lumières", icon: "sparkles", color: "from-indigo-600 to-violet-600", defaultPhoto: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80" }
+    const APROPOS_COMMITTEES_CONFIG = [
+        { id: "strat", name: "Coordination Stratégique", role: "Supervision générale, arbitrage & vision stratégique", icon: "crown", color: "from-amber-500 to-amber-600" },
+        { id: "op", name: "Coordination Opérationnelle", role: "Coordination terrain, gestion du site Noces d'Or & timing", icon: "clipboard-list", color: "from-blue-500 to-indigo-600" },
+        { id: "supervision", name: "Comité Supervision", role: "Veille pastorale, encadrement spirituel & conformité", icon: "shield-check", color: "from-purple-500 to-indigo-600" },
+        { id: "spi", name: "Comité Spirituel", role: "Veille de prière, liturgie, onction & temps de bénédiction", icon: "flame", color: "from-violet-600 to-purple-700" },
+        { id: "com", name: "Comité Communication & Mobilisation", role: "Médias, affichage, réseaux sociaux, diffusion OJ-TV & TikTok", icon: "megaphone", color: "from-rose-500 to-red-600" },
+        { id: "animation", name: "Comité Animation & Jeux", role: "Concert de célébration, jeux bibliques, quiz & réjouissances", icon: "music", color: "from-pink-500 to-rose-600" },
+        { id: "sec", name: "Comité Administratif", role: "Registre des festivaliers, attribution des pass & badges", icon: "file-text", color: "from-teal-500 to-cyan-600" },
+        { id: "log", name: "Comité Logistique", role: "Aménagement de l'espace VIP, matériel & installations techniques", icon: "truck", color: "from-cyan-500 to-blue-600" },
+        { id: "fin", name: "Comité Financier", role: "Recouvrement des pass, validation des décaissements & budget", icon: "wallet", color: "from-emerald-500 to-teal-600" },
+        { id: "res", name: "Comité Restauration", role: "Banquet des 250 convives, menu gastronomique & rafraîchissements", icon: "utensils", color: "from-amber-600 to-orange-600" },
+        { id: "acc", name: "Comité Accueil & Sécurité", role: "Check-in QR code, placement aux 25 tables VIP & filtrage", icon: "scan-line", color: "from-red-500 to-orange-600" }
     ];
 
     function renderAproposCommittees() {
@@ -10031,33 +10031,50 @@
         const searchInput = document.getElementById('annuaire-search-input');
         const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-        let list = APROPOS_COMMITTEES_DATA;
-        if (query) {
-            list = list.filter(com => 
-                com.name.toLowerCase().includes(query) ||
-                com.resp.toLowerCase().includes(query) ||
-                com.role.toLowerCase().includes(query) ||
-                com.phone.replace(/\s+/g, '').includes(query)
-            );
-        }
-
-        grid.innerHTML = '';
-        if (list.length === 0) {
-            grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 italic text-xs">Aucun responsable ne correspond à "${query}".</div>`;
+        // If no user account exists, display an empty virgin state
+        if (users.length === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full p-10 text-center bg-slate-50/80 rounded-3xl border border-dashed border-slate-300 space-y-3">
+                    <div class="inline-flex p-3.5 rounded-full bg-indigo-50 text-indigo-500 mb-1">
+                        <i data-lucide="users" class="h-7 w-7"></i>
+                    </div>
+                    <h4 class="font-display font-black text-slate-800 text-sm sm:text-base">Aucun responsable enregistré pour le moment</h4>
+                    <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">L'annuaire des responsables est actuellement vierge. Dès qu'un membre crée son profil officiel de comité, ses coordonnées réelles apparaîtront ici automatiquement.</p>
+                </div>
+            `;
+            initializeLucideIcons();
             return;
         }
 
-        list.forEach(com => {
-            const user = users.find(u => 
-                (u.roleId === com.id) || 
-                (u.entityId === com.id) ||
-                (u.nom && com.resp && u.nom.toLowerCase().includes(com.resp.toLowerCase().split(' ')[0]))
+        // When accounts exist, filter them by query
+        let matchingUsers = users;
+        if (query) {
+            matchingUsers = users.filter(u => 
+                (u.name && u.name.toLowerCase().includes(query)) ||
+                (u.comite && u.comite.toLowerCase().includes(query)) ||
+                (u.contact1 && u.contact1.replace(/\s+/g, '').includes(query)) ||
+                (u.contact2 && u.contact2.replace(/\s+/g, '').includes(query))
             );
+        }
 
-            const respName = user ? `${user.prenom || ''} ${user.nom || ''}`.trim() : com.resp;
-            const respPhoto = user && user.avatar ? user.avatar : com.defaultPhoto;
-            const phoneClean = (user && user.phone ? user.phone : com.phone).replace(/\s+/g, '');
-            const waUrl = `https://wa.me/${phoneClean.replace(/[^0-9]/g, '')}`;
+        if (matchingUsers.length === 0) {
+            grid.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 italic text-xs">Aucun responsable enregistré ne correspond à "${query}".</div>`;
+            initializeLucideIcons();
+            return;
+        }
+
+        grid.innerHTML = '';
+        matchingUsers.forEach(user => {
+            const comConfig = APROPOS_COMMITTEES_CONFIG.find(c => c.name.toLowerCase() === (user.comite || '').toLowerCase()) || {
+                icon: 'user-check',
+                color: 'from-blue-500 to-indigo-600',
+                role: 'Responsable de Comité'
+            };
+
+            const respName = user.name;
+            const respPhoto = user.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+            const phoneClean = (user.contact1 || '').replace(/[^0-9+]/g, '');
+            const waUrl = phoneClean ? `https://wa.me/${phoneClean.replace('+', '')}?text=${encodeURIComponent(`Bonjour ${respName}, je vous contacte concernant la célébration des 10 Ans (${user.comite}).`)}` : '#';
 
             grid.innerHTML += `
                 <div class="p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:border-amber-400/60 hover:shadow-md transition-all duration-200 flex items-center justify-between gap-3 group">
@@ -10065,28 +10082,32 @@
                     <div class="flex items-center gap-3 min-w-0 flex-1">
                         <div class="relative shrink-0">
                             <img src="${respPhoto}" alt="${respName}" class="h-11 w-11 rounded-full object-cover border-2 border-slate-100 group-hover:border-amber-400 shadow-2xs transition">
-                            <span class="absolute -bottom-1 -right-1 h-5 w-5 rounded-lg bg-gradient-to-br ${com.color} text-white flex items-center justify-center text-[10px] shadow-2xs">
-                                <i data-lucide="${com.icon}" class="h-2.5 w-2.5"></i>
+                            <span class="absolute -bottom-1 -right-1 h-5 w-5 rounded-lg bg-gradient-to-br ${comConfig.color} text-white flex items-center justify-center text-[10px] shadow-2xs">
+                                <i data-lucide="${comConfig.icon}" class="h-2.5 w-2.5"></i>
                             </span>
                         </div>
 
                         <div class="min-w-0 flex-1 space-y-0.5">
                             <div class="flex items-center gap-1.5">
-                                <h4 class="font-display font-black text-slate-900 text-xs sm:text-xs truncate" title="${com.name}">${com.name}</h4>
+                                <h4 class="font-display font-black text-slate-900 text-xs sm:text-xs truncate" title="${user.comite}">${user.comite}</h4>
                             </div>
                             <div class="font-semibold text-slate-700 text-xs truncate">${respName}</div>
-                            <p class="text-[10px] text-slate-500 truncate leading-tight font-normal">${com.role}</p>
+                            <p class="text-[10px] text-slate-500 truncate leading-tight font-normal">${comConfig.role}</p>
                         </div>
                     </div>
 
                     <!-- Right Quick Contact Actions -->
                     <div class="flex items-center gap-1.5 shrink-0 pl-1 border-l border-slate-100">
-                        <a href="tel:${phoneClean}" class="p-2 rounded-xl bg-slate-50 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition transform hover:scale-105 cursor-pointer shadow-2xs" title="Appeler ${respName} (${com.phone})">
-                            <i data-lucide="phone" class="h-3.5 w-3.5"></i>
-                        </a>
-                        <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white transition transform hover:scale-105 cursor-pointer shadow-2xs" title="Écrire à ${respName} sur WhatsApp">
-                            <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
-                        </a>
+                        ${phoneClean ? `
+                            <a href="tel:${phoneClean}" class="p-2 rounded-xl bg-slate-50 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition transform hover:scale-105 cursor-pointer shadow-2xs" title="Appeler ${respName} (${user.contact1})">
+                                <i data-lucide="phone" class="h-3.5 w-3.5"></i>
+                            </a>
+                            <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white transition transform hover:scale-105 cursor-pointer shadow-2xs" title="Écrire à ${respName} sur WhatsApp">
+                                <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
+                            </a>
+                        ` : `
+                            <span class="text-[10px] text-slate-400 italic font-mono px-2">En attente</span>
+                        `}
                     </div>
                 </div>
             `;
