@@ -2366,15 +2366,30 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     <div class="space-y-1">
                                         <label class="text-[11px] font-bold text-slate-700">Ancien Mot de Passe</label>
-                                        <input type="password" id="active-edit-old-password" placeholder="Ancien mot de passe" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange bg-slate-50/50">
+                                        <div class="relative">
+                                            <input type="password" id="active-edit-old-password" placeholder="Ancien mot de passe" class="w-full pl-3 pr-9 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange bg-slate-50/50">
+                                            <button type="button" onclick="togglePasswordVisibility('active-edit-old-password', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition cursor-pointer p-0.5" title="Afficher/Masquer le mot de passe">
+                                                <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="space-y-1">
                                         <label class="text-[11px] font-bold text-slate-700">Nouveau Mot de Passe</label>
-                                        <input type="password" id="active-edit-new-password" placeholder="Nouveau mot de passe" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange bg-white">
+                                        <div class="relative">
+                                            <input type="password" id="active-edit-new-password" placeholder="Nouveau mot de passe" class="w-full pl-3 pr-9 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange bg-white">
+                                            <button type="button" onclick="togglePasswordVisibility('active-edit-new-password', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition cursor-pointer p-0.5" title="Afficher/Masquer le mot de passe">
+                                                <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="space-y-1">
                                         <label class="text-[11px] font-bold text-slate-700">Confirmer le Nouveau</label>
-                                        <input type="password" id="active-edit-confirm-password" placeholder="Confirmer mot de passe" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange bg-white">
+                                        <div class="relative">
+                                            <input type="password" id="active-edit-confirm-password" placeholder="Confirmer mot de passe" class="w-full pl-3 pr-9 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange bg-white">
+                                            <button type="button" onclick="togglePasswordVisibility('active-edit-confirm-password', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition cursor-pointer p-0.5" title="Afficher/Masquer le mot de passe">
+                                                <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2425,7 +2440,7 @@
                         <div class="space-y-1.5">
                             <label class="text-xs font-bold text-slate-700">Mot de Passe Utilisateur *</label>
                             <div class="relative">
-                                <input type="password" id="login-user-password" placeholder="Mot de passe du profil (ou 1234)" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-brand-orange shadow-inner">
+                                <input type="password" id="login-user-password" placeholder="Mot de passe défini à la création" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-brand-orange shadow-inner">
                                 <button type="button" onclick="togglePasswordVisibility('login-user-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-orange transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
                                     <i data-lucide="eye" class="h-4 w-4"></i>
                                 </button>
@@ -2520,15 +2535,25 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
                             <div class="space-y-1.5">
                                 <label class="text-xs font-bold text-slate-700">Mot de Passe Utilisateur (Personnel) *</label>
-                                <input type="password" id="create-user-password" required placeholder="Créer votre mot de passe" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange">
-                                <p class="text-[9px] text-slate-400">Servira pour vous connecter et valider vos suppressions.</p>
+                                <div class="relative">
+                                    <input type="password" id="create-user-password" required placeholder="Créer votre mot de passe personnel" class="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:border-brand-orange">
+                                    <button type="button" onclick="togglePasswordVisibility('create-user-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-orange transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                                        <i data-lucide="eye" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                                <p class="text-[9px] text-slate-400">Servira pour vous connecter et valider vos suppressions et décaissements.</p>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-xs font-bold text-red-700 flex items-center gap-1">
                                     <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-red-600"></i>
                                     <span>Mot de Passe Administrateur d'Autorisation *</span>
                                 </label>
-                                <input type="password" id="create-admin-password" placeholder="Code secret admin (ex: 10ANS)" class="w-full px-4 py-2.5 rounded-xl border-2 border-emerald-200 text-xs font-mono text-center focus:outline-none focus:border-emerald-500 shadow-inner bg-emerald-50/30">
+                                <div class="relative">
+                                    <input type="password" id="create-admin-password" placeholder="Code secret admin (ex: 10ANS)" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-emerald-200 text-xs font-mono text-center focus:outline-none focus:border-emerald-500 shadow-inner bg-emerald-50/30">
+                                    <button type="button" onclick="togglePasswordVisibility('create-admin-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                                        <i data-lucide="eye" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
                                 <p class="text-[9px] text-red-600 font-semibold">Exigé pour autoriser l'enregistrement officiel du compte.</p>
                             </div>
                         </div>
@@ -2675,7 +2700,12 @@
 
                     <div class="space-y-1">
                         <label class="text-[11px] font-bold text-slate-300">Mot de Passe Personnel</label>
-                        <input type="password" id="gateway-user-password" required placeholder="Saisir votre mot de passe personnel" class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-mono text-center text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange">
+                        <div class="relative">
+                            <input type="password" id="gateway-user-password" required placeholder="Saisir votre mot de passe personnel" class="w-full pl-3 pr-10 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-mono text-center text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange">
+                            <button type="button" onclick="togglePasswordVisibility('gateway-user-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-orange transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                                <i data-lucide="eye" class="h-4 w-4"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer mt-1">
@@ -3389,7 +3419,12 @@
             <!-- Mot de passe PCO / Finance -->
             <div class="space-y-1">
                 <label class="text-xs font-bold text-slate-700">Mot de Passe PCO / Finance *</label>
-                <input type="password" id="modal-don-auth-code" required placeholder="Saisir votre mot de passe d'autorisation" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center focus:outline-none focus:border-emerald-500 shadow-inner">
+                <div class="relative">
+                    <input type="password" id="modal-don-auth-code" required placeholder="Saisir votre mot de passe d'autorisation" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center focus:outline-none focus:border-emerald-500 shadow-inner">
+                    <button type="button" onclick="togglePasswordVisibility('modal-don-auth-code', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                        <i data-lucide="eye" class="h-4 w-4"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
@@ -3469,7 +3504,12 @@
 
         <div class="space-y-1.5">
             <label class="text-xs font-bold text-slate-700 block">Mot de Passe Personnel / Administratif *</label>
-            <input type="password" id="delete-auth-code-input" onkeyup="if(event.key==='Enter') executeDeleteLineWithAuth()" placeholder="Saisir votre mot de passe" class="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-mono tracking-widest text-center focus:outline-none focus:border-red-500 shadow-inner">
+            <div class="relative">
+                <input type="password" id="delete-auth-code-input" onkeyup="if(event.key==='Enter') executeDeleteLineWithAuth()" placeholder="Saisir votre mot de passe personnel" class="w-full pl-4 pr-10 py-3 rounded-2xl border-2 border-slate-200 text-sm font-mono tracking-widest text-center focus:outline-none focus:border-red-500 shadow-inner">
+                <button type="button" onclick="togglePasswordVisibility('delete-auth-code-input', this)" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                    <i data-lucide="eye" class="h-4 w-4"></i>
+                </button>
+            </div>
         </div>
 
         <div class="flex justify-end gap-2.5 pt-2 border-t border-slate-100">
@@ -3523,7 +3563,12 @@
             </div>
             <div class="space-y-1">
                 <label class="text-xs font-bold text-slate-700">Mot de Passe PCO / Finance *</label>
-                <input type="password" id="edit-don-auth-code" required placeholder="Saisir mot de passe" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center shadow-inner">
+                <div class="relative">
+                    <input type="password" id="edit-don-auth-code" required placeholder="Saisir mot de passe d'autorisation" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center shadow-inner">
+                    <button type="button" onclick="togglePasswordVisibility('edit-don-auth-code', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                        <i data-lucide="eye" class="h-4 w-4"></i>
+                    </button>
+                </div>
             </div>
             <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button type="button" onclick="closeEditDonationModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold">Annuler</button>
@@ -3939,7 +3984,12 @@
 
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-700">Mot de Passe PCO / Finance *</label>
-                    <input type="password" id="edit-don-auth-code" required placeholder="Saisir votre mot de passe d'autorisation" class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center focus:outline-none focus:border-blue-500 shadow-inner">
+                    <div class="relative">
+                        <input type="password" id="edit-don-auth-code" required placeholder="Saisir votre mot de passe d'autorisation" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center focus:outline-none focus:border-blue-500 shadow-inner">
+                        <button type="button" onclick="togglePasswordVisibility('edit-don-auth-code', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                            <i data-lucide="eye" class="h-4 w-4"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
@@ -4357,6 +4407,29 @@
             if (this.db) {
                 try {
                     this.db.collection("myticket_users").doc(user.id).set(user, { merge: true });
+                } catch(e) {}
+            }
+        },
+
+        purgeAllUsersCloud: function() {
+            this.broadcastLocally({ type: 'USERS_PURGED' });
+            if (this.db) {
+                try {
+                    this.db.collection("myticket_users").get().then(snapshot => {
+                        snapshot.forEach(doc => doc.ref.delete());
+                    }).catch(()=>{});
+                } catch(e) {}
+            }
+        },
+
+        purgeAllCloudData: function() {
+            this.broadcastLocally({ type: 'DATABASE_PURGED' });
+            if (this.db) {
+                try {
+                    this.db.collection("myticket_participants").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
+                    this.db.collection("myticket_finance").doc("current").delete().catch(()=>{});
+                    this.db.collection("myticket_users").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
+                    this.db.collection("myticket_gallery").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
                 } catch(e) {}
             }
         },
@@ -7552,12 +7625,34 @@
 
     function verifyPersonalOrAdminPassword(code) {
         if (!code) return false;
-        const c = code.trim().toUpperCase();
+        const trimmed = code.trim();
+        
+        // 1. Check active authenticated user's password
+        if (state.user && !state.user.isVisitor && state.user.password && state.user.password.toUpperCase() === trimmed.toUpperCase()) {
+            return true;
+        }
+
+        // 2. Check registered administrator users' passwords
+        const adminCommittees = [
+            "Coordination Stratégique",
+            "Coordination Opérationnelle",
+            "Comité Supervision",
+            "Comité Administratif",
+            "Comité Financier"
+        ];
+        if (state.users && state.users.length > 0) {
+            const hasAdminMatch = state.users.some(u => 
+                adminCommittees.includes(u.comite) && u.password && u.password.toUpperCase() === trimmed.toUpperCase()
+            );
+            if (hasAdminMatch) return true;
+        }
+
+        // 3. Official Master Admin Passwords (Emergency & Initial Setup - NO 1234)
         const validPasswords = [
-            '10ANS', 'NDJAI10', 'ADMIN', 'ADMIN2027', '1234',
+            '10ANS', 'NDJAI10', 'ADMIN', 'ADMIN2027',
             'SARAH2027', 'MARC2027', 'AUDE2027', 'PASTEUR2027', 'FINANCE2027', 'PCO2027'
         ];
-        return validPasswords.includes(c);
+        return validPasswords.includes(trimmed.toUpperCase());
     }
 
     function verifyPCOFinanceCode(approverName, code) {
@@ -8587,14 +8682,34 @@
 
     
     // ==========================================
-    // ADMINISTRATIVE ACTION: PURGE ALL USER ACCOUNTS
+    // ADMINISTRATIVE ACTION: PURGE ALL USER ACCOUNTS (WITH ADMIN PWD MODAL)
     // ==========================================
-    function deleteAllUserAccounts() {
-        const pwd = prompt("Sécurité Administrateur : Entrez le mot de passe admin (ou 1234 / 10ANS) pour CONFIRMER la suppression de TOUS les comptes utilisateurs :");
-        if (!pwd) return;
-        
-        if (!verifyPersonalOrAdminPassword(pwd) && pwd !== '1234' && pwd.toUpperCase() !== '10ANS' && pwd.toUpperCase() !== 'ADMIN') {
-            showNotification("Mot de Passe Invalide", "Mot de passe administrateur incorrect.", "error");
+    function openDeleteAllUsersModal() {
+        const modal = document.getElementById('modal-delete-all-users-auth');
+        const input = document.getElementById('delete-all-users-admin-pwd');
+        if (input) input.value = '';
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => input?.focus(), 150);
+        }
+    }
+
+    function closeDeleteAllUsersModal() {
+        document.getElementById('modal-delete-all-users-auth')?.classList.add('hidden');
+    }
+
+    function executeDeleteAllUsersWithAuth() {
+        const input = document.getElementById('delete-all-users-admin-pwd');
+        const pwd = input ? input.value.trim() : '';
+        if (!pwd) {
+            showNotification("Mot de Passe Requis", "Veuillez saisir le mot de passe administrateur.", "error");
+            input?.focus();
+            return;
+        }
+
+        if (!verifyPersonalOrAdminPassword(pwd)) {
+            showNotification("Mot de Passe Invalide", "Mot de passe administrateur incorrect. Suppression refusée.", "error");
+            input?.focus();
             return;
         }
 
@@ -8603,6 +8718,9 @@
         try {
             localStorage.setItem('myticket_users_v4', JSON.stringify([]));
             localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
+            if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.purgeAllUsersCloud) {
+                MyTicketCloudDB.purgeAllUsersCloud();
+            }
         } catch(e) {}
 
         applyUserStatesUI();
@@ -8611,9 +8729,95 @@
         updateCreateComiteDropdown();
         populatePCOApproversDropdown();
         renderOrganisationLeaders();
+        closeDeleteAllUsersModal();
         switchView('utilisateur');
         switchUserSectionTab('login');
         showNotification("Comptes Supprimés", "Tous les comptes utilisateurs ont été supprimés avec succès. L'application est réinitialisée en mode visiteur.", "success");
+    }
+
+    function deleteAllUserAccounts() {
+        openDeleteAllUsersModal();
+    }
+
+    // ==========================================
+    // ADMINISTRATIVE ACTION: PURGE COMPLETE DATABASE (WITH ADMIN PWD MODAL)
+    // ==========================================
+    function openPurgeAllDataModal() {
+        const modal = document.getElementById('modal-purge-all-data-auth');
+        const input = document.getElementById('purge-all-database-admin-pwd');
+        if (input) input.value = '';
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => input?.focus(), 150);
+        }
+    }
+
+    function closePurgeAllDataModal() {
+        document.getElementById('modal-purge-all-data-auth')?.classList.add('hidden');
+    }
+
+    function executePurgeAllDatabaseWithAuth() {
+        const input = document.getElementById('purge-all-database-admin-pwd');
+        const pwd = input ? input.value.trim() : '';
+        if (!pwd) {
+            showNotification("Mot de Passe Requis", "Veuillez saisir le mot de passe administrateur pour confirmer la suppression.", "error");
+            input?.focus();
+            return;
+        }
+
+        if (!verifyPersonalOrAdminPassword(pwd)) {
+            showNotification("Accès Refusé", "Mot de passe administrateur incorrect. La suppression de toutes les données a été bloquée.", "error");
+            input?.focus();
+            return;
+        }
+
+        // 1. Purge Participants
+        state.participants = [];
+        try { localStorage.setItem('myticket_participants_v7', JSON.stringify([])); } catch(e) {}
+
+        // 2. Purge Finance
+        state.finance = {
+            encaissements: [],
+            decaissements: [],
+            dons: [],
+            committees: JSON.parse(JSON.stringify(OFFICIAL_COMMITTEES_FINANCE_STRUCTURE || []))
+        };
+        try { localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance)); } catch(e) {}
+
+        // 3. Purge Gallery
+        state.galleryAlbums = [];
+        try { localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify([])); } catch(e) {}
+
+        // 4. Purge Users & Reset to Visitor
+        state.users = [];
+        state.user = { ...DEFAULT_VISITOR_USER };
+        try {
+            localStorage.setItem('myticket_users_v4', JSON.stringify([]));
+            localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
+        } catch(e) {}
+
+        // 5. Purge Cloud Database Collections
+        if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.purgeAllCloudData) {
+            MyTicketCloudDB.purgeAllCloudData();
+        }
+
+        // 6. Refresh UI components
+        applyUserStatesUI();
+        populateLoginUserSelect();
+        populateGatewayUserSelect();
+        updateCreateComiteDropdown();
+        populatePCOApproversDropdown();
+        renderOrganisationLeaders();
+        renderParticipantsTable();
+        renderFinanceDashboard();
+        renderFinanceConsolidation();
+        renderGalleryAlbums();
+        updateDashboardStats();
+
+        closePurgeAllDataModal();
+        closeCloudSyncModal();
+        switchView('accueil');
+        showNotification("Base de Données Purgée !", "Toutes les données (billets, finances, comptes, albums) ont été définitivement supprimées avec succès.", "success");
     }
 
     function initializeUsersRegistry() {
@@ -8678,36 +8882,27 @@
 
         const selectedComite = select.value;
         const enteredPwd = pwdInput.value.trim();
-        let user = (state.users || []).find(u => u.comite === selectedComite);
+        if (!enteredPwd) {
+            showNotification("Mot de Passe Requis", "Veuillez saisir votre mot de passe personnel.", "error");
+            pwdInput.focus();
+            return;
+        }
 
-        const isUserPasswordValid = user && user.password && user.password.toUpperCase() === enteredPwd.toUpperCase();
-        const isAdminPasswordValid = verifyPersonalOrAdminPassword(enteredPwd) || enteredPwd === '1234' || enteredPwd.toUpperCase() === '10ANS';
+        const user = (state.users || []).find(u => u.comite === selectedComite);
+
+        if (!user) {
+            showNotification("Compte Inexistant", `Aucun compte n'a encore été créé pour le "${selectedComite}". Veuillez d'abord créer votre profil officiel via le bouton "Créer un Profil".`, "error");
+            return;
+        }
+
+        const isUserPasswordValid = user.password && user.password === enteredPwd;
+        const isAdminPasswordValid = verifyPersonalOrAdminPassword(enteredPwd);
 
         if (!isUserPasswordValid && !isAdminPasswordValid) {
             showNotification("Mot de Passe Incorrect", "Le mot de passe d'accès pour ce comité est invalide.", "error");
             pwdInput.value = '';
             pwdInput.focus();
             return;
-        }
-
-        if (!user) {
-            const newUserId = `USR-${String((state.users || []).length + 1).padStart(2, '0')}`;
-            user = {
-                id: newUserId,
-                name: selectedComite,
-                comite: selectedComite,
-                contact1: "+225 00 00 00 00",
-                contact2: "",
-                password: enteredPwd,
-                avatar: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E",
-                dateCreation: new Date().toISOString().split('T')[0]
-            };
-            if (!state.users) state.users = [];
-            state.users.push(user);
-            try {
-                localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.users || []).forEach(u => MyTicketCloudDB.syncUser(u));
-            } catch(e) {}
         }
 
         state.user = { ...user, isVisitor: false };
@@ -8719,7 +8914,7 @@
         pwdInput.value = '';
         document.getElementById('modal-initial-gateway')?.classList.add('hidden');
         switchView('accueil');
-        showNotification("Connexion Réussie !", `Bienvenue. Vous êtes connecté au compte ${selectedComite}.`, "success");
+        showNotification("Connexion Réussie !", `Bienvenue ${user.name}. Vous êtes connecté au compte ${selectedComite}.`, "success");
         triggerJubileeConfetti();
     }
 
@@ -8732,36 +8927,27 @@
 
         const selectedComite = select.value;
         const enteredPwd = pwdInput.value.trim();
-        let user = (state.users || []).find(u => u.comite === selectedComite);
+        if (!enteredPwd) {
+            showNotification("Mot de Passe Requis", "Veuillez saisir votre mot de passe.", "error");
+            pwdInput.focus();
+            return;
+        }
 
-        const isUserPasswordValid = user && user.password && user.password.toUpperCase() === enteredPwd.toUpperCase();
-        const isAdminPasswordValid = verifyPersonalOrAdminPassword(enteredPwd) || enteredPwd === '1234' || enteredPwd.toUpperCase() === '10ANS';
+        const user = (state.users || []).find(u => u.comite === selectedComite);
+
+        if (!user) {
+            showNotification("Compte Inexistant", `Aucun compte n'a encore été créé pour le "${selectedComite}". Veuillez d'abord créer votre profil officiel via l'onglet "Créer un compte".`, "error");
+            return;
+        }
+
+        const isUserPasswordValid = user.password && user.password === enteredPwd;
+        const isAdminPasswordValid = verifyPersonalOrAdminPassword(enteredPwd);
 
         if (!isUserPasswordValid && !isAdminPasswordValid) {
             showNotification("Mot de Passe Incorrect", "Le mot de passe d'accès pour ce comité est invalide.", "error");
             pwdInput.value = '';
             pwdInput.focus();
             return;
-        }
-
-        if (!user) {
-            const newUserId = `USR-${String((state.users || []).length + 1).padStart(2, '0')}`;
-            user = {
-                id: newUserId,
-                name: selectedComite,
-                comite: selectedComite,
-                contact1: "+225 00 00 00 00",
-                contact2: "",
-                password: enteredPwd,
-                avatar: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E",
-                dateCreation: new Date().toISOString().split('T')[0]
-            };
-            if (!state.users) state.users = [];
-            state.users.push(user);
-            try {
-                localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.users || []).forEach(u => MyTicketCloudDB.syncUser(u));
-            } catch(e) {}
         }
 
         state.user = { ...user, isVisitor: false };
@@ -8772,7 +8958,7 @@
         applyUserStatesUI();
         pwdInput.value = '';
         switchUserSectionTab('active');
-        showNotification("Connexion Réussie !", `Bienvenue. Vous êtes connecté au compte ${selectedComite}.`, "success");
+        showNotification("Connexion Réussie !", `Bienvenue ${user.name}. Vous êtes connecté au compte ${selectedComite}.`, "success");
         triggerJubileeConfetti();
     }
 
@@ -8931,10 +9117,13 @@
         }
 
         // Admin authorization check
-        if (adminPwdInput && !verifyPersonalOrAdminPassword(adminPwd) && adminPwd !== '1234' && adminPwd.toUpperCase() !== '10ANS' && adminPwd.toUpperCase() !== 'ADMIN') {
-            showNotification("Mot de Passe Admin Invalide", "Le mot de passe administrateur pour autoriser la création de ce profil est requis et invalide.", "error");
-            adminPwdInput.focus();
-            return;
+        if (adminPwdInput) {
+            const adminPwd = adminPwdInput.value.trim();
+            if (!verifyPersonalOrAdminPassword(adminPwd)) {
+                showNotification("Mot de Passe Admin Invalide", "Le mot de passe administrateur pour autoriser la création de ce profil est requis et invalide.", "error");
+                adminPwdInput.focus();
+                return;
+            }
         }
 
         pendingCreatedUser = {
@@ -11963,6 +12152,21 @@
                 </button>
             </div>
 
+            <!-- Danger Zone: Purge intégrale de la base de données -->
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-950 space-y-2.5 mt-2">
+                <div class="flex items-center gap-2 text-rose-700">
+                    <i data-lucide="alert-triangle" class="h-4 w-4 text-rose-600"></i>
+                    <span class="text-xs font-black uppercase tracking-wider">Zone Sécurisée • Administration</span>
+                </div>
+                <p class="text-[11px] text-rose-800 leading-relaxed font-medium">
+                    La réinitialisation complète effacera toutes les données en base locale et Cloud. Cette opération exige impérativement le mot de passe administrateur.
+                </p>
+                <button onclick="openPurgeAllDataModal()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                    <span>Supprimer Toutes les Données de l'Application</span>
+                </button>
+            </div>
+
         </div>
 
         <!-- Footer Note -->
@@ -11970,6 +12174,72 @@
             <p class="text-[10px] text-slate-400 font-mono">MyTicket Cloud Engine • 10 Ans EMCI Horeb</p>
         </div>
 
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- MODAL: SÉCURITÉ ADMIN - SUPPRESSION TOUS LES COMPTES -->
+<!-- ============================================== -->
+<div id="modal-delete-all-users-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-6 space-y-5 animate-scale-up">
+        <div class="text-center space-y-2">
+            <div class="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+                <i data-lucide="user-x" class="h-6 w-6"></i>
+            </div>
+            <h3 class="font-display font-black text-lg text-slate-900">Suppression de Tous les Comptes</h3>
+            <p class="text-xs text-slate-500">Cette action réinitialise l'application en mode visiteur. Veuillez saisir le mot de passe administrateur pour confirmer.</p>
+        </div>
+        
+        <div class="space-y-1.5">
+            <label class="text-xs font-bold text-slate-700">Mot de Passe Administrateur *</label>
+            <div class="relative">
+                <input type="password" id="delete-all-users-admin-pwd" onkeyup="if(event.key==='Enter') executeDeleteAllUsersWithAuth()" placeholder="Saisir le mot de passe administrateur" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-rose-500 shadow-inner">
+                <button type="button" onclick="togglePasswordVisibility('delete-all-users-admin-pwd', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                    <i data-lucide="eye" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-2.5 pt-2 border-t border-slate-100">
+            <button type="button" onclick="closeDeleteAllUsersModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition cursor-pointer">Annuler</button>
+            <button type="button" onclick="executeDeleteAllUsersWithAuth()" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-xs shadow-md transition cursor-pointer">Confirmer la Suppression</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- MODAL: SÉCURITÉ ADMIN - PURGE INTÉGRALE BASE DE DONNÉES -->
+<!-- ============================================== -->
+<div id="modal-purge-all-data-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-6 space-y-5 animate-scale-up">
+        <div class="text-center space-y-2">
+            <div class="h-12 w-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+                <i data-lucide="alert-octagon" class="h-6 w-6"></i>
+            </div>
+            <h3 class="font-display font-black text-lg text-slate-900">Suppression de TOUTES les Données</h3>
+            <p class="text-xs text-rose-700 font-semibold bg-rose-50 p-2.5 rounded-xl border border-rose-200 leading-relaxed">
+                ⚠️ ATTENTION : Cette action supprimera définitivement tous les festivaliers/tickets, finances, comptes utilisateurs et albums photos de l'application et du Cloud.
+            </p>
+        </div>
+        
+        <div class="space-y-1.5">
+            <label class="text-xs font-bold text-slate-700">Mot de Passe Administrateur Requis *</label>
+            <div class="relative">
+                <input type="password" id="purge-all-database-admin-pwd" onkeyup="if(event.key==='Enter') executePurgeAllDatabaseWithAuth()" placeholder="Saisir le mot de passe administrateur" class="w-full pl-4 pr-10 py-3 rounded-xl border-2 border-rose-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-rose-500 shadow-inner bg-rose-50/30">
+                <button type="button" onclick="togglePasswordVisibility('purge-all-database-admin-pwd', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                    <i data-lucide="eye" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-2.5 pt-2 border-t border-slate-100">
+            <button type="button" onclick="closePurgeAllDataModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition cursor-pointer">Annuler</button>
+            <button type="button" onclick="executePurgeAllDatabaseWithAuth()" class="flex-1 py-2.5 bg-gradient-to-r from-rose-600 to-red-700 hover:opacity-95 text-white rounded-xl font-black text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                <span>Purger Définitivement</span>
+            </button>
+        </div>
     </div>
 </div>
 
