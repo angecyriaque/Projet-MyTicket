@@ -395,18 +395,18 @@
         </button>
 
         <!-- Right User Profile Status -->
-        <div class="flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 rounded-2xl hover:bg-white/10 transition" onclick="switchView('utilisateur')" title="Gérer mon profil utilisateur ou changer de compte">
+        <div class="flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 rounded-2xl hover:bg-white/10 transition" onclick="switchView('utilisateur'); switchUserSectionTab('login');" title="Gérer mon profil utilisateur ou changer de compte">
             <div class="relative">
                 <img id="header-user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Avatar" class="h-9 w-9 rounded-full bg-slate-800 p-1.5 ring-2 ring-slate-600 shadow-md">
                 <span class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#090D1F] bg-emerald-500"></span>
             </div>
             <div class="hidden sm:flex flex-col items-end">
-                <span id="header-user-name" class="text-xs font-bold text-slate-100">Yao Marc-Emmanuel</span>
-                <span id="header-user-role" class="text-[10px] text-brand-orange font-semibold">Coordination Stratégique</span>
+                <span id="header-user-name" class="text-xs font-bold text-slate-100">Visiteur</span>
+                <span id="header-user-role" class="text-[10px] text-brand-orange font-semibold">Célébration 10 Ans</span>
             </div>
-            <span class="hidden md:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg bg-white/15 text-white/90 border border-white/20">
+            <button type="button" onclick="event.stopPropagation(); switchView('utilisateur'); switchUserSectionTab('login');" class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/20 hover:bg-brand-orange text-white border border-white/30 transition cursor-pointer shadow-xs" title="Changer d'utilisateur ou se connecter">
                 <i data-lucide="refresh-cw" class="h-3 w-3"></i> Changer
-            </span>
+            </button>
         </div>
     </div>
 </header>
@@ -4597,6 +4597,8 @@
             if (typeof populatePCOApproversDropdown === 'function') populatePCOApproversDropdown();
             if (typeof renderOrganisationLeaders === 'function') renderOrganisationLeaders();
             if (typeof renderAproposCommittees === 'function') renderAproposCommittees();
+            if (typeof renderFinanceDashboard === 'function') renderFinanceDashboard();
+            if (typeof renderFinanceConsolidation === 'function') renderFinanceConsolidation();
         },
 
         refreshParticipantViews: function() {
@@ -7104,6 +7106,10 @@
         let totalRemaining = 0;
 
         (state.finance.committees || []).forEach(c => {
+            const assignedUser = (state.users || []).find(u => u.comite === c.name);
+            const respDisplayName = assignedUser ? assignedUser.name : 'Non assigné';
+            const isUnlocked = !!assignedUser;
+
             const totals = calculateCommitteeTotals(c);
             const budgetAffecte = totals.totalBudget;
             const spent = totals.totalSpent;
@@ -7119,7 +7125,9 @@
                 <tr class="hover:bg-slate-50/80 transition">
                     <td class="py-3.5 px-4 font-bold text-slate-900">
                         ${c.name}<br>
-                        <span class="text-[10px] text-slate-400 font-normal">Resp : ${c.resp}</span>
+                        <span class="text-[10px] ${isUnlocked ? 'text-slate-600 font-medium' : 'text-amber-600 font-semibold'} inline-flex items-center gap-1">
+                            ${!isUnlocked ? '<i data-lucide="lock" class="h-2.5 w-2.5 inline"></i>' : ''} Resp : ${respDisplayName}
+                        </span>
                     </td>
                     <td class="py-3.5 px-4 text-center font-bold text-slate-600 font-mono">${countLines}</td>
                     <td class="py-3.5 px-4 font-black text-slate-950 font-mono">${budgetAffecte.toLocaleString('fr-FR')} FCFA</td>
@@ -7134,10 +7142,17 @@
                         </div>
                     </td>
                     <td class="py-3.5 px-4 text-right">
-                        <button onclick="openCommitteeExpensesDetails('${c.id}')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
-                            <i data-lucide="eye" class="h-3.5 w-3.5 text-brand-orange"></i>
-                            <span>Fiche</span>
-                        </button>
+                        ${isUnlocked ? `
+                            <button onclick="openCommitteeExpensesDetails('${c.id}')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="eye" class="h-3.5 w-3.5 text-brand-orange"></i>
+                                <span>Fiche</span>
+                            </button>
+                        ` : `
+                            <button disabled class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs border border-slate-200 cursor-not-allowed opacity-60 inline-flex items-center gap-1 pointer-events-none" title="Aucun compte responsable créé">
+                                <i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i>
+                                <span>Fiche</span>
+                            </button>
+                        `}
                     </td>
                 </tr>
             `;
@@ -7423,6 +7438,10 @@
         if (grid) {
             grid.innerHTML = '';
             (fin.committees || []).forEach(c => {
+                const assignedUser = (state.users || []).find(u => u.comite === c.name);
+                const respDisplayName = assignedUser ? assignedUser.name : 'Non assigné';
+                const isUnlocked = !!assignedUser;
+
                 const totals = calculateCommitteeTotals(c);
                 const budgetAffecte = totals.totalBudget;
                 const depensesRealisees = totals.totalSpent;
@@ -7446,16 +7465,18 @@
                 }
 
                 grid.innerHTML += `
-                    <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 space-y-4 flex flex-col justify-between">
+                    <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 space-y-4 flex flex-col justify-between ${!isUnlocked ? 'bg-slate-50/50' : ''}">
                         
                         <div class="space-y-3.5">
                             
-                            <!-- Header: Category Badge + Title + Resp + Smart Status Pill (NO Image/Icon Cadrant) -->
+                            <!-- Header: Category Badge + Title + Resp + Smart Status Pill -->
                             <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
                                 <div class="space-y-1 min-w-0">
                                     <div class="flex items-center gap-2">
                                         <span class="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${decor.headerBadgeColor}">${decor.headerBadge}</span>
-                                        <span class="text-[10px] font-bold text-slate-400 truncate">Resp : ${c.resp}</span>
+                                        <span class="text-[10px] font-bold ${isUnlocked ? 'text-slate-600' : 'text-amber-600'} truncate inline-flex items-center gap-1">
+                                            ${!isUnlocked ? '<i data-lucide="lock" class="h-2.5 w-2.5 inline"></i>' : ''} Resp : ${respDisplayName}
+                                        </span>
                                     </div>
                                     <h4 class="font-display font-black text-slate-900 text-base leading-tight truncate">${c.name}</h4>
                                 </div>
@@ -7494,16 +7515,27 @@
 
                         </div>
 
-                        <!-- Action Buttons -->
+                        <!-- Action Buttons: Active if user exists, Disabled & Greyed if no user assigned -->
                         <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 mt-1">
-                            <button onclick="openDisbursementForCurrentCommittee('${c.id}')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                <i data-lucide="send" class="h-3.5 w-3.5 text-brand-orange"></i>
-                                <span>Décaisser</span>
-                            </button>
-                            <button onclick="openCommitteeExpensesDetails('${c.id}')" class="py-2.5 px-3 rounded-xl bg-brand-orange hover:bg-orange-600 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                <i data-lucide="list-checks" class="h-3.5 w-3.5"></i>
-                                <span>Fiche & Lignes</span>
-                            </button>
+                            ${isUnlocked ? `
+                                <button onclick="openDisbursementForCurrentCommittee('${c.id}')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <i data-lucide="send" class="h-3.5 w-3.5 text-brand-orange"></i>
+                                    <span>Décaisser</span>
+                                </button>
+                                <button onclick="openCommitteeExpensesDetails('${c.id}')" class="py-2.5 px-3 rounded-xl bg-brand-orange hover:bg-orange-600 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <i data-lucide="list-checks" class="h-3.5 w-3.5"></i>
+                                    <span>Fiche & Lignes</span>
+                                </button>
+                            ` : `
+                                <button disabled class="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs border border-slate-200 cursor-not-allowed opacity-60 flex items-center justify-center gap-1.5 pointer-events-none" title="Compte responsable requis pour décaisser">
+                                    <i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i>
+                                    <span>Décaisser</span>
+                                </button>
+                                <button disabled class="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs border border-slate-200 cursor-not-allowed opacity-60 flex items-center justify-center gap-1.5 pointer-events-none" title="Compte responsable requis pour gérer la fiche">
+                                    <i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i>
+                                    <span>Fiche & Lignes</span>
+                                </button>
+                            `}
                         </div>
 
                     </div>
@@ -7636,6 +7668,14 @@
         const committee = state.finance.committees.find(c => c.id === committeeId);
         if (!committee) return;
 
+        const assignedUser = (state.users || []).find(u => u.comite === committee.name);
+        if (!assignedUser) {
+            showNotification("Comité Verrouillé", `Aucun compte responsable n'a été créé pour "${committee.name}". Veuillez d'abord créer le profil du responsable dans l'onglet 'Mon Profil'.`, "warning");
+            return;
+        }
+
+        const respDisplayName = assignedUser ? assignedUser.name : 'Non assigné';
+
         const decor = getCommitteeCardDecor(committee.id);
         const typeBadge = document.getElementById('comm-modal-badge-type');
         if (typeBadge) {
@@ -7644,7 +7684,7 @@
         }
 
         document.getElementById('comm-modal-title').innerText = committee.name;
-        document.getElementById('comm-modal-badge-resp').innerText = `Responsable : ${committee.resp}`;
+        document.getElementById('comm-modal-badge-resp').innerText = `Responsable : ${respDisplayName}`;
         
         const totals = calculateCommitteeTotals(committee);
         const totalBudget = totals.totalBudget;
@@ -8733,9 +8773,16 @@
         const currentVal = select.value || (state.user && !state.user.isVisitor ? state.user.comite : OFFICIAL_COMMITTEES[0]);
         select.innerHTML = '';
 
+        const users = state.users || [];
+
         OFFICIAL_COMMITTEES.forEach(comiteName => {
+            const existingUser = users.find(u => u.comite === comiteName);
             const isSelected = (currentVal === comiteName);
-            select.innerHTML += `<option value="${comiteName}" ${isSelected ? 'selected' : ''}>${comiteName}</option>`;
+            if (existingUser) {
+                select.innerHTML += `<option value="${comiteName}" ${isSelected ? 'selected' : ''}>👤 ${comiteName} — ${existingUser.name}</option>`;
+            } else {
+                select.innerHTML += `<option value="${comiteName}" ${isSelected ? 'selected' : ''} class="text-slate-400">🔒 ${comiteName} (Non configuré)</option>`;
+            }
         });
 
         onLoginUserSelectChange();
@@ -8747,9 +8794,16 @@
         const currentVal = select.value || (state.user && !state.user.isVisitor ? state.user.comite : OFFICIAL_COMMITTEES[0]);
         select.innerHTML = '';
 
+        const users = state.users || [];
+
         OFFICIAL_COMMITTEES.forEach(comiteName => {
+            const existingUser = users.find(u => u.comite === comiteName);
             const isSelected = (currentVal === comiteName);
-            select.innerHTML += `<option value="${comiteName}" ${isSelected ? 'selected' : ''}>${comiteName}</option>`;
+            if (existingUser) {
+                select.innerHTML += `<option value="${comiteName}" ${isSelected ? 'selected' : ''}>👤 ${comiteName} — ${existingUser.name}</option>`;
+            } else {
+                select.innerHTML += `<option value="${comiteName}" ${isSelected ? 'selected' : ''} class="text-slate-400">🔒 ${comiteName} (Non configuré)</option>`;
+            }
         });
     }
 
@@ -8760,16 +8814,23 @@
         const existingUser = (state.users || []).find(u => u.comite === selectedComite);
 
         const previewName = document.getElementById('login-preview-name');
-        if (previewName) previewName.innerText = existingUser ? existingUser.name : selectedComite;
-        
         const previewComite = document.getElementById('login-preview-comite');
-        if (previewComite) previewComite.innerText = selectedComite;
-        
         const previewAvatar = document.getElementById('login-preview-avatar');
-        if (previewAvatar) {
-            previewAvatar.src = (existingUser && existingUser.avatar) 
-                ? existingUser.avatar 
-                : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+
+        if (existingUser) {
+            if (previewName) previewName.innerText = existingUser.name;
+            if (previewComite) previewComite.innerHTML = `<span class="text-emerald-600 font-bold">● Compte Actif</span> • ${selectedComite}`;
+            if (previewAvatar) {
+                previewAvatar.src = (existingUser && existingUser.avatar) 
+                    ? existingUser.avatar 
+                    : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+            }
+        } else {
+            if (previewName) previewName.innerText = "Aucun profil créé pour ce comité";
+            if (previewComite) previewComite.innerHTML = `<span class="text-amber-600 font-bold">🔒 En attente de création</span>`;
+            if (previewAvatar) {
+                previewAvatar.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+            }
         }
     }
 
@@ -11574,18 +11635,50 @@
     function openDisbursementForCurrentCommittee(committeeId) {
         const targetId = committeeId || activeSelectedCommitteeId;
         if (!targetId) return;
+        const committee = state.finance.committees.find(c => c.id === targetId);
+        if (!committee) return;
+
+        const assignedUser = (state.users || []).find(u => u.comite === committee.name);
+        if (!assignedUser) {
+            showNotification("Comité Verrouillé", `Aucun compte responsable n'a été créé pour "${committee.name}". Les opérations financières sont bloquées tant qu'un utilisateur n'est pas assigné.`, "warning");
+            return;
+        }
+
         closeCommitteeExpensesModal();
         openDisbursementModal(targetId);
     }
 
     function openDisbursementModal(committeeId) {
-        const targetId = committeeId || activeSelectedCommitteeId;
-        if (!targetId) return;
+        let targetId = committeeId || activeSelectedCommitteeId;
+        
+        // If no target committee specified, try active logged-in user's committee or first unlocked
+        if (!targetId) {
+            if (state.user && !state.user.isVisitor && state.user.comite) {
+                const userComm = (state.finance.committees || []).find(c => c.name === state.user.comite);
+                if (userComm) targetId = userComm.id;
+            }
+            if (!targetId) {
+                const firstUnlocked = (state.finance.committees || []).find(c => (state.users || []).some(u => u.comite === c.name));
+                if (firstUnlocked) targetId = firstUnlocked.id;
+            }
+        }
 
-        activeSelectedCommitteeId = targetId;
+        if (!targetId) {
+            showNotification("Comité Requis", "Veuillez créer et assigner un compte responsable avant d'effectuer un décaissement.", "warning");
+            return;
+        }
+
         const committee = state.finance.committees.find(c => c.id === targetId);
         if (!committee) return;
 
+        const assignedUser = (state.users || []).find(u => u.comite === committee.name);
+        if (!assignedUser) {
+            showNotification("Comité Verrouillé", `Le comité "${committee.name}" n'a aucun responsable assigné. Veuillez d'abord créer son compte dans l'onglet 'Mon Profil'.`, "warning");
+            return;
+        }
+
+        activeSelectedCommitteeId = targetId;
+        const respDisplayName = assignedUser ? assignedUser.name : 'Non assigné';
         const decor = getCommitteeCardDecor(committee.id);
 
         const bannerContainer = document.getElementById('disb-committee-banner');
@@ -11602,7 +11695,7 @@
                     </div>
                 </div>
                 <span class="text-xs font-mono font-bold px-2.5 py-1 bg-white/20 rounded-lg border border-white/30">
-                    Resp : ${committee.resp}
+                    Resp : ${respDisplayName}
                 </span>
             `;
         }
