@@ -2639,7 +2639,7 @@
 <!-- =========================================================
      MODAL: PORTAIL D'ACCÈS INITIAL (CONNEXION OU VISITEUR)
      ========================================================= -->
-<div id="modal-initial-gateway" class="fixed inset-0 z-50 bg-[#090D1F]/90 backdrop-blur-md flex items-center justify-center p-4">
+<div id="modal-initial-gateway" class="fixed inset-0 z-50 bg-[#090D1F]/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95 relative overflow-hidden">
         
         <!-- Header Branding -->
@@ -4194,7 +4194,9 @@
         initializeUsersRegistry();
         initializeChronogramme();
         
-        switchView('accueil');
+        // Restore existing session and active view without forcing login prompt
+        const savedView = sessionStorage.getItem('myticket_active_view') || 'accueil';
+        switchView(savedView);
         updateDashboardStats();
         renderFinanceDashboard();
         renderReceptionTable();
@@ -5332,6 +5334,7 @@
 
 
     function switchView(viewName) {
+        try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) {}
         // Strict Access Control for Default Visitor Account
         if (state.user && state.user.isVisitor) {
             const allowedViews = ['accueil', 'ticket', 'organisation', 'utilisateur', 'apropos'];
