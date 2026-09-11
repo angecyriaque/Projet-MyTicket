@@ -357,6 +357,9 @@
 
     </style>
 
+    <!-- GunDB Realtime Peer-to-Peer & Cloud Relay Mesh Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+
     <!-- Firebase SDK Compat v10 (Google Cloud Firestore Backend) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -4219,28 +4222,28 @@
 
     
     // =========================================================================
-    // RELIABLE CLOUD FIRESTORE & REALTIME MULTI-DEVICE SYNCHRONIZER
+    // RELIABLE UNIVERSAL CLOUD REALTIME & MULTI-DEVICE SYNCHRONIZER
+    // GunDB Cloud Mesh + BroadcastChannel + LocalStorage Resilience
     // =========================================================================
-    const CLOUD_DB_CONFIG_KEY = 'myticket_cloud_db_config_v1';
-
-    const DEFAULT_FIREBASE_CONFIG = {
-        apiKey: "AIzaSyD-EMCI-Horeb-MyTicket-2027-ProdKey",
-        authDomain: "myticket-emci-horeb-2027.firebaseapp.com",
-        projectId: "myticket-emci-horeb-2027",
-        storageBucket: "myticket-emci-horeb-2027.appspot.com",
-        messagingSenderId: "109827364501",
-        appId: "1:109827364501:web:a1b2c3d4e5f6g7h8i9j0"
-    };
+    const GUN_CLOUD_PEERS = [
+        'https://gun-manhattan.herokuapp.com/gun',
+        'https://peer.wallie.io/gun',
+        'https://gundb-relay.onrender.com/gun',
+        'https://relay.peer.ooo/gun'
+    ];
 
     const MyTicketCloudDB = {
+        gun: null,
+        appDb: null,
         db: null,
-        isInitialized: false,
         isOnline: navigator.onLine,
         broadcastChannel: null,
         lastSyncTimestamp: null,
+        peersCount: 0,
+        syncIntervalId: null,
 
         init: function() {
-            // Setup Cross-Tab & Local Network Broadcast Channel for instant real-time sync
+            // 1. Local tab-to-tab Broadcast Channel
             try {
                 if (typeof BroadcastChannel !== 'undefined') {
                     this.broadcastChannel = new BroadcastChannel('myticket_realtime_db_channel');
@@ -4250,180 +4253,304 @@
                 }
             } catch(e) {}
 
-            // Initialize Firebase Firestore SDK if available
+            // 2. Initialize GunDB Cloud Realtime Mesh
+            this.initGunMesh();
+
+            // 3. Optional Firebase Firestore fallback
             this.initFirebase();
 
-            // Listen to browser network online / offline events
+            // 4. Background Sync Poller (every 4 seconds) to ensure state freshness
+            if (this.syncIntervalId) clearInterval(this.syncIntervalId);
+            this.syncIntervalId = setInterval(() => {
+                this.pollCloudState();
+            }, 4000);
+
+            // 5. Network status listeners
             window.addEventListener('online', () => this.handleNetworkStatusChange(true));
             window.addEventListener('offline', () => this.handleNetworkStatusChange(false));
             this.updateNetworkUI(navigator.onLine);
         },
 
-        initFirebase: function() {
-            let config = DEFAULT_FIREBASE_CONFIG;
-            try {
-                const customConfigStr = localStorage.getItem(CLOUD_DB_CONFIG_KEY);
-                if (customConfigStr) config = JSON.parse(customConfigStr);
-            } catch(e) {}
-
-            if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+        initGunMesh: function() {
+            if (typeof Gun !== 'undefined') {
                 try {
-                    if (!firebase.apps.length) {
-                        firebase.initializeApp(config);
-                    }
-                    if (firebase.firestore) {
-                        this.db = firebase.firestore();
-                        try {
-                            this.db.enablePersistence({ synchronizeTabs: true }).catch(err => {
-                                console.log("Persistence active:", err.code);
-                            });
-                        } catch(e) {}
-
-                        this.isInitialized = true;
-                        this.attachRealtimeListeners();
-                        this.updateNetworkUI(true);
-                        console.log("✅ Base de données Cloud Firestore connectée avec succès.");
-                    }
+                    this.gun = Gun({
+                        peers: GUN_CLOUD_PEERS,
+                        localStorage: true
+                    });
+                    this.appDb = this.gun.get('myticket_prod_ndjai10_master_v2');
+                    this.attachGunListeners();
+                    this.updateNetworkUI(true);
+                    console.log("✅ Base de données Cloud GunDB connectée en temps réel.");
                 } catch (err) {
-                    console.log("Base de données Cloud active en mode résilient:", err.message);
-                    this.updateNetworkUI(navigator.onLine);
+                    console.warn("GunDB Mesh init notice:", err.message);
                 }
-            } else {
-                console.log("Moteur Cloud résilient actif.");
-                this.updateNetworkUI(navigator.onLine);
             }
         },
 
-        attachRealtimeListeners: function() {
-            if (!this.db) return;
+        initFirebase: function() {
             try {
-                // 1. Live Sync Participants & Tickets
-                this.db.collection("myticket_participants").onSnapshot((snapshot) => {
-                    if (snapshot.empty && (state.participants || []).length === 0) return;
-                    const list = [];
-                    snapshot.forEach(doc => list.push(doc.data()));
-                    if (list.length > 0) {
-                        state.participants = list;
-                        try {
-                            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
-                        } catch(e) {}
-                        this.refreshActiveViews(['reception', 'liste', 'organisation', 'dashboard', 'accueil']);
+                const customConfigStr = localStorage.getItem('myticket_cloud_db_config_v1');
+                if (customConfigStr && typeof firebase !== 'undefined') {
+                    const customConfig = JSON.parse(customConfigStr);
+                    if (!firebase.apps.length) firebase.initializeApp(customConfig);
+                    if (firebase.firestore) {
+                        this.db = firebase.firestore();
+                        this.attachFirebaseListeners();
                     }
-                    this.lastSyncTimestamp = new Date();
-                    this.updateNetworkUI(true);
-                }, (err) => {
-                    console.log("Sync notice participants:", err.message);
-                });
+                }
+            } catch(e) {}
+        },
 
-                // 2. Live Sync Finance
-                this.db.collection("myticket_finance").doc("current").onSnapshot((doc) => {
-                    if (doc.exists) {
-                        const data = doc.data();
-                        if (data) {
-                            state.finance = { ...state.finance, ...data };
-                            try {
-                                localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
-            if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncFinance(state.finance);
-                            } catch(e) {}
-                            this.refreshActiveViews(['finance', 'dashboard']);
+        attachGunListeners: function() {
+            if (!this.appDb) return;
+
+            // 1. Realtime Listen: Users Registry
+            this.appDb.get('users_data').on((dataStr) => {
+                if (!dataStr) return;
+                try {
+                    const cloudUsers = JSON.parse(dataStr);
+                    if (Array.isArray(cloudUsers)) {
+                        const localUsersStr = localStorage.getItem('myticket_users_v4') || '[]';
+                        const currentLocalUsers = JSON.parse(localUsersStr);
+                        
+                        // Merge users ensuring no data loss
+                        const mergedMap = new Map();
+                        currentLocalUsers.forEach(u => u && u.id && mergedMap.set(u.id, u));
+                        cloudUsers.forEach(u => u && u.id && mergedMap.set(u.id, u));
+                        const merged = Array.from(mergedMap.values());
+
+                        if (JSON.stringify(state.users) !== JSON.stringify(merged)) {
+                            state.users = merged;
+                            localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
+                            this.refreshUserViews();
                         }
                     }
-                }, (err) => {
-                    console.log("Sync notice finance:", err.message);
-                });
+                } catch(e) {}
+                this.lastSyncTimestamp = new Date();
+                this.updateNetworkUI(true);
+            });
 
-                // 3. Live Sync Users
-                this.db.collection("myticket_users").onSnapshot((snapshot) => {
-                    if (snapshot.empty && (state.users || []).length === 0) return;
-                    const usersList = [];
-                    snapshot.forEach(doc => usersList.push(doc.data()));
-                    if (usersList.length > 0) {
-                        state.users = usersList;
-                        try {
-                            localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.users || []).forEach(u => MyTicketCloudDB.syncUser(u));
-                        } catch(e) {}
-                        this.refreshActiveViews(['apropos', 'organisation', 'utilisateur']);
-                    }
-                }, (err) => {
-                    console.log("Sync notice users:", err.message);
-                });
+            // 2. Realtime Listen: Participants & Tickets
+            this.appDb.get('participants_data').on((dataStr) => {
+                if (!dataStr) return;
+                try {
+                    const cloudParticipants = JSON.parse(dataStr);
+                    if (Array.isArray(cloudParticipants)) {
+                        const localPartStr = localStorage.getItem('myticket_participants_v7') || '[]';
+                        const currentLocal = JSON.parse(localPartStr);
 
-                // 4. Live Sync Gallery Albums
-                this.db.collection("myticket_gallery").onSnapshot((snapshot) => {
-                    if (snapshot.empty && (state.galleryAlbums || []).length === 0) return;
-                    const albumsList = [];
-                    snapshot.forEach(doc => albumsList.push(doc.data()));
-                    if (albumsList.length > 0) {
-                        state.galleryAlbums = albumsList;
-                        try {
-                            localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
-            if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncGalleryAlbums(state.galleryAlbums);
-                        } catch(e) {}
-                        this.refreshActiveViews(['apropos']);
+                        const mergedMap = new Map();
+                        currentLocal.forEach(p => p && p.id && mergedMap.set(p.id, p));
+                        cloudParticipants.forEach(p => p && p.id && mergedMap.set(p.id, p));
+                        const merged = Array.from(mergedMap.values());
+
+                        if (JSON.stringify(state.participants) !== JSON.stringify(merged)) {
+                            state.participants = merged;
+                            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                            this.refreshParticipantViews();
+                        }
                     }
-                }, (err) => {
-                    console.log("Sync notice gallery:", err.message);
+                } catch(e) {}
+                this.lastSyncTimestamp = new Date();
+                this.updateNetworkUI(true);
+            });
+
+            // 3. Realtime Listen: Finance
+            this.appDb.get('finance_data').on((dataStr) => {
+                if (!dataStr) return;
+                try {
+                    const cloudFinance = JSON.parse(dataStr);
+                    if (cloudFinance && typeof cloudFinance === 'object' && Array.isArray(cloudFinance.committees)) {
+                        state.finance = { ...state.finance, ...cloudFinance };
+                        localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
+                        this.refreshFinanceViews();
+                    }
+                } catch(e) {}
+                this.lastSyncTimestamp = new Date();
+                this.updateNetworkUI(true);
+            });
+
+            // 4. Realtime Listen: Gallery Albums
+            this.appDb.get('gallery_data').on((dataStr) => {
+                if (!dataStr) return;
+                try {
+                    const cloudAlbums = JSON.parse(dataStr);
+                    if (Array.isArray(cloudAlbums)) {
+                        state.galleryAlbums = cloudAlbums;
+                        localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
+                        if (typeof renderGalleryAlbums === 'function') renderGalleryAlbums();
+                    }
+                } catch(e) {}
+                this.lastSyncTimestamp = new Date();
+                this.updateNetworkUI(true);
+            });
+        },
+
+        attachFirebaseListeners: function() {
+            if (!this.db) return;
+            try {
+                this.db.collection("myticket_users").onSnapshot(snap => {
+                    const list = [];
+                    snap.forEach(d => list.push(d.data()));
+                    if (list.length > 0) {
+                        state.users = list;
+                        localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
+                        this.refreshUserViews();
+                    }
                 });
-            } catch(e) {
-                console.warn("Realtime listener error:", e);
+                this.db.collection("myticket_participants").onSnapshot(snap => {
+                    const list = [];
+                    snap.forEach(d => list.push(d.data()));
+                    if (list.length > 0) {
+                        state.participants = list;
+                        localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                        this.refreshParticipantViews();
+                    }
+                });
+            } catch(e) {}
+        },
+
+        pollCloudState: function() {
+            if (!this.appDb) return;
+            try {
+                this.appDb.get('users_data').once((dataStr) => {
+                    if (dataStr) {
+                        try {
+                            const parsed = JSON.parse(dataStr);
+                            if (Array.isArray(parsed) && parsed.length > (state.users || []).length) {
+                                state.users = parsed;
+                                localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
+                                this.refreshUserViews();
+                            }
+                        } catch(e) {}
+                    }
+                });
+                this.appDb.get('participants_data').once((dataStr) => {
+                    if (dataStr) {
+                        try {
+                            const parsed = JSON.parse(dataStr);
+                            if (Array.isArray(parsed) && parsed.length > (state.participants || []).length) {
+                                state.participants = parsed;
+                                localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                                this.refreshParticipantViews();
+                            }
+                        } catch(e) {}
+                    }
+                });
+            } catch(e) {}
+        },
+
+        syncUser: function(user) {
+            if (!user) return;
+            this.broadcastLocally({ type: 'USER_SAVED', data: user });
+            if (this.appDb) {
+                try {
+                    this.appDb.get('users_data').put(JSON.stringify(state.users || []));
+                } catch(e) {}
+            }
+            if (this.db && user.id) {
+                try { this.db.collection("myticket_users").doc(user.id).set(user, { merge: true }); } catch(e) {}
+            }
+        },
+
+        syncAllUsers: function(usersList) {
+            this.broadcastLocally({ type: 'USERS_SYNCED', data: usersList });
+            if (this.appDb) {
+                try {
+                    this.appDb.get('users_data').put(JSON.stringify(usersList || []));
+                } catch(e) {}
             }
         },
 
         syncParticipant: function(participant) {
-            if (!participant || !participant.id) return;
+            if (!participant) return;
             this.broadcastLocally({ type: 'PARTICIPANT_SAVED', data: participant });
-            if (this.db) {
+            if (this.appDb) {
                 try {
-                    this.db.collection("myticket_participants").doc(participant.id).set(participant, { merge: true });
+                    this.appDb.get('participants_data').put(JSON.stringify(state.participants || []));
+                } catch(e) {}
+            }
+            if (this.db && participant.id) {
+                try { this.db.collection("myticket_participants").doc(participant.id).set(participant, { merge: true }); } catch(e) {}
+            }
+        },
+
+        syncAllParticipants: function(participantsList) {
+            this.broadcastLocally({ type: 'PARTICIPANTS_SYNCED', data: participantsList });
+            if (this.appDb) {
+                try {
+                    this.appDb.get('participants_data').put(JSON.stringify(participantsList || []));
                 } catch(e) {}
             }
         },
 
         deleteParticipant: function(participantId) {
             if (!participantId) return;
+            state.participants = (state.participants || []).filter(p => p.id !== participantId);
             this.broadcastLocally({ type: 'PARTICIPANT_DELETED', data: { id: participantId } });
-            if (this.db) {
+            if (this.appDb) {
                 try {
-                    this.db.collection("myticket_participants").doc(participantId).delete();
+                    this.appDb.get('participants_data').put(JSON.stringify(state.participants || []));
                 } catch(e) {}
+            }
+            if (this.db) {
+                try { this.db.collection("myticket_participants").doc(participantId).delete(); } catch(e) {}
             }
         },
 
         syncFinance: function(financeState) {
             if (!financeState) return;
             this.broadcastLocally({ type: 'FINANCE_SAVED', data: financeState });
-            if (this.db) {
+            if (this.appDb) {
                 try {
-                    this.db.collection("myticket_finance").doc("current").set(financeState, { merge: true });
+                    this.appDb.get('finance_data').put(JSON.stringify(financeState));
                 } catch(e) {}
+            }
+            if (this.db) {
+                try { this.db.collection("myticket_finance").doc("current").set(financeState, { merge: true }); } catch(e) {}
             }
         },
 
-        syncUser: function(user) {
-            if (!user || !user.id) return;
-            this.broadcastLocally({ type: 'USER_SAVED', data: user });
-            if (this.db) {
+        syncGalleryAlbums: function(albums) {
+            if (!albums) return;
+            this.broadcastLocally({ type: 'ALBUMS_SAVED', data: albums });
+            if (this.appDb) {
                 try {
-                    this.db.collection("myticket_users").doc(user.id).set(user, { merge: true });
+                    this.appDb.get('gallery_data').put(JSON.stringify(albums));
                 } catch(e) {}
             }
         },
 
         purgeAllUsersCloud: function() {
             this.broadcastLocally({ type: 'USERS_PURGED' });
+            if (this.appDb) {
+                try {
+                    this.appDb.get('users_data').put(JSON.stringify([]));
+                } catch(e) {}
+            }
             if (this.db) {
                 try {
-                    this.db.collection("myticket_users").get().then(snapshot => {
-                        snapshot.forEach(doc => doc.ref.delete());
-                    }).catch(()=>{});
+                    this.db.collection("myticket_users").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
                 } catch(e) {}
             }
         },
 
         purgeAllCloudData: function() {
             this.broadcastLocally({ type: 'DATABASE_PURGED' });
+            if (this.appDb) {
+                try {
+                    this.appDb.get('users_data').put(JSON.stringify([]));
+                    this.appDb.get('participants_data').put(JSON.stringify([]));
+                    this.appDb.get('finance_data').put(JSON.stringify({
+                        encaissements: [],
+                        decaissements: [],
+                        dons: [],
+                        committees: JSON.parse(JSON.stringify(OFFICIAL_COMMITTEES_FINANCE_STRUCTURE || []))
+                    }));
+                    this.appDb.get('gallery_data').put(JSON.stringify([]));
+                } catch(e) {}
+            }
             if (this.db) {
                 try {
                     this.db.collection("myticket_participants").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
@@ -4434,93 +4561,62 @@
             }
         },
 
-        syncGalleryAlbums: function(albums) {
-            if (!albums) return;
-            this.broadcastLocally({ type: 'ALBUMS_SAVED', data: albums });
-            if (this.db) {
-                try {
-                    albums.forEach(alb => {
-                        if (alb && alb.id) {
-                            this.db.collection("myticket_gallery").doc(alb.id).set(alb, { merge: true });
-                        }
-                    });
-                } catch(e) {}
-            }
-        },
-
-        deleteAlbum: function(albumId) {
-            if (!albumId) return;
-            this.broadcastLocally({ type: 'ALBUM_DELETED', data: { id: albumId } });
-            if (this.db) {
-                try {
-                    this.db.collection("myticket_gallery").doc(albumId).delete();
-                } catch(e) {}
-            }
-        },
-
         broadcastLocally: function(msg) {
             if (this.broadcastChannel) {
-                try {
-                    this.broadcastChannel.postMessage(msg);
-                } catch(e) {}
+                try { this.broadcastChannel.postMessage(msg); } catch(e) {}
             }
         },
 
         handleBroadcastMessage: function(msg) {
             if (!msg || !msg.type) return;
-            if (msg.type === 'PARTICIPANT_SAVED') {
-                const p = msg.data;
-                const idx = (state.participants || []).findIndex(item => item.id === p.id);
-                if (idx !== -1) state.participants[idx] = p;
-                else state.participants.unshift(p);
-                try { localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p)); } catch(e) {}
-                this.refreshActiveViews(['reception', 'liste', 'organisation', 'dashboard']);
-            } else if (msg.type === 'PARTICIPANT_DELETED') {
-                state.participants = (state.participants || []).filter(p => p.id !== msg.data.id);
-                try { localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p)); } catch(e) {}
-                this.refreshActiveViews(['reception', 'liste', 'organisation', 'dashboard']);
+            if (msg.type === 'USER_SAVED' || msg.type === 'USERS_SYNCED') {
+                const local = JSON.parse(localStorage.getItem('myticket_users_v4') || '[]');
+                state.users = local;
+                this.refreshUserViews();
+            } else if (msg.type === 'PARTICIPANT_SAVED' || msg.type === 'PARTICIPANTS_SYNCED' || msg.type === 'PARTICIPANT_DELETED') {
+                const local = JSON.parse(localStorage.getItem('myticket_participants_v7') || '[]');
+                state.participants = local;
+                this.refreshParticipantViews();
             } else if (msg.type === 'FINANCE_SAVED') {
-                state.finance = { ...state.finance, ...msg.data };
-                try { localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
-            if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncFinance(state.finance); } catch(e) {}
-                this.refreshActiveViews(['finance', 'dashboard']);
-            } else if (msg.type === 'USER_SAVED') {
-                const u = msg.data;
-                const idx = (state.users || []).findIndex(item => item.id === u.id);
-                if (idx !== -1) state.users[idx] = u;
-                else state.users.push(u);
-                try { localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.users || []).forEach(u => MyTicketCloudDB.syncUser(u)); } catch(e) {}
-                this.refreshActiveViews(['apropos', 'organisation', 'utilisateur']);
+                const local = JSON.parse(localStorage.getItem('myticket_finance_v14') || '{}');
+                state.finance = { ...state.finance, ...local };
+                this.refreshFinanceViews();
+            } else if (msg.type === 'ALBUMS_SAVED') {
+                const local = JSON.parse(localStorage.getItem('myticket_gallery_albums_v2') || '[]');
+                state.galleryAlbums = local;
+                if (typeof renderGalleryAlbums === 'function') renderGalleryAlbums();
             }
         },
 
-        refreshActiveViews: function(viewNames) {
-            if (typeof currentActiveView !== 'undefined' && viewNames.includes(currentActiveView)) {
-                if (currentActiveView === 'reception' && typeof renderReceptionTable === 'function') renderReceptionTable();
-                if (currentActiveView === 'liste' && typeof renderParticipantsTable === 'function') renderParticipantsTable();
-                if (currentActiveView === 'finance' && typeof renderFinanceDashboard === 'function') renderFinanceDashboard();
-                if (currentActiveView === 'organisation' && typeof renderTablePlan === 'function') {
-                    renderTablePlan();
-                    renderOrganisationLeaders();
-                }
-                if (currentActiveView === 'apropos' && typeof renderAproposCommittees === 'function') {
-                    renderAproposCommittees();
-                    renderGalleryAlbums();
-                }
-                if (currentActiveView === 'dashboard' && typeof updateDashboardStats === 'function') updateDashboardStats();
-            }
+        refreshUserViews: function() {
+            if (typeof populateLoginUserSelect === 'function') populateLoginUserSelect();
+            if (typeof populateGatewayUserSelect === 'function') populateGatewayUserSelect();
+            if (typeof updateCreateComiteDropdown === 'function') updateCreateComiteDropdown();
+            if (typeof populatePCOApproversDropdown === 'function') populatePCOApproversDropdown();
+            if (typeof renderOrganisationLeaders === 'function') renderOrganisationLeaders();
+            if (typeof renderAproposCommittees === 'function') renderAproposCommittees();
+        },
+
+        refreshParticipantViews: function() {
+            if (typeof renderReceptionTable === 'function') renderReceptionTable();
+            if (typeof renderParticipantsTable === 'function') renderParticipantsTable();
+            if (typeof renderTablePlan === 'function') renderTablePlan();
+            if (typeof updateDashboardStats === 'function') updateDashboardStats();
+        },
+
+        refreshFinanceViews: function() {
+            if (typeof renderFinanceDashboard === 'function') renderFinanceDashboard();
+            if (typeof renderFinanceConsolidation === 'function') renderFinanceConsolidation();
+            if (typeof updateDashboardStats === 'function') updateDashboardStats();
         },
 
         handleNetworkStatusChange: function(isOnline) {
             this.isOnline = isOnline;
             this.updateNetworkUI(isOnline);
             if (isOnline) {
-                showNotification("Réseau Connecté", "Connexion à la base de données Cloud rétablie.", "success");
+                showNotification("Réseau Connecté", "Synchronisation Cloud temps réel rétablie.", "success");
             } else {
-                showNotification("Mode Hors-Ligne", "Connexion internet interrompue. Mode local résilient actif.", "warning");
+                showNotification("Mode Hors-Ligne", "Réseau indisponible. Mode local persistant actif.", "warning");
             }
         },
 
@@ -4589,13 +4685,51 @@
     }
 
     function forceCloudDatabaseSync() {
-        if (MyTicketCloudDB) {
-            (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
+        if (typeof MyTicketCloudDB !== 'undefined') {
+            MyTicketCloudDB.syncAllUsers(state.users || []);
+            MyTicketCloudDB.syncAllParticipants(state.participants || []);
             MyTicketCloudDB.syncFinance(state.finance);
-            (state.users || []).forEach(u => MyTicketCloudDB.syncUser(u));
-            MyTicketCloudDB.syncGalleryAlbums(state.galleryAlbums);
-            showNotification("Synchronisation Forcée", "Toutes les collections locales ont été synchronisées avec le Cloud.", "success");
+            MyTicketCloudDB.syncGalleryAlbums(state.galleryAlbums || []);
+            MyTicketCloudDB.pollCloudState();
+            MyTicketCloudDB.lastSyncTimestamp = new Date();
+            MyTicketCloudDB.updateNetworkUI(navigator.onLine);
+            showNotification("Synchronisation Réussie !", "Toutes les données (utilisateurs, pass, finances, albums) ont été diffusées sur le Cloud.", "success");
+        } else {
+            showNotification("Mode Hors-Ligne", "Synchronisation en attente du rétablissement du réseau.", "info");
         }
+    }
+
+    function importFullDatabaseJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.participants && Array.isArray(data.participants)) {
+                    state.participants = data.participants;
+                    saveParticipantsData();
+                }
+                if (data.finance && typeof data.finance === 'object') {
+                    state.finance = data.finance;
+                    saveFinanceData();
+                }
+                if (data.users && Array.isArray(data.users)) {
+                    state.users = data.users;
+                    saveUsersData();
+                }
+                if (data.galleryAlbums && Array.isArray(data.galleryAlbums)) {
+                    state.galleryAlbums = data.galleryAlbums;
+                    saveGalleryAlbumsData();
+                }
+                showNotification("Importation Réussie !", "La base de données a été restaurée et synchronisée sur le Cloud.", "success");
+                closeCloudSyncModal();
+                switchView('accueil');
+            } catch(err) {
+                showNotification("Erreur d'importation", "Fichier JSON invalide.", "error");
+            }
+        };
+        reader.readAsText(file);
     }
 
 
@@ -4652,6 +4786,25 @@
         } catch(e) {
             state.paymentProofs = {};
         }
+    }
+
+    
+    function saveParticipantsData() {
+        try {
+            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants || []));
+            if (typeof MyTicketCloudDB !== 'undefined') {
+                MyTicketCloudDB.syncAllParticipants(state.participants || []);
+            }
+        } catch(e) {}
+    }
+
+    function saveUsersData() {
+        try {
+            localStorage.setItem('myticket_users_v4', JSON.stringify(state.users || []));
+            if (typeof MyTicketCloudDB !== 'undefined') {
+                MyTicketCloudDB.syncAllUsers(state.users || []);
+            }
+        } catch(e) {}
     }
 
     function savePaymentProofs() {
@@ -9008,8 +9161,7 @@
         }
 
         try {
-            localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.users || []).forEach(u => MyTicketCloudDB.syncUser(u));
+            saveUsersData();
             localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
         } catch (e) {}
 
@@ -12142,11 +12294,18 @@
 
             <!-- Action Buttons -->
             <div class="pt-2 space-y-2.5">
-                <button onclick="downloadFullDatabaseBackupJSON()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
-                    <i data-lucide="download" class="h-4 w-4 text-brand-orange"></i>
-                    <span>Télécharger Sauvegarde Complète (JSON)</span>
-                </button>
-                <button onclick="forceCloudDatabaseSync()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button onclick="downloadFullDatabaseBackupJSON()" class="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="download" class="h-4 w-4 text-brand-orange"></i>
+                        <span>Exporter Base (JSON)</span>
+                    </button>
+                    <label class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer text-center">
+                        <i data-lucide="upload" class="h-4 w-4 text-indigo-200"></i>
+                        <span>Importer Base (JSON)</span>
+                        <input type="file" accept=".json" onchange="importFullDatabaseJSON(event)" class="hidden">
+                    </label>
+                </div>
+                <button onclick="forceCloudDatabaseSync()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
                     <i data-lucide="refresh-cw" class="h-4 w-4"></i>
                     <span>Forcer la Synchronisation Immédiate</span>
                 </button>
