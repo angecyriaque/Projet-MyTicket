@@ -23,7 +23,7 @@ Thème : **« 10 Années d excellence au service du DIEU Vivant »**
 ### 👗 2. Dress Code & Prestige Africain
 * Présentation interactive des tenues officielles recommandées :
   * 👑 **Homme** : *Boubou Royal & Agbada d apparat*.
-  * ✨ **Femme** : *Robe de gala sculptante en dentelle perlée et étoffe wax*.
+  * ✨ **Femme** : *Parure royale, bustier de velours sombre & pagne d'apparat traditionnel*.
 
 ### 💰 3. Gestion Financière & Trésorerie
 * Suivi des soldes multi-comptes en temps réel : **Espèces**, **Wave Mobile Money**, **Orange Money**.
