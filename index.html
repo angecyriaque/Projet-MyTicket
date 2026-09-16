@@ -367,6 +367,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+
+<script>
+if (!localStorage.getItem('force_reloaded_v3')) {
+    localStorage.setItem('force_reloaded_v3', 'true');
+    window.location.reload(true);
+}
+</script>
 </head>
 <body class="min-h-screen font-sans text-slate-800 antialiased flex flex-col bg-slate-50 festive-glow">
 <div id='debug-banner' style='background: red; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 999999; position: relative;'>
