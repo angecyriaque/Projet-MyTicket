@@ -146,6 +146,12 @@
         .view-section {
             transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
         }
+        /* Garantit que les sections cachées sont totalement invisibles */
+        .view-section.hidden {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
 
         /* =========================================================
            EXPERT A4 PRINT IMPOSITION (210mm x 297mm Portrait)
@@ -421,7 +427,7 @@
         <!-- ========================================== -->
         <!-- 1. HOME / ACCUEIL VIEW                      -->
         <!-- ========================================== -->
-        <section id="view-accueil" class="view-section space-y-8">
+        <section id="view-accueil" class="view-section hidden space-y-8">
             <!-- Hero Event Banner Card (Ambiance Festive & Chaleureuse du Jubilé) -->
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
 
