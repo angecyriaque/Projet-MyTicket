@@ -381,7 +381,7 @@
 
     
     <!-- Left Logo and Brand -->
-    <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('accueil')">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="if(sessionStorage.getItem('myticket_auth_wall_passed')==='true') switchView('accueil')">
         <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 shadow-lg">
             <i data-lucide="ticket" class="h-4.5 w-4.5 text-white"></i>
         </div>
@@ -2298,13 +2298,19 @@
                     </form>
 
                     <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-center">
-                        <button onclick="switchUserSectionTab('create')" class="text-xs font-bold text-slate-600 hover:text-indigo-600 transition inline-flex items-center gap-1.5 cursor-pointer">
-                            <i data-lucide="user-plus" class="h-3.5 w-3.5"></i>
-                            <span>Créer un nouveau profil officiel</span>
-                        </button>
-                        <button onclick="deleteAllUserAccounts()" class="text-[11px] font-bold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition inline-flex items-center gap-1 cursor-pointer" title="Purge administrative de tous les comptes">
+                        <div class="flex flex-col gap-2 w-full sm:w-auto items-start">
+                            <button onclick="switchUserSectionTab('create')" class="text-xs font-bold text-slate-600 hover:text-indigo-600 transition inline-flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="user-plus" class="h-3.5 w-3.5"></i>
+                                <span>Créer un nouveau profil officiel</span>
+                            </button>
+                            <button onclick="unlockApplication()" class="text-xs font-bold text-brand-orange hover:text-orange-600 transition inline-flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="door-open" class="h-3.5 w-3.5"></i>
+                                <span>Continuer en Mode Visiteur</span>
+                            </button>
+                        </div>
+                        <button onclick="deleteAllUserAccounts()" class="text-[11px] font-bold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition inline-flex items-center gap-1 cursor-pointer shrink-0" title="Purge administrative de tous les comptes">
                             <i data-lucide="trash-2" class="h-3 w-3"></i>
-                            <span>Supprimer tous les comptes</span>
+                            <span class="hidden sm:inline">Supprimer tous les comptes</span>
                         </button>
                     </div>
                 </div>
@@ -4035,9 +4041,19 @@
         initializeUsersRegistry();
         initializeChronogramme();
         
-        // Restore existing session and active view without forcing login prompt
-        const savedView = sessionStorage.getItem('myticket_active_view') || 'accueil';
-        switchView(savedView);
+        // Force auth wall check
+        const isUnlocked = sessionStorage.getItem('myticket_auth_wall_passed') === 'true';
+        const nav = document.querySelector('nav');
+        
+        if (!isUnlocked) {
+            if (nav) nav.style.display = 'none';
+            switchView('utilisateur');
+            switchUserSectionTab('login');
+        } else {
+            if (nav) nav.style.display = '';
+            const savedView = sessionStorage.getItem('myticket_active_view') || 'accueil';
+            switchView(savedView);
+        }
         updateDashboardStats();
         renderFinanceDashboard();
         renderReceptionTable();
@@ -5176,7 +5192,19 @@
     }
 
 
+    
+    function unlockApplication() {
+        sessionStorage.setItem('myticket_auth_wall_passed', 'true');
+        const nav = document.querySelector('nav');
+        if (nav) nav.style.display = ''; 
+        switchView('accueil');
+    }
+    
     function switchView(viewName) {
+        if (sessionStorage.getItem('myticket_auth_wall_passed') !== 'true' && viewName !== 'utilisateur') {
+            viewName = 'utilisateur';
+        }
+
         // Sauvegarder la vue active
         try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) {}
 
@@ -8917,6 +8945,7 @@
         applyUserStatesUI();
         pwdInput.value = '';
         switchUserSectionTab('active');
+        unlockApplication();
         showNotification("Connexion Réussie !", `Bienvenue ${user.name}. Vous êtes connecté au compte ${selectedComite}.`, "success");
         triggerJubileeConfetti();
     }
