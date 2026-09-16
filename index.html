@@ -374,6 +374,18 @@ if (!localStorage.getItem('force_reloaded_v3')) {
     window.location.reload(true);
 }
 </script>
+
+<style id='bulletproof-hiding'>
+    body:not(.viewing-accueil) #view-accueil { 
+        display: none !important; 
+        visibility: hidden !important; 
+        opacity: 0 !important; 
+        height: 0 !important; 
+        overflow: hidden !important; 
+        position: absolute !important;
+        pointer-events: none !important;
+    }
+</style>
 </head>
 <body class="min-h-screen font-sans text-slate-800 antialiased flex flex-col bg-slate-50 festive-glow">
 <div id='debug-banner' style='background: red; color: white; padding: 10px; text-align: center; font-weight: bold; z-index: 999999; position: relative;'>
@@ -5368,6 +5380,9 @@ if (!localStorage.getItem('force_reloaded_v3')) {
         });
 
         // SHOW TARGET ONLY
+        
+        document.body.className = document.body.className.replace(/viewing-[a-z]+/g, '').trim();
+        document.body.classList.add('viewing-' + viewName);
         var target = document.getElementById('view-' + viewName);
         if (target) {
             target.style.setProperty('display', 'block', 'important');
