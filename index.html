@@ -146,10 +146,11 @@
         .view-section {
             transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
         }
-        /* Garantit que les sections cachées sont totalement invisibles */
-        .view-section.hidden {
+        /* Masquage des sections inactives — priorité absolue sur Tailwind */
+        .view-section[style*="display: none"],
+        .view-section[style*="display:none"] {
             display: none !important;
-            opacity: 0 !important;
+            visibility: hidden !important;
             pointer-events: none !important;
         }
 
@@ -427,7 +428,7 @@
         <!-- ========================================== -->
         <!-- 1. HOME / ACCUEIL VIEW                      -->
         <!-- ========================================== -->
-        <section id="view-accueil" class="view-section hidden space-y-8">
+        <section id="view-accueil" class="view-section space-y-8" style="display:none; opacity:0; transform:translateY(10px);">
             <!-- Hero Event Banner Card (Ambiance Festive & Chaleureuse du Jubilé) -->
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
 
@@ -873,7 +874,7 @@
         <!-- ========================================== -->
         <!-- 4. GESTION FINANCIÈRE & TRÉSORERIE         -->
         <!-- ========================================== -->
-        <section id="view-finance" class="view-section hidden space-y-8">
+        <section id="view-finance" class="view-section space-y-8" style="display:none; opacity:0; transform:translateY(10px);">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
@@ -1094,7 +1095,7 @@
         <!-- ========================================== -->
         <!-- 3. RÉCEPTION & ÉMARGEMENT VIEW              -->
         <!-- ========================================== -->
-        <section id="view-reception" class="view-section hidden space-y-8">
+        <section id="view-reception" class="view-section space-y-8" style="display:none; opacity:0; transform:translateY(10px);">
             <div>
                 <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
                     <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
@@ -1218,7 +1219,7 @@
                                                         <!-- ========================================== -->
         <!-- 4. TABLEAU DE BORD PRESTIGE & ILLUSTRÉ     -->
         <!-- ========================================== -->
-        <section id="view-dashboard" class="view-section hidden space-y-8">
+        <section id="view-dashboard" class="view-section space-y-8" style="display:none; opacity:0; transform:translateY(10px);">
             
             <!-- Hero Dashboard Banner with Luxury Ambient Glow & 3D Artwork -->
             <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-slate-950 via-[#0B1026] to-slate-900 text-white p-7 sm:p-10 shadow-2xl border border-slate-800/80">
@@ -1517,7 +1518,7 @@
         <!-- ========================================== -->
         <!-- 5. MON TICKET VIEW                         -->
         <!-- ========================================== -->
-        <section id="view-ticket" class="view-section hidden space-y-6">
+        <section id="view-ticket" class="view-section space-y-6" style="display:none; opacity:0; transform:translateY(10px);">
             
             <!-- Top Navigation & Title Bar -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1983,7 +1984,7 @@
         <!-- ========================================== -->
         <!-- 6. HISTORIQUE VIEW                         -->
         <!-- ========================================== -->
-        <section id="view-historique" class="view-section hidden space-y-6">
+        <section id="view-historique" class="view-section space-y-6" style="display:none; opacity:0; transform:translateY(10px);">
             <div>
                 <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
                     <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
@@ -2026,7 +2027,7 @@
         <!-- ========================================== -->
         <!-- 7. PARTICIPANTS VIEW                       -->
         <!-- ========================================== -->
-        <section id="view-liste" class="view-section hidden space-y-6">
+        <section id="view-liste" class="view-section space-y-6" style="display:none; opacity:0; transform:translateY(10px);">
             <div>
                 <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
                     <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
@@ -2081,7 +2082,7 @@
         <!-- ========================================== -->
         <!-- 8. ORGANISATION VIEW                       -->
         <!-- ========================================== -->
-        <section id="view-organisation" class="view-section hidden space-y-8">
+        <section id="view-organisation" class="view-section space-y-8" style="display:none; opacity:0; transform:translateY(10px);">
             <div>
                 <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
                     <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
@@ -2257,7 +2258,7 @@
                 <!-- ========================================== -->
         <!-- 9. PROFIL & AUTHENTIFICATION UTILISATEUR   -->
         <!-- ========================================== -->
-        <section id="view-utilisateur" class="view-section hidden space-y-8">
+        <section id="view-utilisateur" class="view-section space-y-8" style="display:none; opacity:0; transform:translateY(10px);">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
@@ -2743,7 +2744,7 @@
         <!-- ========================================== -->
         <!-- 9. À PROPOS VIEW (Accessible à tous)       -->
         <!-- ========================================== -->
-        <section id="view-apropos" class="view-section hidden space-y-8">
+        <section id="view-apropos" class="view-section space-y-8" style="display:none; opacity:0; transform:translateY(10px);">
             
             <!-- Top Hero Banner -->
             <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-7 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
@@ -5347,19 +5348,24 @@
     function switchView(viewName) {
         try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) {}
 
-        document.querySelectorAll('.view-section').forEach(section => {
-            section.classList.add('hidden');
+        // Masquer TOUTES les vues via style inline (immunisé contre Tailwind)
+        document.querySelectorAll('.view-section').forEach(function(section) {
+            section.style.display = 'none';
             section.style.opacity = '0';
             section.style.transform = 'translateY(10px)';
+            section.classList.remove('active-view');
         });
         
-        const targetSection = document.getElementById(`view-${viewName}`);
+        // Afficher uniquement la vue cible
+        var targetSection = document.getElementById('view-' + viewName);
         if (targetSection) {
-            targetSection.classList.remove('hidden');
-            setTimeout(() => {
+            targetSection.style.display = 'block';
+            targetSection.classList.add('active-view');
+            // Petite pause pour déclencher la transition CSS
+            setTimeout(function() {
                 targetSection.style.opacity = '1';
                 targetSection.style.transform = 'translateY(0)';
-            }, 50);
+            }, 20);
         }
         
         if (viewName === 'dashboard') updateDashboardStats();
@@ -5374,7 +5380,7 @@
             populateChurchFilterOptions();
         }
         
-        const mainEl = document.querySelector('main');
+        var mainEl = document.querySelector('main');
         if (mainEl) mainEl.scrollTop = 0;
         initializeLucideIcons();
     }
