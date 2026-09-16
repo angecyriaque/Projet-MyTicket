@@ -146,10 +146,13 @@
         .view-section {
             transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
         }
-        /* Masquage des sections inactives — priorité absolue sur Tailwind */
-        .view-section[style*="display: none"],
-        .view-section[style*="display:none"] {
+        /* Masquage des sections inactives — priorité absolue */
+        .view-section {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .view-section:not(.active-view) {
             display: none !important;
+            opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none !important;
         }
@@ -423,7 +426,7 @@
 
 <!-- Main Central Application Container -->
 <main class="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 pb-8">
-    <div class="max-w-7xl mx-auto space-y-8">
+    <div class="max-w-7xl mx-auto">
 
         <!-- ========================================== -->
         <!-- 1. HOME / ACCUEIL VIEW                      -->
@@ -5348,26 +5351,30 @@
     function switchView(viewName) {
         try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) {}
 
-        // Masquer TOUTES les vues via style inline (immunisé contre Tailwind)
-        document.querySelectorAll('.view-section').forEach(function(section) {
-            section.style.display = 'none';
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(10px)';
-            section.classList.remove('active-view');
-        });
-        
-        // Afficher uniquement la vue cible
+        // === MASQUAGE IMMÉDIAT ET TOTAL DE TOUTES LES VUES ===
+        // Utilise style inline direct pour bypasser Tailwind et tout CSS externe
+        var allSections = document.querySelectorAll('.view-section');
+        for (var s = 0; s < allSections.length; s++) {
+            allSections[s].style.cssText = 'display:none !important; opacity:0; visibility:hidden; pointer-events:none; position:absolute; top:-9999px;';
+            allSections[s].classList.remove('active-view');
+        }
+
+        // === AFFICHER UNIQUEMENT LA VUE CIBLE ===
         var targetSection = document.getElementById('view-' + viewName);
         if (targetSection) {
-            targetSection.style.display = 'block';
+            // Réinitialiser position et rendre visible
+            targetSection.style.cssText = 'display:block; opacity:0; visibility:visible; pointer-events:auto; position:static; top:auto; transform:translateY(8px); transition:opacity 0.2s ease, transform 0.2s ease;';
             targetSection.classList.add('active-view');
-            // Petite pause pour déclencher la transition CSS
-            setTimeout(function() {
-                targetSection.style.opacity = '1';
-                targetSection.style.transform = 'translateY(0)';
-            }, 20);
+            // Animation d'entrée
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    targetSection.style.opacity = '1';
+                    targetSection.style.transform = 'translateY(0)';
+                });
+            });
         }
-        
+
+        // === CALLBACKS PAR VUE ===
         if (viewName === 'dashboard') updateDashboardStats();
         else if (viewName === 'ticket') { startTicketCountdown(); renderChronogrammeBilletterie(); }
         else if (viewName === 'organisation') { renderTablePlan(); renderChronogrammeOrganisation(); renderOrganisationLeaders(); }
@@ -5379,7 +5386,8 @@
             renderParticipantsTable();
             populateChurchFilterOptions();
         }
-        
+
+        // Scroll to top
         var mainEl = document.querySelector('main');
         if (mainEl) mainEl.scrollTop = 0;
         initializeLucideIcons();
