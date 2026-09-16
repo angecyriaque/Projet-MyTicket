@@ -462,10 +462,10 @@
                         <button onclick="switchView('ticket')" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-orange-500 hover:opacity-95 text-white font-black text-sm shadow-xl shadow-brand-orange/40 transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 border border-amber-300/40 cursor-pointer">
                             <span class="p-1 rounded-lg bg-white/20"><i data-lucide="ticket" class="h-4 w-4"></i></span> Obtenir mon Pass
                         </button>
-                        <button onclick="switchView('finance')" class="member-only-el px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
+                        <button onclick="switchView('finance')" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
                             <span class="p-1 rounded-lg bg-white/15"><i data-lucide="wallet" class="h-4 w-4 text-amber-300"></i></span> Gestion Financière
                         </button>
-                        <button onclick="switchView('reception')" class="member-only-el px-6 py-3.5 rounded-2xl bg-emerald-600/90 hover:bg-emerald-600 text-white border border-emerald-400/40 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
+                        <button onclick="switchView('reception')" class="px-6 py-3.5 rounded-2xl bg-emerald-600/90 hover:bg-emerald-600 text-white border border-emerald-400/40 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
                             <span class="p-1 rounded-lg bg-white/20"><i data-lucide="check-square" class="h-4 w-4 text-white"></i></span> Espace Réception
                         </button>
                     </div>
@@ -634,7 +634,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     
                     <!-- NAV CARD: Tableau de Bord -->
-                    <button onclick="switchView('dashboard')" class="member-only-el group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
+                    <button onclick="switchView('dashboard')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -690,7 +690,7 @@
                     </button>
 
                     <!-- NAV CARD: Gestion Financière -->
-                    <button onclick="switchView('finance')" class="member-only-el group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-amber-500/50 bg-slate-900">
+                    <button onclick="switchView('finance')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-amber-500/50 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -718,7 +718,7 @@
                     </button>
 
                     <!-- NAV CARD: Réception & Émargement -->
-                    <button onclick="switchView('reception')" class="member-only-el group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-emerald-500/50 bg-slate-900">
+                    <button onclick="switchView('reception')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-emerald-500/50 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -746,7 +746,7 @@
                     </button>
 
                     <!-- NAV CARD: Participants -->
-                    <button onclick="switchView('liste')" class="member-only-el group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
+                    <button onclick="switchView('liste')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -5338,20 +5338,6 @@
 
     function switchView(viewName) {
         try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) {}
-        // Strict Access Control for Default Visitor Account
-        if (state.user && state.user.isVisitor) {
-            const allowedViews = ['accueil', 'ticket', 'organisation', 'utilisateur', 'apropos'];
-            if (!allowedViews.includes(viewName)) {
-                showNotification(
-                    "Accès Réservé", 
-                    `L'espace ${viewName.toUpperCase()} est réservé aux membres de comité. Connectez-vous avec votre profil pour y accéder.`, 
-                    "info"
-                );
-                switchView('utilisateur');
-                switchUserSectionTab('login');
-                return;
-            }
-        }
 
         document.querySelectorAll('.view-section').forEach(section => {
             section.classList.add('hidden');
@@ -7143,17 +7129,10 @@
                         </div>
                     </td>
                     <td class="py-3.5 px-4 text-right">
-                        ${isUnlocked ? `
-                            <button onclick="openCommitteeExpensesDetails('${c.id}')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
-                                <i data-lucide="eye" class="h-3.5 w-3.5 text-brand-orange"></i>
-                                <span>Fiche</span>
-                            </button>
-                        ` : `
-                            <button disabled class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs border border-slate-200 cursor-not-allowed opacity-60 inline-flex items-center gap-1 pointer-events-none" title="Aucun compte responsable créé">
-                                <i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i>
-                                <span>Fiche</span>
-                            </button>
-                        `}
+                        <button onclick="openCommitteeExpensesDetails('${c.id}')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1 cursor-pointer">
+                            <i data-lucide="eye" class="h-3.5 w-3.5 text-brand-orange"></i>
+                            <span>Fiche</span>
+                        </button>
                     </td>
                 </tr>
             `;
@@ -7516,27 +7495,16 @@
 
                         </div>
 
-                        <!-- Action Buttons: Active if user exists, Disabled & Greyed if no user assigned -->
+                        <!-- Action Buttons: Fully Active and Clickable -->
                         <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 mt-1">
-                            ${isUnlocked ? `
-                                <button onclick="openDisbursementForCurrentCommittee('${c.id}')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                    <i data-lucide="send" class="h-3.5 w-3.5 text-brand-orange"></i>
-                                    <span>Décaisser</span>
-                                </button>
-                                <button onclick="openCommitteeExpensesDetails('${c.id}')" class="py-2.5 px-3 rounded-xl bg-brand-orange hover:bg-orange-600 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                    <i data-lucide="list-checks" class="h-3.5 w-3.5"></i>
-                                    <span>Fiche & Lignes</span>
-                                </button>
-                            ` : `
-                                <button disabled class="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs border border-slate-200 cursor-not-allowed opacity-60 flex items-center justify-center gap-1.5 pointer-events-none" title="Compte responsable requis pour décaisser">
-                                    <i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i>
-                                    <span>Décaisser</span>
-                                </button>
-                                <button disabled class="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs border border-slate-200 cursor-not-allowed opacity-60 flex items-center justify-center gap-1.5 pointer-events-none" title="Compte responsable requis pour gérer la fiche">
-                                    <i data-lucide="lock" class="h-3.5 w-3.5 text-slate-400"></i>
-                                    <span>Fiche & Lignes</span>
-                                </button>
-                            `}
+                            <button onclick="openDisbursementForCurrentCommittee('${c.id}')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i data-lucide="send" class="h-3.5 w-3.5 text-brand-orange"></i>
+                                <span>Décaisser</span>
+                            </button>
+                            <button onclick="openCommitteeExpensesDetails('${c.id}')" class="py-2.5 px-3 rounded-xl bg-brand-orange hover:bg-orange-600 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                <i data-lucide="list-checks" class="h-3.5 w-3.5"></i>
+                                <span>Fiche & Lignes</span>
+                            </button>
                         </div>
 
                     </div>
@@ -7670,12 +7638,7 @@
         if (!committee) return;
 
         const assignedUser = (state.users || []).find(u => u.comite === committee.name);
-        if (!assignedUser) {
-            showNotification("Comité Verrouillé", `Aucun compte responsable n'a été créé pour "${committee.name}". Veuillez d'abord créer le profil du responsable dans l'onglet 'Mon Profil'.`, "warning");
-            return;
-        }
-
-        const respDisplayName = assignedUser ? assignedUser.name : 'Non assigné';
+        const respDisplayName = assignedUser ? assignedUser.name : (committee.resp || 'Comité Officiel');
 
         const decor = getCommitteeCardDecor(committee.id);
         const typeBadge = document.getElementById('comm-modal-badge-type');
@@ -7953,7 +7916,14 @@
         );
 
         if (validUsers.length === 0) {
-            select.innerHTML = '<option value="" disabled selected>⚠️ Aucun compte PCO ou Comité Financier créé</option>';
+            AUTHORIZED_PCO_FINANCE_COMMITTEES.forEach((cName, idx) => {
+                const roleLabel = getPCOFinanceRoleLabel(cName);
+                const opt = document.createElement('option');
+                opt.value = `${cName} (${roleLabel})`;
+                opt.innerText = `${cName} — ${roleLabel}`;
+                if (idx === 0) opt.selected = true;
+                select.appendChild(opt);
+            });
             return;
         }
 
@@ -8612,67 +8582,46 @@
         const user = state.user;
         const isVis = !!user.isVisitor;
 
-        // Adjust Mobile Bottom Nav Bar based on Member vs Visitor Role
+        // Mobile Bottom Nav Bar: All 6 core modules directly accessible
         const mobGrid = document.getElementById('mobile-nav-items-grid');
         if (mobGrid) {
-            const isMem = !isVis;
-            if (isMem) {
-                mobGrid.className = "grid grid-cols-5 gap-1 items-center max-w-md mx-auto text-center";
-                mobGrid.innerHTML = `
-                    <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="home" class="h-4.5 w-4.5"></i>
-                        <span class="text-[9px] mt-1 font-semibold leading-none">Accueil</span>
-                    </button>
-                    <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="ticket" class="h-4.5 w-4.5"></i>
-                        <span class="text-[9px] mt-1 font-semibold leading-none">Pass</span>
-                    </button>
-                    <button onclick="switchView('finance')" id="mob-nav-finance" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="wallet" class="h-4.5 w-4.5"></i>
-                        <span class="text-[9px] mt-1 font-semibold leading-none">Finance</span>
-                    </button>
-                    <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="calendar" class="h-4.5 w-4.5"></i>
-                        <span class="text-[9px] mt-1 font-semibold leading-none">Programme</span>
-                    </button>
-                    <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="user" class="h-4.5 w-4.5"></i>
-                        <span class="text-[9px] mt-1 font-semibold leading-none">Profil</span>
-                    </button>
-                `;
-            } else {
-                mobGrid.className = "grid grid-cols-4 gap-1 items-center max-w-md mx-auto text-center";
-                mobGrid.innerHTML = `
-                    <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-brand-orange bg-white/10 font-bold">
-                        <i data-lucide="home" class="h-5 w-5"></i>
-                        <span class="text-[10px] mt-1 font-semibold leading-none">Accueil</span>
-                    </button>
-                    <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="ticket" class="h-5 w-5"></i>
-                        <span class="text-[10px] mt-1 font-semibold leading-none">Mon Pass</span>
-                    </button>
-                    <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="calendar" class="h-5 w-5"></i>
-                        <span class="text-[10px] mt-1 font-semibold leading-none">Programme</span>
-                    </button>
-                    <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition text-slate-400 hover:text-white">
-                        <i data-lucide="log-in" class="h-5 w-5"></i>
-                        <span class="text-[10px] mt-1 font-semibold leading-none">Connexion</span>
-                    </button>
-                `;
-            }
+            mobGrid.className = "grid grid-cols-6 gap-0.5 items-center max-w-md mx-auto text-center";
+            mobGrid.innerHTML = `
+                <button onclick="switchView('accueil')" id="mob-nav-accueil" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-brand-orange bg-white/10 font-bold">
+                    <i data-lucide="home" class="h-4.5 w-4.5"></i>
+                    <span class="text-[9px] mt-0.5 font-bold leading-none">Accueil</span>
+                </button>
+                <button onclick="switchView('ticket')" id="mob-nav-ticket" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-slate-400 hover:text-white">
+                    <i data-lucide="ticket" class="h-4.5 w-4.5"></i>
+                    <span class="text-[9px] mt-0.5 font-medium leading-none">Pass</span>
+                </button>
+                <button onclick="switchView('finance')" id="mob-nav-finance" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-slate-400 hover:text-white">
+                    <i data-lucide="wallet" class="h-4.5 w-4.5 text-amber-400"></i>
+                    <span class="text-[9px] mt-0.5 font-medium leading-none">Finance</span>
+                </button>
+                <button onclick="switchView('reception')" id="mob-nav-reception" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-slate-400 hover:text-white">
+                    <i data-lucide="scan" class="h-4.5 w-4.5 text-emerald-400"></i>
+                    <span class="text-[9px] mt-0.5 font-medium leading-none">Scanner</span>
+                </button>
+                <button onclick="switchView('organisation')" id="mob-nav-organisation" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-slate-400 hover:text-white">
+                    <i data-lucide="layout-grid" class="h-4.5 w-4.5 text-purple-400"></i>
+                    <span class="text-[9px] mt-0.5 font-medium leading-none">Tables</span>
+                </button>
+                <button onclick="switchView('utilisateur')" id="mob-nav-utilisateur" class="mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-slate-400 hover:text-white">
+                    <i data-lucide="user" class="h-4.5 w-4.5 text-indigo-400"></i>
+                    <span class="text-[9px] mt-0.5 font-medium leading-none">Profil</span>
+                </button>
+            `;
             initializeLucideIcons();
         }
 
-        // Dynamic visibility enforcement: Hide non-accessible elements for visitors
+        // All features fully active and visible
         document.querySelectorAll('.member-only-el').forEach(el => {
-            if (isVis) el.classList.add('hidden');
-            else el.classList.remove('hidden');
+            el.classList.remove('hidden');
         });
 
         document.querySelectorAll('.visitor-only-el').forEach(el => {
-            if (isVis) el.classList.remove('hidden');
-            else el.classList.add('hidden');
+            el.classList.remove('hidden');
         });
 
         // 1. Update Top Header Bar
@@ -11636,15 +11585,6 @@
     function openDisbursementForCurrentCommittee(committeeId) {
         const targetId = committeeId || activeSelectedCommitteeId;
         if (!targetId) return;
-        const committee = state.finance.committees.find(c => c.id === targetId);
-        if (!committee) return;
-
-        const assignedUser = (state.users || []).find(u => u.comite === committee.name);
-        if (!assignedUser) {
-            showNotification("Comité Verrouillé", `Aucun compte responsable n'a été créé pour "${committee.name}". Les opérations financières sont bloquées tant qu'un utilisateur n'est pas assigné.`, "warning");
-            return;
-        }
-
         closeCommitteeExpensesModal();
         openDisbursementModal(targetId);
     }
@@ -11652,34 +11592,24 @@
     function openDisbursementModal(committeeId) {
         let targetId = committeeId || activeSelectedCommitteeId;
         
-        // If no target committee specified, try active logged-in user's committee or first unlocked
         if (!targetId) {
             if (state.user && !state.user.isVisitor && state.user.comite) {
                 const userComm = (state.finance.committees || []).find(c => c.name === state.user.comite);
                 if (userComm) targetId = userComm.id;
             }
-            if (!targetId) {
-                const firstUnlocked = (state.finance.committees || []).find(c => (state.users || []).some(u => u.comite === c.name));
-                if (firstUnlocked) targetId = firstUnlocked.id;
+            if (!targetId && state.finance.committees && state.finance.committees.length > 0) {
+                targetId = state.finance.committees[0].id;
             }
         }
 
-        if (!targetId) {
-            showNotification("Comité Requis", "Veuillez créer et assigner un compte responsable avant d'effectuer un décaissement.", "warning");
-            return;
-        }
+        if (!targetId) return;
 
         const committee = state.finance.committees.find(c => c.id === targetId);
         if (!committee) return;
 
-        const assignedUser = (state.users || []).find(u => u.comite === committee.name);
-        if (!assignedUser) {
-            showNotification("Comité Verrouillé", `Le comité "${committee.name}" n'a aucun responsable assigné. Veuillez d'abord créer son compte dans l'onglet 'Mon Profil'.`, "warning");
-            return;
-        }
-
         activeSelectedCommitteeId = targetId;
-        const respDisplayName = assignedUser ? assignedUser.name : 'Non assigné';
+        const assignedUser = (state.users || []).find(u => u.comite === committee.name);
+        const respDisplayName = assignedUser ? assignedUser.name : (committee.resp || 'Comité Officiel');
         const decor = getCommitteeCardDecor(committee.id);
 
         const bannerContainer = document.getElementById('disb-committee-banner');
