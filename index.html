@@ -487,13 +487,13 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </p>
                     
                     <div class="flex flex-wrap gap-3.5 sm:gap-4">
-                        <button onclick="switchView('ticket')" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-orange-500 hover:opacity-95 text-white font-black text-sm shadow-xl shadow-brand-orange/40 transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 border border-amber-300/40 cursor-pointer">
+                        <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('ticket');" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-orange-500 hover:opacity-95 text-white font-black text-sm shadow-xl shadow-brand-orange/40 transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 border border-amber-300/40 cursor-pointer">
                             <span class="p-1 rounded-lg bg-white/20"><i data-lucide="ticket" class="h-4 w-4"></i></span> Obtenir mon Pass
                         </button>
-                        <button onclick="switchView('finance')" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
+                        <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('finance');" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/25 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
                             <span class="p-1 rounded-lg bg-white/15"><i data-lucide="wallet" class="h-4 w-4 text-amber-300"></i></span> Gestion Financière
                         </button>
-                        <button onclick="switchView('reception')" class="px-6 py-3.5 rounded-2xl bg-emerald-600/90 hover:bg-emerald-600 text-white border border-emerald-400/40 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
+                        <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('reception');" class="px-6 py-3.5 rounded-2xl bg-emerald-600/90 hover:bg-emerald-600 text-white border border-emerald-400/40 backdrop-blur-md font-bold text-sm transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 cursor-pointer">
                             <span class="p-1 rounded-lg bg-white/20"><i data-lucide="check-square" class="h-4 w-4 text-white"></i></span> Espace Réception
                         </button>
                     </div>
@@ -607,7 +607,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                         <i data-lucide="info" class="h-4 w-4 text-brand-orange shrink-0"></i>
                         <span>Un tapis rouge officiel et un photocall professionnel seront installés dès 23h30 à l'entrée de Noces d'Or.</span>
                     </div>
-                    <button onclick="switchView('ticket')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-extrabold text-xs shadow-md shrink-0 flex items-center justify-center gap-1.5">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('ticket');" class="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-extrabold text-xs shadow-md shrink-0 flex items-center justify-center gap-1.5">
                         <span>Réserver mon Pass Maintenant</span>
                         <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i>
                     </button>
@@ -662,7 +662,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     
                     <!-- NAV CARD: Tableau de Bord -->
-                    <button onclick="switchView('dashboard')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('dashboard');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -690,7 +690,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </button>
 
                     <!-- NAV CARD: Mon Ticket -->
-                    <button onclick="switchView('ticket')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('ticket');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-75" style="background-image: url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -718,7 +718,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </button>
 
                     <!-- NAV CARD: Gestion Financière -->
-                    <button onclick="switchView('finance')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-amber-500/50 bg-slate-900">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('finance');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-amber-500/50 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -746,7 +746,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </button>
 
                     <!-- NAV CARD: Réception & Émargement -->
-                    <button onclick="switchView('reception')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-emerald-500/50 bg-slate-900">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('reception');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-emerald-500/50 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -774,7 +774,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </button>
 
                     <!-- NAV CARD: Participants -->
-                    <button onclick="switchView('liste')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('liste');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -802,7 +802,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </button>
 
                     <!-- NAV CARD: Organisation -->
-                    <button onclick="switchView('organisation')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('organisation');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -830,7 +830,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </button>
 
                     <!-- NAV CARD: À Propos & Galerie 10 Ans (Accessible à Tous) -->
-                    <button onclick="switchView('apropos')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-sky-500/50 bg-slate-900 cursor-pointer">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('apropos');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border-2 border-sky-500/50 bg-slate-900 cursor-pointer">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -858,7 +858,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     </button>
 
                     <!-- NAV CARD: Utilisateur / Mon Profil -->
-                    <button onclick="switchView('utilisateur')" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
+                    <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('utilisateur');" class="group relative h-60 w-full overflow-hidden rounded-3xl text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 focus:outline-none border border-slate-200/60 bg-slate-900">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-70" style="background-image: url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=800&q=80')"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-slate-900/30"></div>
                         
@@ -1485,7 +1485,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                                 <p class="text-xs text-slate-500">Plan interactif de la salle de réception (10 places / table)</p>
                             </div>
                         </div>
-                        <button onclick="switchView('organisation')" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                        <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('organisation');" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
                             <span>Plan Détaillé</span>
                             <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
                         </button>
@@ -2035,7 +2035,7 @@ if (!localStorage.getItem('force_reloaded_v3')) {
                     <h3 class="font-display font-bold text-lg text-brand-dark">Aucun historique trouvé</h3>
                     <p class="text-xs text-slate-400">Vous n'avez pas encore généré de tickets d'inscription lors de cette session.</p>
                 </div>
-                <button onclick="switchView('ticket')" class="px-5 py-2.5 bg-brand-orange text-white rounded-xl font-semibold text-xs shadow-md">
+                <button onclick="document.getElementById('view-accueil').style.setProperty('display', 'none', 'important'); switchView('ticket');" class="px-5 py-2.5 bg-brand-orange text-white rounded-xl font-semibold text-xs shadow-md">
                     Créer un pass d'accès
                 </button>
             </div>
