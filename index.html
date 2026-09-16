@@ -5345,22 +5345,22 @@
         // Sauvegarder la vue active
         try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) {}
 
-        // ─── MASQUER TOUTES LES SECTIONS ─────────────────────────────
-        // display:none simple, sans !important, sans cssText complexe
-        var sections = document.querySelectorAll('.view-section');
-        for (var i = 0; i < sections.length; i++) {
-            sections[i].style.display = 'none';
-            sections[i].style.opacity = '';
-            sections[i].removeAttribute('data-active');
-        }
+        // FORCE HIDE EVERY SINGLE VIEW SECTION EXPLICITLY
+        var viewIds = ['accueil', 'finance', 'reception', 'dashboard', 'ticket', 'historique', 'liste', 'organisation', 'utilisateur', 'apropos'];
+        viewIds.forEach(function(id) {
+            var el = document.getElementById('view-' + id);
+            if (el) {
+                el.style.setProperty('display', 'none', 'important');
+                el.style.opacity = '0';
+                el.classList.remove('active-view');
+            }
+        });
 
-        // ─── AFFICHER UNIQUEMENT LA VUE CIBLE ───────────────────────
+        // SHOW TARGET ONLY
         var target = document.getElementById('view-' + viewName);
         if (target) {
-            target.style.display = 'block';
-            target.style.opacity = '0';
-            target.setAttribute('data-active', 'true');
-            // Animation d'entrée fluide
+            target.style.setProperty('display', 'block', 'important');
+            target.classList.add('active-view');
             setTimeout(function() { target.style.opacity = '1'; }, 10);
         }
 
