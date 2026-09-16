@@ -422,7 +422,7 @@
 </header>
 
 <!-- Main Desktop & Mobile Horizontal Navigation Tabs -->
-<nav class="sticky top-16 z-40 bg-white/85 backdrop-blur-lg border-b border-slate-200/80 overflow-x-auto no-scrollbar shadow-sm transition-all">
+<nav class="hidden md:block sticky top-16 z-40 bg-white/85 backdrop-blur-lg border-b border-slate-200/80 overflow-x-auto no-scrollbar shadow-sm transition-all">
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div class="flex items-center gap-1 sm:gap-2 py-2 min-w-max" id="main-nav-tabs">
             
@@ -4044,13 +4044,16 @@
         // Force auth wall check
         const isUnlocked = sessionStorage.getItem('myticket_auth_wall_passed') === 'true';
         const nav = document.querySelector('nav');
+        const bottomNav = document.getElementById('mobile-bottom-nav');
         
         if (!isUnlocked) {
             if (nav) nav.style.display = 'none';
+            if (bottomNav) bottomNav.style.display = 'none';
             switchView('utilisateur');
             switchUserSectionTab('login');
         } else {
             if (nav) nav.style.display = '';
+            if (bottomNav) bottomNav.style.display = '';
             const savedView = sessionStorage.getItem('myticket_active_view') || 'accueil';
             switchView(savedView);
         }
@@ -5196,7 +5199,9 @@
     function unlockApplication() {
         sessionStorage.setItem('myticket_auth_wall_passed', 'true');
         const nav = document.querySelector('nav');
-        if (nav) nav.style.display = ''; 
+        const bottomNav = document.getElementById('mobile-bottom-nav');
+        if (nav) nav.style.display = '';
+        if (bottomNav) bottomNav.style.display = ''; 
         switchView('accueil');
     }
     
@@ -5223,12 +5228,29 @@
         
         
         
-        // Mettre à jour l'onglet actif
+        // Mettre à jour l'onglet actif (Desktop)
         document.querySelectorAll('.nav-tab').forEach(function(tab) {
             if (tab.getAttribute('data-target') === viewName) {
                 tab.classList.add('active-tab');
             } else {
                 tab.classList.remove('active-tab');
+            }
+        });
+        
+        // Mettre à jour l'onglet actif (Mobile)
+        document.querySelectorAll('.mobile-nav-tab').forEach(function(tab) {
+            if (tab.getAttribute('data-target') === viewName) {
+                if (tab.classList.contains('bg-slate-50')) {
+                    tab.classList.add('active-mobile-tab-card');
+                } else {
+                    tab.classList.add('active-mobile-tab');
+                }
+            } else {
+                if (tab.classList.contains('bg-slate-50')) {
+                    tab.classList.remove('active-mobile-tab-card');
+                } else {
+                    tab.classList.remove('active-mobile-tab');
+                }
             }
         });
         
@@ -12213,6 +12235,142 @@
         </div>
     </div>
 </div>
+
+
+<!-- ============================================== -->
+<!-- MOBILE BOTTOM NAVIGATION & MENU SHEET        -->
+<!-- ============================================== -->
+<nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200/80 z-40 pb-safe shadow-[0_-4px_15px_rgba(0,0,0,0.03)]">
+    <div class="flex items-center justify-around px-1 py-1.5">
+        <button onclick="switchView('accueil')" class="mobile-nav-tab flex flex-col items-center gap-1 p-2 text-slate-500 hover:text-slate-900 transition-colors" data-target="accueil">
+            <i data-lucide="home" class="h-5 w-5"></i>
+            <span class="text-[9px] font-bold tracking-tight">Accueil</span>
+        </button>
+        <button onclick="switchView('dashboard')" class="mobile-nav-tab flex flex-col items-center gap-1 p-2 text-slate-500 hover:text-slate-900 transition-colors" data-target="dashboard">
+            <i data-lucide="bar-chart-2" class="h-5 w-5"></i>
+            <span class="text-[9px] font-bold tracking-tight">Dashboard</span>
+        </button>
+        <button onclick="switchView('ticket')" class="mobile-nav-tab flex flex-col items-center gap-1 p-2 text-slate-500 hover:text-slate-900 transition-colors" data-target="ticket">
+            <div class="relative">
+                <i data-lucide="ticket" class="h-5 w-5"></i>
+                <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-orange opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-orange"></span>
+                </span>
+            </div>
+            <span class="text-[9px] font-bold tracking-tight">Pass</span>
+        </button>
+        <button onclick="switchView('finance')" class="mobile-nav-tab flex flex-col items-center gap-1 p-2 text-slate-500 hover:text-slate-900 transition-colors" data-target="finance">
+            <i data-lucide="wallet" class="h-5 w-5"></i>
+            <span class="text-[9px] font-bold tracking-tight">Finance</span>
+        </button>
+        <button onclick="toggleMobileMenu()" class="flex flex-col items-center gap-1 p-2 text-slate-500 hover:text-slate-900 transition-colors">
+            <i data-lucide="menu" class="h-5 w-5"></i>
+            <span class="text-[9px] font-bold tracking-tight">Menu</span>
+        </button>
+    </div>
+</nav>
+
+<div id="mobile-menu-overlay" class="md:hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300" onclick="toggleMobileMenu()"></div>
+<div id="mobile-menu-sheet" class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.15)] transform translate-y-full transition-transform duration-300 ease-out flex flex-col max-h-[85vh]">
+    <div class="w-full flex justify-center pt-4 pb-2 cursor-pointer shrink-0" onclick="toggleMobileMenu()">
+        <div class="w-12 h-1.5 bg-slate-200 rounded-full"></div>
+    </div>
+    <div class="p-5 pt-2 space-y-4 overflow-y-auto no-scrollbar flex-1 pb-safe">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="font-display font-black text-lg text-slate-900">Plus de modules</h3>
+            <button onclick="toggleMobileMenu()" class="h-8 w-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="switchView('reception'); toggleMobileMenu()" class="mobile-nav-tab flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition active:scale-95" data-target="reception">
+                <div class="h-10 w-10 rounded-xl bg-orange-100 text-brand-orange flex items-center justify-center shadow-sm">
+                    <i data-lucide="scan" class="h-5 w-5"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700">Réception</span>
+            </button>
+            <button onclick="switchView('liste'); toggleMobileMenu()" class="mobile-nav-tab flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition active:scale-95" data-target="liste">
+                <div class="h-10 w-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-sm">
+                    <i data-lucide="users" class="h-5 w-5"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700">Participants</span>
+            </button>
+            <button onclick="switchView('organisation'); toggleMobileMenu()" class="mobile-nav-tab flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition active:scale-95" data-target="organisation">
+                <div class="h-10 w-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shadow-sm">
+                    <i data-lucide="calendar" class="h-5 w-5"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700">Organisation</span>
+            </button>
+            <button onclick="switchView('apropos'); toggleMobileMenu()" class="mobile-nav-tab flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition active:scale-95" data-target="apropos">
+                <div class="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm">
+                    <i data-lucide="image" class="h-5 w-5"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700">À Propos</span>
+            </button>
+            <button onclick="switchView('utilisateur'); switchUserSectionTab('active'); toggleMobileMenu()" class="mobile-nav-tab col-span-2 flex items-center justify-between p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition active:scale-95 shadow-md" data-target="utilisateur">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-white/10 text-white flex items-center justify-center">
+                        <i data-lucide="user-circle" class="h-5 w-5"></i>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-xs font-bold text-white">Mon Profil Officiel</span>
+                        <span class="block text-[10px] text-slate-400">Gérer mes paramètres</span>
+                    </div>
+                </div>
+                <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.pb-safe { padding-bottom: calc(env(safe-area-inset-bottom, 1rem) + 1rem); }
+.active-mobile-tab {
+    color: #0F172A !important;
+}
+.active-mobile-tab i {
+    color: #FF5A36 !important;
+}
+.active-mobile-tab-card {
+    border-color: #cbd5e1 !important; /* border-slate-300 */
+    box-shadow: inset 0 0 0 2px #0F172A;
+}
+body {
+    /* To prevent content from hiding behind the bottom nav */
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+@media (max-width: 767px) {
+    body {
+        padding-bottom: 70px;
+    }
+}
+</style>
+
+<script>
+let mobileMenuOpen = false;
+function toggleMobileMenu() {
+    const sheet = document.getElementById('mobile-menu-sheet');
+    const overlay = document.getElementById('mobile-menu-overlay');
+    if (!sheet || !overlay) return;
+    
+    mobileMenuOpen = !mobileMenuOpen;
+    if (mobileMenuOpen) {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        overlay.classList.add('opacity-100');
+        sheet.classList.remove('translate-y-full');
+        sheet.classList.add('translate-y-0');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    } else {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        overlay.classList.remove('opacity-100');
+        sheet.classList.add('translate-y-full');
+        sheet.classList.remove('translate-y-0');
+        document.body.style.overflow = '';
+    }
+}
+</script>
 
 </body>
 </html>
