@@ -382,6 +382,41 @@
         </div>
     </div>
 
+    <!-- Central Desktop Navigation Bar (Accès Rapide à Toutes les Rubriques) -->
+    <nav id="desktop-header-nav" class="hidden lg:flex items-center gap-1 bg-slate-950/70 p-1 rounded-2xl border border-slate-800/80 shadow-inner">
+        <button onclick="switchView('accueil')" id="nav-desktop-accueil" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-brand-orange bg-white/10 shadow-xs cursor-pointer">
+            <i data-lucide="home" class="h-3.5 w-3.5"></i>
+            <span>Accueil</span>
+        </button>
+        <button onclick="switchView('ticket')" id="nav-desktop-ticket" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="ticket" class="h-3.5 w-3.5"></i>
+            <span>Pass & Billets</span>
+        </button>
+        <button onclick="switchView('finance')" id="nav-desktop-finance" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="wallet" class="h-3.5 w-3.5 text-amber-300"></i>
+            <span>Finances</span>
+        </button>
+        <button onclick="switchView('reception')" id="nav-desktop-reception" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="check-square" class="h-3.5 w-3.5 text-emerald-400"></i>
+            <span>Réception</span>
+        </button>
+        <button onclick="switchView('organisation')" id="nav-desktop-organisation" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="layout-grid" class="h-3.5 w-3.5 text-purple-300"></i>
+            <span>Plan des Tables</span>
+        </button>
+        <button onclick="switchView('liste')" id="nav-desktop-liste" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="users" class="h-3.5 w-3.5"></i>
+            <span>Participants</span>
+        </button>
+        <button onclick="switchView('apropos')" id="nav-desktop-apropos" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="info" class="h-3.5 w-3.5 text-sky-400"></i>
+            <span>À Propos</span>
+        </button>
+        <button onclick="switchView('dashboard')" id="nav-desktop-dashboard" class="header-nav-btn px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
+            <span>Tableau de Bord</span>
+        </button>
+    </nav>
 
     <!-- Right Header Actions: Status Indicator (Clignotant Vert Connecté) & User Profile -->
     <div class="flex items-center gap-2.5 sm:gap-4">
@@ -411,6 +446,47 @@
     </div>
 </header>
 
+<!-- Mobile & Tablet Responsive Sub-Navigation Strip (Visible on mobile screens) -->
+<div id="mobile-tabs-strip-container" class="lg:hidden sticky top-16 z-40 bg-[#0B132B]/95 backdrop-blur-xl border-b border-slate-800/90 px-3 py-2 overflow-x-auto no-scrollbar shadow-md">
+    <div class="flex items-center gap-1.5 min-w-max" id="mobile-subnav-items">
+        <button onclick="switchView('accueil')" id="mobstrip-accueil" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-brand-orange bg-white/10 border border-brand-orange/30 shadow-2xs cursor-pointer">
+            <i data-lucide="home" class="h-3.5 w-3.5"></i>
+            <span>Accueil</span>
+        </button>
+        <button onclick="switchView('ticket')" id="mobstrip-ticket" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="ticket" class="h-3.5 w-3.5"></i>
+            <span>Mon Pass</span>
+        </button>
+        <button onclick="switchView('finance')" id="mobstrip-finance" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="wallet" class="h-3.5 w-3.5 text-amber-300"></i>
+            <span>Finances</span>
+        </button>
+        <button onclick="switchView('reception')" id="mobstrip-reception" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="check-square" class="h-3.5 w-3.5 text-emerald-400"></i>
+            <span>Réception</span>
+        </button>
+        <button onclick="switchView('organisation')" id="mobstrip-organisation" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="layout-grid" class="h-3.5 w-3.5 text-purple-300"></i>
+            <span>Tables</span>
+        </button>
+        <button onclick="switchView('liste')" id="mobstrip-liste" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="users" class="h-3.5 w-3.5"></i>
+            <span>Participants</span>
+        </button>
+        <button onclick="switchView('dashboard')" id="mobstrip-dashboard" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="pie-chart" class="h-3.5 w-3.5"></i>
+            <span>Stats</span>
+        </button>
+        <button onclick="switchView('apropos')" id="mobstrip-apropos" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="info" class="h-3.5 w-3.5 text-sky-400"></i>
+            <span>À Propos</span>
+        </button>
+        <button onclick="switchView('utilisateur')" id="mobstrip-utilisateur" class="mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer">
+            <i data-lucide="user" class="h-3.5 w-3.5"></i>
+            <span>Profil</span>
+        </button>
+    </div>
+</div>
 
 <!-- Main Central Application Container -->
 <main class="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 pb-28 md:pb-8">
@@ -5355,37 +5431,46 @@
         }
 
         // =========================================================
-        // 1. UPDATE DESKTOP HEADER NAVIGATION TABS (ULTRA-CLEAR ACTIVE STATE)
+        // 1. UPDATE DESKTOP HEADER NAVIGATION TABS (ACTIVE STATE)
         // =========================================================
         const desktopNavList = ['accueil', 'ticket', 'finance', 'reception', 'organisation', 'liste', 'apropos', 'dashboard'];
         desktopNavList.forEach(v => {
             const btn = document.getElementById(`nav-desktop-${v}`);
             if (btn) {
-                const isMemberOnly = btn.classList.contains('member-only-el');
-                const memberPrefix = isMemberOnly ? 'member-only-el ' : '';
                 if (v === viewName) {
-                    // Active Selected Tab: Radiant Gradient Pill, Pure White Font, Bold Ring & Shadow
-                    btn.className = `${memberPrefix}header-nav-btn px-4 py-1.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF5A36] via-[#FF6F43] to-amber-500 shadow-lg shadow-orange-500/35 ring-2 ring-white/30 transition-all duration-200 flex items-center gap-1.5 cursor-pointer transform scale-105`;
+                    btn.className = `header-nav-btn px-4 py-1.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF5A36] via-[#FF6F43] to-amber-500 shadow-lg shadow-orange-500/35 ring-2 ring-white/30 transition-all duration-200 flex items-center gap-1.5 cursor-pointer transform scale-105`;
                 } else {
-                    // Inactive Tab: Soft Muted Slate, Smooth Hover
-                    btn.className = `${memberPrefix}header-nav-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 flex items-center gap-1.5 cursor-pointer transform scale-100`;
+                    btn.className = `header-nav-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 flex items-center gap-1.5 cursor-pointer transform scale-100`;
                 }
             }
         });
 
         // =========================================================
-        // 2. UPDATE MOBILE BOTTOM NAVIGATION BAR (ULTRA-CLEAR ACTIVE STATE)
+        // 2. UPDATE MOBILE HORIZONTAL SUB-NAV STRIP (ACTIVE STATE)
         // =========================================================
-        const mobNavList = ['accueil', 'ticket', 'reception', 'organisation', 'apropos', 'utilisateur'];
+        const mobStripList = ['accueil', 'ticket', 'finance', 'reception', 'organisation', 'liste', 'dashboard', 'apropos', 'utilisateur'];
+        mobStripList.forEach(v => {
+            const btn = document.getElementById(`mobstrip-${v}`);
+            if (btn) {
+                if (v === viewName) {
+                    btn.className = `mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-white bg-gradient-to-r from-[#FF5A36] to-amber-500 shadow-md shadow-orange-500/25 ring-1 ring-white/30 cursor-pointer`;
+                } else {
+                    btn.className = `mobstrip-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 text-slate-300 bg-slate-800/80 border border-slate-700/60 hover:text-white cursor-pointer`;
+                }
+            }
+        });
+
+        // =========================================================
+        // 3. UPDATE MOBILE BOTTOM NAVIGATION BAR (ACTIVE STATE)
+        // =========================================================
+        const mobNavList = ['accueil', 'ticket', 'finance', 'reception', 'organisation', 'utilisateur'];
         mobNavList.forEach(v => {
             const btn = document.getElementById(`mob-nav-${v}`);
             if (btn) {
-                const isMemberOnly = btn.classList.contains('member-only-el');
-                const memberPrefix = isMemberOnly ? 'member-only-el ' : '';
                 if (v === viewName) {
-                    btn.className = `${memberPrefix}mob-nav-btn group flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 text-white bg-gradient-to-r from-[#FF5A36] to-amber-500 font-black shadow-md shadow-orange-500/30 ring-1 ring-white/30 transform scale-105`;
+                    btn.className = `mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-white bg-gradient-to-r from-[#FF5A36] to-amber-500 font-bold shadow-md shadow-orange-500/25 ring-1 ring-white/30`;
                 } else {
-                    btn.className = `${memberPrefix}mob-nav-btn group flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all duration-200 text-slate-400 hover:text-white transform scale-100`;
+                    btn.className = `mob-nav-btn group flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition text-slate-400 hover:text-white`;
                 }
             }
         });
