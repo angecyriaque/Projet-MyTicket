@@ -371,6 +371,105 @@
 
 
 
+
+    <!-- Mobile App Redesign CSS -->
+    <style id="mobile-app-redesign">
+    @media (max-width: 767px) {
+        /* Finance Tables to Cards */
+        #finance-decaissements-table,
+        #finance-dons-table,
+        #finance-consolidation-table {
+            display: block !important;
+            width: 100% !important;
+        }
+        #view-finance table thead {
+            display: none !important;
+        }
+        #view-finance table, #view-finance tbody {
+            display: block !important;
+            width: 100% !important;
+        }
+        #view-finance tr {
+            display: flex !important;
+            flex-direction: column !important;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        #view-finance td {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 0.75rem 0.5rem !important;
+            border-bottom: 1px solid #f8fafc !important;
+            text-align: right !important;
+            font-size: 0.75rem !important;
+        }
+        #view-finance td:last-child {
+            border-bottom: none !important;
+            justify-content: flex-end !important;
+            gap: 0.5rem;
+        }
+        #view-finance td::before {
+            font-weight: 800;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            text-align: left;
+            margin-right: 1rem;
+        }
+        /* No Data Row fallback */
+        #view-finance tr:has(td[colspan]) {
+            border: 1px dashed #cbd5e1 !important;
+            background: #f8fafc !important;
+            box-shadow: none !important;
+            padding: 2rem 1rem !important;
+            align-items: center;
+        }
+        #view-finance tr:has(td[colspan]) td {
+            justify-content: center !important;
+            border: none !important;
+        }
+        #view-finance tr:has(td[colspan]) td::before { content: none !important; }
+
+        /* Labels injection via CSS */
+        /* Decaissements */
+        #finance-decaissements-table td:nth-child(1)::before { content: "Réf / Date"; }
+        #finance-decaissements-table td:nth-child(2)::before { content: "Comité"; }
+        #finance-decaissements-table td:nth-child(3)::before { content: "Ligne de Dépense"; }
+        #finance-decaissements-table td:nth-child(4)::before { content: "Montant"; }
+        #finance-decaissements-table td:nth-child(5)::before { content: "Mode"; }
+        #finance-decaissements-table td:nth-child(6)::before { content: "Statut"; }
+        #finance-decaissements-table td:nth-child(7)::before { content: "Validation"; }
+
+        /* Dons */
+        #finance-dons-table td:nth-child(1)::before { content: "Date"; }
+        #finance-dons-table td:nth-child(2)::before { content: "Donateur / Sponsor"; }
+        #finance-dons-table td:nth-child(3)::before { content: "Type"; }
+        #finance-dons-table td:nth-child(4)::before { content: "Montant"; }
+        #finance-dons-table td:nth-child(5)::before { content: "Compte Cible"; }
+        #finance-dons-table td:nth-child(6)::before { content: "Enregistré par"; }
+        #finance-dons-table td:nth-child(7)::before { content: "Actions"; }
+
+        /* Consolidation */
+        #finance-consolidation-table td:nth-child(1)::before { content: "Comité"; }
+        #finance-consolidation-table td:nth-child(2)::before { content: "Rubriques"; }
+        #finance-consolidation-table td:nth-child(3)::before { content: "Budget Affecté"; }
+        #finance-consolidation-table td:nth-child(4)::before { content: "Dépenses"; }
+        #finance-consolidation-table td:nth-child(5)::before { content: "Solde Dispo"; }
+        #finance-consolidation-table td:nth-child(6)::before { content: "Taux Exécution"; }
+        #finance-consolidation-table td:nth-child(7)::before { content: "Action"; }
+
+        /* Inputs sizing */
+        input[type="text"], input[type="number"], input[type="tel"], select {
+            font-size: 16px !important; /* Prevents iOS Safari Zoom */
+        }
+    }
+    </style>
 </head>
 <body class="min-h-screen font-sans text-slate-800 antialiased flex flex-col bg-slate-50 festive-glow">
 
@@ -522,7 +621,7 @@
                         </span>
                     </div>
 
-                    <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight text-white pt-2">
+                    <h1 class="font-display text-2xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight text-white pt-2">
                         <strong class="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FF5A36] to-[#FF8C00] font-black drop-shadow-sm">Nuit de JACOB à Israël</strong>
                     </h1>
                     
@@ -535,11 +634,11 @@
                         </span>
                     </p>
                     
-                    <p class="text-slate-200 text-sm sm:text-base mb-8 leading-relaxed font-normal">
+                    <p class="text-slate-200 text-sm sm:text-base mb-8 leading-relaxed font-normal hidden sm:block">
                         Rejoignez la jeunesse de l'EMCI Horeb des Toits Rouges pour la grande célébration des 10 ans. Une nuit prophétique d'adoration, de louange et de bénédictions. Thème : <strong class="text-amber-300 font-extrabold">« 10 Années d'excellence au service du DIEU Vivant »</strong>.
                     </p>
                     
-                    <div class="flex flex-wrap gap-3.5 sm:gap-4">
+                    <div class="flex flex-col sm:flex-row flex-wrap gap-3.5 sm:gap-4">
                         <button onclick="switchView('ticket')" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-orange-500 hover:opacity-95 text-white font-black text-sm shadow-xl shadow-brand-orange/40 transition duration-300 flex items-center gap-2.5 transform hover:-translate-y-0.5 border border-amber-300/40 cursor-pointer">
                             <span class="p-1 rounded-lg bg-white/20"><i data-lucide="ticket" class="h-4 w-4"></i></span> Obtenir mon Pass
                         </button>
@@ -1891,7 +1990,9 @@
             </div>
 
             <!-- Participants Table -->
-            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <!-- Mobile Cards View for Smartphones (< 640px) -->
+            <div id="participants-mobile-cards" class="block sm:hidden space-y-3 mb-4"></div>
+            <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden hidden sm:block">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200">
