@@ -4149,6 +4149,10 @@
             if(!sessionStorage.getItem('myticket_active_view')) {
                 sessionStorage.setItem('myticket_active_view', 'accueil');
             }
+            // Forcer le compte visiteur au démarrage
+            localStorage.removeItem('myticket_active_user_v4');
+            state.user = { ...DEFAULT_VISITOR_USER };
+            applyUserStatesUI();
             isUnlocked = true;
         }
 
