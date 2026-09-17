@@ -11431,7 +11431,7 @@
                     if (guest) {
                         const tooltipText = `Siège ${String(seat).padStart(2, '0')} : ${guest.prenom} ${guest.nom} (${guest.eglise || 'EMCI Horeb'}) • #${guest.id} [${guest.checkedIn ? 'Émargé' : 'En attente'}]`;
                         seatChips += `
-                            <div title="${tooltipText}" class="group relative flex flex-col items-center justify-center h-9 sm:h-8 rounded-xl ${activeSeatBg} cursor-pointer transition transform hover:scale-105 border ${guest.checkedIn ? 'border-emerald-300 ring-2 ring-emerald-400/60' : 'border-white/30'}">
+                                                        <div title="${tooltipText}" class="group relative flex flex-col items-center justify-center h-8 sm:h-7 rounded-full ${activeSeatBg} cursor-pointer transition transform hover:scale-105 border ${guest.checkedIn ? 'border-emerald-300 ring-2 ring-emerald-400/60' : 'border-white/20 shadow-inner'}">
                                 <span class="text-[11px] sm:text-[10px] font-mono font-bold leading-none">S${String(seat).padStart(2, '0')}</span>
                                 ${guest.checkedIn ? '<span class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white shadow-xs"></span>' : ''}
                             </div>
@@ -11439,7 +11439,7 @@
                     } else {
                         const tooltipText = `Siège ${String(seat).padStart(2, '0')} : Place Libre`;
                         seatChips += `
-                            <div title="${tooltipText}" class="flex items-center justify-center h-9 sm:h-8 rounded-xl bg-slate-100 text-slate-400 text-[11px] sm:text-[10px] font-mono border border-dashed border-slate-300 cursor-default">
+                                                        <div title="${tooltipText}" class="flex items-center justify-center h-8 sm:h-7 rounded-full bg-slate-50 text-slate-300 text-[10px] font-mono border border-dashed border-slate-200 cursor-default">
                                 S${String(seat).padStart(2, '0')}
                             </div>
                         `;
@@ -11485,7 +11485,7 @@
                 const occupancyPct = Math.round((occupiedCount / 10) * 100);
 
                 container.innerHTML += `
-                    <div class="bg-white p-4 sm:p-5 rounded-3xl border ${catBorder} shadow-sm hover:shadow-md transition space-y-3.5">
+                    <div class="bg-white p-3 sm:p-4 rounded-[20px] border ${catBorder} shadow-sm hover:shadow-md transition space-y-2.5">
                         <div class="flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
                             <div>
                                 <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Catégorie ${cat}</span>
@@ -11515,8 +11515,16 @@
                             </div>
                         </div>
 
-                        <!-- Seated Attendees List -->
-                        ${guestsListHtml}
+                        <!-- Accordion Button for Mobile UI -->
+                        <button type="button" onclick="toggleTableDetails('${cat}-${tableNum}')" class="w-full mt-1 py-2 flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-xl transition border border-slate-100">
+                            <span>Voir les détails des places</span>
+                            <i id="table-icon-${cat}-${tableNum}" data-lucide="chevron-down" class="h-3 w-3"></i>
+                        </button>
+
+                        <!-- Hidden Seated Attendees List (Accordion Content) -->
+                        <div id="table-details-${cat}-${tableNum}" class="hidden pt-1">
+                            ${guestsListHtml}
+                        </div>
                     </div>
                 `;
             }
