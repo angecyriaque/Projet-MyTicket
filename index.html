@@ -7469,13 +7469,13 @@
 
                         </div>
 
-                        <!-- Action Buttons: Fully Active and Clickable -->
+                        <!-- Action Buttons: Disabled if no user is assigned -->
                         <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 mt-1">
-                            <button onclick="openDisbursementForCurrentCommittee('${c.id}')" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                <i data-lucide="send" class="h-3.5 w-3.5 text-brand-orange"></i>
+                            <button ${!isUnlocked ? 'disabled' : `onclick="openDisbursementForCurrentCommittee('${c.id}')"`} class="py-2.5 px-3 rounded-xl ${!isUnlocked ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800 text-white shadow-sm cursor-pointer'} font-bold text-xs transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="send" class="h-3.5 w-3.5 ${!isUnlocked ? 'text-slate-400' : 'text-brand-orange'}"></i>
                                 <span>Décaisser</span>
                             </button>
-                            <button onclick="openCommitteeExpensesDetails('${c.id}')" class="py-2.5 px-3 rounded-xl bg-brand-orange hover:bg-orange-600 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <button ${!isUnlocked ? 'disabled' : `onclick="openCommitteeExpensesDetails('${c.id}')"`} class="py-2.5 px-3 rounded-xl ${!isUnlocked ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200' : 'bg-brand-orange hover:bg-orange-600 text-white shadow-sm cursor-pointer'} font-bold text-xs transition flex items-center justify-center gap-1.5">
                                 <i data-lucide="list-checks" class="h-3.5 w-3.5"></i>
                                 <span>Fiche & Lignes</span>
                             </button>
