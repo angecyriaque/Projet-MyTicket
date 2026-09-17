@@ -5312,6 +5312,22 @@
             viewName = 'utilisateur';
         }
 
+        // --- ENFORCE RBAC SECURITY ON ROUTING ---
+        const user = state.user || { isVisitor: true };
+        const pcoRoles = ["Coordination Stratégique", "Coordination Opérationnelle"];
+        const modulePermissions = {
+            'accueil': null, 'ticket': null, 'apropos': null, 'utilisateur': null, 'organisation': null,
+            'dashboard': pcoRoles,
+            'finance': ['MEMBER'],
+            'reception': [...pcoRoles, "Comité Accueil & Sécurité"],
+            'liste': [...pcoRoles, "Comité Administratif", "Comité Accueil & Sécurité", "Comité Financier"]
+        };
+        const req = modulePermissions[viewName];
+        if (req) {
+            if (user.isVisitor) viewName = 'accueil';
+            else if (!req.includes('MEMBER') && !req.includes(user.comite)) viewName = 'accueil';
+        }
+
         // Sauvegarder la vue active
         try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) {}
 
@@ -8559,13 +8575,46 @@
 
         // Mobile bottom nav bar disabled (Navigation strictly via Accueil hub)
 
-        // All features fully active and visible
-        document.querySelectorAll('.member-only-el').forEach(el => {
-            el.classList.remove('hidden');
-        });
+        // --- RBAC: Hide/Show Elements based on Visitor Status ---
+        if (isVis) {
+            document.querySelectorAll('.member-only-el').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.visitor-only-el').forEach(el => el.classList.remove('hidden'));
+        } else {
+            document.querySelectorAll('.member-only-el').forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('.visitor-only-el').forEach(el => el.classList.add('hidden'));
+        }
 
-        document.querySelectorAll('.visitor-only-el').forEach(el => {
-            el.classList.remove('hidden');
+        // --- RBAC: Navigation Tabs Module Permissions ---
+        const pcoRoles = ["Coordination Stratégique", "Coordination Opérationnelle"];
+        const modulePermissions = {
+            'accueil': null,
+            'ticket': null,
+            'apropos': null,
+            'utilisateur': null,
+            'organisation': null, // Public
+            'dashboard': pcoRoles,
+            'finance': ['MEMBER'], // All committees
+            'reception': [...pcoRoles, "Comité Accueil & Sécurité"],
+            'liste': [...pcoRoles, "Comité Administratif", "Comité Accueil & Sécurité", "Comité Financier"]
+        };
+
+        const hasAccessToModule = (viewName) => {
+            const req = modulePermissions[viewName];
+            if (!req) return true; // public
+            if (isVis) return false;
+            if (req.includes('MEMBER')) return true;
+            return req.includes(user.comite);
+        };
+
+        document.querySelectorAll('.nav-tab, .mobile-nav-tab').forEach(tab => {
+            const target = tab.getAttribute('data-target');
+            if (target) {
+                if (hasAccessToModule(target)) {
+                    tab.style.display = '';
+                } else {
+                    tab.style.display = 'none';
+                }
+            }
         });
 
         // 1. Update Top Header Bar
