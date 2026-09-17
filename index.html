@@ -4142,22 +4142,23 @@
         initializeUsersRegistry();
         initializeChronogramme();
         
-        // Force auth wall check
-        const isUnlocked = sessionStorage.getItem('myticket_auth_wall_passed') === 'true';
+        // Configuration par défaut: Accès Visiteur + Page Billetterie (Pass)
+        let isUnlocked = sessionStorage.getItem('myticket_auth_wall_passed') === 'true';
+        if (!isUnlocked) {
+            sessionStorage.setItem('myticket_auth_wall_passed', 'true');
+            if(!sessionStorage.getItem('myticket_active_view')) {
+                sessionStorage.setItem('myticket_active_view', 'ticket');
+            }
+            isUnlocked = true;
+        }
+
         const nav = document.querySelector('nav');
         const bottomNav = document.getElementById('mobile-bottom-nav');
         
-        if (!isUnlocked) {
-            if (nav) nav.style.display = 'none';
-            if (bottomNav) bottomNav.style.display = 'none';
-            switchView('utilisateur');
-            switchUserSectionTab('login');
-        } else {
-            if (nav) nav.style.display = '';
-            if (bottomNav) bottomNav.style.display = '';
-            const savedView = sessionStorage.getItem('myticket_active_view') || 'accueil';
-            switchView(savedView);
-        }
+        if (nav) nav.style.display = '';
+        if (bottomNav) bottomNav.style.display = '';
+        const savedView = sessionStorage.getItem('myticket_active_view') || 'ticket';
+        switchView(savedView);
         updateDashboardStats();
         renderFinanceDashboard();
         renderReceptionTable();
