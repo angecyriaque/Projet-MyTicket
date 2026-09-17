@@ -4142,12 +4142,12 @@
         initializeUsersRegistry();
         initializeChronogramme();
         
-        // Configuration par défaut: Accès Visiteur + Page Billetterie (Pass)
+        // Configuration par défaut: Accès Visiteur + Page Accueil
         let isUnlocked = sessionStorage.getItem('myticket_auth_wall_passed') === 'true';
         if (!isUnlocked) {
             sessionStorage.setItem('myticket_auth_wall_passed', 'true');
             if(!sessionStorage.getItem('myticket_active_view')) {
-                sessionStorage.setItem('myticket_active_view', 'ticket');
+                sessionStorage.setItem('myticket_active_view', 'accueil');
             }
             isUnlocked = true;
         }
@@ -4157,7 +4157,7 @@
         
         if (nav) nav.style.display = '';
         if (bottomNav) bottomNav.style.display = '';
-        const savedView = sessionStorage.getItem('myticket_active_view') || 'ticket';
+        const savedView = sessionStorage.getItem('myticket_active_view') || 'accueil';
         switchView(savedView);
         updateDashboardStats();
         renderFinanceDashboard();
