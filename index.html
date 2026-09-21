@@ -7610,7 +7610,7 @@
         let totalBudget = 0;
         let totalSpent = 0;
 
-        if (committee.lignesBudget && committee.lignesBudget.length > 0) {
+        if (Array.isArray(committee.lignesBudget)) {
             committee.lignesBudget.forEach(line => {
                 const qte = line.quantite || 1;
                 const pu = line.prixUnitaire || line.montant || 0;
