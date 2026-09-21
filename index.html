@@ -4258,7 +4258,14 @@
 
         initFirebase: function() {
             try {
-                const customConfigStr = localStorage.getItem('myticket_cloud_db_config_v1');
+                const customConfigStr = JSON.stringify({
+                    apiKey: "AIzaSyBDzm0IzyvQN9gxheKeUgqRbgvt8qcjWTs",
+                    authDomain: "myticket-cdd9e.firebaseapp.com",
+                    projectId: "myticket-cdd9e",
+                    storageBucket: "myticket-cdd9e.firebasestorage.app",
+                    messagingSenderId: "322361047630",
+                    appId: "1:322361047630:web:475bad7a67c0ff9687611f"
+                });
                 if (customConfigStr && typeof firebase !== 'undefined') {
                     const customConfig = JSON.parse(customConfigStr);
                     if (!firebase.apps.length) firebase.initializeApp(customConfig);
