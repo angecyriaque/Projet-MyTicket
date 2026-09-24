@@ -4219,10 +4219,10 @@
                         this.handleBroadcastMessage(event.data);
                     };
                 }
-            } catch(e) { console.error("Erreur Sync:", e); }
+            } catch(e){console.error(e);}
 
             // 2. Initialize GunDB Cloud Realtime Mesh
-            // this.initGunMesh(); // Désactivé (Conflit avec Firebase)
+            this.initGunMesh();
 
             // 3. Optional Firebase Firestore fallback
             this.initFirebase();
@@ -4239,7 +4239,7 @@
             this.updateNetworkUI(navigator.onLine);
         },
 
-        initGunMesh: function() {
+        initGunMesh: function() { return;
             if (typeof Gun !== 'undefined') {
                 try {
                     this.gun = Gun({
@@ -4274,14 +4274,14 @@
                         this.attachFirebaseListeners();
                     }
                 }
-            } catch(e) { console.error("Erreur Sync:", e); }
+            } catch(e){console.error(e);}
         },
 
-        attachGunListeners: function() {
+        attachGunListeners: function() { return;
             if (!this.appDb) return;
 
             // 1. Realtime Listen: Users Registry
-            // this.appDb.get('users_data').on((dataStr) => {
+            this.appDb.get('users_data').on((dataStr) => {
                 if (!dataStr) return;
                 try {
                     const cloudUsers = JSON.parse(dataStr);
@@ -4301,13 +4301,13 @@
                             this.refreshUserViews();
                         }
                     }
-                } catch(e) { console.error("Erreur Sync:", e); }
+                } catch(e){console.error(e);}
                 this.lastSyncTimestamp = new Date();
                 this.updateNetworkUI(true);
             });
 
             // 2. Realtime Listen: Participants & Tickets
-            // this.appDb.get('participants_data').on((dataStr) => {
+            this.appDb.get('participants_data').on((dataStr) => {
                 if (!dataStr) return;
                 try {
                     const cloudParticipants = JSON.parse(dataStr);
@@ -4326,13 +4326,13 @@
                             this.refreshParticipantViews();
                         }
                     }
-                } catch(e) { console.error("Erreur Sync:", e); }
+                } catch(e){console.error(e);}
                 this.lastSyncTimestamp = new Date();
                 this.updateNetworkUI(true);
             });
 
             // 3. Realtime Listen: Finance
-            // this.appDb.get('finance_data').on((dataStr) => {
+            this.appDb.get('finance_data').on((dataStr) => {
                 if (!dataStr) return;
                 try {
                     const cloudFinance = JSON.parse(dataStr);
@@ -4341,13 +4341,13 @@
                         localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
                         this.refreshFinanceViews();
                     }
-                } catch(e) { console.error("Erreur Sync:", e); }
+                } catch(e){console.error(e);}
                 this.lastSyncTimestamp = new Date();
                 this.updateNetworkUI(true);
             });
 
             // 4. Realtime Listen: Gallery Albums
-            // this.appDb.get('gallery_data').on((dataStr) => {
+            this.appDb.get('gallery_data').on((dataStr) => {
                 if (!dataStr) return;
                 try {
                     const cloudAlbums = JSON.parse(dataStr);
@@ -4356,7 +4356,7 @@
                         localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
                         if (typeof renderGalleryAlbums === 'function') renderGalleryAlbums();
                     }
-                } catch(e) { console.error("Erreur Sync:", e); }
+                } catch(e){console.error(e);}
                 this.lastSyncTimestamp = new Date();
                 this.updateNetworkUI(true);
             });
@@ -4383,13 +4383,13 @@
                         this.refreshParticipantViews();
                     }
                 });
-            } catch(e) { console.error("Erreur Sync:", e); }
+            } catch(e){console.error(e);}
         },
 
         pollCloudState: function() {
             if (!this.appDb) return;
             try {
-                // this.appDb.get('users_data').once((dataStr) => {
+                this.appDb.get('users_data').once((dataStr) => {
                     if (dataStr) {
                         try {
                             const parsed = JSON.parse(dataStr);
@@ -4398,10 +4398,10 @@
                                 localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
                                 this.refreshUserViews();
                             }
-                        } catch(e) { console.error("Erreur Sync:", e); }
+                        } catch(e){console.error(e);}
                     }
                 });
-                // this.appDb.get('participants_data').once((dataStr) => {
+                this.appDb.get('participants_data').once((dataStr) => {
                     if (dataStr) {
                         try {
                             const parsed = JSON.parse(dataStr);
@@ -4410,10 +4410,10 @@
                                 localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
                                 this.refreshParticipantViews();
                             }
-                        } catch(e) { console.error("Erreur Sync:", e); }
+                        } catch(e){console.error(e);}
                     }
                 });
-            } catch(e) { console.error("Erreur Sync:", e); }
+            } catch(e){console.error(e);}
         },
 
         syncUser: function(user) {
@@ -4421,11 +4421,11 @@
             this.broadcastLocally({ type: 'USER_SAVED', data: user });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('users_data').put(JSON.stringify(state.users || [])); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('users_data').put(JSON.stringify(state.users || []));
+                } catch(e){console.error(e);}
             }
             if (this.db && user.id) {
-                try { this.db.collection("myticket_users").doc(user.id).set(user, { merge: true }); } catch(e) { console.error("Erreur Sync:", e); }
+                try { this.db.collection("myticket_users").doc(user.id).set(user, { merge: true }); } catch(e){console.error(e);}
             }
         },
 
@@ -4433,8 +4433,8 @@
             this.broadcastLocally({ type: 'USERS_SYNCED', data: usersList });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('users_data').put(JSON.stringify(usersList || [])); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('users_data').put(JSON.stringify(usersList || []));
+                } catch(e){console.error(e);}
             }
         },
 
@@ -4443,11 +4443,11 @@
             this.broadcastLocally({ type: 'PARTICIPANT_SAVED', data: participant });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('participants_data').put(JSON.stringify(state.participants || [])); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('participants_data').put(JSON.stringify(state.participants || []));
+                } catch(e){console.error(e);}
             }
             if (this.db && participant.id) {
-                try { this.db.collection("myticket_participants").doc(participant.id).set(participant, { merge: true }); } catch(e) { console.error("Erreur Sync:", e); }
+                try { this.db.collection("myticket_participants").doc(participant.id).set(participant, { merge: true }); } catch(e){console.error(e);}
             }
         },
 
@@ -4455,8 +4455,8 @@
             this.broadcastLocally({ type: 'PARTICIPANTS_SYNCED', data: participantsList });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('participants_data').put(JSON.stringify(participantsList || [])); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('participants_data').put(JSON.stringify(participantsList || []));
+                } catch(e){console.error(e);}
             }
         },
 
@@ -4466,11 +4466,11 @@
             this.broadcastLocally({ type: 'PARTICIPANT_DELETED', data: { id: participantId } });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('participants_data').put(JSON.stringify(state.participants || [])); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('participants_data').put(JSON.stringify(state.participants || []));
+                } catch(e){console.error(e);}
             }
             if (this.db) {
-                try { this.db.collection("myticket_participants").doc(participantId).delete(); } catch(e) { console.error("Erreur Sync:", e); }
+                try { this.db.collection("myticket_participants").doc(participantId).delete(); } catch(e){console.error(e);}
             }
         },
 
@@ -4479,11 +4479,11 @@
             this.broadcastLocally({ type: 'FINANCE_SAVED', data: financeState });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('finance_data').put(JSON.stringify(financeState)); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('finance_data').put(JSON.stringify(financeState));
+                } catch(e){console.error(e);}
             }
             if (this.db) {
-                try { this.db.collection("myticket_finance").doc("current").set(financeState, { merge: true }); } catch(e) { console.error("Erreur Sync:", e); }
+                try { this.db.collection("myticket_finance").doc("current").set(financeState, { merge: true }); } catch(e){console.error(e);}
             }
         },
 
@@ -4492,8 +4492,8 @@
             this.broadcastLocally({ type: 'ALBUMS_SAVED', data: albums });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('gallery_data').put(JSON.stringify(albums)); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('gallery_data').put(JSON.stringify(albums));
+                } catch(e){console.error(e);}
             }
         },
 
@@ -4501,13 +4501,13 @@
             this.broadcastLocally({ type: 'USERS_PURGED' });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('users_data').put(JSON.stringify([])); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('users_data').put(JSON.stringify([]));
+                } catch(e){console.error(e);}
             }
             if (this.db) {
                 try {
                     this.db.collection("myticket_users").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
-                } catch(e) { console.error("Erreur Sync:", e); }
+                } catch(e){console.error(e);}
             }
         },
 
@@ -4515,16 +4515,16 @@
             this.broadcastLocally({ type: 'DATABASE_PURGED' });
             if (this.appDb) {
                 try {
-                    // this.appDb.get('users_data').put(JSON.stringify([])); // Désactivé (Conflit avec Firebase)
-                    // this.appDb.get('participants_data').put(JSON.stringify([])); // Désactivé (Conflit avec Firebase)
+                    this.appDb.get('users_data').put(JSON.stringify([]));
+                    this.appDb.get('participants_data').put(JSON.stringify([]));
                     this.appDb.get('finance_data').put(JSON.stringify({
                         encaissements: [],
                         decaissements: [],
                         dons: [],
                         committees: JSON.parse(JSON.stringify(OFFICIAL_COMMITTEES_FINANCE_STRUCTURE || []))
                     }));
-                    // this.appDb.get('gallery_data').put(JSON.stringify([])); // Désactivé (Conflit avec Firebase)
-                } catch(e) { console.error("Erreur Sync:", e); }
+                    this.appDb.get('gallery_data').put(JSON.stringify([]));
+                } catch(e){console.error(e);}
             }
             if (this.db) {
                 try {
@@ -4532,13 +4532,13 @@
                     this.db.collection("myticket_finance").doc("current").delete().catch(()=>{});
                     this.db.collection("myticket_users").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
                     this.db.collection("myticket_gallery").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
-                } catch(e) { console.error("Erreur Sync:", e); }
+                } catch(e){console.error(e);}
             }
         },
 
         broadcastLocally: function(msg) {
             if (this.broadcastChannel) {
-                try { this.broadcastChannel.postMessage(msg); } catch(e) { console.error("Erreur Sync:", e); }
+                try { this.broadcastChannel.postMessage(msg); } catch(e){console.error(e);}
             }
         },
 
@@ -4772,7 +4772,7 @@
             if (typeof MyTicketCloudDB !== 'undefined') {
                 MyTicketCloudDB.syncAllParticipants(state.participants || []);
             }
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
     }
 
     function saveUsersData() {
@@ -4781,13 +4781,13 @@
             if (typeof MyTicketCloudDB !== 'undefined') {
                 MyTicketCloudDB.syncAllUsers(state.users || []);
             }
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
     }
 
     function savePaymentProofs() {
         try {
             localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify(state.paymentProofs));
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
     }
 
     function saveFinanceState() {
@@ -4942,7 +4942,7 @@
     function saveChronogrammeData() {
         try {
             localStorage.setItem('myticket_chronogramme_v1', JSON.stringify(state.chronogramme));
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
         renderChronogrammeOrganisation();
         renderChronogrammeBilletterie();
     }
@@ -5340,7 +5340,7 @@
         }
 
         // Sauvegarder la vue active
-        try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e) { console.error("Erreur Sync:", e); }
+        try { sessionStorage.setItem('myticket_active_view', viewName); } catch(e){console.error(e);}
 
         // FORCE HIDE EVERY SINGLE VIEW SECTION EXPLICITLY
         var viewIds = ['accueil', 'finance', 'reception', 'dashboard', 'ticket', 'historique', 'liste', 'organisation', 'utilisateur', 'apropos'];
@@ -6150,7 +6150,7 @@
         try {
             localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
             if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
         
         state.currentTicket = newTicket;
         updateTicketPreviewUI(newTicket);
@@ -8894,7 +8894,7 @@
             if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.purgeAllUsersCloud) {
                 MyTicketCloudDB.purgeAllUsersCloud();
             }
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
 
         applyUserStatesUI();
         populateLoginUserSelect();
@@ -8946,7 +8946,7 @@
 
         // 1. Purge Participants
         state.participants = [];
-        try { localStorage.setItem('myticket_participants_v7', JSON.stringify([])); } catch(e) { console.error("Erreur Sync:", e); }
+        try { localStorage.setItem('myticket_participants_v7', JSON.stringify([])); } catch(e){console.error(e);}
 
         // 2. Purge Finance
         state.finance = {
@@ -8955,11 +8955,11 @@
             dons: [],
             committees: JSON.parse(JSON.stringify(OFFICIAL_COMMITTEES_FINANCE_STRUCTURE || []))
         };
-        try { localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance)); } catch(e) { console.error("Erreur Sync:", e); }
+        try { localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance)); } catch(e){console.error(e);}
 
         // 3. Purge Gallery
         state.galleryAlbums = [];
-        try { localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify([])); } catch(e) { console.error("Erreur Sync:", e); }
+        try { localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify([])); } catch(e){console.error(e);}
 
         // 4. Purge Users & Reset to Visitor
         state.users = [];
@@ -8967,7 +8967,7 @@
         try {
             localStorage.setItem('myticket_users_v4', JSON.stringify([]));
             localStorage.setItem('myticket_active_user_v4', JSON.stringify(state.user));
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
 
         // 5. Purge Cloud Database Collections
         if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.purgeAllCloudData) {
@@ -9540,7 +9540,7 @@
             state.participants = [];
             try {
                 localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
-            } catch(e) { console.error("Erreur Sync:", e); }
+            } catch(e){console.error(e);}
             renderHistoryList();
             updateDashboardStats();
             renderReceptionTable();
@@ -11124,7 +11124,7 @@
         try {
             localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
             if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
-        } catch(e) { console.error("Erreur Sync:", e); }
+        } catch(e){console.error(e);}
         renderReceptionTable();
         renderTablePlan();
         updateDashboardStats();
@@ -12546,4 +12546,3 @@ function toggleMobileMenu() {
 
 </body>
 </html>
-
