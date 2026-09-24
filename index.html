@@ -8647,8 +8647,8 @@
         if (headName) headName.innerText = user.name || 'Visiteur / Invité';
         if (headRole) {
             if (user.isVisitor) {
-                headRole.innerText = 'Compte Public (Visiteur) • Se Connecter';
-                headRole.className = 'text-[10px] text-emerald-400 font-semibold';
+                headRole.innerText = '';
+                headRole.className = 'text-[10px] text-emerald-400 font-semibold hidden';
             } else {
                 headRole.innerText = user.comite || 'Membre Comité';
                 headRole.className = 'text-[10px] text-brand-orange font-semibold';
@@ -8693,8 +8693,8 @@
         if (actName) actName.innerText = user.name || 'Visiteur / Invité';
         if (actBadge) {
             if (user.isVisitor) {
-                actBadge.innerText = 'Compte Public • Visiteur';
-                actBadge.className = 'inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-800 border border-slate-300';
+                actBadge.innerText = '';
+                actBadge.className = 'hidden';
             } else {
                 actBadge.innerText = user.comite || 'Membre de Comité';
                 actBadge.className = 'inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300';
