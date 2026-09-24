@@ -495,13 +495,13 @@
     <!-- Right Header Actions: Status Indicator (Clignotant Vert Connecté) & User Profile -->
     <div class="flex items-center gap-2.5 sm:gap-4">
         <!-- Green Blinking Cloud Status Indicator -->
-        <button onclick="openCloudSyncModal()" id="cloud-sync-status-btn" class="px-3 py-1.5 rounded-full bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold flex items-center gap-2 transition-all duration-200 shadow-sm shadow-emerald-950 cursor-pointer" title="Statut de la Base de Données Cloud Temps Réel (Cliquez pour diagnostics et sauvegardes)">
+        <div id="cloud-sync-status-btn" class="px-3 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold flex items-center gap-2 shadow-sm shadow-emerald-950 cursor-default" title="Statut de synchronisation Cloud Temps Réel">
             <span class="relative flex h-2.5 w-2.5">
                 <span id="cloud-sync-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span id="cloud-sync-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-xs shadow-emerald-400"></span>
             </span>
             <span id="cloud-sync-text" class="text-emerald-400 font-sans font-bold text-xs tracking-wide">Connecté</span>
-        </button>
+        </div>
 
         <!-- Right User Profile Status -->
         <div class="flex items-center gap-2 sm:gap-3 cursor-pointer p-1.5 rounded-2xl hover:bg-white/10 transition" onclick="switchView('utilisateur'); switchUserSectionTab('login');" title="Gérer mon profil utilisateur ou changer de compte">
