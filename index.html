@@ -4272,6 +4272,13 @@
                     if (firebase.firestore) {
                         this.db = firebase.firestore();
                         this.attachFirebaseListeners();
+                        
+                        // AUTO-SYNC: Push local data to Cloud if it exists locally but might not be in Cloud yet
+                        setTimeout(() => {
+                            if (typeof state !== 'undefined' && (state.participants?.length > 0 || state.finance?.incomesTotal > 0 || state.finance?.budgetGlobal > 0 || state.finance?.decaissements?.length > 0)) {
+                                if (typeof forceCloudDatabaseSync === 'function') forceCloudDatabaseSync();
+                            }
+                        }, 5000);
                     }
                 }
             } catch(e){console.error(e);}
