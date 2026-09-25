@@ -4383,6 +4383,27 @@
                         this.refreshParticipantViews();
                     }
                 });
+                
+                this.db.collection("myticket_finance").doc("current").onSnapshot(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        if (data && typeof data === 'object' && Array.isArray(data.committees)) {
+                            state.finance = { ...state.finance, ...data };
+                            localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
+                            this.refreshFinanceViews();
+                        }
+                    }
+                });
+
+                this.db.collection("myticket_gallery").onSnapshot(snap => {
+                    const list = [];
+                    snap.forEach(d => list.push(d.data()));
+                    if (list.length > 0) {
+                        state.galleryAlbums = list;
+                        localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
+                    }
+                });
+
             } catch(e){console.error(e);}
         },
 
