@@ -515,8 +515,11 @@
                 <span id="header-user-name" class="text-xs font-bold text-slate-100">Visiteur</span>
                 <span id="header-user-role" class="text-[10px] text-brand-orange font-semibold">Célébration 10 Ans</span>
             </div>
-            <button type="button" onclick="event.stopPropagation(); switchView('utilisateur'); switchUserSectionTab('login');" class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/20 hover:bg-brand-orange text-white border border-white/30 transition cursor-pointer shadow-xs" title="Changer d'utilisateur ou se connecter">
-                <i data-lucide="refresh-cw" class="h-3 w-3"></i> Changer
+            <button type="button" onclick="event.stopPropagation(); switchView('utilisateur'); switchUserSectionTab('login');" class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/20 hover:bg-brand-orange text-white border border-white/30 transition cursor-pointer shadow-xs visitor-only-el" title="Changer d'utilisateur ou se connecter">
+                <i data-lucide="refresh-cw" class="h-3 w-3"></i> Se Connecter
+            </button>
+            <button type="button" onclick="event.stopPropagation(); handleUserLogout();" class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg bg-red-500/20 hover:bg-red-500 text-red-100 border border-red-500/30 transition cursor-pointer shadow-xs member-only-el hidden" title="Se déconnecter (Mode Visiteur)">
+                <i data-lucide="log-out" class="h-3 w-3"></i> Déconnexion
             </button>
         </div>
     </div>
@@ -2224,6 +2227,10 @@
                             <button onclick="switchUserSectionTab('create')" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
                                 <i data-lucide="user-plus" class="h-3.5 w-3.5 text-brand-orange"></i>
                                 <span>Créer un Autre Profil</span>
+                            </button>
+                            <button onclick="handleUserLogout()" class="w-full py-2.5 px-4 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition flex items-center justify-center gap-1.5 mt-2">
+                                <i data-lucide="log-out" class="h-3.5 w-3.5"></i>
+                                <span>Se Déconnecter (Mode Visiteur)</span>
                             </button>
                         </div>
                     </div>
@@ -8798,9 +8805,8 @@
         } catch (e) {}
 
         applyUserStatesUI();
-        switchView('utilisateur');
-        switchUserSectionTab('login');
-        showNotification("Déconnexion Réussie", "Vous êtes désormais déconnecté. Le profil a été verrouillé.", "info");
+        switchView('accueil');
+        showNotification("Déconnexion Réussie", "Vous êtes désormais en Mode Visiteur.", "info");
     }
 
     
