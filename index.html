@@ -1527,27 +1527,7 @@
                         <span class="text-[9px] text-slate-400">/ 150</span>
                     </div>
 
-                    <!-- VIP (Bleu) -->
-                    <div class="px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 flex items-center gap-1.5 font-bold shadow-2xs" title="Pass VIP (20 000 FCFA)">
-                        <span class="text-blue-700">🌟 VIP :</span>
-                        <strong id="avail-count-vip" class="text-blue-950 font-black">30</strong>
-                        <span class="text-[9px] text-blue-500">/ 30</span>
                     </div>
-
-                    <!-- Gold (Or) -->
-                    <div class="px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 flex items-center gap-1.5 font-bold shadow-2xs" title="Pass Gold (30 000 FCFA)">
-                        <span class="text-amber-800">👑 Gold :</span>
-                        <strong id="avail-count-gold" class="text-amber-950 font-black">50</strong>
-                        <span class="text-[9px] text-amber-500">/ 50</span>
-                    </div>
-
-                    <!-- Invité (Vert) -->
-                    <div class="px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 flex items-center gap-1.5 font-bold shadow-2xs" title="Pass Invité (Gratuit / Direction)">
-                        <span class="text-emerald-700">🏷️ Invité :</span>
-                        <strong id="avail-count-invite" class="text-emerald-950 font-black">20</strong>
-                        <span class="text-[9px] text-emerald-500">/ 20</span>
-                    </div>
-                </div>
 
                 <!-- Total Badge -->
                 <div class="flex items-center">
@@ -2087,7 +2067,7 @@
                     <div class="flex flex-wrap gap-2">
                         <button onclick="filterTablePlan('all')" id="btn-table-all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-sm">Toutes les Tables</button>
                         <button onclick="filterTablePlan('Gold')" id="btn-table-gold" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Tables Gold</button>
-                        <button onclick="filterTablePlan('VIP')" id="btn-table-vip" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Tables VIP</button>
+                        
                         <button onclick="filterTablePlan('Classique')" id="btn-table-classique" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Tables Classique</button>
                         <button onclick="filterTablePlan('Invité')" id="btn-table-invite" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Tables Invitations</button>
                     </div>
@@ -5484,7 +5464,7 @@
     const TOTAL_MAX_TABLES = 28;
 
     function getCategoryCounts() {
-        const counts = { 'Classique': 0, 'Gold': 0, 'VIP': 0, 'Invité': 0 };
+        const counts = { 'Classique': 0, 'Gold': 0, 'Invité': 0 };
         (state.participants || []).forEach(p => {
             const cat = p.categorie || 'Classique';
             if (counts[cat] !== undefined) counts[cat]++;
@@ -5507,14 +5487,13 @@
         // 2. Update 4 Compact Micro-Badges in Billetterie
         const remClassique = Math.max(0, 150 - (counts['Classique'] || 0));
         const remGold = Math.max(0, 50 - (counts['Gold'] || 0));
-        const remVip = Math.max(0, 30 - (counts['VIP'] || 0));
-        const remInvite = Math.max(0, 20 - (counts['Invité'] || 0));
+        
+        const remInvite = Math.max(0, 10 - (counts['Invité'] || 0));
 
         const cardClas = document.getElementById('avail-count-classique');
         if (cardClas) cardClas.innerText = remClassique;
 
-        const cardVip = document.getElementById('avail-count-vip');
-        if (cardVip) cardVip.innerText = remVip;
+        
 
         const cardGold = document.getElementById('avail-count-gold');
         if (cardGold) cardGold.innerText = remGold;
@@ -5531,14 +5510,11 @@
                 <option value="Classique" data-price="10000" ${currentSelected === 'Classique' ? 'selected' : ''} ${remClassique <= 0 ? 'disabled' : ''}>
                     Pass Classique — 10 000 FCFA ${remClassique > 0 ? `(${remClassique} places restantes / 150)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
-                <option value="VIP" data-price="20000" ${currentSelected === 'VIP' ? 'selected' : ''} ${remVip <= 0 ? 'disabled' : ''}>
-                    Pass VIP — 20 000 FCFA ${remVip > 0 ? `(${remVip} places restantes / 30)` : '⛔ QUOTA ATTEINT (0 place)'}
-                </option>
                 <option value="Gold" data-price="30000" ${currentSelected === 'Gold' ? 'selected' : ''} ${remGold <= 0 ? 'disabled' : ''}>
                     Pass Gold — 30 000 FCFA ${remGold > 0 ? `(${remGold} places restantes / 50)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
                 <option value="Invité" data-price="0" ${currentSelected === 'Invité' ? 'selected' : ''} ${remInvite <= 0 ? 'disabled' : ''}>
-                    Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 20)` : '⛔ QUOTA ATTEINT (0 place)'}
+                    Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 10)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
             `;
             select.value = currentSelected || '';
@@ -6365,8 +6341,7 @@
         if (ticket.categorie === 'Gold') {
             tableName = "Table 01 (Gold)";
             seatNum = "Siège 01";
-        } else if (ticket.categorie === 'VIP') {
-            tableName = "Table 06 (VIP)";
+        
             seatNum = "Siège 01";
         } else if (ticket.categorie === 'Invité') {
             tableName = "Table d'Honneur";
@@ -6394,14 +6369,7 @@
             if (stubBox) {
                 stubBox.className = "ticket-stub bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 text-slate-950 p-4 w-40 flex flex-col items-center justify-between text-center transition-colors duration-300 shrink-0";
             }
-        } else if (ticket.categorie === 'VIP') {
-            // VIP: Bleu
-            if (badge) {
-                badge.className = "text-xs font-black px-3.5 py-1.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white border border-blue-400 flex items-center gap-1.5 shadow-md font-mono";
-                badge.innerHTML = `<i data-lucide="star" class="h-3.5 w-3.5"></i> PASS VIP • 20 000 FCFA`;
-            }
-            if (iconBg) iconBg.className = "h-5 w-5 rounded-md bg-blue-600 text-white flex items-center justify-center font-bold";
-            if (titleTop) titleTop.innerText = "Pass Officiel VIP 2027";
+        
             if (stubBox) {
                 stubBox.className = "ticket-stub bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700 text-white p-4 w-40 flex flex-col items-center justify-between text-center transition-colors duration-300 shrink-0";
             }
@@ -6748,7 +6716,7 @@
         let accentColor = '#94a3b8';
         let accentLabel = 'PASS CLASSIQUE';
         if (ticket.categorie === 'Gold') { accentColor = '#f59e0b'; accentLabel = 'PASS GOLD'; }
-        else if (ticket.categorie === 'VIP') { accentColor = '#2563eb'; accentLabel = 'PASS VIP'; }
+        
         else if (ticket.categorie === 'Invité') { accentColor = '#10b981'; accentLabel = "INVITÉ D'HONNEUR"; }
 
         const glow = ctx.createRadialGradient(200, 150, 20, 200, 150, 400);
@@ -7304,7 +7272,7 @@
         
         // 1. Compute Ticket Inflows per Category & per Payment Channel (Caisses)
         let goldCount = 0, goldTotal = 0;
-        let vipCount = 0, vipTotal = 0;
+        
         let classiqueCount = 0, classiqueTotal = 0;
         let inviteCount = 0;
 
@@ -7319,9 +7287,7 @@
             if (cat === 'Gold') {
                 goldCount++;
                 goldTotal += price;
-            } else if (cat === 'VIP') {
-                vipCount++;
-                vipTotal += price;
+            
             } else if (cat === 'Classique') {
                 classiqueCount++;
                 classiqueTotal += price;
@@ -7339,7 +7305,7 @@
             }
         });
 
-        const totalTicketsIncome = goldTotal + vipTotal + classiqueTotal;
+        const totalTicketsIncome = goldTotal + classiqueTotal;
         fin.ticketsIncome = totalTicketsIncome;
 
         // Update Ticket Category Badges
@@ -8282,8 +8248,7 @@
         const counts = getCategoryCounts();
         const goldCount = counts['Gold'];
         const goldTotal = goldCount * 30000;
-        const vipCount = counts['VIP'];
-        const vipTotal = vipCount * 20000;
+        
         const classiqueCount = counts['Classique'];
         const classiqueTotal = classiqueCount * 10000;
         const inviteCount = counts['Invité'];
@@ -8299,7 +8264,7 @@
         const elHeaderRate = document.getElementById('dash-header-checkin-rate');
         if (elHeaderRate) elHeaderRate.innerText = `${checkinRate}% aux Portes (${checkedInCount}/${totalTickets})`;
 
-        const totalTicketsRevenue = goldTotal + vipTotal + classiqueTotal;
+        const totalTicketsRevenue = goldTotal + classiqueTotal;
         const totalPotentialRevenue = (150 * 10000) + (50 * 30000) + (30 * 20000); // 3 600 000 FCFA
 
         // KPI 1: Billetterie & Quota Global
@@ -8349,8 +8314,8 @@
         if (catBreakdown) {
             const clasPct = Math.min(100, Math.round((classiqueCount / 150) * 100));
             const goldPct = Math.min(100, Math.round((goldCount / 50) * 100));
-            const vipPct = Math.min(100, Math.round((vipCount / 30) * 100));
-            const invPct = Math.min(100, Math.round((inviteCount / 20) * 100));
+            
+            const invPct = Math.min(100, Math.round((inviteCount / 10) * 100));
 
             const getRingOffset = (pct) => Math.round(175.9 - (175.9 * pct) / 100);
 
@@ -8411,40 +8376,12 @@
                     </div>
                 </div>
 
-                <!-- VIP (30 Quota) -->
-                <div class="p-5 bg-gradient-to-br from-purple-50/90 to-fuchsia-50/70 rounded-3xl border border-purple-200/90 shadow-2xs hover:shadow-lg transition space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-wider text-purple-900 block font-mono">Pass VIP</span>
-                            <h4 class="font-display font-black text-xl text-purple-950 font-mono">${vipCount} <span class="text-xs text-purple-600 font-bold">/ 30</span></h4>
-                        </div>
-                        <div class="relative w-14 h-14 flex items-center justify-center">
-                            <svg class="w-14 h-14 -rotate-90" viewBox="0 0 64 64">
-                                <circle cx="32" cy="32" r="28" stroke="#F3E8FF" stroke-width="5" fill="none" />
-                                <circle cx="32" cy="32" r="28" stroke="#9333EA" stroke-width="5" stroke-linecap="round" fill="none"
-                                    stroke-dasharray="175.9" stroke-dashoffset="${getRingOffset(vipPct)}" class="transition-all duration-1000" />
-                            </svg>
-                            <span class="absolute font-mono font-black text-[11px] text-purple-900">${vipPct}%</span>
-                        </div>
-                    </div>
-                    <div class="space-y-1.5 text-xs text-purple-950 font-semibold pt-2 border-t border-purple-200/60">
-                        <div class="flex justify-between">
-                            <span class="text-purple-700 font-medium">Disponibles :</span>
-                            <span class="font-mono font-black text-purple-900">${Math.max(0, 30 - vipCount)} places (3 T.)</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-purple-700 font-medium">Recette :</span>
-                            <span class="font-mono font-black text-purple-900">${vipTotal.toLocaleString('fr-FR')} F</span>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Invités (20 Quota) -->
                 <div class="p-5 bg-gradient-to-br from-emerald-50/90 to-teal-50/70 rounded-3xl border border-emerald-200/90 shadow-2xs hover:shadow-lg transition space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <span class="text-[10px] font-black uppercase tracking-wider text-emerald-900 block font-mono">Pass Invités</span>
-                            <h4 class="font-display font-black text-xl text-emerald-950 font-mono">${inviteCount} <span class="text-xs text-emerald-600 font-bold">/ 20</span></h4>
+                            <h4 class="font-display font-black text-xl text-emerald-950 font-mono">${inviteCount} <span class="text-xs text-emerald-600 font-bold">/ 10</span></h4>
                         </div>
                         <div class="relative w-14 h-14 flex items-center justify-center">
                             <svg class="w-14 h-14 -rotate-90" viewBox="0 0 64 64">
@@ -8458,7 +8395,7 @@
                     <div class="space-y-1.5 text-xs text-emerald-950 font-semibold pt-2 border-t border-emerald-200/60">
                         <div class="flex justify-between">
                             <span class="text-emerald-700 font-medium">Disponibles :</span>
-                            <span class="font-mono font-black text-emerald-900">${Math.max(0, 20 - inviteCount)} places (2 T.)</span>
+                            <span class="font-mono font-black text-emerald-900">${Math.max(0, 10 - inviteCount)} places (2 T.)</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-emerald-700 font-medium">Accès :</span>
@@ -10833,8 +10770,7 @@
         let tableName = "";
         if (cat === 'Gold') {
             tableName = `Table ${String(tableNum).padStart(2, '0')} (Gold)`;
-        } else if (cat === 'VIP') {
-            tableName = `Table ${String(tableNum + 5).padStart(2, '0')} (VIP)`;
+        
         } else if (cat === 'Invité') {
             tableName = `Table d'Honneur ${String(tableNum).padStart(2, '0')}`;
         } else {
@@ -11396,7 +11332,7 @@
 
     function filterTablePlan(category) {
         currentTableFilter = category;
-        const buttons = ['all', 'gold', 'vip', 'classique', 'invite'];
+        const buttons = ['all', 'gold', 'classique', 'invite'];
         buttons.forEach(b => {
             const btn = document.getElementById(`btn-table-${b}`);
             if (btn) {
@@ -11415,7 +11351,7 @@
         if (!container) return;
 
         container.innerHTML = '';
-        const categories = ['Gold', 'VIP', 'Classique', 'Invité'];
+        const categories = ['Gold', 'Classique', 'Invité'];
         
         let filteredCats = categories;
         if (currentTableFilter !== 'all') {
@@ -11540,7 +11476,7 @@
                                 <span>${occupancyPct}%</span>
                             </div>
                             <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                                <div class="h-2 rounded-full ${cat === 'Gold' ? 'bg-amber-500' : (cat === 'VIP' ? 'bg-[#FF5A36]' : (cat === 'Invité' ? 'bg-emerald-500' : 'bg-blue-600'))}" style="width: ${occupancyPct}%;"></div>
+                                <div class="h-2 rounded-full ${cat === 'Gold' ? 'bg-amber-500' : (cat === 'Invité' ? 'bg-emerald-500' : 'bg-blue-600')}" style="width: ${occupancyPct}%;"></div>
                             </div>
                         </div>
 
