@@ -6244,19 +6244,43 @@
     }
 
     window.deleteParticipant = function(id) {
-        const isAdmin = state.user && state.user.role === 'admin';
-        if (!isAdmin) {
-            showNotification("Accès Refusé", "Seuls les Administrateurs peuvent supprimer un participant.", "error");
-            return;
-        }
-
         const p = (state.participants || []).find(part => part.id === id);
         if (!p) {
             showNotification("Erreur", "Participant introuvable.", "error");
             return;
         }
 
-        if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement le billet de ${p.nom} ${p.prenom} (${p.categorie}) ?`)) {
+        const code = prompt(`⚠️ SÉCURITÉ ADMIN\nVeuillez saisir le code Administrateur pour supprimer le billet de ${p.nom} ${p.prenom} :`);
+        if (code === null) return; // Annulation
+
+        const trimmed = code.trim().toUpperCase();
+        
+        const adminCommittees = [
+            "Coordination Stratégique",
+            "Coordination Opérationnelle",
+            "Comité Supervision",
+            "Comité Administratif",
+            "Comité Financier"
+        ];
+        
+        let hasAdminMatch = false;
+        if (state.users && state.users.length > 0) {
+            hasAdminMatch = state.users.some(u => 
+                adminCommittees.includes(u.comite) && u.password && u.password.toUpperCase() === trimmed
+            );
+        }
+        
+        const masterPasswords = [
+            '10ANS', 'NDJAI10', 'ADMIN', 'ADMIN2027',
+            'SARAH2027', 'MARC2027', 'AUDE2027', 'PASTEUR2027', 'FINANCE2027', 'PCO2027'
+        ];
+        
+        if (!hasAdminMatch && !masterPasswords.includes(trimmed)) {
+            showNotification("Accès Refusé", "Code Administrateur incorrect.", "error");
+            return;
+        }
+
+        if (confirm(`Êtes-vous absolument sûr de vouloir supprimer le billet de ${p.nom} ${p.prenom} ? Cette action est irréversible.`)) {
             MyTicketCloudDB.deleteParticipant(p.id);
             showNotification("Suppression réussie", `Le participant ${p.nom} a été supprimé.`, "info");
             
