@@ -6243,6 +6243,32 @@
         }
     }
 
+    window.deleteParticipant = function(id) {
+        const isAdmin = state.user && state.user.role === 'admin';
+        if (!isAdmin) {
+            showNotification("Accès Refusé", "Seuls les Administrateurs peuvent supprimer un participant.", "error");
+            return;
+        }
+
+        const p = (state.participants || []).find(part => part.id === id);
+        if (!p) {
+            showNotification("Erreur", "Participant introuvable.", "error");
+            return;
+        }
+
+        if (confirm(`Êtes-vous sûr de vouloir supprimer définitivement le billet de ${p.nom} ${p.prenom} (${p.categorie}) ?`)) {
+            MyTicketCloudDB.deleteParticipant(p.id);
+            showNotification("Suppression réussie", `Le participant ${p.nom} a été supprimé.`, "info");
+            
+            // Re-render UI
+            updateDashboardChartsAndStats();
+            renderParticipantsTable();
+            renderTablePlan();
+            updateCategoryDropdownQuotas();
+            renderGlobalOverviewUI();
+        }
+    }
+
     function viewAttendeeTicket(id) {
         const p = (state.participants || []).find(part => 
             part.id === id || 
