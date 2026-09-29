@@ -6307,20 +6307,22 @@
             return;
         }
 
+        closeDeleteParticipantModal();
+
         const p = (state.participants || []).find(part => part.id === id);
         if (p) {
-            MyTicketCloudDB.deleteParticipant(p.id);
-            showNotification("Suppression réussie", `Le participant ${p.nom} a été supprimé.`, "info");
-            
-            // Re-render UI
-            updateDashboardChartsAndStats();
-            renderParticipantsTable();
-            renderTablePlan();
-            updateCategoryDropdownQuotas();
-            renderGlobalOverviewUI();
+            setTimeout(() => {
+                MyTicketCloudDB.deleteParticipant(p.id);
+                showNotification("Suppression réussie", `Le participant ${p.nom} a été supprimé.`, "info");
+                
+                // Re-render UI
+                updateDashboardChartsAndStats();
+                renderParticipantsTable();
+                renderTablePlan();
+                updateCategoryDropdownQuotas();
+                renderGlobalOverviewUI();
+            }, 100);
         }
-        
-        closeDeleteParticipantModal();
     }
 
     function viewAttendeeTicket(id) {
