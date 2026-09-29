@@ -4475,6 +4475,7 @@
         deleteParticipant: function(participantId) {
             if (!participantId) return;
             state.participants = (state.participants || []).filter(p => p.id !== participantId);
+            try { localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants || [])); } catch(e){}
             this.broadcastLocally({ type: 'PARTICIPANT_DELETED', data: { id: participantId } });
             if (this.appDb) {
                 try {
