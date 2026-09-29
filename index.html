@@ -5515,12 +5515,14 @@
                 <option value="Classique" data-price="10000" ${currentSelected === 'Classique' ? 'selected' : ''} ${remClassique <= 0 ? 'disabled' : ''}>
                     Pass Classique — 10 000 FCFA ${remClassique > 0 ? `(${remClassique} places restantes / 150)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
-                <option value="Gold" data-price="0" ${currentSelected === 'Gold' ? 'selected' : ''} ${remGold <= 0 || !isCoordinator ? 'disabled' : ''}>
-                    Pass Gold — Gratuit ${remGold > 0 ? `(${remGold} places restantes / 50)` : '⛔ QUOTA ATTEINT (0 place)'} ${!isCoordinator ? '(Accès Restreint)' : ''}
+                ${isCoordinator ? `
+                <option value="Gold" data-price="0" ${currentSelected === 'Gold' ? 'selected' : ''} ${remGold <= 0 ? 'disabled' : ''}>
+                    Pass Gold — Gratuit ${remGold > 0 ? `(${remGold} places restantes / 50)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
-                <option value="Invité" data-price="0" ${currentSelected === 'Invité' ? 'selected' : ''} ${remInvite <= 0 || !isCoordinator ? 'disabled' : ''}>
-                    Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 10)` : '⛔ QUOTA ATTEINT (0 place)'} ${!isCoordinator ? '(Accès Restreint)' : ''}
+                <option value="Invité" data-price="0" ${currentSelected === 'Invité' ? 'selected' : ''} ${remInvite <= 0 ? 'disabled' : ''}>
+                    Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 10)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
+                ` : ''}
             `;
             select.value = currentSelected || '';
         }
@@ -6042,6 +6044,12 @@
         if (!categorie) {
             showNotification("Catégorie Requise", "Veuillez choisir une catégorie de Pass (Classique, Gold ou Invité).", "error");
             select?.focus();
+            return;
+        }
+
+        const isCoordinator = (state.user && (state.user.comite === 'Coordination Opérationnelle' || state.user.comite === 'Coordination Stratégique' || state.user.role === 'admin'));
+        if ((categorie === 'Gold' || categorie === 'Invité') && !isCoordinator) {
+            showNotification("Accès Refusé", "Seuls les Coordinateurs peuvent générer des Pass Gold ou Invités.", "error");
             return;
         }
 
