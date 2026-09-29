@@ -6249,9 +6249,34 @@
             showNotification("Erreur", "Participant introuvable.", "error");
             return;
         }
+        
+        document.getElementById('delete-participant-id').value = id;
+        document.getElementById('delete-participant-name').innerText = `${p.nom} ${p.prenom}`;
+        document.getElementById('delete-participant-admin-pwd').value = '';
+        
+        const modal = document.getElementById('modal-delete-participant-auth');
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('delete-participant-admin-pwd')?.focus();
+            }, 100);
+        }
+    }
 
-        const code = prompt(`⚠️ SÉCURITÉ ADMIN\nVeuillez saisir le code Administrateur pour supprimer le billet de ${p.nom} ${p.prenom} :`);
-        if (code === null) return; // Annulation
+    window.closeDeleteParticipantModal = function() {
+        document.getElementById('modal-delete-participant-auth')?.classList.add('hidden');
+    }
+
+    window.executeDeleteParticipantWithAuth = function() {
+        const id = document.getElementById('delete-participant-id').value;
+        const pwdInput = document.getElementById('delete-participant-admin-pwd');
+        const code = pwdInput ? pwdInput.value : '';
+
+        if (!code.trim()) {
+            showNotification("Code Requis", "Veuillez saisir le code administrateur.", "error");
+            pwdInput?.focus();
+            return;
+        }
 
         const trimmed = code.trim().toUpperCase();
         
@@ -6277,10 +6302,13 @@
         
         if (!hasAdminMatch && !masterPasswords.includes(trimmed)) {
             showNotification("Accès Refusé", "Code Administrateur incorrect.", "error");
+            pwdInput.value = '';
+            pwdInput?.focus();
             return;
         }
 
-        if (confirm(`Êtes-vous absolument sûr de vouloir supprimer le billet de ${p.nom} ${p.prenom} ? Cette action est irréversible.`)) {
+        const p = (state.participants || []).find(part => part.id === id);
+        if (p) {
             MyTicketCloudDB.deleteParticipant(p.id);
             showNotification("Suppression réussie", `Le participant ${p.nom} a été supprimé.`, "info");
             
@@ -6291,6 +6319,8 @@
             updateCategoryDropdownQuotas();
             renderGlobalOverviewUI();
         }
+        
+        closeDeleteParticipantModal();
     }
 
     function viewAttendeeTicket(id) {
@@ -12366,6 +12396,38 @@
     </div>
 </div>
 
+
+<!-- ============================================== -->
+<!-- MODAL: SÉCURITÉ ADMIN - SUPPRESSION PARTICIPANT -->
+<!-- ============================================== -->
+<div id="modal-delete-participant-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-6 space-y-5 animate-scale-up">
+        <div class="text-center space-y-2">
+            <div class="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+                <i data-lucide="trash-2" class="h-6 w-6"></i>
+            </div>
+            <h3 class="font-display font-black text-lg text-slate-900">Suppression du Billet</h3>
+            <p class="text-xs text-slate-500">Cette action est irréversible. Veuillez saisir le mot de passe administrateur pour confirmer la suppression de <strong id="delete-participant-name" class="text-rose-600">--</strong>.</p>
+        </div>
+        
+        <input type="hidden" id="delete-participant-id">
+
+        <div class="space-y-1.5">
+            <label class="text-xs font-bold text-slate-700">Code ou Mot de Passe Administrateur *</label>
+            <div class="relative">
+                <input type="password" id="delete-participant-admin-pwd" onkeyup="if(event.key==='Enter') executeDeleteParticipantWithAuth()" placeholder="Saisir le code administrateur" class="w-full pl-4 pr-10 py-2.5 rounded-xl border-2 border-slate-200 text-xs font-mono text-center tracking-wider focus:outline-none focus:border-rose-500 shadow-inner">
+                <button type="button" onclick="togglePasswordVisibility('delete-participant-admin-pwd', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-600 transition cursor-pointer p-1" title="Afficher/Masquer le mot de passe">
+                    <i data-lucide="eye" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-2.5 pt-2 border-t border-slate-100">
+            <button type="button" onclick="closeDeleteParticipantModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-xs transition cursor-pointer">Annuler</button>
+            <button type="button" onclick="executeDeleteParticipantWithAuth()" class="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-black text-xs shadow-md transition cursor-pointer">Confirmer la Suppression</button>
+        </div>
+    </div>
+</div>
 
 <!-- ============================================== -->
 <!-- MODAL: SÉCURITÉ ADMIN - SUPPRESSION TOUS LES COMPTES -->
