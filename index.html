@@ -1368,11 +1368,9 @@
                             <span class="h-3.5 w-3.5 rounded-md bg-blue-600 shadow-xs"></span> Pass Classique (10k)
                         </span>
                         <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-amber-400 shadow-xs"></span> Pass Gold (30k)
+                            <span class="h-3.5 w-3.5 rounded-md bg-amber-400 shadow-xs"></span> Pass Gold (Gratuit)
                         </span>
-                        <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-orange-500 shadow-xs"></span> Pass VIP (20k)
-                        </span>
+
                         <span class="flex items-center gap-2 text-slate-700 font-bold">
                             <span class="h-3.5 w-3.5 rounded-md bg-emerald-500 shadow-xs"></span> Pass Invité (0k)
                         </span>
@@ -1412,14 +1410,12 @@
                     <!-- Legend -->
                     <div class="flex flex-wrap items-center gap-5 pt-3.5 text-xs font-bold border-t border-slate-100">
                         <span class="flex items-center gap-1.5 text-blue-950 font-mono">
-                            <span class="h-3 w-3 rounded-md bg-blue-500"></span> Classique (15 T.)
+                            <span class="h-3 w-3 rounded-md bg-blue-500"></span> Classique (19 T.)
                         </span>
                         <span class="flex items-center gap-1.5 text-amber-950 font-mono">
-                            <span class="h-3 w-3 rounded-md bg-amber-500"></span> Gold (5 T.)
+                            <span class="h-3 w-3 rounded-md bg-amber-500"></span> Gold (7 T.)
                         </span>
-                        <span class="flex items-center gap-1.5 text-purple-950 font-mono">
-                            <span class="h-3 w-3 rounded-md bg-purple-600"></span> VIP (3 T.)
-                        </span>
+
                         <span class="flex items-center gap-1.5 text-emerald-950 font-mono">
                             <span class="h-3 w-3 rounded-md bg-emerald-500"></span> Invité (2 T.)
                         </span>
@@ -1589,7 +1585,7 @@
                             <select id="form-categorie" onchange="handleCategorySelection()" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-brand-orange text-xs font-bold transition">
                                 <option value="" selected disabled>-- Choisir une catégorie de Pass --</option>
                                 <option value="Classique" data-price="10000">Classique — 10 000 FCFA</option>
-                                <option value="Gold" data-price="30000">Gold — 30 000 FCFA</option>
+                                <option value="Gold" data-price="0">Gold — Gratuit</option>
                                 <option value="Invité" data-price="0">Invité — Gratuit (Direction / Admin)</option>
                             </select>
                             <div id="form-category-availability-notice" class="hidden text-[11px] font-bold p-2.5 rounded-xl border transition-all"></div>
@@ -2043,8 +2039,8 @@
                         </div>
                         <div class="min-w-0">
                             <span class="text-[9px] font-black uppercase text-slate-400 block tracking-wider font-mono">Tarifs des Pass</span>
-                            <p class="font-black text-slate-900 text-xs truncate">10k, 20k & 30k FCFA</p>
-                            <p class="text-[10px] text-slate-500 truncate">Classique, VIP & Gold</p>
+                            <p class="font-black text-slate-900 text-xs truncate">10k FCFA</p>
+                            <p class="text-[10px] text-slate-500 truncate">Classique</p>
                         </div>
                     </div>
                 </div>
@@ -5457,7 +5453,7 @@
     // ==========================================
     const TICKET_QUOTAS = {
         'Classique': { max: 150, price: 10000, tables: 19, color: 'slate' },
-        'Gold': { max: 50, price: 30000, tables: 7, color: 'amber' },
+        'Gold': { max: 50, price: 0, tables: 7, color: 'amber' },
         'Invité': { max: 10, price: 0, tables: 2, color: 'emerald' }
     };
     const TOTAL_MAX_TICKETS = 210;
@@ -5505,16 +5501,18 @@
         const select = document.getElementById('form-categorie');
         if (select) {
             const currentSelected = select.value;
+            const isCoordinator = (state.user && (state.user.comite === 'Coordination Opérationnelle' || state.user.comite === 'Coordination Stratégique' || state.user.role === 'admin'));
+            
             select.innerHTML = `
                 <option value="" disabled ${!currentSelected ? 'selected' : ''}>-- Choisir une catégorie de Pass --</option>
                 <option value="Classique" data-price="10000" ${currentSelected === 'Classique' ? 'selected' : ''} ${remClassique <= 0 ? 'disabled' : ''}>
                     Pass Classique — 10 000 FCFA ${remClassique > 0 ? `(${remClassique} places restantes / 150)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
-                <option value="Gold" data-price="30000" ${currentSelected === 'Gold' ? 'selected' : ''} ${remGold <= 0 ? 'disabled' : ''}>
-                    Pass Gold — 30 000 FCFA ${remGold > 0 ? `(${remGold} places restantes / 50)` : '⛔ QUOTA ATTEINT (0 place)'}
+                <option value="Gold" data-price="0" ${currentSelected === 'Gold' ? 'selected' : ''} ${remGold <= 0 || !isCoordinator ? 'disabled' : ''}>
+                    Pass Gold — Gratuit ${remGold > 0 ? `(${remGold} places restantes / 50)` : '⛔ QUOTA ATTEINT (0 place)'} ${!isCoordinator ? '(Accès Restreint)' : ''}
                 </option>
-                <option value="Invité" data-price="0" ${currentSelected === 'Invité' ? 'selected' : ''} ${remInvite <= 0 ? 'disabled' : ''}>
-                    Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 10)` : '⛔ QUOTA ATTEINT (0 place)'}
+                <option value="Invité" data-price="0" ${currentSelected === 'Invité' ? 'selected' : ''} ${remInvite <= 0 || !isCoordinator ? 'disabled' : ''}>
+                    Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 10)` : '⛔ QUOTA ATTEINT (0 place)'} ${!isCoordinator ? '(Accès Restreint)' : ''}
                 </option>
             `;
             select.value = currentSelected || '';
@@ -5847,8 +5845,8 @@
                 detectedAmount = parseInt(rawDigits, 10) || 0;
             } else {
                 const selectCat = document.getElementById('form-categorie');
-                const catPrice = (selectCat && selectCat.selectedIndex > 0 && parseInt(selectCat.options[selectCat.selectedIndex].getAttribute('data-price'))) || 30000;
-                detectedAmount = catPrice > 0 ? catPrice : 30000;
+                const catPrice = (selectCat && selectCat.selectedIndex > 0) ? parseInt(selectCat.options[selectCat.selectedIndex].getAttribute('data-price')) : 0;
+                detectedAmount = catPrice || 0;
             }
 
             const existingRecord = state.paymentProofs[extractedRef];
@@ -6035,7 +6033,7 @@
 
         // Validation 3: Catégorie
         if (!categorie) {
-            showNotification("Catégorie Requise", "Veuillez choisir une catégorie de Pass (Classique, VIP, Gold ou Invité).", "error");
+            showNotification("Catégorie Requise", "Veuillez choisir une catégorie de Pass (Classique, Gold ou Invité).", "error");
             select?.focus();
             return;
         }
@@ -8247,7 +8245,7 @@
         // 1. Quota & Category Breakdown Calculations
         const counts = getCategoryCounts();
         const goldCount = counts['Gold'];
-        const goldTotal = goldCount * 30000;
+        const goldTotal = 0; // Gold is free
         
         const classiqueCount = counts['Classique'];
         const classiqueTotal = classiqueCount * 10000;
@@ -8265,7 +8263,7 @@
         if (elHeaderRate) elHeaderRate.innerText = `${checkinRate}% aux Portes (${checkedInCount}/${totalTickets})`;
 
         const totalTicketsRevenue = goldTotal + classiqueTotal;
-        const totalPotentialRevenue = (150 * 10000) + (50 * 30000) + (30 * 20000); // 3 600 000 FCFA
+        const totalPotentialRevenue = (150 * 10000); // 1 500 000 FCFA
 
         // KPI 1: Billetterie & Quota Global
         const elKpiTickets = document.getElementById('dash-kpi-tickets');
@@ -9378,8 +9376,7 @@
             } else {
                 filtered.forEach(p => {
                 let catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Classique (10.000 F)</span>`;
-                if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-400">GOLD (30.000 F)</span>`;
-                else if (p.categorie === 'VIP') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">VIP (20.000 F)</span>`;
+                if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-400">GOLD (Gratuit)</span>`;
                 else if (p.categorie === 'Invité') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Invité (Gratuit)</span>`;
 
                 tbody.innerHTML += `
@@ -9417,8 +9414,7 @@
             } else {
                 filtered.forEach(p => {
                     let catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-200">Classique</span>`;
-                    if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-400">GOLD (30.000 F)</span>`;
-                    else if (p.categorie === 'VIP') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-950 border border-purple-300">VIP (20.000 F)</span>`;
+                    if (p.categorie === 'Gold') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-400">GOLD (Gratuit)</span>`;
                     else if (p.categorie === 'Invité') catBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-950 border border-emerald-300">Invité</span>`;
 
                     mobileContainer.innerHTML += `
