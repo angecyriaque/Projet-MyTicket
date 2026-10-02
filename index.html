@@ -11472,7 +11472,7 @@
 
         filteredCats.forEach(cat => {
             const catParticipants = (state.participants || []).filter(p => (p.categorie || 'Classique') === cat);
-            const numTablesForCat = Math.max(1, Math.ceil(catParticipants.length / 8));
+            const numTablesForCat = (TICKET_QUOTAS[cat] && TICKET_QUOTAS[cat].tables) || Math.max(1, Math.ceil(catParticipants.length / 8));
 
             for (let tableNum = 1; tableNum <= numTablesForCat; tableNum++) {
                 totalTables++;
@@ -11572,7 +11572,7 @@
                                 <h4 class="font-display font-black text-base sm:text-lg text-slate-900">${fullCatName}</h4>
                             </div>
                             <span class="px-3 py-1 rounded-full text-xs font-mono font-black border ${catBadgeBg} shrink-0">
-                                ${occupiedCount}/10 (${checkedInCount} présent${checkedInCount > 1 ? 's' : ''})
+                                ${occupiedCount}/8 (${checkedInCount} présent${checkedInCount > 1 ? 's' : ''})
                             </span>
                         </div>
 
