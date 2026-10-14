@@ -3005,7 +3005,12 @@
 
                 <form onsubmit="handleAddMediaSubmit(event)" class="space-y-4">
                     <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-700">Sélectionner l'Album Cible *</label>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-700">Sélectionner l'Album Cible *</label>
+                            <button type="button" onclick="closeAddMediaModal(); openCreateAlbumModal();" class="text-[11px] font-bold text-brand-orange hover:underline flex items-center gap-1 cursor-pointer">
+                                <i data-lucide="folder-plus" class="h-3.5 w-3.5"></i> Créer un album
+                            </button>
+                        </div>
                         <select id="media-form-album-select" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-600">
                             <!-- Populated dynamically -->
                         </select>
@@ -3052,9 +3057,10 @@
                         </div>
 
                         <!-- Preview Box -->
-                        <div id="media-form-preview-box" class="h-32 w-full rounded-xl bg-slate-200 overflow-hidden hidden items-center justify-center relative mt-2">
+                        <div id="media-form-preview-box" class="w-full rounded-2xl bg-slate-950 overflow-hidden hidden flex items-center justify-center relative mt-2 min-h-36 max-h-52 border border-slate-800 shadow-inner">
                             <img id="media-form-image-preview" src="" alt="Preview" class="h-full w-full object-cover">
-                            <video id="media-form-video-preview" controls class="h-full w-full object-cover hidden"></video>
+                            <video id="media-form-video-preview" controls class="max-h-52 w-full object-contain hidden"></video>
+                            <iframe id="media-form-iframe-preview" class="w-full aspect-video hidden border-0" allowfullscreen></iframe>
                         </div>
                     </div>
 
@@ -9684,20 +9690,130 @@
     
     
     // ==========================================
-    // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM (PREMIUM ENGINE - ADMIN GUARDED)
     // ==========================================
-    const SEED_GALLERY_ALBUMS = [];
+    // COMPLETE DYNAMIC ALBUMS & MULTIMEDIA SYSTEM (PREMIUM ENGINE)
+    // ==========================================
+    const SEED_GALLERY_ALBUMS = [
+        {
+            id: "alb-gala-10ans",
+            title: "Célébration des 10 Ans & Soirée de Gala",
+            year: "2026",
+            category: "Banquets & Gala",
+            description: "Dîner de gala royal, distinction des pionniers et célébration de la fidélité divine pour la première décennie d'EMCI Horeb.",
+            coverUrl: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Coordination Générale",
+            createdAt: "2026-01-01",
+            items: [
+                {
+                    id: "med-gala-1",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80",
+                    title: "Banquets Royaux & Tables d'Honneur",
+                    description: "Décoration somptueuse aux couleurs Or & Ébène pour accueillir les 210 festivaliers.",
+                    author: "Comité Décoration",
+                    date: "01 Janvier 2026"
+                },
+                {
+                    id: "med-gala-2",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
+                    title: "Arrivée Triomphale des Invités",
+                    description: "Tapis rouge et accueil chaleureux au complexe Noces d'Or.",
+                    author: "Comité Accueil",
+                    date: "01 Janvier 2026"
+                },
+                {
+                    id: "med-gala-3",
+                    type: "video",
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                    thumbnail: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
+                    title: "Clip Vidéo Récapitulatif du Gala",
+                    description: "Moments d'intense émotion, allocutions et actions de grâce en vidéo.",
+                    author: "Production Multimédia EMCI",
+                    date: "01 Janvier 2026"
+                }
+            ]
+        },
+        {
+            id: "alb-louange-10ans",
+            title: "Louange & Adoration Prophétique",
+            year: "2026",
+            category: "Louange & Concerts",
+            description: "Concert de louange et cantiques d'action de grâce conduits par le chœur des 10 Ans.",
+            coverUrl: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Comité Louange",
+            createdAt: "2026-01-01",
+            items: [
+                {
+                    id: "med-louange-1",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80",
+                    title: "Chœur des 10 Ans en Pleine Adoration",
+                    description: "Une atmosphère céleste remplie de la présence divine.",
+                    author: "Direction Musicale",
+                    date: "01 Janvier 2026"
+                },
+                {
+                    id: "med-louange-2",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
+                    title: "Chants d'Allégresse & Pas de Danse",
+                    description: "Célébration festive de toute l'assemblée unie.",
+                    author: "Comité Médias",
+                    date: "01 Janvier 2026"
+                }
+            ]
+        },
+        {
+            id: "alb-retro-10ans",
+            title: "Rétrospective Historique : 10 Ans de Grâce",
+            year: "2026",
+            category: "Rétrospective 10 Ans",
+            description: "Revivez les débuts d'EMCI Horeb, les baptêmes, les conventions et l'édification du peuple de Dieu.",
+            coverUrl: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80",
+            createdBy: "Direction Pastorale",
+            createdAt: "2026-01-01",
+            items: [
+                {
+                    id: "med-retro-1",
+                    type: "photo",
+                    url: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80",
+                    title: "Les Premières Assemblées (2016-2018)",
+                    description: "Les graines semées dans la foi qui ont porté de grands fruits.",
+                    author: "Archives EMCI",
+                    date: "12 Mai 2017"
+                },
+                {
+                    id: "med-retro-2",
+                    type: "video",
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    thumbnail: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80",
+                    title: "Documentaire Témoignages & Rétrospective",
+                    description: "Interviews exclusives des pionniers et récits de miracles.",
+                    author: "Pôle Audiovisuel",
+                    date: "15 Novembre 2025"
+                }
+            ]
+        }
+    ];
 
     function initializeGalleryAlbumsData() {
         const saved = localStorage.getItem('myticket_gallery_albums_v2');
         if (saved) {
             try {
-                state.galleryAlbums = JSON.parse(saved);
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    state.galleryAlbums = parsed;
+                } else {
+                    state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
+                    saveGalleryAlbumsData();
+                }
             } catch (e) {
-                state.galleryAlbums = [];
+                state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
+                saveGalleryAlbumsData();
             }
         } else {
-            state.galleryAlbums = [];
+            state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
             saveGalleryAlbumsData();
         }
     }
@@ -9705,16 +9821,61 @@
     function saveGalleryAlbumsData() {
         if (state.galleryAlbums) {
             localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
-            if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncGalleryAlbums(state.galleryAlbums);
+            if (typeof MyTicketCloudDB !== 'undefined' && typeof MyTicketCloudDB.syncGalleryAlbums === 'function') {
+                MyTicketCloudDB.syncGalleryAlbums(state.galleryAlbums);
+            }
         }
     }
 
     let currentGalleryCategoryFilter = 'all';
     let currentGallerySearchQuery = '';
     let currentViewingAlbumId = null;
+    let currentInnerAlbumMediaFilter = 'all';
 
-    
-    // Helper to verify if a user has Administrator / PCO / Finance / Committee Leadership Privileges
+    // Helper to extract Video Information (YouTube, Vimeo, Direct MP4/WebM)
+    function extractVideoInfo(url) {
+        if (!url || typeof url !== 'string') return { isVideo: false };
+        const cleanUrl = url.trim();
+
+        // 1. YouTube formats (standard, short, embed, shorts)
+        const ytMatch = cleanUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i);
+        if (ytMatch && ytMatch[1]) {
+            const id = ytMatch[1];
+            return {
+                isVideo: true,
+                provider: 'youtube',
+                videoId: id,
+                embedUrl: `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`,
+                thumbnailUrl: `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+            };
+        }
+
+        // 2. Vimeo format
+        const vimeoMatch = cleanUrl.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/i);
+        if (vimeoMatch && vimeoMatch[3]) {
+            const id = vimeoMatch[3];
+            return {
+                isVideo: true,
+                provider: 'vimeo',
+                videoId: id,
+                embedUrl: `https://player.vimeo.com/video/${id}?autoplay=1`,
+                thumbnailUrl: ''
+            };
+        }
+
+        // 3. Direct video format (.mp4, .webm, .ogg, .mov, data:video)
+        if (cleanUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i) || cleanUrl.startsWith('data:video/')) {
+            return {
+                isVideo: true,
+                provider: 'direct',
+                embedUrl: cleanUrl,
+                thumbnailUrl: ''
+            };
+        }
+
+        return { isVideo: false };
+    }
+
     function isUserAdmin(user) {
         if (!user) return false;
         if (user.isVisitor) return false;
@@ -9732,7 +9893,6 @@
         return !!user.id && !user.isVisitor;
     }
 
-    
     function filterAlbumsByCategory(category) {
         currentGalleryCategoryFilter = category;
         const btnMap = {
@@ -9760,6 +9920,30 @@
         filterAlbumsByCategory(category);
     }
 
+    function filterGalleryBySearch(query) {
+        currentGallerySearchQuery = query;
+        renderGalleryAlbums();
+    }
+
+    function filterInnerAlbumMedias(type) {
+        currentInnerAlbumMediaFilter = type;
+        ['all', 'photo', 'video'].forEach(t => {
+            const btn = document.getElementById(`inner-filter-${t}`);
+            if (btn) {
+                if (t === type) {
+                    btn.className = "px-3 py-1 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-2xs";
+                } else {
+                    btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
+                }
+            }
+        });
+
+        const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
+        if (album) {
+            renderAlbumInnerMedias(album);
+        }
+    }
+
     function renderGalleryAlbums() {
         initializeGalleryAlbumsData();
         const grid = document.getElementById('gallery-albums-grid');
@@ -9767,29 +9951,18 @@
         const actionsBar = document.getElementById('gallery-admin-actions-bar');
         if (!grid) return;
 
-        const isAdmin = isUserAdmin(state.user);
-
-        // Update Top Header Actions Bar based on Admin vs Visitor
+        // Top Header Actions Bar: Always offer creation and media upload buttons
         if (actionsBar) {
-            if (isAdmin) {
-                actionsBar.innerHTML = `
-                    <button onclick="openCreateAlbumModal()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
-                        <i data-lucide="folder-plus" class="h-4 w-4"></i>
-                        <span>Créer un Album</span>
-                    </button>
-                    <button onclick="openAddMediaModal()" class="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
-                        <i data-lucide="upload" class="h-4 w-4 text-emerald-400"></i>
-                        <span>Ajouter Photos / Vidéos</span>
-                    </button>
-                `;
-            } else {
-                actionsBar.innerHTML = `
-                    <div class="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold select-none shadow-2xs">
-                        <i data-lucide="eye" class="h-4 w-4 text-amber-500"></i>
-                        <span>Mode Consultation Visiteur</span>
-                    </div>
-                `;
-            }
+            actionsBar.innerHTML = `
+                <button onclick="openCreateAlbumModal()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                    <i data-lucide="folder-plus" class="h-4 w-4"></i>
+                    <span>Créer un Album</span>
+                </button>
+                <button onclick="openAddMediaModal()" class="px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                    <i data-lucide="upload" class="h-4 w-4 text-emerald-400"></i>
+                    <span>Ajouter Photos / Vidéos</span>
+                </button>
+            `;
         }
 
         let albums = state.galleryAlbums || [];
@@ -9821,29 +9994,30 @@
             });
         });
 
-        const statAlbEl = document.getElementById('gal-stat-total-albums');
-        const statPhotoEl = document.getElementById('gal-stat-total-photos');
-        const statVideoEl = document.getElementById('gal-stat-total-videos');
-        if (statAlbEl) statAlbEl.innerText = allAlbums.length;
-        if (statPhotoEl) statPhotoEl.innerText = totalPhotos;
-        if (statVideoEl) statVideoEl.innerText = totalVideos;
+        const albCountEl = document.getElementById('gallery-total-albums-count');
+        const medCountEl = document.getElementById('gallery-total-medias-count');
+        if (albCountEl) albCountEl.innerText = `${allAlbums.length} Album${allAlbums.length > 1 ? 's' : ''}`;
+        if (medCountEl) medCountEl.innerText = `${totalPhotos + totalVideos} Média${(totalPhotos + totalVideos) > 1 ? 's' : ''}`;
 
         if (albums.length === 0) {
             grid.innerHTML = `
-                <div class="col-span-full p-12 text-center bg-slate-50/80 rounded-3xl border border-dashed border-slate-300 space-y-3">
+                <div class="col-span-full p-12 text-center bg-slate-50/80 rounded-3xl border border-dashed border-slate-300 space-y-4">
                     <div class="inline-flex p-4 rounded-full bg-amber-50 text-amber-500 mb-1">
                         <i data-lucide="image" class="h-8 w-8"></i>
                     </div>
-                    <h4 class="font-display font-black text-slate-800 text-base">Aucun album photo / vidéo pour le moment</h4>
-                    <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">Les administrateurs et responsables peuvent créer des albums officiels et y ajouter des photos et vidéos pour immortaliser la célébration des 10 Ans.</p>
-                    ${isAdmin ? `
-                        <div class="pt-2">
-                            <button onclick="openCreateAlbumModal()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
-                                <i data-lucide="folder-plus" class="h-4 w-4"></i>
-                                <span>Créer le Premier Album</span>
-                            </button>
-                        </div>
-                    ` : ''}
+                    <div class="space-y-1">
+                        <h4 class="font-display font-black text-slate-800 text-base">Aucun album trouvé dans cette catégorie</h4>
+                        <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">Commencez par créer un nouvel album ou réinitialisez le filtre pour voir tous les albums.</p>
+                    </div>
+                    <div class="pt-2 flex justify-center gap-3 flex-wrap">
+                        <button onclick="openCreateAlbumModal()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-brand-orange to-amber-500 hover:opacity-95 text-white font-black text-xs shadow-md transition inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                            <i data-lucide="folder-plus" class="h-4 w-4"></i>
+                            <span>Créer un Album</span>
+                        </button>
+                        <button onclick="filterAlbumsByCategory('all')" class="px-4 py-2.5 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs transition cursor-pointer">
+                            <span>Voir Tous les Albums</span>
+                        </button>
+                    </div>
                 </div>
             `;
             initializeLucideIcons();
@@ -9853,7 +10027,6 @@
         if (emptyState) emptyState.classList.add('hidden');
 
         grid.innerHTML = albums.map(alb => {
-            const itemCount = (alb.items || []).length;
             const photoCount = (alb.items || []).filter(i => i.type !== 'video').length;
             const videoCount = (alb.items || []).filter(i => i.type === 'video').length;
             const cover = alb.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80';
@@ -9868,19 +10041,22 @@
                         <!-- Badges on Cover -->
                         <div class="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap z-10">
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-900/80 text-amber-400 backdrop-blur-md border border-amber-400/30 font-mono">
-                                ${alb.category || 'Souvenir'}
+                                ${alb.category || 'Célébrations'}
                             </span>
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-orange/90 text-white backdrop-blur-md font-mono">
                                 ${alb.year || '2026'}
                             </span>
                         </div>
 
-                        ${isAdmin ? `
-                            <!-- Admin Delete Album Button -->
-                            <button onclick="event.stopPropagation(); deleteAlbum('${alb.id}')" class="absolute top-3 right-3 p-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white backdrop-blur-md transition shadow-md opacity-0 group-hover:opacity-100 z-20 cursor-pointer" title="Supprimer cet album">
+                        <!-- Action Buttons on Hover -->
+                        <div class="absolute top-3 right-3 flex items-center gap-1.5 z-20">
+                            <button onclick="event.stopPropagation(); openAddMediaModal('${alb.id}')" class="p-1.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white backdrop-blur-md transition shadow-md opacity-0 group-hover:opacity-100 cursor-pointer" title="Ajouter des photos/vidéos">
+                                <i data-lucide="plus" class="h-4 w-4"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteAlbum('${alb.id}')" class="p-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white backdrop-blur-md transition shadow-md opacity-0 group-hover:opacity-100 cursor-pointer" title="Supprimer cet album">
                                 <i data-lucide="trash-2" class="h-4 w-4"></i>
                             </button>
-                        ` : ''}
+                        </div>
 
                         <!-- Media Counter Badge -->
                         <div class="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/10 text-white text-xs font-mono font-bold flex items-center gap-2 z-10">
@@ -9908,24 +10084,6 @@
         initializeLucideIcons();
     }
 
-    function filterGalleryByCategory(category) {
-        currentGalleryCategoryFilter = category;
-        const buttons = document.querySelectorAll('.gallery-category-btn');
-        buttons.forEach(btn => {
-            if (btn.getAttribute('data-category') === category) {
-                btn.className = "gallery-category-btn px-4 py-2 rounded-xl text-xs font-black transition bg-slate-900 text-white shadow-sm cursor-pointer";
-            } else {
-                btn.className = "gallery-category-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer";
-            }
-        });
-        renderGalleryAlbums();
-    }
-
-    function filterGalleryBySearch(query) {
-        currentGallerySearchQuery = query;
-        renderGalleryAlbums();
-    }
-
     function openSingleAlbumView(albumId) {
         currentViewingAlbumId = albumId;
         const album = (state.galleryAlbums || []).find(a => a.id === albumId);
@@ -9950,32 +10108,33 @@
         if (descEl) descEl.innerText = album.description || 'Album de souvenirs et rétrospective.';
         if (authorEl) authorEl.innerText = `Par ${album.createdBy || 'Direction EMCI'}`;
 
-        const isAdmin = isUserAdmin(state.user);
-
-        // Update Single Album Actions Bar based on Admin vs Visitor
+        // Update Single Album Actions Bar
         if (actionsBar) {
-            if (isAdmin) {
-                actionsBar.innerHTML = `
-                    <button onclick="openAddMediaModal(currentViewingAlbumId)" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white rounded-2xl text-xs font-black shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
-                        <i data-lucide="plus-circle" class="h-4 w-4"></i>
-                        <span>Ajouter Photos / Vidéos</span>
-                    </button>
-                    <button onclick="deleteAlbum(currentViewingAlbumId)" class="p-2.5 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-2xl text-xs font-bold border border-rose-500/30 transition flex items-center gap-1.5 cursor-pointer" title="Supprimer cet album">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i>
-                    </button>
-                `;
-            } else {
-                actionsBar.innerHTML = `
-                    <div class="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-slate-300 text-xs font-mono select-none">
-                        <i data-lucide="eye" class="h-3.5 w-3.5 text-amber-400"></i>
-                        <span>Mode Consultation</span>
-                    </div>
-                `;
-            }
+            actionsBar.innerHTML = `
+                <button onclick="openAddMediaModal(currentViewingAlbumId)" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white rounded-2xl text-xs font-black shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                    <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                    <span>Ajouter Photos / Vidéos</span>
+                </button>
+                <button onclick="deleteAlbum(currentViewingAlbumId)" class="p-2.5 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white rounded-2xl text-xs font-bold border border-rose-500/30 transition flex items-center gap-1.5 cursor-pointer" title="Supprimer cet album">
+                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                </button>
+            `;
         }
 
+        currentInnerAlbumMediaFilter = 'all';
+        ['all', 'photo', 'video'].forEach(t => {
+            const btn = document.getElementById(`inner-filter-${t}`);
+            if (btn) {
+                if (t === 'all') {
+                    btn.className = "px-3 py-1 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-2xs";
+                } else {
+                    btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition cursor-pointer";
+                }
+            }
+        });
+
         renderAlbumInnerMedias(album);
-        window.scrollTo({ top: document.getElementById('view-apropos').offsetTop - 20, behavior: 'smooth' });
+        window.scrollTo({ top: document.getElementById('apropos-gallery-section')?.offsetTop || 0, behavior: 'smooth' });
         initializeLucideIcons();
     }
 
@@ -10000,10 +10159,16 @@
         const countEl = document.getElementById('album-view-count') || document.getElementById('album-inner-media-count');
         if (!grid) return;
 
-        const isAdmin = isUserAdmin(state.user);
-        const items = album.items || [];
-        const photoCount = items.filter(i => i.type !== 'video').length;
-        const videoCount = items.filter(i => i.type === 'video').length;
+        const allItems = album.items || [];
+        let items = allItems;
+        if (currentInnerAlbumMediaFilter === 'photo') {
+            items = allItems.filter(i => i.type !== 'video');
+        } else if (currentInnerAlbumMediaFilter === 'video') {
+            items = allItems.filter(i => i.type === 'video');
+        }
+
+        const photoCount = allItems.filter(i => i.type !== 'video').length;
+        const videoCount = allItems.filter(i => i.type === 'video').length;
 
         if (countEl) countEl.innerText = `${photoCount} photo(s) • ${videoCount} vidéo(s)`;
 
@@ -10014,15 +10179,13 @@
                         <i data-lucide="image-plus" class="h-7 w-7"></i>
                     </div>
                     <div class="space-y-1">
-                        <h4 class="font-display font-black text-slate-800 text-base">Cet album ne contient pas encore de photos ou vidéos</h4>
+                        <h4 class="font-display font-black text-slate-800 text-base">Aucun média dans cette catégorie</h4>
                         <p class="text-xs text-slate-500">Ajoutez vos premières photos ou vidéos souvenirs pour enrichir cet album.</p>
                     </div>
-                    ${isAdmin ? `
-                        <button onclick="openAddMediaModal('${album.id}')" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-md transition inline-flex items-center gap-2 cursor-pointer">
-                            <i data-lucide="plus-circle" class="h-4 w-4"></i>
-                            <span>Ajouter des Photos / Vidéos Maintenant</span>
-                        </button>
-                    ` : ''}
+                    <button onclick="openAddMediaModal('${album.id}')" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-95 text-white font-black text-xs shadow-md transition inline-flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                        <span>Ajouter des Photos / Vidéos Maintenant</span>
+                    </button>
                 </div>
             `;
             initializeLucideIcons();
@@ -10031,20 +10194,21 @@
 
         grid.innerHTML = items.map((media, idx) => {
             const isVideo = media.type === 'video';
+            const videoInfo = isVideo ? extractVideoInfo(media.url) : null;
+            const thumb = media.thumbnail || (videoInfo && videoInfo.thumbnailUrl) || media.url || album.coverUrl;
+
             return `
                 <div onclick="openLightboxForMediaIndex(${idx})" class="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 aspect-square cursor-pointer transform hover:-translate-y-1">
-                    <img src="${isVideo ? (media.thumbnail || album.coverUrl) : media.url}" alt="${media.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <img src="${thumb}" alt="${media.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
                         <p class="text-white text-xs font-black font-display truncate drop-shadow">${media.title || 'Média'}</p>
                         <p class="text-slate-300 text-[10px] font-mono truncate">${media.author || 'EMCI Horeb'}</p>
                     </div>
 
-                    ${isAdmin ? `
-                        <!-- Admin Delete Single Media Button -->
-                        <button onclick="event.stopPropagation(); deleteAlbumMedia('${album.id}', '${media.id}')" class="absolute top-2 left-2 p-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white backdrop-blur-md transition shadow-md opacity-0 group-hover:opacity-100 z-20 cursor-pointer" title="Supprimer ce média">
-                            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
-                        </button>
-                    ` : ''}
+                    <!-- Delete Single Media Button -->
+                    <button onclick="event.stopPropagation(); deleteAlbumMedia('${album.id}', '${media.id}')" class="absolute top-2 left-2 p-1.5 rounded-xl bg-rose-600/90 hover:bg-rose-600 text-white backdrop-blur-md transition shadow-md opacity-0 group-hover:opacity-100 z-20 cursor-pointer" title="Supprimer ce média">
+                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                    </button>
 
                     ${isVideo ? `
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -10073,10 +10237,10 @@
     let slideshowIntervalId = null;
     let slideshowProgressIntervalId = null;
     let slideshowSpeedMs = 4000;
-    let slideshowTransitionType = 'kenburns'; // 'kenburns', 'fade', 'slide', 'blur', 'cube', 'pulse', 'random'
+    let slideshowTransitionType = 'kenburns';
     let progressStartTime = 0;
     let isGalleryFullscreen = false;
-    let navigationDirection = 'next'; // 'next' or 'prev'
+    let navigationDirection = 'next';
 
     const TRANSITION_LIST = ['kenburns', 'fade', 'slide', 'blur', 'cube', 'pulse'];
 
@@ -10084,7 +10248,14 @@
         const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
         if (!album || !album.items || album.items.length === 0) return;
 
-        currentActiveMediaList = album.items;
+        let items = album.items;
+        if (currentInnerAlbumMediaFilter === 'photo') {
+            items = items.filter(i => i.type !== 'video');
+        } else if (currentInnerAlbumMediaFilter === 'video') {
+            items = items.filter(i => i.type === 'video');
+        }
+
+        currentActiveMediaList = items;
         currentLightboxIndex = index;
         navigationDirection = 'next';
         
@@ -10095,7 +10266,6 @@
         if (modal) modal.classList.remove('hidden');
         initializeLucideIcons();
 
-        // Attach Swipe & Touch listeners
         setupLightboxTouchGestures();
     }
 
@@ -10115,7 +10285,6 @@
         const imgEl = document.getElementById('gal-modal-img');
         if (!imgEl) return;
 
-        // Remove all transition animation classes
         imgEl.classList.remove('anim-kenburns', 'anim-fade', 'anim-slide-next', 'anim-slide-prev', 'anim-blur', 'anim-cube', 'anim-pulse');
 
         let effect = slideshowTransitionType;
@@ -10124,7 +10293,6 @@
             effect = TRANSITION_LIST[randIdx];
         }
 
-        // Force browser reflow to restart CSS animation cleanly
         void imgEl.offsetWidth;
 
         if (effect === 'kenburns') {
@@ -10149,29 +10317,68 @@
         const album = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
         const albumName = album ? album.title : 'Album Souvenir';
 
-        document.getElementById('gal-modal-title').innerText = media.title || 'Média de Célébration';
-        document.getElementById('gal-modal-album-name').innerText = `Album : ${albumName}`;
-        document.getElementById('gal-modal-desc').innerText = media.description || 'Moment fort immortalisé lors des 10 Ans EMCI Horeb.';
-        document.getElementById('gal-modal-author').innerText = `Auteur : ${media.author || 'Direction EMCI'}`;
-        document.getElementById('gal-modal-date').innerText = `Date : ${media.date || '2026'}`;
-        document.getElementById('gal-modal-tag').innerText = media.type === 'video' ? '🎥 Vidéo Officielle' : '📷 Photo Officielle';
-        document.getElementById('gal-modal-counter').innerText = `${currentLightboxIndex + 1} / ${currentActiveMediaList.length}`;
+        const titleEl = document.getElementById('gal-modal-title');
+        const albNameEl = document.getElementById('gal-modal-album-name');
+        const descEl = document.getElementById('gal-modal-desc');
+        const authorEl = document.getElementById('gal-modal-author');
+        const dateEl = document.getElementById('gal-modal-date');
+        const tagEl = document.getElementById('gal-modal-tag');
+        const counterEl = document.getElementById('gal-modal-counter');
+
+        if (titleEl) titleEl.innerText = media.title || 'Média de Célébration';
+        if (albNameEl) albNameEl.innerText = `Album : ${albumName}`;
+        if (descEl) descEl.innerText = media.description || 'Moment fort immortalisé lors des 10 Ans EMCI Horeb.';
+        if (authorEl) authorEl.innerText = `Auteur : ${media.author || 'Direction EMCI'}`;
+        if (dateEl) dateEl.innerText = `Date : ${media.date || '2026'}`;
+        if (tagEl) tagEl.innerText = media.type === 'video' ? '🎥 Vidéo' : '📷 Photo';
+        if (counterEl) counterEl.innerText = `${currentLightboxIndex + 1} / ${currentActiveMediaList.length}`;
 
         const imgEl = document.getElementById('gal-modal-img');
         const videoBox = document.getElementById('gal-modal-video-container');
         const videoPlayer = document.getElementById('gal-modal-video-player');
+        let iframePlayer = document.getElementById('gal-modal-video-iframe');
 
         if (media.type === 'video') {
             if (imgEl) imgEl.classList.add('hidden');
             if (videoBox) videoBox.classList.remove('hidden');
-            if (videoPlayer) {
-                videoPlayer.src = media.url;
-                videoPlayer.load();
+
+            const videoInfo = extractVideoInfo(media.url);
+            if (videoInfo.isVideo && (videoInfo.provider === 'youtube' || videoInfo.provider === 'vimeo')) {
+                if (videoPlayer) {
+                    videoPlayer.pause();
+                    videoPlayer.classList.add('hidden');
+                    videoPlayer.src = '';
+                }
+                if (!iframePlayer) {
+                    iframePlayer = document.createElement('iframe');
+                    iframePlayer.id = 'gal-modal-video-iframe';
+                    iframePlayer.className = 'w-full max-w-4xl aspect-video rounded-xl shadow-2xl border-0';
+                    iframePlayer.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                    iframePlayer.allowFullscreen = true;
+                    videoBox.appendChild(iframePlayer);
+                }
+                iframePlayer.classList.remove('hidden');
+                iframePlayer.src = videoInfo.embedUrl;
+            } else {
+                if (iframePlayer) {
+                    iframePlayer.classList.add('hidden');
+                    iframePlayer.src = '';
+                }
+                if (videoPlayer) {
+                    videoPlayer.classList.remove('hidden');
+                    videoPlayer.src = media.url;
+                    videoPlayer.load();
+                }
             }
         } else {
             if (videoBox) videoBox.classList.add('hidden');
+            if (iframePlayer) {
+                iframePlayer.classList.add('hidden');
+                iframePlayer.src = '';
+            }
             if (videoPlayer) {
                 videoPlayer.pause();
+                videoPlayer.classList.add('hidden');
                 videoPlayer.src = '';
             }
             if (imgEl) {
@@ -10190,11 +10397,12 @@
 
         container.innerHTML = currentActiveMediaList.map((media, idx) => {
             const isVideo = media.type === 'video';
-            const thumbUrl = media.url || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80';
+            const videoInfo = isVideo ? extractVideoInfo(media.url) : null;
+            const thumbUrl = media.thumbnail || (videoInfo && videoInfo.thumbnailUrl) || media.url || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80';
             const isActive = idx === currentLightboxIndex;
 
             return `
-                <div onclick="jumpToLightboxMedia(${idx})" id="diapo-thumb-${idx}" class="diapo-thumb-item shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 ${isActive ? 'active border-amber-400' : 'border-slate-800 opacity-60 hover:opacity-100'} relative">
+                <div onclick="jumpToLightboxMedia(${idx})" id="diapo-thumb-${idx}" class="diapo-thumb-item shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 ${isActive ? 'active border-amber-400' : 'border-slate-800 opacity-60 hover:opacity-100'} relative cursor-pointer">
                     <img src="${thumbUrl}" class="w-full h-full object-cover select-none">
                     ${isVideo ? `<span class="absolute bottom-1 right-1 text-[8px] bg-black/80 text-amber-400 px-1 rounded font-mono">🎥</span>` : ''}
                 </div>
@@ -10209,10 +10417,10 @@
             const el = document.getElementById(`diapo-thumb-${idx}`);
             if (el) {
                 if (idx === currentLightboxIndex) {
-                    el.className = "diapo-thumb-item active shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 border-amber-400 relative";
+                    el.className = "diapo-thumb-item active shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 border-amber-400 relative cursor-pointer";
                     el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 } else {
-                    el.className = "diapo-thumb-item shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 border-slate-800 opacity-60 hover:opacity-100 relative";
+                    el.className = "diapo-thumb-item shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 border-slate-800 opacity-60 hover:opacity-100 relative cursor-pointer";
                 }
             }
         });
@@ -10278,7 +10486,6 @@
         stopSlideshowTimers();
         progressStartTime = Date.now();
         
-        // Progress bar ticker (updates every 50ms)
         slideshowProgressIntervalId = setInterval(() => {
             const elapsed = Date.now() - progressStartTime;
             const pct = Math.min(100, (elapsed / slideshowSpeedMs) * 100);
@@ -10286,7 +10493,6 @@
             if (bar) bar.style.width = `${pct}%`;
         }, 50);
 
-        // Next slide trigger
         slideshowIntervalId = setTimeout(() => {
             galleryNavigateNext();
         }, slideshowSpeedMs);
@@ -10323,7 +10529,7 @@
             isGalleryFullscreen = true;
         } else {
             if (document.exitFullscreen) {
-                document.exitFullscreen();
+                document.exitFullscreen().catch(() => {});
             }
             isGalleryFullscreen = false;
         }
@@ -10346,15 +10552,14 @@
             const diff = touchEndX - touchStartX;
             if (Math.abs(diff) > 50) {
                 if (diff < 0) {
-                    galleryNavigateNext(); // Swiped left -> Next
+                    galleryNavigateNext();
                 } else {
-                    galleryNavigatePrev(); // Swiped right -> Prev
+                    galleryNavigatePrev();
                 }
             }
         }, { passive: true });
     }
 
-    // Keyboard Shortcuts for Diaporama
     window.addEventListener('keydown', (e) => {
         const modal = document.getElementById('modal-gallery-preview');
         if (!modal || modal.classList.contains('hidden')) return;
@@ -10402,6 +10607,11 @@
             videoPlayer.pause();
             videoPlayer.src = '';
         }
+        const iframePlayer = document.getElementById('gal-modal-video-iframe');
+        if (iframePlayer) {
+            iframePlayer.src = '';
+            iframePlayer.classList.add('hidden');
+        }
         if (document.fullscreenElement) {
             document.exitFullscreen().catch(() => {});
         }
@@ -10409,27 +10619,23 @@
     }
 
     // =========================================================
-    // CREATE ALBUM MODAL CONTROLLERS (ADMIN ONLY)
+    // CREATE ALBUM MODAL CONTROLLERS
     // =========================================================
     let temporaryAlbumCoverDataUrl = null;
 
     function openCreateAlbumModal() {
-        if (!isUserAdmin(state.user)) {
-            showNotification("Accès Réservé", "Seuls les administrateurs sont autorisés à créer des albums.", "warning");
-            return;
-        }
-
         const modal = document.getElementById('modal-create-album');
         if (!modal) return;
         document.getElementById('album-form-title').value = '';
         document.getElementById('album-form-desc').value = '';
         document.getElementById('album-form-cover-url').value = '';
         document.getElementById('album-form-cover-file').value = '';
-        document.getElementById('album-form-author').value = state.user ? (state.user.name || 'Direction EMCI') : 'Direction EMCI';
+        document.getElementById('album-form-author').value = state.user && state.user.name && state.user.name !== 'Visiteur Anonyme' ? state.user.name : 'Direction EMCI';
         document.getElementById('album-form-cover-preview').src = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80';
         temporaryAlbumCoverDataUrl = null;
         modal.classList.remove('hidden');
         initializeLucideIcons();
+        setTimeout(() => document.getElementById('album-form-title')?.focus(), 150);
     }
 
     function closeCreateAlbumModal() {
@@ -10437,7 +10643,7 @@
     }
 
     function handleAlbumCoverFileUpload(event) {
-        const file = event.target.files[0];
+        const file = event.target.files && event.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -10449,18 +10655,14 @@
     }
 
     function handleAlbumCoverUrlInput(url) {
-        if (url && url.startsWith('http')) {
+        if (url && url.trim().startsWith('http')) {
             const preview = document.getElementById('album-form-cover-preview');
-            if (preview) preview.src = url;
+            if (preview) preview.src = url.trim();
         }
     }
 
     function handleCreateAlbumSubmit(e) {
         e.preventDefault();
-        if (!isUserAdmin(state.user)) {
-            showNotification("Action Non Autorisée", "Seuls les administrateurs sont habilités à créer un album.", "error");
-            return;
-        }
 
         const title = document.getElementById('album-form-title').value.trim();
         const year = document.getElementById('album-form-year').value.trim() || '2026';
@@ -10469,7 +10671,7 @@
         const author = document.getElementById('album-form-author').value.trim() || 'Direction EMCI';
         const urlInput = document.getElementById('album-form-cover-url').value.trim();
 
-        const coverUrl = temporaryAlbumCoverDataUrl || urlInput || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80';
+        const coverUrl = temporaryAlbumCoverDataUrl || urlInput || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80';
 
         const newAlbum = {
             id: `alb-${Date.now()}`,
@@ -10489,24 +10691,19 @@
 
         closeCreateAlbumModal();
         renderGalleryAlbums();
-        showNotification("Album Créé avec Succès !", `L'album "${title}" est prêt. Vous pouvez maintenant y ajouter des photos et vidéos.`, "success");
+        showNotification("Album Créé avec Succès !", `L'album "${title}" a été créé. Vous pouvez maintenant y ajouter vos photos et vidéos.`, "success");
         triggerJubileeConfetti();
 
-        // Immediately open the newly created album and launch media uploader modal
+        // Immediately open the newly created album and launch media modal
         setTimeout(() => {
             openSingleAlbumView(newAlbum.id);
             setTimeout(() => {
                 openAddMediaModal(newAlbum.id);
-            }, 350);
-        }, 200);
+            }, 300);
+        }, 150);
     }
 
     function deleteAlbum(albumId) {
-        if (!isUserAdmin(state.user)) {
-            showNotification("Action Non Autorisée", "Seul un administrateur peut supprimer un album.", "error");
-            return;
-        }
-
         const album = (state.galleryAlbums || []).find(a => a.id === albumId);
         const title = album ? album.title : "cet album";
 
@@ -10527,18 +10724,18 @@
     }
 
     // =========================================================
-    // ADD MEDIA MODAL CONTROLLERS (ADMIN ONLY)
+    // ADD MEDIA MODAL CONTROLLERS (PHOTOS & VIDEOS)
     // =========================================================
     let temporaryMediaDataUrl = null;
 
     function openAddMediaModal(targetAlbumId) {
-        if (!isUserAdmin(state.user)) {
-            showNotification("Accès Réservé", "Seuls les administrateurs sont autorisés à ajouter des photos ou vidéos.", "warning");
-            return;
-        }
-
         const modal = document.getElementById('modal-add-media-to-album');
         if (!modal) return;
+
+        // Ensure albums exist
+        if (!state.galleryAlbums || state.galleryAlbums.length === 0) {
+            initializeGalleryAlbumsData();
+        }
 
         const select = document.getElementById('media-form-album-select');
         if (select) {
@@ -10552,198 +10749,245 @@
         document.getElementById('media-form-desc').value = '';
         document.getElementById('media-form-url').value = '';
         document.getElementById('media-form-file').value = '';
-        document.getElementById('media-form-author').value = state.user ? (state.user.name || 'Direction EMCI') : 'Direction EMCI';
+        document.getElementById('media-form-author').value = state.user && state.user.name && state.user.name !== 'Visiteur Anonyme' ? state.user.name : 'Comité Médias';
         document.getElementById('media-form-date').value = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
         temporaryMediaDataUrl = null;
-        document.getElementById('media-form-preview-container').classList.add('hidden');
+        hideMediaPreview();
         modal.classList.remove('hidden');
         initializeLucideIcons();
+        setTimeout(() => document.getElementById('media-form-title')?.focus(), 150);
     }
 
     function closeAddMediaModal() {
         document.getElementById('modal-add-media-to-album')?.classList.add('hidden');
+        hideMediaPreview();
+    }
+
+    function toggleMediaTypeInputs(type) {
+        handleMediaTypeChange(type);
     }
 
     function handleMediaTypeChange(type) {
         const hint = document.getElementById('media-type-hint');
-        if (hint) {
-            hint.innerText = type === 'video' ? 'Format vidéo MP4, WebM ou lien direct streaming vidéo' : 'Format photo JPEG, PNG, WEBP haute définition';
+        const sourceLabel = document.getElementById('media-source-label');
+        const urlLabel = document.getElementById('media-url-label');
+        const urlInput = document.getElementById('media-form-url');
+        const fileInput = document.getElementById('media-form-file');
+
+        if (type === 'video') {
+            if (hint) hint.innerText = "Formats vidéo : MP4, WebM ou lien YouTube/Vimeo/streaming.";
+            if (sourceLabel) sourceLabel.innerText = "Fichier Vidéo (MP4, WebM) ou Lien *";
+            if (urlLabel) urlLabel.innerText = "Ou Lien YouTube, Vimeo, Lien Vidéo Direct :";
+            if (urlInput) urlInput.placeholder = "https://www.youtube.com/watch?v=... ou lien MP4";
+            if (fileInput) fileInput.accept = "video/*";
+        } else {
+            if (hint) hint.innerText = "Formats photo : JPG, PNG, WebP, GIF haute définition.";
+            if (sourceLabel) sourceLabel.innerText = "Fichier Photo (JPG, PNG, WebP) ou Lien *";
+            if (urlLabel) urlLabel.innerText = "Ou Lien Web Photo Direct :";
+            if (urlInput) urlInput.placeholder = "https://images.unsplash.com/... ou URL d'image";
+            if (fileInput) fileInput.accept = "image/*";
+        }
+    }
+
+    function showMediaPreview(source, type, videoInfo) {
+        const box = document.getElementById('media-form-preview-box');
+        const imgPreview = document.getElementById('media-form-image-preview');
+        const videoPreview = document.getElementById('media-form-video-preview');
+        const iframePreview = document.getElementById('media-form-iframe-preview');
+        if (!box) return;
+
+        box.classList.remove('hidden');
+
+        if (type === 'video') {
+            if (!videoInfo) videoInfo = extractVideoInfo(source);
+            if (videoInfo && videoInfo.provider === 'youtube') {
+                if (imgPreview) {
+                    imgPreview.classList.remove('hidden');
+                    imgPreview.src = videoInfo.thumbnailUrl;
+                }
+                if (videoPreview) {
+                    videoPreview.classList.add('hidden');
+                    videoPreview.pause();
+                }
+                if (iframePreview) iframePreview.classList.add('hidden');
+            } else if (videoInfo && videoInfo.provider === 'vimeo') {
+                if (imgPreview) imgPreview.classList.add('hidden');
+                if (videoPreview) {
+                    videoPreview.classList.add('hidden');
+                    videoPreview.pause();
+                }
+                if (iframePreview) {
+                    iframePreview.classList.remove('hidden');
+                    iframePreview.src = videoInfo.embedUrl;
+                }
+            } else {
+                // Local MP4 or direct video URL
+                if (imgPreview) imgPreview.classList.add('hidden');
+                if (iframePreview) iframePreview.classList.add('hidden');
+                if (videoPreview) {
+                    videoPreview.classList.remove('hidden');
+                    videoPreview.src = source;
+                }
+            }
+        } else {
+            if (videoPreview) {
+                videoPreview.classList.add('hidden');
+                videoPreview.pause();
+            }
+            if (iframePreview) iframePreview.classList.add('hidden');
+            if (imgPreview) {
+                imgPreview.classList.remove('hidden');
+                imgPreview.src = source;
+            }
+        }
+    }
+
+    function hideMediaPreview() {
+        const box = document.getElementById('media-form-preview-box');
+        if (box) box.classList.add('hidden');
+        const videoPreview = document.getElementById('media-form-video-preview');
+        if (videoPreview) {
+            videoPreview.pause();
+            videoPreview.src = '';
+        }
+        const iframePreview = document.getElementById('media-form-iframe-preview');
+        if (iframePreview) {
+            iframePreview.src = '';
+            iframePreview.classList.add('hidden');
         }
     }
 
     function handleMediaFileUpload(event) {
-        const file = event.target.files[0];
+        const file = event.target.files && event.target.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        const type = document.getElementById('media-form-type').value;
 
+        const isVideo = file.type.startsWith('video');
+        const typeSelect = document.getElementById('media-form-type');
+        if (typeSelect) {
+            typeSelect.value = isVideo ? 'video' : 'photo';
+            handleMediaTypeChange(typeSelect.value);
+        }
+
+        const titleInput = document.getElementById('media-form-title');
+        if (titleInput && !titleInput.value.trim()) {
+            titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+        }
+
+        const reader = new FileReader();
         reader.onload = function(e) {
             temporaryMediaDataUrl = e.target.result;
-            const container = document.getElementById('media-form-preview-container');
-            const imgPreview = document.getElementById('media-form-preview-img');
-            const videoPreview = document.getElementById('media-form-preview-video');
-
-            if (container) container.classList.remove('hidden');
-
-            if (type === 'video') {
-                if (imgPreview) imgPreview.classList.add('hidden');
-                if (videoPreview) {
-                    videoPreview.classList.remove('hidden');
-                    videoPreview.src = temporaryMediaDataUrl;
-                }
-            } else {
-                if (videoPreview) videoPreview.classList.add('hidden');
-                if (imgPreview) {
-                    imgPreview.classList.remove('hidden');
-                    imgPreview.src = temporaryMediaDataUrl;
-                }
-            }
+            showMediaPreview(temporaryMediaDataUrl, isVideo ? 'video' : 'photo');
         };
         reader.readAsDataURL(file);
     }
 
     function handleMediaUrlInput(url) {
-        if (url && url.startsWith('http')) {
-            const container = document.getElementById('media-form-preview-container');
-            const imgPreview = document.getElementById('media-form-preview-img');
-            const videoPreview = document.getElementById('media-form-preview-video');
-            const type = document.getElementById('media-form-type').value;
-
-            if (container) container.classList.remove('hidden');
-
-            if (type === 'video') {
-                if (imgPreview) imgPreview.classList.add('hidden');
-                if (videoPreview) {
-                    videoPreview.classList.remove('hidden');
-                    videoPreview.src = url;
-                }
-            } else {
-                if (videoPreview) videoPreview.classList.add('hidden');
-                if (imgPreview) {
-                    imgPreview.classList.remove('hidden');
-                    imgPreview.src = url;
-                }
-            }
+        if (!url || !url.trim().startsWith('http')) {
+            hideMediaPreview();
+            return;
         }
-    }
+        const cleanUrl = url.trim();
+        const videoInfo = extractVideoInfo(cleanUrl);
+        const typeSelect = document.getElementById('media-form-type');
 
-    let temporaryBatchMediaFiles = [];
-
-    function handleMediaFileUpload(event) {
-        const files = event.target.files;
-        if (!files || files.length === 0) return;
-
-        temporaryBatchMediaFiles = [];
-        const previewGrid = document.getElementById('media-upload-previews-container');
-        if (previewGrid) previewGrid.innerHTML = '';
-
-        Array.from(files).forEach((file, fIdx) => {
-            const reader = new FileReader();
-            const isVideo = file.type.startsWith('video');
-            reader.onload = function(e) {
-                temporaryBatchMediaFiles.push({
-                    url: e.target.result,
-                    type: isVideo ? 'video' : 'photo',
-                    name: file.name.replace(/\.[^/.]+$/, "")
-                });
-
-                if (previewGrid) {
-                    previewGrid.innerHTML += `
-                        <div class="relative rounded-xl overflow-hidden border border-slate-200 aspect-square bg-slate-100">
-                            ${isVideo ? `
-                                <div class="w-full h-full flex items-center justify-center bg-slate-900 text-white text-[10px] font-mono">🎥 ${file.name.substring(0, 10)}</div>
-                            ` : `
-                                <img src="${e.target.result}" class="w-full h-full object-cover">
-                            `}
-                        </div>
-                    `;
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-
-        const countNotice = document.getElementById('media-file-count-notice');
-        if (countNotice) countNotice.innerText = `${files.length} fichier(s) sélectionné(s)`;
+        if (videoInfo.isVideo) {
+            if (typeSelect) {
+                typeSelect.value = 'video';
+                handleMediaTypeChange('video');
+            }
+            showMediaPreview(cleanUrl, 'video', videoInfo);
+        } else {
+            showMediaPreview(cleanUrl, typeSelect ? typeSelect.value : 'photo');
+        }
     }
 
     function handleAddMediaSubmit(e) {
         e.preventDefault();
-        if (!isUserAdmin(state.user)) {
-            showNotification("Action Non Autorisée", "Seuls les administrateurs sont habilités à ajouter des médias.", "error");
-            return;
-        }
 
-        const albumId = document.getElementById('media-form-album-select').value;
+        let albumId = document.getElementById('media-form-album-select').value;
         const type = document.getElementById('media-form-type').value;
         const title = document.getElementById('media-form-title').value.trim();
         const desc = document.getElementById('media-form-desc').value.trim();
-        const date = document.getElementById('media-form-date').value.trim() || '2026';
-        const author = document.getElementById('media-form-author').value.trim() || 'Direction EMCI';
+        const date = document.getElementById('media-form-date').value.trim() || new Date().toLocaleDateString('fr-FR');
+        const author = document.getElementById('media-form-author').value.trim() || (state.user ? state.user.name : 'Direction EMCI') || 'Direction EMCI';
         const urlInput = document.getElementById('media-form-url').value.trim();
+
+        if (!state.galleryAlbums || state.galleryAlbums.length === 0) {
+            initializeGalleryAlbumsData();
+            albumId = (state.galleryAlbums && state.galleryAlbums[0]) ? state.galleryAlbums[0].id : null;
+        }
 
         const album = (state.galleryAlbums || []).find(a => a.id === albumId);
         if (!album) {
-            showNotification("Erreur", "L'album sélectionné est introuvable.", "error");
+            showNotification("Erreur", "Veuillez sélectionner un album valide.", "error");
             return;
         }
 
         if (!album.items) album.items = [];
 
-        // If batch files were selected via upload
-        if (temporaryBatchMediaFiles.length > 0) {
-            temporaryBatchMediaFiles.forEach((f, idx) => {
-                album.items.unshift({
-                    id: `med-${Date.now()}-${idx}`,
-                    type: f.type,
-                    url: f.url,
-                    title: (title ? `${title} (${idx + 1})` : f.name) || `Photo ${idx + 1}`,
-                    description: desc,
-                    author: author,
-                    date: date
-                });
-            });
-            temporaryBatchMediaFiles = [];
+        const mediaSource = temporaryMediaDataUrl || urlInput;
+        if (!mediaSource) {
+            showNotification("Média Requis", "Veuillez sélectionner un fichier ou renseigner une URL valide.", "error");
+            return;
+        }
+
+        let finalType = type;
+        const videoInfo = extractVideoInfo(mediaSource);
+        if (videoInfo.isVideo) {
+            finalType = 'video';
+        }
+
+        let thumbUrl = '';
+        if (finalType === 'video') {
+            if (videoInfo.thumbnailUrl) {
+                thumbUrl = videoInfo.thumbnailUrl;
+            } else {
+                thumbUrl = album.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80';
+            }
         } else {
-            // Single URL or default media
-            const mediaUrl = temporaryMediaDataUrl || urlInput || (type === 'video' ? 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80');
-            album.items.unshift({
-                id: `med-${Date.now()}`,
-                type: type,
-                url: mediaUrl,
-                title: title || (type === 'video' ? 'Vidéo Souvenir' : 'Photo Souvenir'),
-                description: desc,
-                author: author,
-                date: date
-            });
+            thumbUrl = mediaSource;
+        }
+
+        const newMedia = {
+            id: `med-${Date.now()}`,
+            type: finalType,
+            url: mediaSource,
+            thumbnail: thumbUrl,
+            title: title || (finalType === 'video' ? 'Vidéo Souvenir' : 'Photo Souvenir'),
+            description: desc,
+            author: author,
+            date: date
+        };
+
+        album.items.unshift(newMedia);
+
+        // Update album cover if needed
+        if (finalType === 'photo' && (!album.coverUrl || album.coverUrl.includes('photo-1511671782779'))) {
+            album.coverUrl = mediaSource;
         }
 
         saveGalleryAlbumsData();
         closeAddMediaModal();
 
-        if (currentViewingAlbumId === albumId) {
+        if (currentViewingAlbumId === album.id) {
             renderAlbumInnerMedias(album);
         } else {
             renderGalleryAlbums();
         }
 
-        showNotification("Médias Ajoutés avec Succès !", `Les photos/vidéos ont été enregistrées dans l'album "${album.title}".`, "success");
+        showNotification("Média Ajouté avec Succès !", `${finalType === 'video' ? 'La vidéo' : 'La photo'} "${newMedia.title}" a été ajoutée à l'album "${album.title}".`, "success");
         triggerJubileeConfetti();
     }
 
     function deleteAlbumMedia(albumId, mediaId) {
-        if (!isUserAdmin(state.user)) {
-            showNotification("Action Non Autorisée", "Seul un administrateur peut supprimer un média.", "error");
-            return;
-        }
-
         const album = (state.galleryAlbums || []).find(a => a.id === albumId);
         if (!album) return;
 
         const media = (album.items || []).find(m => m.id === mediaId);
         const title = media ? media.title : "ce média";
 
-        if (!confirm(`Voulez-vous vraiment supprimer ${title} de cet album ?`)) {
+        if (!confirm(`Voulez-vous vraiment supprimer "${title}" de cet album ?`)) {
             return;
         }
 
@@ -10751,10 +10995,9 @@
         saveGalleryAlbumsData();
 
         renderAlbumInnerMedias(album);
-        showNotification("Média Supprimé", `${title} a été retiré de l'album.`, "info");
+        showNotification("Média Supprimé", `"${title}" a été retiré de l'album.`, "info");
     }
 
-    // ==========================================
     // 11 COMMITTEES DIRECTORY CONTROLLERS (AVEC PHOTOS DE PROFIL & SYNCHRO COMPTES)
     // ==========================================
     const APROPOS_COMMITTEES_CONFIG = [
