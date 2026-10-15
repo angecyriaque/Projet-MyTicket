@@ -2961,8 +2961,8 @@
                                 <img id="album-form-cover-preview" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80" alt="Preview" class="h-full w-full object-cover">
                             </div>
                             <div class="flex-1 space-y-1.5">
-                                <input type="file" id="album-form-cover-file" accept="image/*" onchange="handleAlbumCoverFileUpload(event)" class="text-[11px] text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
-                                <input type="url" id="album-form-cover-url" placeholder="Ou coller une URL d'image..." oninput="handleAlbumCoverUrlInput(this.value)" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] focus:outline-none focus:border-purple-600">
+                                <input type="file" id="album-form-cover-file" accept="image/*,video/*" onchange="handleAlbumCoverFileUpload(event)" class="text-[11px] text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
+                                <input type="text" id="album-form-cover-url" placeholder="Ou coller une URL d'image ou vidéo..." oninput="handleAlbumCoverUrlInput(this.value)" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] focus:outline-none focus:border-purple-600">
                             </div>
                         </div>
                     </div>
@@ -9726,7 +9726,7 @@
                     id: "med-gala-3",
                     type: "video",
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                    thumbnail: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
+                    thumbnail: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
                     title: "Clip Vidéo Récapitulatif du Gala",
                     description: "Moments d'intense émotion, allocutions et actions de grâce en vidéo.",
                     author: "Production Multimédia EMCI",
@@ -9787,7 +9787,7 @@
                     id: "med-retro-2",
                     type: "video",
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                    thumbnail: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=80",
+                    thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=1200&q=80",
                     title: "Documentaire Témoignages & Rétrospective",
                     description: "Interviews exclusives des pionniers et récits de miracles.",
                     author: "Pôle Audiovisuel",
@@ -9814,6 +9814,31 @@
             }
         } else {
             state.galleryAlbums = JSON.parse(JSON.stringify(SEED_GALLERY_ALBUMS));
+            saveGalleryAlbumsData();
+        }
+
+        // Vérification et mise à niveau des vignettes de vidéos existantes
+        let hasUpdatedThumbs = false;
+        (state.galleryAlbums || []).forEach(alb => {
+            (alb.items || []).forEach(item => {
+                if (item.type === 'video') {
+                    if (item.id === 'med-gala-3' && (!item.thumbnail || item.thumbnail.includes('photo-1511795409834'))) {
+                        item.thumbnail = "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80";
+                        hasUpdatedThumbs = true;
+                    } else if (item.id === 'med-retro-2' && (!item.thumbnail || item.thumbnail.includes('photo-1523580494863'))) {
+                        item.thumbnail = "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=1200&q=80";
+                        hasUpdatedThumbs = true;
+                    } else {
+                        const vInfo = extractVideoInfo(item.url);
+                        if (vInfo && vInfo.thumbnailUrl && (!item.thumbnail || isVideoMediaSource(item.thumbnail))) {
+                            item.thumbnail = vInfo.thumbnailUrl;
+                            hasUpdatedThumbs = true;
+                        }
+                    }
+                }
+            });
+        });
+        if (hasUpdatedThumbs) {
             saveGalleryAlbumsData();
         }
     }
@@ -9896,7 +9921,7 @@
         const cleanUrl = url.trim();
 
         // 1. YouTube formats (standard, short, embed, shorts)
-        const ytMatch = cleanUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i);
+        const ytMatch = cleanUrl.match(/(?:youtube\.(?:com|be)\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i);
         if (ytMatch && ytMatch[1]) {
             const id = ytMatch[1];
             return {
@@ -9908,7 +9933,7 @@
             };
         }
 
-        // 2. Vimeo format
+        // 2. Vimeo format (avec capture vumbnail instantanée)
         const vimeoMatch = cleanUrl.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/i);
         if (vimeoMatch && vimeoMatch[3]) {
             const id = vimeoMatch[3];
@@ -9917,12 +9942,12 @@
                 provider: 'vimeo',
                 videoId: id,
                 embedUrl: `https://player.vimeo.com/video/${id}?autoplay=1`,
-                thumbnailUrl: ''
+                thumbnailUrl: `https://vumbnail.com/${id}.jpg`
             };
         }
 
-        // 3. Direct video format (.mp4, .webm, .ogg, .mov, data:video)
-        if (cleanUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i) || cleanUrl.startsWith('data:video/')) {
+        // 3. Direct video format (.mp4, .webm, .ogg, .mov, data:video, blob:)
+        if (cleanUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i) || cleanUrl.startsWith('data:video/') || cleanUrl.startsWith('blob:')) {
             return {
                 isVideo: true,
                 provider: 'direct',
@@ -9932,6 +9957,143 @@
         }
 
         return { isVideo: false };
+    }
+
+    /**
+     * Capture une image/frame exacte d'une vidéo (File, Blob ou URL) via HTML5 Canvas.
+     * Sert d'illustration instantanée pour les vidéos et éléments importés.
+     */
+    function captureVideoFrame(videoSource, seekTime = 1.0) {
+        return new Promise((resolve) => {
+            if (!videoSource) return resolve('');
+
+            // Si c'est déjà une image DataURL ou fichier image
+            if (typeof videoSource === 'string' && (videoSource.startsWith('data:image/') || videoSource.match(/\.(jpeg|jpg|png|webp|gif)($|\?)/i))) {
+                return resolve(videoSource);
+            }
+
+            // Si c'est YouTube ou Vimeo, récupérer directement la capture vidéo officielle
+            if (typeof videoSource === 'string') {
+                const ytMatch = videoSource.match(/(?:youtube\.(?:com|be)\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/i);
+                if (ytMatch && ytMatch[1]) {
+                    return resolve(`https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`);
+                }
+                const vimeoMatch = videoSource.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/i);
+                if (vimeoMatch && vimeoMatch[3]) {
+                    return resolve(`https://vumbnail.com/${vimeoMatch[3]}.jpg`);
+                }
+            }
+
+            try {
+                const video = document.createElement('video');
+                video.crossOrigin = 'anonymous';
+                video.muted = true;
+                video.playsInline = true;
+                video.preload = 'auto';
+
+                let isFinished = false;
+                let blobUrlToRevoke = null;
+
+                const finish = (result) => {
+                    if (!isFinished) {
+                        isFinished = true;
+                        try {
+                            video.pause();
+                            video.removeAttribute('src');
+                            video.load();
+                        } catch(e) {}
+                        if (blobUrlToRevoke) {
+                            try { URL.revokeObjectURL(blobUrlToRevoke); } catch(e) {}
+                        }
+                        resolve(result || '');
+                    }
+                };
+
+                const timeoutId = setTimeout(() => {
+                    finish('');
+                }, 3500);
+
+                video.onloadedmetadata = () => {
+                    let target = seekTime;
+                    const dur = video.duration || 0;
+                    if (dur > 0) {
+                        if (target > dur) target = Math.max(0.1, dur * 0.25);
+                    }
+                    video.currentTime = target;
+                };
+
+                video.onseeked = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        let w = video.videoWidth || 640;
+                        let h = video.videoHeight || 360;
+                        if (w <= 0 || h <= 0) { w = 640; h = 360; }
+
+                        const maxW = 960;
+                        if (w > maxW) {
+                            h = Math.round((h * maxW) / w);
+                            w = maxW;
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, w, h);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                        clearTimeout(timeoutId);
+                        finish(dataUrl);
+                    } catch(err) {
+                        console.warn("Capture frame video non permise par CORS:", err);
+                        clearTimeout(timeoutId);
+                        finish('');
+                    }
+                };
+
+                video.onerror = () => {
+                    clearTimeout(timeoutId);
+                    finish('');
+                };
+
+                if (videoSource instanceof File || videoSource instanceof Blob) {
+                    blobUrlToRevoke = URL.createObjectURL(videoSource);
+                    video.src = blobUrlToRevoke;
+                } else if (typeof videoSource === 'string') {
+                    video.src = videoSource;
+                } else {
+                    finish('');
+                }
+            } catch(e) {
+                console.error("Erreur captureVideoFrame:", e);
+                resolve('');
+            }
+        });
+    }
+
+    function isVideoMediaSource(url) {
+        if (!url || typeof url !== 'string') return false;
+        return url.startsWith('data:video/') || url.startsWith('blob:') || !!url.match(/\.(mp4|webm|ogg|mov)($|\?)/i);
+    }
+
+    /**
+     * Génère le balisage d'illustration pour un média (Photo ou Vidéo).
+     * Pour les vidéos, utilise prioritairement la capture d'écran de la vidéo (thumbnail),
+     * ou génère une vignette native via <video src="#t=0.5"> si la capture n'est pas encore stockée.
+     */
+    function renderMediaIllustration(media, album, extraClasses = '') {
+        const isVideo = media.type === 'video';
+        const videoInfo = isVideo ? extractVideoInfo(media.url) : null;
+        let thumb = media.thumbnail || (videoInfo && videoInfo.thumbnailUrl);
+
+        if (isVideo && (!thumb || isVideoMediaSource(thumb))) {
+            return `<video src="${media.url}#t=0.5" preload="metadata" muted playsinline class="w-full h-full object-cover pointer-events-none select-none ${extraClasses}"></video>`;
+        }
+
+        if (!thumb) {
+            thumb = (album && album.coverUrl) ? album.coverUrl : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80';
+        }
+
+        return `<img src="${thumb}" alt="${media.title || 'Média'}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 select-none ${extraClasses}" loading="lazy">`;
     }
 
     function isUserAdmin(user) {
@@ -10087,13 +10249,20 @@
         grid.innerHTML = albums.map(alb => {
             const photoCount = (alb.items || []).filter(i => i.type !== 'video').length;
             const videoCount = (alb.items || []).filter(i => i.type === 'video').length;
-            const cover = alb.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80';
+
+            let coverHtml = '';
+            if (alb.coverUrl && isVideoMediaSource(alb.coverUrl)) {
+                coverHtml = `<video src="${alb.coverUrl}#t=0.5" preload="metadata" muted playsinline class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100 pointer-events-none select-none"></video>`;
+            } else {
+                const cover = alb.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80';
+                coverHtml = `<img src="${cover}" alt="${alb.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 opacity-90 group-hover:opacity-100" loading="lazy">`;
+            }
 
             return `
                 <div onclick="openSingleAlbumView('${alb.id}')" class="album-card-interactive group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1 relative">
                     <!-- Album Cover Container -->
                     <div class="relative h-52 bg-slate-900 overflow-hidden">
-                        <img src="${cover}" alt="${alb.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 opacity-90 group-hover:opacity-100">
+                        ${coverHtml}
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
                         
                         <!-- Badges on Cover -->
@@ -10252,13 +10421,12 @@
 
         grid.innerHTML = items.map((media, idx) => {
             const isVideo = media.type === 'video';
-            const videoInfo = isVideo ? extractVideoInfo(media.url) : null;
-            const thumb = media.thumbnail || (videoInfo && videoInfo.thumbnailUrl) || media.url || album.coverUrl;
+            const illustrationHtml = renderMediaIllustration(media, album);
 
             return `
                 <div onclick="openLightboxForMediaIndex(${idx})" class="group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 aspect-square cursor-pointer transform hover:-translate-y-1">
-                    <img src="${thumb}" alt="${media.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                    ${illustrationHtml}
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3 pointer-events-none">
                         <p class="text-white text-xs font-black font-display truncate drop-shadow">${media.title || 'Média'}</p>
                         <p class="text-slate-300 text-[10px] font-mono truncate">${media.author || 'EMCI Horeb'}</p>
                     </div>
@@ -10270,15 +10438,15 @@
 
                     ${isVideo ? `
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <span class="h-12 w-12 rounded-full bg-brand-orange/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
-                                <i data-lucide="play" class="h-6 w-6 fill-white"></i>
+                            <span class="h-12 w-12 rounded-full bg-brand-orange/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition backdrop-blur-sm">
+                                <i data-lucide="play" class="h-6 w-6 fill-white ml-0.5"></i>
                             </span>
                         </div>
-                        <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/80 text-[10px] text-amber-400 font-mono font-bold backdrop-blur-md">
+                        <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-slate-950/80 text-[10px] text-amber-400 font-mono font-bold backdrop-blur-md flex items-center gap-1 border border-amber-400/30">
                             🎥 Vidéo
                         </span>
                     ` : `
-                        <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/80 text-[10px] text-white font-mono font-bold backdrop-blur-md opacity-0 group-hover:opacity-100 transition">
+                        <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-slate-950/80 text-[10px] text-white font-mono font-bold backdrop-blur-md opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
                             📷 Photo
                         </span>
                     `}
@@ -10455,13 +10623,12 @@
 
         container.innerHTML = currentActiveMediaList.map((media, idx) => {
             const isVideo = media.type === 'video';
-            const videoInfo = isVideo ? extractVideoInfo(media.url) : null;
-            const thumbUrl = media.thumbnail || (videoInfo && videoInfo.thumbnailUrl) || media.url || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80';
             const isActive = idx === currentLightboxIndex;
+            const thumbIllustration = renderMediaIllustration(media, null, 'w-full h-full object-cover select-none');
 
             return `
                 <div onclick="jumpToLightboxMedia(${idx})" id="diapo-thumb-${idx}" class="diapo-thumb-item shrink-0 h-14 w-20 rounded-xl overflow-hidden border-2 ${isActive ? 'active border-amber-400' : 'border-slate-800 opacity-60 hover:opacity-100'} relative cursor-pointer">
-                    <img src="${thumbUrl}" class="w-full h-full object-cover select-none">
+                    ${thumbIllustration}
                     ${isVideo ? `<span class="absolute bottom-1 right-1 text-[8px] bg-black/80 text-amber-400 px-1 rounded font-mono">🎥</span>` : ''}
                 </div>
             `;
@@ -10703,6 +10870,22 @@
     async function handleAlbumCoverFileUpload(event) {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
+
+        // Si une vidéo est choisie comme couverture d'album, capturer une image de la vidéo !
+        if (file.type.startsWith('video')) {
+            try {
+                const frame = await captureVideoFrame(file, 1.0);
+                if (frame) {
+                    temporaryAlbumCoverDataUrl = frame;
+                    const preview = document.getElementById('album-form-cover-preview');
+                    if (preview) preview.src = frame;
+                    return;
+                }
+            } catch(e) {
+                console.error("Erreur capture video cover:", e);
+            }
+        }
+
         try {
             temporaryAlbumCoverDataUrl = await compressImageFile(file, 1200, 800, 0.82);
             const preview = document.getElementById('album-form-cover-preview');
@@ -10718,10 +10901,25 @@
         }
     }
 
-    function handleAlbumCoverUrlInput(url) {
-        if (url && url.trim().startsWith('http')) {
+    async function handleAlbumCoverUrlInput(url) {
+        if (!url || !url.trim()) return;
+        const cleanUrl = url.trim();
+        const videoInfo = extractVideoInfo(cleanUrl);
+        if (videoInfo.isVideo) {
+            let frame = videoInfo.thumbnailUrl;
+            if (!frame) {
+                frame = await captureVideoFrame(cleanUrl, 1.0);
+            }
+            if (frame) {
+                temporaryAlbumCoverDataUrl = frame;
+                const preview = document.getElementById('album-form-cover-preview');
+                if (preview) preview.src = frame;
+                return;
+            }
+        }
+        if (cleanUrl.startsWith('http') || cleanUrl.startsWith('data:')) {
             const preview = document.getElementById('album-form-cover-preview');
-            if (preview) preview.src = url.trim();
+            if (preview) preview.src = cleanUrl;
         }
     }
 
@@ -10791,6 +10989,7 @@
     // ADD MEDIA MODAL CONTROLLERS (PHOTOS & VIDEOS)
     // =========================================================
     let temporaryMediaDataUrl = null;
+    let temporaryMediaThumbnailDataUrl = null;
 
     function openAddMediaModal(targetAlbumId) {
         const modal = document.getElementById('modal-add-media-to-album');
@@ -10817,6 +11016,7 @@
         document.getElementById('media-form-date').value = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
         temporaryMediaDataUrl = null;
+        temporaryMediaThumbnailDataUrl = null;
         hideMediaPreview();
 
         const submitBtn = document.getElementById('btn-submit-media');
@@ -10846,21 +11046,21 @@
         const fileInput = document.getElementById('media-form-file');
 
         if (type === 'video') {
-            if (hint) hint.innerText = "Formats vidéo : MP4, WebM ou lien YouTube/Vimeo/streaming.";
+            if (hint) hint.innerText = "Formats vidéo : MP4, WebM ou lien YouTube/Vimeo. Une capture d'écran est automatiquement extraite pour illustrer la vidéo.";
             if (sourceLabel) sourceLabel.innerText = "Fichier Vidéo (MP4, WebM) ou Lien *";
             if (urlLabel) urlLabel.innerText = "Ou Lien YouTube, Vimeo, Lien Vidéo :";
             if (urlInput) urlInput.placeholder = "Coller un lien YouTube, Vimeo ou MP4...";
-            if (fileInput) fileInput.accept = "video/*";
+            if (fileInput) fileInput.accept = "video/*,image/*";
         } else {
             if (hint) hint.innerText = "Formats photo : JPG, PNG, WebP, GIF haute définition.";
             if (sourceLabel) sourceLabel.innerText = "Fichier Photo (JPG, PNG, WebP) ou Lien *";
             if (urlLabel) urlLabel.innerText = "Ou Lien Web Photo Direct :";
             if (urlInput) urlInput.placeholder = "Coller une URL d'image (ex: https://...)";
-            if (fileInput) fileInput.accept = "image/*";
+            if (fileInput) fileInput.accept = "image/*,video/*";
         }
     }
 
-    function showMediaPreview(source, type, videoInfo) {
+    function showMediaPreview(source, type, videoInfo, capturedThumbnail) {
         const box = document.getElementById('media-form-preview-box');
         const imgPreview = document.getElementById('media-form-image-preview');
         const videoPreview = document.getElementById('media-form-video-preview');
@@ -10869,38 +11069,52 @@
 
         box.classList.remove('hidden');
 
+        // Badge d'indication de capture vidéo
+        let badge = document.getElementById('media-capture-badge');
+        if (!badge) {
+            badge = document.createElement('div');
+            badge.id = 'media-capture-badge';
+            badge.className = 'absolute bottom-2 left-2 px-2.5 py-1 rounded-xl bg-slate-950/90 text-amber-400 text-[10px] font-bold font-mono flex items-center gap-1.5 shadow-lg backdrop-blur-md border border-amber-500/30 z-10';
+            box.appendChild(badge);
+        }
+
         if (type === 'video') {
             if (!videoInfo) videoInfo = extractVideoInfo(source);
-            if (videoInfo && videoInfo.provider === 'youtube') {
+            const thumb = capturedThumbnail || temporaryMediaThumbnailDataUrl || (videoInfo && videoInfo.thumbnailUrl);
+
+            if (thumb) {
+                // Afficher la capture d'écran de la vidéo comme illustration principale
                 if (imgPreview) {
                     imgPreview.classList.remove('hidden');
-                    imgPreview.src = videoInfo.thumbnailUrl;
+                    imgPreview.src = thumb;
                 }
                 if (videoPreview) {
                     videoPreview.classList.add('hidden');
                     videoPreview.pause();
                 }
                 if (iframePreview) iframePreview.classList.add('hidden');
-            } else if (videoInfo && videoInfo.provider === 'vimeo') {
-                if (imgPreview) imgPreview.classList.add('hidden');
-                if (videoPreview) {
-                    videoPreview.classList.add('hidden');
-                    videoPreview.pause();
-                }
+                badge.classList.remove('hidden');
+                badge.innerHTML = `<i data-lucide="camera" class="h-3 w-3"></i> <span>Capture vidéo utilisée comme illustration</span>`;
+            } else if (videoInfo && (videoInfo.provider === 'youtube' || videoInfo.provider === 'vimeo')) {
                 if (iframePreview) {
                     iframePreview.classList.remove('hidden');
                     iframePreview.src = videoInfo.embedUrl;
                 }
-            } else {
-                // Local MP4 or direct video URL
                 if (imgPreview) imgPreview.classList.add('hidden');
-                if (iframePreview) iframePreview.classList.add('hidden');
+                if (videoPreview) { videoPreview.classList.add('hidden'); videoPreview.pause(); }
+                badge.classList.add('hidden');
+            } else {
                 if (videoPreview) {
                     videoPreview.classList.remove('hidden');
                     videoPreview.src = source;
                 }
+                if (imgPreview) imgPreview.classList.add('hidden');
+                if (iframePreview) iframePreview.classList.add('hidden');
+                badge.classList.remove('hidden');
+                badge.innerHTML = `<i data-lucide="video" class="h-3 w-3"></i> <span>Aperçu de la vidéo</span>`;
             }
         } else {
+            badge.classList.add('hidden');
             if (videoPreview) {
                 videoPreview.classList.add('hidden');
                 videoPreview.pause();
@@ -10911,11 +11125,14 @@
                 imgPreview.src = source;
             }
         }
+        if (typeof initializeLucideIcons === 'function') initializeLucideIcons();
     }
 
     function hideMediaPreview() {
         const box = document.getElementById('media-form-preview-box');
         if (box) box.classList.add('hidden');
+        const badge = document.getElementById('media-capture-badge');
+        if (badge) badge.classList.add('hidden');
         const videoPreview = document.getElementById('media-form-video-preview');
         if (videoPreview) {
             videoPreview.pause();
@@ -10944,22 +11161,43 @@
             titleInput.value = file.name.replace(/\.[^/.]+$/, "");
         }
 
+        const submitBtnText = document.getElementById('btn-submit-media-text');
+
         if (isVideo) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                temporaryMediaDataUrl = e.target.result;
-                showMediaPreview(temporaryMediaDataUrl, 'video');
-            };
-            reader.readAsDataURL(file);
+            if (submitBtnText) submitBtnText.innerText = "Capture de la vidéo...";
+            try {
+                // 1. Capture instantanée de l'image vidéo avec Canvas HTML5
+                const capturedFrame = await captureVideoFrame(file, 1.0);
+                temporaryMediaThumbnailDataUrl = capturedFrame;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    temporaryMediaDataUrl = e.target.result;
+                    showMediaPreview(temporaryMediaDataUrl, 'video', null, temporaryMediaThumbnailDataUrl);
+                    if (submitBtnText) submitBtnText.innerText = "Enregistrer le Média";
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                console.error("Erreur capture frame vidéo:", err);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    temporaryMediaDataUrl = e.target.result;
+                    showMediaPreview(temporaryMediaDataUrl, 'video');
+                    if (submitBtnText) submitBtnText.innerText = "Enregistrer le Média";
+                };
+                reader.readAsDataURL(file);
+            }
         } else {
             // Compress automatically with canvas
             try {
                 temporaryMediaDataUrl = await compressImageFile(file);
+                temporaryMediaThumbnailDataUrl = temporaryMediaDataUrl;
                 showMediaPreview(temporaryMediaDataUrl, 'photo');
             } catch (err) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     temporaryMediaDataUrl = e.target.result;
+                    temporaryMediaThumbnailDataUrl = temporaryMediaDataUrl;
                     showMediaPreview(temporaryMediaDataUrl, 'photo');
                 };
                 reader.readAsDataURL(file);
@@ -10967,7 +11205,7 @@
         }
     }
 
-    function handleMediaUrlInput(url) {
+    async function handleMediaUrlInput(url) {
         if (!url || !url.trim()) {
             hideMediaPreview();
             return;
@@ -10985,8 +11223,14 @@
                 typeSelect.value = 'video';
                 handleMediaTypeChange('video');
             }
-            showMediaPreview(cleanUrl, 'video', videoInfo);
+            let thumb = videoInfo.thumbnailUrl;
+            if (!thumb) {
+                thumb = await captureVideoFrame(cleanUrl, 1.0);
+            }
+            temporaryMediaThumbnailDataUrl = thumb;
+            showMediaPreview(cleanUrl, 'video', videoInfo, thumb);
         } else {
+            temporaryMediaThumbnailDataUrl = cleanUrl;
             showMediaPreview(cleanUrl, typeSelect ? typeSelect.value : 'photo');
         }
     }
@@ -11050,9 +11294,12 @@
         // If file was chosen but temporaryMediaDataUrl not ready, read/compress it now
         if (!mediaSource && file) {
             if (submitBtn) submitBtn.disabled = true;
-            if (submitBtnText) submitBtnText.innerText = "Traitement du fichier...";
+            if (submitBtnText) submitBtnText.innerText = "Traitement du média...";
             try {
                 if (file.type.startsWith('video')) {
+                    if (!temporaryMediaThumbnailDataUrl) {
+                        temporaryMediaThumbnailDataUrl = await captureVideoFrame(file, 1.0);
+                    }
                     mediaSource = await new Promise((res) => {
                         const r = new FileReader();
                         r.onload = (ev) => res(ev.target.result);
@@ -11060,6 +11307,7 @@
                     });
                 } else {
                     mediaSource = await compressImageFile(file);
+                    temporaryMediaThumbnailDataUrl = mediaSource;
                 }
             } catch (err) {
                 console.error("Erreur lecture fichier:", err);
@@ -11097,11 +11345,23 @@
                 }
             }
 
-            let thumbUrl = '';
+            // Capture d'écran vidéo exacte pour illustration
+            let thumbUrl = temporaryMediaThumbnailDataUrl || '';
             if (finalType === 'video') {
-                if (videoInfo.thumbnailUrl) {
-                    thumbUrl = videoInfo.thumbnailUrl;
-                } else {
+                if (!thumbUrl) {
+                    if (videoInfo.thumbnailUrl) {
+                        thumbUrl = videoInfo.thumbnailUrl;
+                    } else if (file) {
+                        try {
+                            thumbUrl = await captureVideoFrame(file, 1.0);
+                        } catch(e) {}
+                    } else if (mediaSource) {
+                        try {
+                            thumbUrl = await captureVideoFrame(mediaSource, 1.0);
+                        } catch(e) {}
+                    }
+                }
+                if (!thumbUrl) {
                     thumbUrl = album.coverUrl || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80';
                 }
             } else {
@@ -11122,9 +11382,9 @@
             if (!album.items) album.items = [];
             album.items.unshift(newMedia);
 
-            // Update album cover if needed
-            if (finalType === 'photo' && (!album.coverUrl || album.coverUrl.includes('photo-1511671782779'))) {
-                album.coverUrl = mediaSource;
+            // Mettre à jour la couverture de l'album si besoin avec la capture vidéo
+            if (thumbUrl && (!album.coverUrl || album.coverUrl.includes('photo-1511671782779'))) {
+                album.coverUrl = thumbUrl;
             }
 
             saveGalleryAlbumsData();
@@ -11136,7 +11396,7 @@
                 renderGalleryAlbums();
             }
 
-            showNotification("Média Enregistré avec Succès !", `${finalType === 'video' ? 'La vidéo' : 'La photo'} "${newMedia.title}" a été ajoutée à l'album "${album.title}".`, "success");
+            showNotification("Média Enregistré avec Succès !", `${finalType === 'video' ? 'La vidéo' : 'La photo'} "${newMedia.title}" a été ajoutée à l'album "${album.title}" avec sa capture d'illustration.`, "success");
             triggerJubileeConfetti();
 
         } catch (err) {
