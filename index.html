@@ -368,6 +368,7 @@
     <!-- Firebase SDK Compat v10 (Google Cloud Firestore Backend) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
 
 
@@ -3047,13 +3048,13 @@
                         <!-- Upload Fichier -->
                         <div class="space-y-1">
                             <input type="file" id="media-form-file" accept="image/*,video/*" onchange="handleMediaFileUpload(event)" class="w-full text-xs text-slate-600 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-800 hover:file:bg-emerald-200 cursor-pointer">
-                            <span class="text-[10px] text-slate-400 block">Formats acceptés : JPG, PNG, WebP, MP4, WebM.</span>
+                            <span class="text-[10px] text-emerald-700 font-semibold block">Formats acceptés : JPG, PNG, WebP, MP4, WebM (Téléversement Cloud synchronisé pour tous les festivaliers).</span>
                         </div>
 
                         <!-- URL Alternative -->
                         <div class="pt-2 border-t border-slate-200 space-y-1">
                             <span class="text-[10px] font-bold text-slate-500 uppercase">Ou Lien Web / Vidéo Embed :</span>
-                            <input type="text" id="media-form-url" placeholder="Coller un lien YouTube, Vimeo, MP4 ou URL d'image..." oninput="handleMediaUrlInput(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-emerald-600">
+                            <input type="text" id="media-form-url" placeholder="Coller un lien YouTube, Google Drive, Vimeo, MP4 ou image..." oninput="handleMediaUrlInput(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-emerald-600">
                         </div>
 
                         <!-- Preview Box -->
@@ -4275,6 +4276,7 @@
                     if (!firebase.apps.length) firebase.initializeApp(customConfig);
                     if (firebase.firestore) {
                         this.db = firebase.firestore();
+                        if (firebase.storage) { try { this.storage = firebase.storage(); } catch(e){} }
                         this.attachFirebaseListeners();
                         
                         // AUTO-SYNC: Push local data to Cloud if it exists locally but might not be in Cloud yet
@@ -4411,8 +4413,20 @@
                     snap.forEach(d => list.push(d.data()));
                     if (list.length > 0) {
                         state.galleryAlbums = list;
-                        localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
+                        try {
+                            localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify(state.galleryAlbums));
+                        } catch(e){}
+                        if (typeof renderGalleryAlbums === 'function') renderGalleryAlbums();
+                        if (typeof currentViewingAlbumId !== 'undefined' && currentViewingAlbumId) {
+                            const alb = (state.galleryAlbums || []).find(a => a.id === currentViewingAlbumId);
+                            if (alb && typeof renderAlbumInnerMedias === 'function') renderAlbumInnerMedias(alb);
+                        }
+                    } else if (state.galleryAlbums && state.galleryAlbums.length > 0) {
+                        // Si la collection Cloud est vide, initialiser avec les albums locaux
+                        this.syncGalleryAlbums(state.galleryAlbums);
                     }
+                }, err => {
+                    console.warn("Notice écouteur Cloud Galerie:", err.message);
                 });
 
             } catch(e){console.error(e);}
@@ -4527,6 +4541,40 @@
                 try {
                     this.appDb.get('gallery_data').put(JSON.stringify(albums));
                 } catch(e){console.error(e);}
+            }
+            if (this.db && Array.isArray(albums)) {
+                try {
+                    // Diffusion Cloud Firestore pour tous les festivaliers
+                    albums.forEach(alb => {
+                        if (alb && alb.id) {
+                            // Nettoyage sécurité pour ne jamais dépasser la limite de 1Mo de Firestore
+                            const safeAlbum = {
+                                ...alb,
+                                items: (alb.items || []).map(item => {
+                                    if (item.url && item.url.startsWith('data:video/') && item.url.length > 600000) {
+                                        return {
+                                            ...item,
+                                            url: item.thumbnail || item.url.slice(0, 500)
+                                        };
+                                    }
+                                    return item;
+                                })
+                            };
+                            this.db.collection("myticket_gallery").doc(alb.id).set(safeAlbum, { merge: true });
+                        }
+                    });
+                } catch(e) {
+                    console.error("Firestore syncGalleryAlbums notice:", e);
+                }
+            }
+        },
+
+        deleteAlbumFromCloud: function(albumId) {
+            if (!albumId) return;
+            if (this.db) {
+                try {
+                    this.db.collection("myticket_gallery").doc(albumId).delete();
+                } catch(e){}
             }
         },
 
@@ -9946,8 +9994,38 @@
             };
         }
 
-        // 3. Direct video format (.mp4, .webm, .ogg, .mov, data:video, blob:)
-        if (cleanUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i) || cleanUrl.startsWith('data:video/') || cleanUrl.startsWith('blob:')) {
+        // 3. Google Drive Vidéo (format direct ou partage view)
+        const gdriveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/i);
+        if (gdriveMatch && gdriveMatch[1]) {
+            const id = gdriveMatch[1];
+            return {
+                isVideo: true,
+                provider: 'gdrive',
+                videoId: id,
+                embedUrl: `https://drive.google.com/file/d/${id}/preview`,
+                thumbnailUrl: ''
+            };
+        }
+
+        // 4. Dailymotion format
+        const dmMatch = cleanUrl.match(/(?:dailymotion\.com\/(?:video|hub)|dai\.ly)\/([a-zA-Z0-9]+)/i);
+        if (dmMatch && dmMatch[1]) {
+            const id = dmMatch[1];
+            return {
+                isVideo: true,
+                provider: 'dailymotion',
+                videoId: id,
+                embedUrl: `https://www.dailymotion.com/embed/video/${id}?autoplay=1`,
+                thumbnailUrl: `https://www.dailymotion.com/thumbnail/video/${id}`
+            };
+        }
+
+        // 5. Direct video format (.mp4, .webm, .ogg, .mov, data:video, blob:, Firebase Cloud Storage)
+        if (cleanUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i) || 
+            cleanUrl.startsWith('data:video/') || 
+            cleanUrl.startsWith('blob:') || 
+            cleanUrl.includes('firebasestorage.googleapis.com') ||
+            cleanUrl.includes('storage.googleapis.com')) {
             return {
                 isVideo: true,
                 provider: 'direct',
@@ -10569,7 +10647,7 @@
             if (videoBox) videoBox.classList.remove('hidden');
 
             const videoInfo = extractVideoInfo(media.url);
-            if (videoInfo.isVideo && (videoInfo.provider === 'youtube' || videoInfo.provider === 'vimeo')) {
+            if (videoInfo.isVideo && (videoInfo.provider === 'youtube' || videoInfo.provider === 'vimeo' || videoInfo.provider === 'gdrive' || videoInfo.provider === 'dailymotion')) {
                 if (videoPlayer) {
                     videoPlayer.pause();
                     videoPlayer.classList.add('hidden');
@@ -10975,6 +11053,9 @@
 
         state.galleryAlbums = (state.galleryAlbums || []).filter(a => a.id !== albumId);
         saveGalleryAlbumsData();
+        if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.deleteAlbumFromCloud) {
+            MyTicketCloudDB.deleteAlbumFromCloud(albumId);
+        }
 
         if (currentViewingAlbumId === albumId) {
             closeSingleAlbumView();
@@ -11235,6 +11316,65 @@
         }
     }
 
+    
+    /**
+     * Téléversement Cloud haute performance pour vidéos et médias.
+     * Tente en priorité Firebase Storage pour générer une URL de streaming permanente
+     * accessible par tous les festivaliers sur tous leurs appareils.
+     */
+    async function uploadMediaFileToCloud(file, onProgress) {
+        if (!file) return null;
+
+        // 1. Essai Firebase Storage si initialisé
+        if (typeof firebase !== 'undefined' && firebase.storage) {
+            try {
+                const storage = firebase.storage();
+                const cleanName = (file.name || 'media').replace(/[^a-zA-Z0-9._-]/g, '_');
+                const path = `gallery_media/${Date.now()}_${Math.floor(Math.random() * 10000)}_${cleanName}`;
+                const fileRef = storage.ref().child(path);
+
+                const uploadTask = fileRef.put(file);
+
+                return await new Promise((resolve, reject) => {
+                    uploadTask.on('state_changed',
+                        (snap) => {
+                            if (snap.totalBytes > 0) {
+                                const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+                                if (typeof onProgress === 'function') onProgress(pct);
+                            }
+                        },
+                        (err) => {
+                            console.warn("Notice upload Firebase Storage:", err.message);
+                            reject(err);
+                        },
+                        async () => {
+                            try {
+                                const downloadUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                                resolve(downloadUrl);
+                            } catch(e) {
+                                reject(e);
+                            }
+                        }
+                    );
+                });
+            } catch (err) {
+                console.warn("Stockage Firebase Storage non disponible pour ce fichier:", err);
+            }
+        }
+
+        // 2. Fichier image ou petite vidéo (< 1.5 Mo) : encodage Base64
+        if (file.size < 1.5 * 1024 * 1024) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = () => resolve('');
+                reader.readAsDataURL(file);
+            });
+        }
+
+        return null;
+    }
+
     async function saveNewMediaAction(e) {
         if (e && e.preventDefault) e.preventDefault();
 
@@ -11291,32 +11431,58 @@
         // 3. Resolve Media Source
         let mediaSource = temporaryMediaDataUrl || urlInput;
 
-        // If file was chosen but temporaryMediaDataUrl not ready, read/compress it now
-        if (!mediaSource && file) {
+        // Traitement / Téléversement Cloud si un fichier a été sélectionné
+        if (file) {
             if (submitBtn) submitBtn.disabled = true;
-            if (submitBtnText) submitBtnText.innerText = "Traitement du média...";
+            if (submitBtnText) submitBtnText.innerText = "Téléversement Cloud (0%)...";
+
             try {
                 if (file.type.startsWith('video')) {
+                    // Extraction préalable de la capture vidéo pour illustration
                     if (!temporaryMediaThumbnailDataUrl) {
                         temporaryMediaThumbnailDataUrl = await captureVideoFrame(file, 1.0);
                     }
+
+                    // Téléversement de la vidéo vers Firebase Cloud Storage pour accès tous utilisateurs
+                    const cloudUrl = await uploadMediaFileToCloud(file, (pct) => {
+                        if (submitBtnText) submitBtnText.innerText = `Téléversement Cloud (${pct}%)...`;
+                    });
+
+                    if (cloudUrl) {
+                        mediaSource = cloudUrl;
+                    } else if (!mediaSource) {
+                        // Si le téléversement direct échoue car le fichier est trop volumineux
+                        showNotification(
+                            "Diffusion Cloud Recommandée",
+                            "Pour garantir que votre vidéo soit lue en haute définition par tous les utilisateurs sans limite de taille, renseignez son lien YouTube, Google Drive ou Vimeo.",
+                            "warning"
+                        );
+                        if (submitBtn) submitBtn.disabled = false;
+                        if (submitBtnText) submitBtnText.innerText = "Enregistrer le Média";
+                        return;
+                    }
+                } else {
+                    // Photo : compression HD automatique par Canvas
+                    mediaSource = await compressImageFile(file);
+                    temporaryMediaThumbnailDataUrl = mediaSource;
+                }
+            } catch (err) {
+                console.error("Erreur téléversement média:", err);
+                if (!mediaSource && file.size < 1.5 * 1024 * 1024) {
                     mediaSource = await new Promise((res) => {
                         const r = new FileReader();
                         r.onload = (ev) => res(ev.target.result);
                         r.readAsDataURL(file);
                     });
-                } else {
-                    mediaSource = await compressImageFile(file);
-                    temporaryMediaThumbnailDataUrl = mediaSource;
                 }
-            } catch (err) {
-                console.error("Erreur lecture fichier:", err);
             }
         }
 
         if (!mediaSource) {
-            showNotification("Média Manquant", "Veuillez sélectionner une photo/vidéo ou saisir un lien.", "warning");
+            showNotification("Média Manquant", "Veuillez sélectionner une vidéo/photo ou coller un lien (YouTube, Google Drive, Vimeo, MP4).", "warning");
             document.getElementById('media-form-file')?.focus();
+            if (submitBtn) submitBtn.disabled = false;
+            if (submitBtnText) submitBtnText.innerText = "Enregistrer le Média";
             return;
         }
 
