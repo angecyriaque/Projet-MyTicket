@@ -377,6 +377,70 @@
 
     <!-- Mobile App Redesign CSS -->
     <style id="mobile-app-redesign">
+    /* ========================================================= */
+    /* MODULE D'ADAPTATION MULTI-ÉCRANS UNIVERSEL MOBILE ENGINE  */
+    /* ========================================================= */
+    :root {
+        --app-vh: 1vh;
+        --app-height: 100vh;
+        --app-width: 100vw;
+        --device-dpr: 1;
+        --adaptive-scale: 1;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+    }
+
+    @supports (height: 100dvh) {
+        :root {
+            --app-height: 100dvh;
+        }
+    }
+
+    html {
+        font-size: calc(16px * var(--adaptive-scale, 1));
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    /* Micro Screen Scale (<= 360px: iPhone SE, fold cover) */
+    [data-screen-class="micro"] {
+        font-size: calc(14px * var(--adaptive-scale, 1));
+    }
+    [data-screen-class="micro"] main {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    [data-screen-class="micro"] .ticket-stub {
+        width: 6.25rem !important;
+        padding: 0.5rem 0.25rem !important;
+    }
+
+    /* Compact Screen Scale (361px - 390px) */
+    [data-screen-class="compact"] {
+        font-size: calc(15px * var(--adaptive-scale, 1));
+    }
+
+    /* Landscape Mode on Phones */
+    @media screen and (max-height: 520px) and (orientation: landscape) {
+        #mobile-bottom-nav {
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+        }
+        #mobile-bottom-nav .mobile-nav-tab {
+            padding: 2px 6px !important;
+        }
+        main {
+            padding-bottom: 4.5rem !important;
+        }
+    }
+
+    body {
+        min-height: var(--app-height, 100vh);
+        touch-action: manipulation;
+    }
+
     /* Global Mobile Layout Hardening: Zero horizontal scroll / offset */
     html, body {
         overflow-x: hidden !important;
@@ -2423,6 +2487,25 @@
                                 </button>
                             </div>
                         </form>
+
+                        <!-- Module d'Adaptation Multi-Écrans Card -->
+                        <div class="mt-6 pt-6 border-t border-slate-100 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="h-8 w-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                                        <i data-lucide="smartphone" class="h-4 w-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-black uppercase text-slate-900 tracking-wider">Adaptation Multi-Écrans Téléphone</h4>
+                                        <p class="text-[11px] text-slate-500">Ajuste automatiquement l'application aux dimensions de votre smartphone</p>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="openMobileAdaptiveModal()" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i data-lucide="sliders" class="h-3.5 w-3.5"></i>
+                                    <span>Régler l'Affichage</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -13472,6 +13555,144 @@
 </div>
 
 
+
+<!-- ============================================== -->
+<!-- MODAL: MODULE D'ADAPTATION MULTI-ÉCRANS MOBILE -->
+<!-- ============================================== -->
+<div id="modal-mobile-adaptive-settings" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
+    <div class="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 animate-scale-up space-y-5 p-5 sm:p-7 max-h-[92vh] overflow-y-auto no-scrollbar">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="h-11 w-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shrink-0">
+                    <i data-lucide="smartphone" class="h-6 w-6"></i>
+                </div>
+                <div>
+                    <h3 class="font-display font-black text-lg text-slate-900 leading-tight">Module d'Adaptation Mobile</h3>
+                    <p class="text-xs text-slate-500">Ajustement dynamique universel pour tout type d'écran</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeMobileAdaptiveModal()" class="h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+                <i data-lucide="x" class="h-4.5 w-4.5"></i>
+            </button>
+        </div>
+
+        <!-- Live Diagnostics Card -->
+        <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white space-y-3 shadow-md">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-black uppercase tracking-wider text-indigo-300 font-mono flex items-center gap-1.5">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    Diagnostic de votre écran en direct
+                </span>
+                <span id="adaptive-diag-cat" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300 border border-emerald-400/30 font-mono">Détection...</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 pt-1 text-xs">
+                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <span class="block text-[10px] text-slate-400 font-medium">Résolution Visible</span>
+                    <span id="adaptive-diag-res" class="block font-black text-slate-100 font-mono mt-0.5">-- × -- px</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <span class="block text-[10px] text-slate-400 font-medium">Échelle & Facteur</span>
+                    <span id="adaptive-diag-scale" class="block font-black text-amber-300 font-mono mt-0.5">100%</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <span class="block text-[10px] text-slate-400 font-medium">Densité & Entrée</span>
+                    <span id="adaptive-diag-dpr" class="block font-black text-slate-200 font-mono mt-0.5">-- DPR</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <span class="block text-[10px] text-slate-400 font-medium">Statut Moteur</span>
+                    <span class="block font-black text-emerald-400 font-mono mt-0.5 flex items-center gap-1">
+                        <i data-lucide="shield-check" class="h-3.5 w-3.5 inline"></i> Calibré 100%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode Selection Options -->
+        <div class="space-y-2.5">
+            <label class="text-xs font-black uppercase tracking-wider text-slate-700">Sélectionnez le mode d'affichage souhaité :</label>
+
+            <!-- Option 1: Auto-Adaptatif Intelligent -->
+            <button type="button" onclick="MobileAdaptiveEngine.setDisplayMode('auto')" data-mode="auto" class="adaptive-mode-btn w-full p-3.5 rounded-2xl border-2 border-slate-200 text-left transition hover:border-slate-300 flex items-start justify-between gap-3 cursor-pointer group">
+                <div class="flex items-start gap-3">
+                    <div class="h-8 w-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition">
+                        <i data-lucide="sparkles" class="h-4.5 w-4.5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-slate-900">Auto-Adaptatif Intelligent</span>
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-black bg-blue-100 text-blue-700 uppercase">Recommandé</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5">S'adapte dynamiquement et proportionnellement à la largeur exacte de votre écran de smartphone.</p>
+                    </div>
+                </div>
+                <div class="mode-active-dot h-3 w-3 rounded-full bg-brand-orange mt-1.5 shrink-0 hidden shadow-xs"></div>
+            </button>
+
+            <!-- Option 2: Compact -->
+            <button type="button" onclick="MobileAdaptiveEngine.setDisplayMode('compact')" data-mode="compact" class="adaptive-mode-btn w-full p-3.5 rounded-2xl border-2 border-slate-200 text-left transition hover:border-slate-300 flex items-start justify-between gap-3 cursor-pointer group">
+                <div class="flex items-start gap-3">
+                    <div class="h-8 w-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition">
+                        <i data-lucide="minimize-2" class="h-4.5 w-4.5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-slate-900">Mode Compact (90%)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Idéal pour les téléphones étroits (iPhone SE, anciens Androids) pour afficher un maximum de contenu sans défilement excessif.</p>
+                    </div>
+                </div>
+                <div class="mode-active-dot h-3 w-3 rounded-full bg-brand-orange mt-1.5 shrink-0 hidden shadow-xs"></div>
+            </button>
+
+            <!-- Option 3: Standard -->
+            <button type="button" onclick="MobileAdaptiveEngine.setDisplayMode('standard')" data-mode="standard" class="adaptive-mode-btn w-full p-3.5 rounded-2xl border-2 border-slate-200 text-left transition hover:border-slate-300 flex items-start justify-between gap-3 cursor-pointer group">
+                <div class="flex items-start gap-3">
+                    <div class="h-8 w-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition">
+                        <i data-lucide="layout" class="h-4.5 w-4.5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-slate-900">Mode Standard (100%)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Rendu officiel natif avec dimensions d'origine équilibrées.</p>
+                    </div>
+                </div>
+                <div class="mode-active-dot h-3 w-3 rounded-full bg-brand-orange mt-1.5 shrink-0 hidden shadow-xs"></div>
+            </button>
+
+            <!-- Option 4: Confort Agrandie -->
+            <button type="button" onclick="MobileAdaptiveEngine.setDisplayMode('comfort')" data-mode="comfort" class="adaptive-mode-btn w-full p-3.5 rounded-2xl border-2 border-slate-200 text-left transition hover:border-slate-300 flex items-start justify-between gap-3 cursor-pointer group">
+                <div class="flex items-start gap-3">
+                    <div class="h-8 w-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition">
+                        <i data-lucide="maximize-2" class="h-4.5 w-4.5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs text-slate-900">Mode Grand Confort (108%)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Textes et boutons agrandis offrant une lisibilité renforcée et un confort tactile optimal pour tous les âges.</p>
+                    </div>
+                </div>
+                <div class="mode-active-dot h-3 w-3 rounded-full bg-brand-orange mt-1.5 shrink-0 hidden shadow-xs"></div>
+            </button>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="flex gap-2.5 pt-3 border-t border-slate-100">
+            <button type="button" onclick="MobileAdaptiveEngine.calibrate(); if(typeof showNotification==='function') showNotification('Recalibration Effectuée', 'L\'affichage a été réaligné sur votre écran.', 'info');" class="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
+                <span>Recalibrer l'Écran</span>
+            </button>
+            <button type="button" onclick="closeMobileAdaptiveModal()" class="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer">
+                <i data-lucide="check" class="h-4 w-4"></i>
+                <span>Appliquer & Fermer</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ============================================== -->
 <!-- MOBILE BOTTOM NAVIGATION & MENU SHEET        -->
 <!-- ============================================== -->
@@ -13520,6 +13741,20 @@
         </div>
         
         <div class="grid grid-cols-2 gap-3">
+            <!-- Module Adaptation Multi-Écrans Universel -->
+            <button onclick="openMobileAdaptiveModal(); toggleMobileMenu()" class="col-span-2 flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-blue-200/80 hover:bg-blue-50 transition active:scale-95 shadow-xs cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                        <i data-lucide="smartphone" class="h-4.5 w-4.5"></i>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-xs font-black text-slate-900">Adaptation Écran Téléphone</span>
+                        <span id="mobile-adaptive-current-badge" class="block text-[10px] text-blue-600 font-bold">Auto-Adaptatif Actif</span>
+                    </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-700 text-[10px] font-extrabold uppercase font-mono">Calibrer</span>
+            </button>
+
             <button onclick="switchView('reception'); toggleMobileMenu()" class="mobile-nav-tab flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition active:scale-95" data-target="reception">
                 <div class="h-10 w-10 rounded-xl bg-orange-100 text-brand-orange flex items-center justify-center shadow-sm">
                     <i data-lucide="scan" class="h-5 w-5"></i>
@@ -13605,6 +13840,176 @@ function toggleMobileMenu() {
         document.body.style.overflow = '';
     }
 }
+
+    // =========================================================
+    // MODULE D'ADAPTATION MULTI-ÉCRANS UNIVERSEL MOBILE ENGINE
+    // =========================================================
+    window.MobileAdaptiveEngine = (function() {
+        const STORAGE_KEY = 'myticket_adaptive_display_mode';
+        let currentMode = localStorage.getItem(STORAGE_KEY) || 'auto';
+
+        function getScreenCategory(width) {
+            if (width <= 360) return { id: 'micro', label: 'Micro Écran (≤ 360px)', desc: 'iPhone SE, Fold externe, compacts' };
+            if (width <= 390) return { id: 'compact', label: 'Compact (361-390px)', desc: 'iPhone Mini, Galaxy A, Pixel 4a' };
+            if (width <= 430) return { id: 'standard', label: 'Standard (391-430px)', desc: 'iPhone 12/13/14/15/16, Galaxy S' };
+            if (width <= 540) return { id: 'large', label: 'Grand Écran (431-540px)', desc: 'iPhone Pro Max, Galaxy Ultra' };
+            return { id: 'tablet', label: 'Tablette / Grand Pliable (> 540px)', desc: 'iPad, Tablettes, Fold déplié' };
+        }
+
+        function calibrate() {
+            const width = window.innerWidth || document.documentElement.clientWidth || screen.width;
+            const height = window.innerHeight || document.documentElement.clientHeight || screen.height;
+            const dpr = window.devicePixelRatio || 1;
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const isPortrait = height >= width;
+            const screenCat = getScreenCategory(width);
+
+            // Dynamic CSS properties
+            const vh = height * 0.01;
+            document.documentElement.style.setProperty('--app-vh', `${vh}px`);
+            document.documentElement.style.setProperty('--app-height', `${height}px`);
+            document.documentElement.style.setProperty('--app-width', `${width}px`);
+            document.documentElement.style.setProperty('--device-dpr', `${dpr}`);
+
+            // Dataset attributes
+            document.documentElement.dataset.screenClass = screenCat.id;
+            document.documentElement.dataset.screenOrientation = isPortrait ? 'portrait' : 'landscape';
+            document.documentElement.dataset.touchDevice = isTouch ? 'true' : 'false';
+            document.documentElement.dataset.displayMode = currentMode;
+
+            // Proportional Scale Factor
+            let scaleFactor = 1;
+            if (currentMode === 'auto') {
+                if (width < 360) {
+                    scaleFactor = Math.max(0.85, width / 375);
+                } else if (width > 440 && width <= 540) {
+                    scaleFactor = 1.02;
+                } else {
+                    scaleFactor = 1;
+                }
+            } else if (currentMode === 'compact') {
+                scaleFactor = 0.90;
+            } else if (currentMode === 'standard') {
+                scaleFactor = 1.0;
+            } else if (currentMode === 'comfort') {
+                scaleFactor = 1.08;
+            }
+
+            document.documentElement.style.setProperty('--adaptive-scale', `${scaleFactor}`);
+
+            updateDiagnosticsUI({
+                width,
+                height,
+                dpr,
+                screenCat,
+                isPortrait,
+                isTouch,
+                scaleFactor,
+                mode: currentMode
+            });
+        }
+
+        function setDisplayMode(mode) {
+            currentMode = mode;
+            localStorage.setItem(STORAGE_KEY, mode);
+            calibrate();
+            if (typeof showNotification === 'function') {
+                const labels = {
+                    'auto': 'Auto-Adaptatif Intelligent activé',
+                    'compact': 'Mode Compact (90%) activé',
+                    'standard': 'Mode Standard (100%) activé',
+                    'comfort': 'Mode Grand Confort (108%) activé'
+                };
+                showNotification("Affichage Écran Mis à Jour", labels[mode] || mode, "success");
+            }
+            if (navigator.vibrate) {
+                try { navigator.vibrate(30); } catch(e) {}
+            }
+        }
+
+        function updateDiagnosticsUI(info) {
+            const badge = document.getElementById('mobile-adaptive-current-badge');
+            if (badge) {
+                const modeNames = { 'auto': 'Auto-Adaptatif', 'compact': 'Mode Compact', 'standard': 'Mode Standard', 'comfort': 'Mode Confort' };
+                badge.innerText = `${modeNames[info.mode] || 'Actif'} (${info.width}px)`;
+            }
+
+            const diagRes = document.getElementById('adaptive-diag-res');
+            if (diagRes) diagRes.innerText = `${info.width} × ${info.height} px (${info.isPortrait ? 'Portrait' : 'Paysage'})`;
+
+            const diagCat = document.getElementById('adaptive-diag-cat');
+            if (diagCat) diagCat.innerText = info.screenCat.label;
+
+            const diagDpr = document.getElementById('adaptive-diag-dpr');
+            if (diagDpr) diagDpr.innerText = `${info.dpr.toFixed(1)}x (${info.isTouch ? 'Tactile' : 'Standard'})`;
+
+            const diagScale = document.getElementById('adaptive-diag-scale');
+            if (diagScale) diagScale.innerText = `${Math.round(info.scaleFactor * 100)}%`;
+
+            const buttons = document.querySelectorAll('.adaptive-mode-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('data-mode') === info.mode) {
+                    btn.classList.add('border-brand-orange', 'bg-orange-50/50', 'ring-2', 'ring-brand-orange/20');
+                    btn.classList.remove('border-slate-200', 'bg-white');
+                    const dot = btn.querySelector('.mode-active-dot');
+                    if (dot) dot.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('border-brand-orange', 'bg-orange-50/50', 'ring-2', 'ring-brand-orange/20');
+                    btn.classList.add('border-slate-200', 'bg-white');
+                    const dot = btn.querySelector('.mode-active-dot');
+                    if (dot) dot.classList.add('hidden');
+                }
+            });
+        }
+
+        function init() {
+            calibrate();
+            window.addEventListener('resize', calibrate);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(calibrate, 150);
+            });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', calibrate);
+            }
+        }
+
+        return {
+            init,
+            calibrate,
+            setDisplayMode,
+            getMode: () => currentMode
+        };
+    })();
+
+    function openMobileAdaptiveModal() {
+        const modal = document.getElementById('modal-mobile-adaptive-settings');
+        if (modal) {
+            modal.classList.remove('hidden');
+            if (window.MobileAdaptiveEngine) {
+                window.MobileAdaptiveEngine.calibrate();
+            }
+            if (typeof initializeLucideIcons === 'function') {
+                initializeLucideIcons();
+            }
+        }
+    }
+
+    function closeMobileAdaptiveModal() {
+        const modal = document.getElementById('modal-mobile-adaptive-settings');
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // Auto-initialize adaptive engine on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.MobileAdaptiveEngine) window.MobileAdaptiveEngine.init();
+        });
+    } else {
+        if (window.MobileAdaptiveEngine) window.MobileAdaptiveEngine.init();
+    }
+
 </script>
 
 </body>
