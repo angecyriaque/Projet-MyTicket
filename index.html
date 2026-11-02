@@ -377,6 +377,67 @@
 
     <!-- Mobile App Redesign CSS -->
     <style id="mobile-app-redesign">
+    /* Global Mobile Layout Hardening: Zero horizontal scroll / offset */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* iOS Safari Automatic Zoom Fix: 16px font-size on form controls */
+    @media screen and (max-width: 768px) {
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="email"],
+        input[type="password"],
+        input[type="search"],
+        input[type="url"],
+        select,
+        textarea {
+            font-size: 16px !important;
+        }
+    }
+
+    /* Active Mobile Bottom Navigation State */
+    .active-mobile-tab {
+        color: #FF5A36 !important;
+    }
+    .active-mobile-tab i,
+    .active-mobile-tab svg {
+        color: #FF5A36 !important;
+        stroke: #FF5A36 !important;
+    }
+    .active-mobile-tab span {
+        color: #FF5A36 !important;
+        font-weight: 800 !important;
+    }
+    .active-mobile-tab-card {
+        background-color: #FFF7ED !important;
+        border-color: #FF5A36 !important;
+        color: #EA580C !important;
+        box-shadow: 0 4px 12px rgba(255, 90, 54, 0.15) !important;
+    }
+
+    /* Ticket Card Responsive Phone Adaptation */
+    @media screen and (max-width: 480px) {
+        #live-ticket-card {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        #live-ticket-card .ticket-body-col {
+            padding: 0.75rem !important;
+        }
+        #ticket-stub-box {
+            width: 7.25rem !important;
+            padding: 0.5rem 0.25rem !important;
+        }
+        #ticket-qr {
+            width: 3.5rem !important;
+            height: 3.5rem !important;
+        }
+    }
     @media (max-width: 767px) {
         /* Finance Tables to Cards */
         #finance-decaissements-table,
@@ -489,21 +550,21 @@
         </div>
         <div class="flex items-center gap-2">
             <span class="font-display text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">MyTicket</span>
-            <span class="text-[9px] bg-slate-800 text-slate-300 font-mono uppercase px-2 py-0.5 rounded border border-slate-700 tracking-wider font-extrabold">ORGANISATEUR</span>
+            <span class="hidden sm:inline-block text-[9px] bg-slate-800 text-slate-300 font-mono uppercase px-2 py-0.5 rounded border border-slate-700 tracking-wider font-extrabold">ORGANISATEUR</span>
         </div>
     </div>
 
     <!-- Central Desktop Navigation Tabs Removed (Buttons only on Accueil) -->
 
     <!-- Right Header Actions: Status Indicator (Clignotant Vert Connecté) & User Profile -->
-    <div class="flex items-center gap-2.5 sm:gap-4">
+    <div class="flex items-center gap-1.5 sm:gap-4 shrink-0">
         <!-- Green Blinking Cloud Status Indicator -->
         <button onclick="openCloudSyncModal()" id="cloud-sync-status-btn" class="px-3 py-1.5 rounded-full bg-emerald-950/70 hover:bg-emerald-900/90 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold flex items-center gap-2 transition-all duration-200 shadow-sm shadow-emerald-950 cursor-pointer" title="Statut de la Base de Données Cloud Temps Réel (Cliquez pour diagnostics et sauvegardes)">
             <span class="relative flex h-2.5 w-2.5">
                 <span id="cloud-sync-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span id="cloud-sync-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-xs shadow-emerald-400"></span>
             </span>
-            <span id="cloud-sync-text" class="text-emerald-400 font-sans font-bold text-xs tracking-wide">Connecté</span>
+            <span id="cloud-sync-text" class="hidden xs:inline text-emerald-400 font-sans font-bold text-xs tracking-wide">Connecté</span>
         </button>
 
         <!-- Right User Profile Status -->
@@ -599,7 +660,7 @@
 <!-- Mobile Tabs Strip Removed (Navigation via Accueil Hub) -->
 
 <!-- Main Central Application Container -->
-<main class="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 pb-8">
+<main class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-28 sm:pb-12">
     <div class="max-w-7xl mx-auto">
 
         <!-- ========================================== -->
@@ -607,7 +668,7 @@
         <!-- ========================================== -->
         <section id="view-accueil" class="view-section space-y-8" style="display:none;">
             <!-- Hero Event Banner Card (Ambiance Festive & Chaleureuse du Jubilé) -->
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B132B] via-[#141A33] to-[#090D1F] text-white p-4 sm:p-10 lg:p-12 shadow-2xl border border-amber-500/30">
 
     
                 <!-- Warm ambient glows -->
@@ -777,29 +838,36 @@
             <!-- =========================================================
                  CHAÎNES OFFICIELLES (DISCRÈTES & COMPACTES)
                  ========================================================= -->
-            <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs text-white shadow-sm">
+            <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-white shadow-sm">
                 <div class="flex items-center gap-2.5">
                     <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
                         <i data-lucide="radio" class="h-3.5 w-3.5 text-brand-orange"></i>
-                        <span>Chaînes Officielles :</span>
+                        <span>Chaînes & Liens Officiels :</span>
                     </span>
                 </div>
                 
-                <div class="flex items-center gap-2.5 flex-wrap">
+                <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
                     <!-- 1. FACEBOOK : OJ-TV HOREB -->
-                    <a href="https://www.facebook.com/share/19MGJQcY31/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-[#1877F2]/15 hover:bg-[#1877F2] border border-[#1877F2]/40 text-blue-300 hover:text-white transition duration-200 flex items-center gap-1.5 text-xs font-bold shadow-xs">
+                    <a href="https://www.facebook.com/share/19MGJQcY31/" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-[#1877F2]/15 hover:bg-[#1877F2] border border-[#1877F2]/40 text-blue-300 hover:text-white transition duration-200 flex items-center justify-center gap-1.5 text-xs font-bold shadow-xs">
                         <i data-lucide="facebook" class="h-3.5 w-3.5"></i>
                         <span>OJ-TV HOREB</span>
                         <i data-lucide="external-link" class="h-3 w-3 opacity-70"></i>
                     </a>
 
                     <!-- 2. TIKTOK : OJ HOREB -->
-                    <a href="https://vt.tiktok.com/ZSqeg5HyB/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-pink-500/15 hover:bg-gradient-to-r hover:from-pink-600 hover:to-indigo-600 border border-pink-500/40 text-pink-300 hover:text-white transition duration-200 flex items-center gap-1.5 text-xs font-bold shadow-xs">
+                    <a href="https://vt.tiktok.com/ZSqeg5HyB/" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-pink-500/15 hover:bg-gradient-to-r hover:from-pink-600 hover:to-indigo-600 border border-pink-500/40 text-pink-300 hover:text-white transition duration-200 flex items-center justify-center gap-1.5 text-xs font-bold shadow-xs">
                         <svg class="h-3.5 w-3.5 fill-current text-pink-300 group-hover:text-white" viewBox="0 0 24 24">
                             <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
                         </svg>
                         <span>OJ HOREB</span>
+                        <i data-lucide="external-link" class="h-3 w-3 opacity-70"></i>
+                    </a>
+
+                    <!-- 3. WHATSAPP INFOLINE OFFICIELLE -->
+                    <a href="https://wa.me/2250700000000?text=Bonjour%20MyTicket%2C%20je%20vous%20contacte%20concernant%20la%20Nuit%20de%20JACOB%20%C3%A0%20Isra%C3%ABl%20(10%20Ans)" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 border border-emerald-500/40 text-emerald-300 hover:text-white transition duration-200 flex items-center justify-center gap-1.5 text-xs font-bold shadow-xs">
+                        <i data-lucide="message-circle" class="h-3.5 w-3.5"></i>
+                        <span>Infoline WhatsApp</span>
                         <i data-lucide="external-link" class="h-3 w-3 opacity-70"></i>
                     </a>
                 </div>
@@ -908,7 +976,7 @@
             </div>
 
             <!-- Financial Sub-Navigation Tabs Bar -->
-            <div class="border-b border-slate-200 flex flex-wrap gap-8 text-sm font-semibold">
+            <div class="border-b border-slate-200 flex items-center overflow-x-auto no-scrollbar gap-3 sm:gap-8 text-xs sm:text-sm font-semibold pb-1">
                 <button onclick="switchFinanceTab('budgets')" id="fin-tab-budgets" class="pb-3 border-b-2 border-brand-orange text-brand-orange font-bold transition">
                     Gestion des Budgets
                 </button>
@@ -1018,7 +1086,7 @@
                                     <th class="py-4 px-4 text-right">Action</th>
                                 </tr>
                             </thead>
-                            <div id="finance-consolidation-bars" class="hidden"></div>
+                            
 <tbody id="finance-consolidation-table" class="divide-y divide-slate-100 font-medium">
                                 <!-- Loaded dynamically -->
                             </tbody>
@@ -1407,7 +1475,7 @@
                     </div>
 
                     <!-- 25 Mini Tables Visual Grid -->
-                    <div class="grid grid-cols-5 gap-2.5 sm:gap-3.5 pt-1" id="dash-mini-tables-grid">
+                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3.5 pt-1" id="dash-mini-tables-grid">
                         <!-- Populated dynamically -->
                     </div>
 
@@ -1695,10 +1763,11 @@
                     </div>
 
                     <!-- Compact Luxury Ticket Card (Même disposition que l'ancien format authentique) -->
-                    <div id="live-ticket-card" class="bg-white rounded-3xl border-2 border-slate-200 shadow-xl overflow-hidden flex flex-row relative transition duration-300 text-slate-900 max-w-[560px] mx-auto select-none">
+                    <div class="w-full overflow-x-auto no-scrollbar py-1 flex justify-center">
+                    <div id="live-ticket-card" class="bg-white rounded-3xl border-2 border-slate-200 shadow-xl overflow-hidden flex flex-row relative transition duration-300 text-slate-900 w-full max-w-[560px] mx-auto select-none">
                         
                         <!-- Main Ticket Body (Pure Clean White - Left ~65%) -->
-                        <div class="flex-1 p-5 sm:p-6 space-y-3 bg-white flex flex-col justify-between border-r border-slate-100">
+                        <div class="ticket-body-col flex-1 p-3.5 sm:p-6 space-y-2.5 sm:space-y-3 bg-white flex flex-col justify-between border-r border-slate-100">
                             <div>
                                 <div class="flex justify-between items-start">
                                     <div class="space-y-0.5">
@@ -1783,18 +1852,27 @@
                             </span>
                         </div>
                     </div>
+                    </div>
 
-                    <!-- 3 ACTION BUTTONS (JPG TICKET + JPG VERSE + PDF PRINT) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 max-w-[580px] mx-auto">
+                    <!-- ACTION BUTTONS (JPG TICKET + WHATSAPP SHARE + JPG VERSE + PDF PRINT) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2 max-w-[660px] mx-auto">
                         <!-- Button 1: Download Official Ticket as JPG (Visual Screenshot replica) -->
                         <button id="btn-download-ticket-jpg" disabled onclick="downloadTicketImage()" class="px-3 py-3 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:opacity-95 text-white font-black text-xs transition-all duration-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer">
                             <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="camera" class="h-3.5 w-3.5"></i>
                             </div>
-                            <span>Télécharger le Billet (JPG)</span>
+                            <span>Billet (JPG)</span>
                         </button>
 
-                        <!-- Button 2: Download Verse Card as JPG -->
+                        <!-- Button 2: WhatsApp Share -->
+                        <button id="btn-share-ticket-whatsapp" disabled onclick="shareTicketWhatsApp()" class="px-3 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-black text-xs transition-all duration-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer">
+                            <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
+                                <i data-lucide="send" class="h-3.5 w-3.5"></i>
+                            </div>
+                            <span>Partager (WhatsApp)</span>
+                        </button>
+
+                        <!-- Button 3: Download Verse Card as JPG -->
                         <button id="btn-download-verset" disabled onclick="downloadVersetImage()" class="px-3 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-pink-500 hover:opacity-95 text-white font-black text-xs transition-all duration-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg border border-amber-300/40 cursor-pointer">
                             <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="image" class="h-3.5 w-3.5"></i>
@@ -1802,7 +1880,7 @@
                             <span>Carte Verset (JPG)</span>
                         </button>
 
-                        <!-- Button 3: Print Ticket in PDF -->
+                        <!-- Button 4: Print Ticket in PDF -->
                         <button id="btn-print-ticket" disabled onclick="printTicket()" class="px-3 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs transition-all duration-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer">
                             <div class="h-5 w-5 rounded-lg bg-white/10 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="printer" class="h-3.5 w-3.5"></i>
@@ -2525,7 +2603,7 @@
 <!-- =========================================================
      MODAL: CONFIRMATION DE CRÉATION DE PROFIL UTILISATEUR
      ========================================================= -->
-<div id="modal-confirm-create-user" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-confirm-create-user" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-100 text-left animate-in zoom-in-95">
         
         <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
@@ -2586,7 +2664,7 @@
 <!-- =========================================================
      MODAL: PORTAIL D'ACCÈS INITIAL (CONNEXION OU VISITEUR)
      ========================================================= -->
-<div id="modal-initial-gateway" class="fixed inset-0 z-50 bg-[#090D1F]/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+<div id="modal-initial-gateway" class="fixed inset-0 z-50 bg-[#090D1F]/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95 relative overflow-hidden">
         
         <!-- Header Branding -->
@@ -2813,7 +2891,7 @@
                     </div>
 
                     <!-- Inner Album Medias Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="album-inner-medias-grid">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4" id="album-inner-medias-grid">
                         <!-- Populated dynamically via JS -->
                     </div>
                 </div>
@@ -2834,7 +2912,7 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <a href="https://maps.google.com/?q=Noces+d%27Or+09+BP+1799+Abidjan" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
+                        <a href="https://www.google.com/maps/search/?api=1&query=Noces+d%27Or+09+BP+1799+Abidjan" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5">
                             <i data-lucide="navigation" class="h-4 w-4"></i>
                             <span>Ouvrir dans Google Maps</span>
                         </a>
@@ -2909,7 +2987,7 @@
         <!-- =========================================================
              MODAL 1: CRÉATION D'UN NOUVEL ALBUM
              ========================================================= -->
-        <div id="modal-create-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div id="modal-create-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
             <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div class="flex items-center gap-2.5">
@@ -2987,7 +3065,7 @@
         <!-- =========================================================
              MODAL 2: AJOUT DE PHOTOS / VIDÉOS DANS UN ALBUM
              ========================================================= -->
-        <div id="modal-add-media-to-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div id="modal-add-media-to-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
             <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div class="flex items-center gap-2.5">
@@ -3210,7 +3288,7 @@
         </div>
 
         <!-- MODAL: AUTORISATION ADMIN POUR ANNULATION D'ÉMARGEMENT -->
-<div id="modal-admin-uncheck" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-admin-uncheck" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95">
         <div class="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto shadow-inner border border-red-100">
             <i data-lucide="shield-alert" class="h-8 w-8"></i>
@@ -3255,7 +3333,7 @@
 
 <!-- MODALS FOR FINANCE & PRINT -->
 <!-- MODALE DEMANDE DE DÉCAISSEMENT STRICTEMENT LIÉE AU BUDGET -->
-<div id="modal-disbursement" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-disbursement" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 class="font-display font-black text-lg text-slate-900 flex items-center gap-2">
@@ -3315,7 +3393,7 @@
     </div>
 </div>
 
-<div id="modal-donation" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-donation" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div class="flex items-center gap-2.5">
@@ -3412,7 +3490,7 @@
 
 
 <!-- MODAL CAMERA SCANNER -->
-<div id="modal-camera-scanner" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-camera-scanner" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-100">
         <div class="flex items-center justify-between">
             <h3 class="font-display font-bold text-base text-slate-900 flex items-center gap-2">
@@ -3440,7 +3518,7 @@
 </div>
 
 <!-- MODAL: SÉCURITÉ - MOT DE PASSE PERSONNEL POUR SUPPRESSION DE LIGNE BUDGÉTAIRE -->
-<div id="modal-delete-line-auth" class="fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-delete-line-auth" class="fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
         <div class="flex items-center gap-3.5 border-b border-slate-100 pb-4">
             <div class="h-12 w-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center font-black shadow-inner shrink-0">
@@ -3481,7 +3559,7 @@
 </div>
 
 <!-- MODAL EDIT DONATION -->
-<div id="modal-edit-donation" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-edit-donation" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100">
         <div class="flex items-center justify-between">
             <h3 class="font-display font-bold text-base text-slate-900">Modifier la Contribution</h3>
@@ -3551,7 +3629,7 @@
 <!-- ========================================== -->
     <!-- MODAL: SCANNER QR CODE EN DIRECT (CAMÉRA)   -->
     <!-- ========================================== -->
-    <div id="modal-qr-scanner" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div id="modal-qr-scanner" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 text-white space-y-5 shadow-2xl relative">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                 <div class="flex items-center gap-2.5">
@@ -3606,7 +3684,7 @@
     <!-- ========================================== -->
     <!-- MODAL: CHECK-IN SUCCESS & TABLE POPUP      -->
     <!-- ========================================== -->
-    <div id="modal-checkin-success" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div id="modal-checkin-success" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center space-y-6 shadow-2xl relative border-2 border-emerald-400 transform transition-all animate-in zoom-in-95">
             <div class="h-20 w-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-lg ring-8 ring-emerald-50">
                 <i data-lucide="check-check" class="h-10 w-10"></i>
@@ -3806,7 +3884,7 @@
     <!-- ============================================================== -->
     <!-- MODAL: VALIDATION PCO & RESPONSABLE FINANCIER POUR DÉCAISSEMENT -->
     <!-- ============================================================== -->
-    <div id="modal-pco-approval" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div id="modal-pco-approval" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl relative border-2 border-emerald-400 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
             
             <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
@@ -3881,7 +3959,7 @@
     <!-- ============================================================== -->
     <!-- MODAL: MODIFICATION D'UN DON / SPONSORING                      -->
     <!-- ============================================================== -->
-    <div id="modal-edit-donation" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div id="modal-edit-donation" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div class="flex items-center gap-2.5">
@@ -6429,6 +6507,7 @@
         const statusLabel = document.getElementById('ticket-status-label');
         const stubStatus = document.getElementById('ticket-display-status');
         const btnTicketJpg = document.getElementById('btn-download-ticket-jpg');
+        const btnShare = document.getElementById('btn-share-ticket-whatsapp');
         const btnVerset = document.getElementById('btn-download-verset');
         const btnPrint = document.getElementById('btn-print-ticket');
 
@@ -6464,6 +6543,10 @@
             if (btnTicketJpg) {
                 btnTicketJpg.setAttribute('disabled', 'true');
                 btnTicketJpg.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+            if (btnShare) {
+                btnShare.setAttribute('disabled', 'true');
+                btnShare.classList.add('opacity-50', 'cursor-not-allowed');
             }
             if (btnVerset) {
                 btnVerset.setAttribute('disabled', 'true');
@@ -6566,10 +6649,14 @@
             stubStatus.innerText = "ACCÈS VALIDÉ";
         }
 
-        // Enable All 3 Action Buttons
+        // Enable All Action Buttons (including WhatsApp Share)
         if (btnTicketJpg) {
             btnTicketJpg.removeAttribute('disabled');
             btnTicketJpg.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        if (btnShare) {
+            btnShare.removeAttribute('disabled');
+            btnShare.classList.remove('opacity-50', 'cursor-not-allowed');
         }
         if (btnVerset) {
             btnVerset.removeAttribute('disabled');
@@ -6956,6 +7043,35 @@
         link.click();
         document.body.removeChild(link);
         showNotification("Carte Verset Téléchargée !", "Votre carte prophétique 2027 en haute définition (JPG) a été téléchargée.", "success");
+    }
+
+    function shareTicketWhatsApp() {
+        const ticket = state.currentTicket;
+        if (!ticket) {
+            showNotification("Aucun Billet Émis", "Veuillez d'abord générer un pass avant de le partager.", "error");
+            return;
+        }
+
+        const fullName = `${ticket.prenom || ''} ${ticket.nom || ''}`.trim() || 'Festivalier';
+        const ticketId = ticket.id ? (ticket.id.startsWith('#') ? ticket.id : `#${ticket.id}`) : '#MYT-0001';
+        const cat = ticket.categorie || 'Classique';
+        const prixStr = ticket.prix ? (`${ticket.prix.toLocaleString('fr-FR')} FCFA`) : 'Gratuit';
+        const tableInfo = typeof getParticipantTableInfo === 'function' ? getParticipantTableInfo(ticket) : { fullTableName: 'Table Confirmée' };
+
+        const shareText = `🎫 *PASS OFFICIEL • 10 ANS EMCI HOREB* 🕊️\n\n👤 *Participant :* ${fullName}\n🎟️ *N° Billet :* ${ticketId}\n👑 *Catégorie :* Pass ${cat} (${prixStr})\n🍽️ *Affectation :* ${tableInfo.fullTableName || 'Table Confirmée'}\n📅 *Date :* 01 Janvier 2027 dès 00h00\n📍 *Lieu :* Noces d'Or (Abidjan)\n🎁 *Rappel :* Venir avec un cadeau mixte.\n\nConsultez l'application officielle MyTicket : ${window.location.href}`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: `Pass Officiel 10 Ans EMCI Horeb - ${fullName}`,
+                text: shareText,
+                url: window.location.href
+            }).catch(() => {
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+            });
+        } else {
+            window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+        }
+        showNotification("Partage WhatsApp", "Partage du pass initié avec succès.", "success");
     }
 
     function printTicket() {
@@ -12911,7 +13027,7 @@
 <div class="hidden" id="compat-stubs"><input id="manual-scan-code-input"><input id="don-nom"><input id="don-type"><input id="don-montant"><input id="don-compte"><div id="tables-grid-container"></div></div>
 
 <!-- MODAL: AJOUTER / MODIFIER UNE ACTIVITÉ DU CHRONOGRAMME -->
-<div id="modal-edit-chronogramme" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-edit-chronogramme" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div class="flex items-center gap-2.5">
@@ -13159,7 +13275,7 @@
 <!-- ============================================== -->
 <!-- MODAL: GESTION BASE DE DONNÉES CLOUD & SYNCHRO -->
 <!-- ============================================== -->
-<div id="modal-cloud-database-settings" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-cloud-database-settings" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="relative w-full max-w-lg bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 animate-scale-up space-y-6">
         
         <!-- Header -->
@@ -13261,7 +13377,7 @@
 <!-- ============================================== -->
 <!-- MODAL: SÉCURITÉ ADMIN - SUPPRESSION PARTICIPANT -->
 <!-- ============================================== -->
-<div id="modal-delete-participant-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-delete-participant-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-6 space-y-5 animate-scale-up">
         <div class="text-center space-y-2">
             <div class="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
@@ -13293,7 +13409,7 @@
 <!-- ============================================== -->
 <!-- MODAL: SÉCURITÉ ADMIN - SUPPRESSION TOUS LES COMPTES -->
 <!-- ============================================== -->
-<div id="modal-delete-all-users-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-delete-all-users-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-6 space-y-5 animate-scale-up">
         <div class="text-center space-y-2">
             <div class="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
@@ -13323,7 +13439,7 @@
 <!-- ============================================== -->
 <!-- MODAL: SÉCURITÉ ADMIN - PURGE INTÉGRALE BASE DE DONNÉES -->
 <!-- ============================================== -->
-<div id="modal-purge-all-data-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+<div id="modal-purge-all-data-auth" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 p-6 space-y-5 animate-scale-up">
         <div class="text-center space-y-2">
             <div class="h-12 w-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
