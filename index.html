@@ -3564,34 +3564,6 @@
 </div>
 
 
-<!-- MODAL CAMERA SCANNER -->
-<div id="modal-camera-scanner" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-slate-100">
-        <div class="flex items-center justify-between">
-            <h3 class="font-display font-bold text-base text-slate-900 flex items-center gap-2">
-                <i data-lucide="qr-code" class="h-5 w-5 text-brand-orange"></i>
-                <span>Scanner Caméra / Saisie Rapide</span>
-            </h3>
-            <button onclick="closeLiveCameraScanner()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
-        </div>
-        <div class="relative bg-slate-950 rounded-2xl h-56 flex flex-col items-center justify-center text-white overflow-hidden border-2 border-dashed border-slate-700">
-            <i data-lucide="scan-line" class="h-16 w-16 text-brand-orange animate-pulse opacity-80"></i>
-            <span class="text-xs text-slate-400 mt-2">Visez le QR Code du billet</span>
-        </div>
-        <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-700">Ou Référence / Contact du Billet :</label>
-            <div class="flex gap-2">
-                <input type="text" id="camera-scan-id-input" placeholder="Ex: TIC-4912 ou 0708..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:outline-none focus:border-brand-orange">
-                <button onclick="executeModalScan()" class="px-4 py-2.5 bg-brand-orange text-white font-bold text-xs rounded-xl hover:bg-orange-600 transition">
-                    Émarger
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- MODAL: SÉCURITÉ - MOT DE PASSE PERSONNEL POUR SUPPRESSION DE LIGNE BUDGÉTAIRE -->
 <div id="modal-delete-line-auth" class="fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95">
@@ -3704,42 +3676,66 @@
 <!-- ========================================== -->
     <!-- MODAL: SCANNER QR CODE EN DIRECT (CAMÉRA)   -->
     <!-- ========================================== -->
-    <div id="modal-qr-scanner" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-6 text-white space-y-5 shadow-2xl relative">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+    <div id="modal-qr-scanner" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-lg w-full p-5 sm:p-6 text-white space-y-4 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div class="flex items-center gap-2.5">
                     <div class="p-2 rounded-xl bg-emerald-500 text-white shadow-md">
                         <i data-lucide="camera" class="h-5 w-5"></i>
                     </div>
                     <div>
                         <h3 class="font-display font-black text-lg text-white">Scanner Caméra QR Code</h3>
-                        <p class="text-xs text-slate-400">Pointez la caméra vers le QR Code du pass</p>
+                        <p class="text-xs text-slate-400">Pointez la caméra vers l'écran ou le pass papier</p>
                     </div>
                 </div>
-                <button onclick="closeLiveCameraScanner()" class="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i data-lucide="x" class="h-5 w-5"></i>
-                </button>
+                
+                <div class="flex items-center gap-1.5">
+                    <!-- Torch / Flash button -->
+                    <button id="btn-camera-torch" onclick="toggleCameraTorch()" type="button" class="hidden px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Activer / Désactiver la torche">
+                        <i data-lucide="zap" class="h-4 w-4"></i>
+                        <span id="torch-label" class="text-[11px]">Flash</span>
+                    </button>
+
+                    <!-- Camera lens switch button (Back / Front) -->
+                    <button id="btn-camera-switch" onclick="switchCamera()" type="button" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white transition cursor-pointer" title="Changer de caméra (Avant / Arrière)">
+                        <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                    </button>
+
+                    <!-- Close button -->
+                    <button onclick="closeLiveCameraScanner()" type="button" class="p-2 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition cursor-pointer" title="Fermer le scanner">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Viewfinder Area -->
-            <div class="relative w-full h-64 bg-black rounded-2xl overflow-hidden flex items-center justify-center border-2 border-dashed border-emerald-500/50 shadow-inner">
-                <video id="qr-video-feed" class="w-full h-full object-cover" autoplay playsinline></video>
-                <div class="absolute inset-0 border-2 border-emerald-400 rounded-xl m-8 pointer-events-none flex flex-col justify-between p-2">
+            <div class="relative w-full h-72 sm:h-80 bg-black rounded-2xl overflow-hidden flex items-center justify-center border-2 border-dashed border-emerald-500/50 shadow-inner">
+                <video id="qr-video-feed" class="w-full h-full object-cover" autoplay playsinline muted></video>
+                
+                <!-- Target Reticle Overlay -->
+                <div id="qr-viewfinder-box" class="absolute inset-0 border-2 border-emerald-400/90 rounded-2xl m-6 sm:m-8 pointer-events-none flex flex-col justify-between p-3 transition-colors duration-200 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
                     <div class="flex justify-between">
-                        <span class="w-4 h-4 border-t-2 border-l-2 border-emerald-400"></span>
-                        <span class="w-4 h-4 border-t-2 border-r-2 border-emerald-400"></span>
+                        <span class="w-5 h-5 border-t-3 border-l-3 border-emerald-400 rounded-tl-sm"></span>
+                        <span class="w-5 h-5 border-t-3 border-r-3 border-emerald-400 rounded-tr-sm"></span>
                     </div>
-                    <div class="w-full h-0.5 bg-emerald-400/80 shadow-[0_0_10px_#10b981] animate-pulse"></div>
+                    <!-- Scanning Laser Beam -->
+                    <div class="w-full h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_#10b981] animate-pulse"></div>
                     <div class="flex justify-between">
-                        <span class="w-4 h-4 border-b-2 border-l-2 border-emerald-400"></span>
-                        <span class="w-4 h-4 border-b-2 border-r-2 border-emerald-400"></span>
+                        <span class="w-5 h-5 border-b-3 border-l-3 border-emerald-400 rounded-bl-sm"></span>
+                        <span class="w-5 h-5 border-b-3 border-r-3 border-emerald-400 rounded-br-sm"></span>
                     </div>
+                </div>
+
+                <!-- Floating Live Feedback Badge -->
+                <div id="qr-scanner-status" class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/70 backdrop-blur-xs rounded-full text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5 pointer-events-none border border-emerald-500/30 whitespace-nowrap shadow-md">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>Recherche en cours... Visez le QR Code</span>
                 </div>
             </div>
 
             <!-- Fast Manual / Upload Option inside Scanner -->
-            <div class="space-y-2 text-center">
-                <p class="text-xs text-slate-400">Ou importez une capture de QR code / saisissez le numéro :</p>
+            <div class="space-y-2 text-center pt-1">
+                <p class="text-xs text-slate-400">Ou importez une capture de pass / saisissez le code :</p>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <label class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
                         <i data-lucide="image" class="h-4 w-4 text-emerald-400"></i>
@@ -11994,27 +11990,59 @@
         if (!query) return null;
         const raw = query.toString().trim();
         const clean = raw.replace('#', '').toLowerCase();
-        const digitsOnly = raw.replace(/\D/g, '');
 
-        // 1. Direct ID match (e.g. 'MYT-0001', 'TIC-1234', '0001')
+        // 1. JSON parsing in case QR encodes a JSON payload
+        try {
+            if (raw.startsWith('{') && raw.endsWith('}')) {
+                const parsed = JSON.parse(raw);
+                if (parsed) {
+                    const candidate = parsed.id || parsed.ticketId || parsed.ref || parsed.numero;
+                    if (candidate) {
+                        const match = findParticipantByQuery(candidate);
+                        if (match) return match;
+                    }
+                }
+            }
+        } catch (e) {}
+
+        // 2. Direct exact ID match (e.g. 'MYT-0001', 'TIC-1234', '0001')
         let p = (state.participants || []).find(part => 
-            part.id.toLowerCase() === clean || 
-            part.id.toLowerCase() === `myt-${clean}` ||
-            `#${part.id}`.toLowerCase() === clean
+            part && part.id && (
+                part.id.toLowerCase() === clean || 
+                part.id.toLowerCase() === `myt-${clean}` ||
+                `#${part.id}`.toLowerCase() === clean
+            )
         );
         if (p) return p;
 
-        // 2. Numeric match (e.g. user typed "1" -> matches "MYT-0001", "15" -> "MYT-0015", etc.)
-        if (digitsOnly.length > 0) {
+        // 3. Regex match for MYT pattern anywhere in URL or text (e.g. 'https://...#MYT-0001', 'MYT-0005', 'Pass MYT-0012')
+        const mytMatch = raw.match(/MYT[-_]?\s*(\d+)/i);
+        if (mytMatch) {
+            const seq = parseInt(mytMatch[1], 10);
+            p = (state.participants || []).find(part => {
+                if (!part || !part.id) return false;
+                const m = part.id.match(/MYT[-_]?\s*(\d+)/i);
+                return m && parseInt(m[1], 10) === seq;
+            });
+            if (p) return p;
+        }
+
+        // 4. Numeric sequence match (e.g. user typed or scanned "1" -> matches "MYT-0001", "15" -> "MYT-0015")
+        const digitsOnly = raw.replace(/\D/g, '');
+        if (digitsOnly.length > 0 && digitsOnly.length <= 4) {
             const numVal = parseInt(digitsOnly, 10);
             p = (state.participants || []).find(part => {
+                if (!part || !part.id) return false;
                 const partDigits = part.id.replace(/\D/g, '');
                 return partDigits && parseInt(partDigits, 10) === numVal;
             });
             if (p) return p;
+        }
 
-            // Search by contact numbers
+        // 5. Contact phone numbers (e.g. 0708091011)
+        if (digitsOnly.length >= 8) {
             p = (state.participants || []).find(part => {
+                if (!part) return false;
                 const c1 = (part.contact1 || '').replace(/\D/g, '');
                 const c2 = (part.contact2 || '').replace(/\D/g, '');
                 return (c1 && c1.includes(digitsOnly)) || (c2 && c2.includes(digitsOnly));
@@ -12022,17 +12050,19 @@
             if (p) return p;
         }
 
-        // 3. Search by attendee name
-        p = (state.participants || []).find(part => 
-            `${part.prenom || ''} ${part.nom || ''}`.toLowerCase().includes(clean) ||
-            `${part.nom || ''} ${part.prenom || ''}`.toLowerCase().includes(clean)
-        );
+        // 6. Search by attendee name
+        p = (state.participants || []).find(part => {
+            if (!part) return false;
+            const fullName1 = `${part.prenom || ''} ${part.nom || ''}`.toLowerCase();
+            const fullName2 = `${part.nom || ''} ${part.prenom || ''}`.toLowerCase();
+            return fullName1.includes(clean) || fullName2.includes(clean);
+        });
         if (p) return p;
 
         return null;
     }
 
-        function renderReceptionTable() {
+    function renderReceptionTable() {
         const tbody = document.getElementById('reception-attendees-tbody');
         const mobileContainer = document.getElementById('reception-attendees-mobile-cards');
         if (!tbody && !mobileContainer) return;
@@ -12313,17 +12343,29 @@
     // =========================================================
     // DUAL-ENGINE REAL-TIME QR SCANNER (SCREEN & PAPER OPTIMIZED)
     // Hardware BarcodeDetector (GPU/NPU) + Multi-Pass jsQR Engine
+    // with Dynamic Min-Max Screen Contrast Normalization
     // =========================================================
     let qrMediaStream = null;
     let qrScanAnimationId = null;
     let nativeBarcodeDetector = null;
     let isTorchOn = false;
     let isScanningActive = false;
+    let currentFacingMode = "environment";
 
     // Initialize Native BarcodeDetector if available in browser
     if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
         try {
-            nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+            if (BarcodeDetector.getSupportedFormats) {
+                BarcodeDetector.getSupportedFormats().then(formats => {
+                    if (formats.includes('qr_code')) {
+                        nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+                    }
+                }).catch(() => {
+                    try { nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] }); } catch(e){}
+                });
+            } else {
+                nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+            }
         } catch (e) {
             console.warn("Native BarcodeDetector notice:", e);
         }
@@ -12332,7 +12374,7 @@
     function playScanSuccessFeedback() {
         // Haptic feedback (double vibration on phone)
         if (navigator.vibrate) {
-            try { navigator.vibrate([50, 40, 50]); } catch (e) {}
+            try { navigator.vibrate([60, 40, 60]); } catch (e) {}
         }
         // Web Audio Confirmation Beep
         try {
@@ -12355,57 +12397,105 @@
     }
 
     async function openLiveCameraScanner() {
-        const modal = document.getElementById('modal-qr-scanner') || document.getElementById('modal-camera-scanner');
+        const modal = document.getElementById('modal-qr-scanner');
         if (!modal) return;
         modal.classList.remove('hidden');
 
-        const video = document.getElementById('qr-video-feed');
         const manualInput = document.getElementById('modal-scanner-manual-input') || document.getElementById('camera-scan-id-input');
         if (manualInput) {
             manualInput.value = '';
             manualInput.focus();
         }
 
+        const statusEl = document.getElementById('qr-scanner-status');
+        if (statusEl) {
+            statusEl.innerHTML = '<span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span><span>Recherche en cours... Visez le QR Code</span>';
+            statusEl.className = "absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/70 backdrop-blur-xs rounded-full text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5 pointer-events-none border border-emerald-500/30 whitespace-nowrap shadow-md";
+        }
+
         isTorchOn = false;
         const torchBtn = document.getElementById('btn-camera-torch');
         if (torchBtn) torchBtn.classList.add('hidden');
 
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
+        await startCameraStream(currentFacingMode);
+        initializeLucideIcons();
+    }
+
+    async function startCameraStream(facing = "environment") {
+        const video = document.getElementById('qr-video-feed');
+        if (!video) return;
+
+        // Stop any existing stream
+        if (qrMediaStream) {
+            try { qrMediaStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            qrMediaStream = null;
+        }
+
+        video.muted = true;
+        video.playsInline = true;
+        video.setAttribute("muted", "true");
+        video.setAttribute("playsinline", "true");
+        video.setAttribute("autoplay", "true");
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showNotification("Caméra non supportée", "Votre navigateur ne permet pas l'accès direct à la caméra. Veuillez utiliser la saisie manuelle.", "warning");
+            return;
+        }
+
+        let stream = null;
+        // Multi-tier fallback to avoid OverconstrainedError across diverse mobile devices & laptops
+        const constraintTiers = [
+            { video: { facingMode: { ideal: facing }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+            { video: { facingMode: facing }, audio: false },
+            { video: true, audio: false }
+        ];
+
+        for (const c of constraintTiers) {
             try {
-                // Constraints tailored for scanning glowing phone screens:
-                // High definition, continuous focus & exposure to compensate for backlight
-                const constraints = {
-                    video: {
-                        facingMode: "environment",
-                        width: { ideal: 1280, min: 640 },
-                        height: { ideal: 720, min: 480 }
-                    }
-                };
-
-                qrMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = qrMediaStream;
-                video.setAttribute("playsinline", true);
-                video.setAttribute("muted", "true");
-                await video.play();
-
-                // Check for Torch (flashlight) capability on mobile
-                const track = qrMediaStream.getVideoTracks()[0];
-                if (track && track.getCapabilities) {
-                    const capabilities = track.getCapabilities();
-                    if (capabilities.torch && torchBtn) {
-                        torchBtn.classList.remove('hidden');
-                    }
-                    if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-                        track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
-                    }
-                }
-
-                startLiveQRDecoder(video);
+                stream = await navigator.mediaDevices.getUserMedia(c);
+                if (stream) break;
             } catch (err) {
-                console.warn("Camera stream error:", err);
-                showNotification("Accès Caméra", "Veuillez autoriser la caméra dans votre navigateur ou utiliser la saisie numérique ci-dessous.", "info");
+                console.warn("Camera constraint tier attempt notice:", err.name);
             }
         }
+
+        if (!stream) {
+            showNotification("Accès Caméra", "Veuillez autoriser l'accès à la caméra dans votre navigateur ou saisir le code manuellement.", "info");
+            return;
+        }
+
+        qrMediaStream = stream;
+        video.srcObject = stream;
+
+        try {
+            await video.play();
+        } catch (playErr) {
+            console.warn("Video play notice:", playErr);
+        }
+
+        // Check for Torch (flashlight) capability on mobile back camera
+        const track = qrMediaStream.getVideoTracks()[0];
+        const torchBtn = document.getElementById('btn-camera-torch');
+        if (track && track.getCapabilities && torchBtn) {
+            try {
+                const capabilities = track.getCapabilities();
+                if (capabilities.torch) {
+                    torchBtn.classList.remove('hidden');
+                } else {
+                    torchBtn.classList.add('hidden');
+                }
+                if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+                    track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+                }
+            } catch (e) {}
+        }
+
+        startLiveQRDecoder(video);
+    }
+
+    async function switchCamera() {
+        currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+        await startCameraStream(currentFacingMode);
         initializeLucideIcons();
     }
 
@@ -12432,104 +12522,130 @@
         if (!video || !qrMediaStream) return;
         isScanningActive = true;
         let frameCount = 0;
+        let isProcessingFrame = false;
 
         async function scanVideoFrame() {
             if (!qrMediaStream || !isScanningActive) return;
 
-            if (video.readyState >= video.HAVE_CURRENT_DATA) {
-                frameCount++;
+            try {
+                if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0 && !isProcessingFrame) {
+                    isProcessingFrame = true;
+                    frameCount++;
 
-                // ENGINE 1: Hardware-Accelerated Native BarcodeDetector (instant screen decode)
-                if (nativeBarcodeDetector) {
-                    try {
-                        const barcodes = await nativeBarcodeDetector.detect(video);
-                        if (barcodes && barcodes.length > 0 && isScanningActive) {
-                            const found = barcodes[0].rawValue;
-                            if (found && found.trim().length > 0) {
-                                isScanningActive = false;
-                                playScanSuccessFeedback();
-                                closeLiveCameraScanner();
-                                executeCheckInForTicketId(found);
-                                return;
-                            }
-                        }
-                    } catch (e) {}
-                }
-
-                // ENGINE 2: Screen-Optimized jsQR with ROI and Contrast Adaptation
-                if (typeof jsQR !== 'undefined' && video.videoWidth > 0 && video.videoHeight > 0) {
                     const vw = video.videoWidth;
                     const vh = video.videoHeight;
+                    let decodedResult = null;
 
-                    // PASS A: Central Region of Interest (centered on user's phone display)
-                    const roiSize = Math.min(vw, vh) * 0.72;
-                    const roiX = (vw - roiSize) / 2;
-                    const roiY = (vh - roiSize) / 2;
-                    const targetScanSize = 420;
+                    // 1. ENGINE 1: Hardware-Accelerated Native BarcodeDetector (instant screen decode)
+                    if (nativeBarcodeDetector) {
+                        try {
+                            const barcodes = await nativeBarcodeDetector.detect(video);
+                            if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
+                                decodedResult = barcodes[0].rawValue.trim();
+                            }
+                        } catch (e) {
+                            // Non-fatal, proceed to jsQR
+                        }
+                    }
 
-                    qrRoiCanvas.width = targetScanSize;
-                    qrRoiCanvas.height = targetScanSize;
-                    qrRoiCtx.drawImage(video, roiX, roiY, roiSize, roiSize, 0, 0, targetScanSize, targetScanSize);
+                    // 2. ENGINE 2: Screen-Optimized jsQR with Dynamic Min-Max Contrast Normalization
+                    if (!decodedResult && typeof jsQR !== 'undefined') {
+                        // Pass A: Central Region of Interest (centered on user's phone display)
+                        const roiFraction = 0.75;
+                        const roiSize = Math.min(vw, vh) * roiFraction;
+                        const roiX = (vw - roiSize) / 2;
+                        const roiY = (vh - roiSize) / 2;
+                        const targetScanSize = 440;
 
-                    const roiImageData = qrRoiCtx.getImageData(0, 0, targetScanSize, targetScanSize);
+                        qrRoiCanvas.width = targetScanSize;
+                        qrRoiCanvas.height = targetScanSize;
+                        qrRoiCtx.drawImage(video, roiX, roiY, roiSize, roiSize, 0, 0, targetScanSize, targetScanSize);
 
-                    // Crucial for phone screens: attemptBoth (inverted contrast from screen backlight/dark mode)
-                    let code = jsQR(roiImageData.data, roiImageData.width, roiImageData.height, {
-                        inversionAttempts: "attemptBoth"
-                    });
+                        const roiImageData = qrRoiCtx.getImageData(0, 0, targetScanSize, targetScanSize);
 
-                    if (code && code.data && isScanningActive) {
+                        // Pass A1: Standard jsQR with both normal & inverted contrast (crucial for OLED/LCD screens)
+                        let code = jsQR(roiImageData.data, targetScanSize, targetScanSize, {
+                            inversionAttempts: "attemptBoth"
+                        });
+
+                        // Pass A2: Dynamic Min-Max Luminance Stretch
+                        // Fixes phone screen overexposure where screen backlight compresses black to dark gray
+                        if (!code || !code.data) {
+                            const d = roiImageData.data;
+                            let minLum = 255;
+                            let maxLum = 0;
+                            // Fast sample
+                            for (let i = 0; i < d.length; i += 8) {
+                                const l = (d[i] * 299 + d[i+1] * 587 + d[i+2] * 114) / 1000;
+                                if (l < minLum) minLum = l;
+                                if (l > maxLum) maxLum = l;
+                            }
+                            const range = maxLum - minLum;
+                            // If screen contrast is compressed by ambient light or bright display
+                            if (range > 20) {
+                                for (let i = 0; i < d.length; i += 4) {
+                                    const l = (d[i] * 299 + d[i+1] * 587 + d[i+2] * 114) / 1000;
+                                    const stretched = Math.min(255, Math.max(0, ((l - minLum) / range) * 255));
+                                    d[i] = stretched;
+                                    d[i+1] = stretched;
+                                    d[i+2] = stretched;
+                                }
+                                code = jsQR(d, targetScanSize, targetScanSize, {
+                                    inversionAttempts: "attemptBoth"
+                                });
+                            }
+                        }
+
+                        // Pass B: Full-frame fallback every 3 frames (in case the ticket is angled or off-center)
+                        if ((!code || !code.data) && (frameCount % 3 === 0)) {
+                            const fullW = 600;
+                            const fullH = Math.round(600 * (vh / vw));
+                            qrDecodeCanvas.width = fullW;
+                            qrDecodeCanvas.height = fullH;
+                            qrDecodeCtx.drawImage(video, 0, 0, fullW, fullH);
+                            const fullImageData = qrDecodeCtx.getImageData(0, 0, fullW, fullH);
+                            code = jsQR(fullImageData.data, fullW, fullH, {
+                                inversionAttempts: "attemptBoth"
+                            });
+                        }
+
+                        if (code && code.data) {
+                            decodedResult = code.data.trim();
+                        }
+                    }
+
+                    // SUCCESS DISPATCH:
+                    if (decodedResult && isScanningActive) {
                         isScanningActive = false;
                         playScanSuccessFeedback();
-                        closeLiveCameraScanner();
-                        executeCheckInForTicketId(code.data);
+
+                        // Immediate visual feedback inside viewfinder
+                        const statusEl = document.getElementById('qr-scanner-status');
+                        if (statusEl) {
+                            statusEl.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-400"></span><span class="font-bold text-white">QR Code Détecté : ${decodedResult}</span>`;
+                            statusEl.className = "absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-emerald-600 text-white rounded-full text-xs font-bold shadow-lg flex items-center gap-2";
+                        }
+                        const boxEl = document.getElementById('qr-viewfinder-box');
+                        if (boxEl) {
+                            boxEl.className = "absolute inset-0 border-4 border-emerald-400 bg-emerald-500/20 rounded-2xl m-6 sm:m-8 pointer-events-none flex flex-col justify-between p-3 transition-colors duration-200 shadow-[0_0_30px_#10b981]";
+                        }
+
+                        setTimeout(() => {
+                            closeLiveCameraScanner();
+                            executeCheckInForTicketId(decodedResult);
+                        }, 250);
                         return;
                     }
 
-                    // PASS B: Screen Glare & Backlight Contrast Booster (alternate frames)
-                    if (frameCount % 2 === 0) {
-                        const d = roiImageData.data;
-                        for (let i = 0; i < d.length; i += 4) {
-                            const gray = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
-                            const enhanced = gray > 145 ? 255 : (gray < 75 ? 0 : (gray - 75) * 3.6);
-                            d[i] = enhanced;
-                            d[i+1] = enhanced;
-                            d[i+2] = enhanced;
-                        }
-                        code = jsQR(roiImageData.data, roiImageData.width, roiImageData.height, {
-                            inversionAttempts: "attemptBoth"
-                        });
-                        if (code && code.data && isScanningActive) {
-                            isScanningActive = false;
-                            playScanSuccessFeedback();
-                            closeLiveCameraScanner();
-                            executeCheckInForTicketId(code.data);
-                            return;
-                        }
-                    }
-
-                    // PASS C: Full-frame fallback every 4 frames
-                    if (frameCount % 4 === 0) {
-                        qrDecodeCanvas.width = 640;
-                        qrDecodeCanvas.height = Math.round(640 * (vh / vw));
-                        qrDecodeCtx.drawImage(video, 0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
-                        const fullImageData = qrDecodeCtx.getImageData(0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
-                        code = jsQR(fullImageData.data, fullImageData.width, fullImageData.height, {
-                            inversionAttempts: "attemptBoth"
-                        });
-                        if (code && code.data && isScanningActive) {
-                            isScanningActive = false;
-                            playScanSuccessFeedback();
-                            closeLiveCameraScanner();
-                            executeCheckInForTicketId(code.data);
-                            return;
-                        }
-                    }
+                    isProcessingFrame = false;
                 }
-            }
-
-            if (isScanningActive) {
-                qrScanAnimationId = requestAnimationFrame(scanVideoFrame);
+            } catch (err) {
+                console.warn("Scan frame notice:", err);
+                isProcessingFrame = false;
+            } finally {
+                if (isScanningActive) {
+                    qrScanAnimationId = requestAnimationFrame(scanVideoFrame);
+                }
             }
         }
 
@@ -12538,7 +12654,6 @@
 
     function closeLiveCameraScanner() {
         isScanningActive = false;
-        document.getElementById('modal-camera-scanner')?.classList.add('hidden');
         document.getElementById('modal-qr-scanner')?.classList.add('hidden');
 
         if (qrScanAnimationId) {
@@ -12546,7 +12661,7 @@
             qrScanAnimationId = null;
         }
         if (qrMediaStream) {
-            qrMediaStream.getTracks().forEach(track => track.stop());
+            try { qrMediaStream.getTracks().forEach(track => track.stop()); } catch (e) {}
             qrMediaStream = null;
         }
         const video = document.getElementById('qr-video-feed');
@@ -12554,7 +12669,7 @@
     }
 
     function scanQRFromImageFile(event) {
-        const file = event.target.files[0];
+        const file = event.target.files && event.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
@@ -12565,10 +12680,10 @@
                 if (nativeBarcodeDetector) {
                     try {
                         const barcodes = await nativeBarcodeDetector.detect(img);
-                        if (barcodes && barcodes.length > 0) {
+                        if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
                             playScanSuccessFeedback();
                             closeLiveCameraScanner();
-                            executeCheckInForTicketId(barcodes[0].rawValue);
+                            executeCheckInForTicketId(barcodes[0].rawValue.trim());
                             return;
                         }
                     } catch (err) {}
@@ -12588,36 +12703,48 @@
                 canvas.height = h;
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 ctx.drawImage(img, 0, 0, w, h);
-                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const imgData = ctx.getImageData(0, 0, w, h);
 
                 if (typeof jsQR !== 'undefined') {
+                    // Pass 1: Raw with both normal & inverted contrast
                     let code = jsQR(imgData.data, imgData.width, imgData.height, {
                         inversionAttempts: "attemptBoth"
                     });
                     if (code && code.data) {
                         playScanSuccessFeedback();
                         closeLiveCameraScanner();
-                        executeCheckInForTicketId(code.data);
+                        executeCheckInForTicketId(code.data.trim());
                         return;
                     }
-                    // Try contrast enhancement
+
+                    // Pass 2: Dynamic Min-Max Screen Contrast Normalization
                     const d = imgData.data;
+                    let minLum = 255, maxLum = 0;
                     for (let i = 0; i < d.length; i += 4) {
-                        const gray = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
-                        const v = gray > 145 ? 255 : (gray < 75 ? 0 : (gray - 75) * 3.6);
-                        d[i] = v;
-                        d[i+1] = v;
-                        d[i+2] = v;
+                        const l = (d[i] * 299 + d[i+1] * 587 + d[i+2] * 114) / 1000;
+                        if (l < minLum) minLum = l;
+                        if (l > maxLum) maxLum = l;
                     }
-                    code = jsQR(imgData.data, imgData.width, imgData.height, {
-                        inversionAttempts: "attemptBoth"
-                    });
-                    if (code && code.data) {
-                        playScanSuccessFeedback();
-                        closeLiveCameraScanner();
-                        executeCheckInForTicketId(code.data);
-                        return;
+                    const range = maxLum - minLum;
+                    if (range > 15) {
+                        for (let i = 0; i < d.length; i += 4) {
+                            const l = (d[i] * 299 + d[i+1] * 587 + d[i+2] * 114) / 1000;
+                            const stretched = Math.min(255, Math.max(0, ((l - minLum) / range) * 255));
+                            d[i] = stretched;
+                            d[i+1] = stretched;
+                            d[i+2] = stretched;
+                        }
+                        code = jsQR(d, imgData.width, imgData.height, {
+                            inversionAttempts: "attemptBoth"
+                        });
+                        if (code && code.data) {
+                            playScanSuccessFeedback();
+                            closeLiveCameraScanner();
+                            executeCheckInForTicketId(code.data.trim());
+                            return;
+                        }
                     }
+
                     showNotification("QR Code Non Détecté", "Aucun QR code lisible trouvé sur cette photo. Essayez de recadrer ou saisissez le code.", "warning");
                 }
             };
@@ -12626,7 +12753,7 @@
         reader.readAsDataURL(file);
     }
 
-function executeModalScan() {
+    function executeModalScan() {
         const idInput = document.getElementById('modal-scanner-manual-input') || document.getElementById('camera-scan-id-input') || document.getElementById('manual-scan-code-input');
         const id = idInput ? idInput.value.trim() : '';
         if (!id) {
@@ -12651,13 +12778,14 @@ function executeModalScan() {
         const p = findParticipantByQuery(query);
 
         if (p) {
+            const alreadyCheckedIn = !!p.checkedIn;
             p.checkedIn = true;
             const now = new Date();
-            p.checkInTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            p.checkInTime = p.checkInTime || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
             try {
                 localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
+                if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
             } catch (e) {}
 
             const tableInfo = getParticipantTableInfo(p);
@@ -12681,10 +12809,15 @@ function executeModalScan() {
             document.getElementById('modal-checkin-success')?.classList.remove('hidden');
             renderReceptionTable();
             renderTablePlan();
-            showNotification("Accès Validé & Émargé !", `Bienvenue ${p.prenom} ${p.nom} • ${tableInfo.fullTableName}`, "success");
-            triggerJubileeConfetti();
+
+            if (alreadyCheckedIn) {
+                showNotification("Accès Déjà Émargé", `${p.prenom} ${p.nom} a déjà été émargé(e) à ${p.checkInTime} • ${tableInfo.fullTableName}`, "info");
+            } else {
+                showNotification("Accès Validé & Émargé !", `Bienvenue ${p.prenom} ${p.nom} • ${tableInfo.fullTableName}`, "success");
+                triggerJubileeConfetti();
+            }
         } else {
-            showNotification("Billet Introuvable", `Aucun participant ne correspond au numéro ou nom "${query}".`, "error");
+            showNotification("Billet Introuvable", `Aucun participant ne correspond au numéro ou code "${query}".`, "error");
         }
     }
 
