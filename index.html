@@ -499,8 +499,8 @@
             padding: 0.5rem 0.25rem !important;
         }
         #ticket-qr {
-            width: 3.5rem !important;
-            height: 3.5rem !important;
+            width: 6rem !important;
+            height: 6rem !important;
         }
     }
     @media (max-width: 767px) {
@@ -1892,7 +1892,7 @@
                             <div class="space-y-1 flex flex-col items-center w-full">
                                 <span class="text-[8px] font-bold text-white/80 uppercase tracking-widest block font-mono">Contrôle QR</span>
                                 <div onclick="openVisitorPassModal()" class="bg-white p-2 rounded-2xl shadow-lg flex flex-col items-center justify-center cursor-pointer transform hover:scale-105 active:scale-95 transition border-2 border-white/80 group" title="Cliquer pour afficher le QR code en grand écran">
-                                    <svg id="ticket-qr" width="90" height="90" viewBox="0 0 100 100" class="w-20 h-20 sm:w-24 sm:h-24 text-slate-950">
+                                    <svg id="ticket-qr" width="112" height="112" class="w-24 h-24 sm:w-28 sm:h-28 text-slate-950" style="shape-rendering: crispEdges; image-rendering: pixelated;">
                                     </svg>
                                     <span class="text-[8px] font-black uppercase tracking-wider text-slate-700 group-hover:text-brand-orange pt-1 flex items-center gap-0.5">
                                         <i data-lucide="maximize-2" class="h-2.5 w-2.5"></i> Plein Écran
@@ -3830,7 +3830,7 @@
 
             <!-- Huge QR Code Area (Crisp 260px on visitor screen) -->
             <div class="p-4 bg-white rounded-3xl shadow-[0_0_50px_rgba(255,255,255,0.25)] flex flex-col items-center justify-center mx-auto max-w-[280px] border-4 border-slate-100">
-                <svg id="fullscreen-ticket-qr" width="250" height="250" viewBox="0 0 100 100" class="w-60 h-60 text-slate-950">
+                <svg id="fullscreen-ticket-qr" width="280" height="280" class="w-64 h-64 sm:w-72 sm:h-72 text-slate-950" style="shape-rendering: crispEdges; image-rendering: pixelated;">
                 </svg>
                 <span id="visitor-pass-ref" class="font-mono text-sm font-black text-slate-900 pt-2 tracking-widest">#MYT-0001</span>
             </div>
@@ -4459,6 +4459,20 @@
         
         initializeLucideIcons();
         startTicketCountdown();
+
+        // Check for ?ticket=, ?pass=, or ?scan= query parameter in URL (e.g. from camera scan)
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryTicket = urlParams.get('ticket') || urlParams.get('pass') || urlParams.get('scan');
+            if (queryTicket) {
+                setTimeout(() => {
+                    const participant = findParticipantByQuery(queryTicket);
+                    if (participant) {
+                        openVisitorPassModal(participant);
+                    }
+                }, 400);
+            }
+        } catch(e) {}
     };
 
     function togglePasswordVisibility(inputId, buttonEl) {
@@ -5915,13 +5929,18 @@
 
         if (!ticketId || ticketId === 'EMPTY') {
             const emptyHTML = `
-                <rect width="100" height="100" fill="#f8fafc" rx="6" />
-                <path d="M20 20 h20 v20 h-20 z M60 20 h20 v20 h-20 z M20 60 h20 v20 h-20 z" fill="#cbd5e1" />
-                <text x="50" y="55" font-family="monospace" font-size="9" font-weight="bold" fill="#94a3b8" text-anchor="middle">EN ATTENTE</text>
+                <rect width="100%" height="100%" fill="#f8fafc" />
+                <path d="M4 4 h6 v6 h-6 z M19 4 h6 v6 h-6 z M4 19 h6 v6 h-6 z" fill="#cbd5e1" />
+                <text x="50%" y="54%" font-family="monospace" font-size="3" font-weight="bold" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">EN ATTENTE</text>
             `;
-            if (svg) svg.innerHTML = emptyHTML;
-            if (printSvg) printSvg.innerHTML = emptyHTML;
-            if (fullscreenSvg) fullscreenSvg.innerHTML = emptyHTML;
+            [svg, printSvg, fullscreenSvg].forEach(el => {
+                if (el) {
+                    el.setAttribute('viewBox', '0 0 29 29');
+                    el.setAttribute('shape-rendering', 'crispEdges');
+                    el.style.shapeRendering = 'crispEdges';
+                    el.innerHTML = emptyHTML;
+                }
+            });
             return;
         }
 
@@ -5929,36 +5948,37 @@
         
         try {
             if (typeof qrcode !== 'undefined') {
-                const qr = qrcode(0, 'M'); // Error correction level M (15% redundancy)
+                const qr = qrcode(0, 'M'); // ISO/IEC 18004 Standard Level M
                 qr.addData(cleanCode);
                 qr.make();
 
-                const moduleCount = qr.getModuleCount();
-                const margin = 4; // ISO/IEC standard 4-module quiet zone for guaranteed screen recognition
-                const totalModules = moduleCount + margin * 2;
-                const cellSize = 100 / totalModules;
+                const count = qr.getModuleCount();
+                const margin = 4; // Required ISO standard 4-module quiet zone
+                const totalModules = count + margin * 2;
 
-                let rects = '';
-                for (let r = 0; r < moduleCount; r++) {
-                    for (let c = 0; c < moduleCount; c++) {
+                // Build mathematically exact integer SVG vector path (1 unit per module)
+                let pathD = '';
+                for (let r = 0; r < count; r++) {
+                    for (let c = 0; c < count; c++) {
                         if (qr.isDark(r, c)) {
-                            const x = ((c + margin) * cellSize).toFixed(2);
-                            const y = ((r + margin) * cellSize).toFixed(2);
-                            const w = (cellSize + 0.04).toFixed(2);
-                            const h = (cellSize + 0.04).toFixed(2);
-                            rects += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#000000" />`;
+                            pathD += `M${c + margin},${r + margin}h1v1h-1z `;
                         }
                     }
                 }
 
-                const fullSvg = `
-                    <rect width="100" height="100" fill="#ffffff" rx="2" />
-                    ${rects}
+                const fullContent = `
+                    <rect width="100%" height="100%" fill="#ffffff" />
+                    <path d="${pathD}" fill="#000000" />
                 `;
 
-                if (svg) svg.innerHTML = fullSvg;
-                if (printSvg) printSvg.innerHTML = fullSvg;
-                if (fullscreenSvg) fullscreenSvg.innerHTML = fullSvg;
+                [svg, printSvg, fullscreenSvg].forEach(el => {
+                    if (el) {
+                        el.setAttribute('viewBox', `0 0 ${totalModules} ${totalModules}`);
+                        el.setAttribute('shape-rendering', 'crispEdges');
+                        el.style.shapeRendering = 'crispEdges';
+                        el.innerHTML = fullContent;
+                    }
+                });
             } else {
                 console.warn("qrcode library not loaded yet.");
             }
@@ -7134,10 +7154,10 @@
 
         // Draw QR Code Background White Tile
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(1063, 75, 220, 220);
-        ctx.strokeStyle = "rgba(0,0,0,0.15)";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(1063, 75, 220, 220);
+        ctx.fillRect(1055, 65, 236, 236);
+        ctx.strokeStyle = "rgba(0,0,0,0.12)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(1055, 65, 236, 236);
 
         // Render Certified Standard ISO/IEC QR Matrix (Readable on phone screens & print)
         if (typeof qrcode !== 'undefined') {
@@ -7148,25 +7168,21 @@
                 const moduleCount = qr.getModuleCount();
                 const margin = 4; // ISO standard 4-module quiet zone
                 const totalModules = moduleCount + margin * 2;
-                const qrAreaSize = 200;
-                const cellSize = qrAreaSize / totalModules;
-                const qrLeft = 1073;
-                const qrTop = 85;
+                const cellSize = 8; // Exact integer 8px per module for zero blur & zero overlap
+                const qrAreaSize = totalModules * cellSize; // 29 * 8 = 232px
+                const qrLeft = 1057;
+                const qrTop = 67;
 
                 // Pure white quiet zone
                 ctx.fillStyle = "#ffffff";
                 ctx.fillRect(qrLeft, qrTop, qrAreaSize, qrAreaSize);
 
-                // Pure high-contrast black modules for phone screens
+                // Pure high-contrast black modules with exact integer grid
                 ctx.fillStyle = "#000000";
                 for (let r = 0; r < moduleCount; r++) {
                     for (let c = 0; c < moduleCount; c++) {
                         if (qr.isDark(r, c)) {
-                            const x = Math.round(qrLeft + (c + margin) * cellSize);
-                            const y = Math.round(qrTop + (r + margin) * cellSize);
-                            const w = Math.ceil(cellSize + 0.2);
-                            const h = Math.ceil(cellSize + 0.2);
-                            ctx.fillRect(x, y, w, h);
+                            ctx.fillRect(qrLeft + (c + margin) * cellSize, qrTop + (r + margin) * cellSize, cellSize, cellSize);
                         }
                     }
                 }
@@ -12651,12 +12667,12 @@
         ctx.font = '900 22px monospace';
         ctx.fillText(`PASS ${cat} • ${prixStr}`, 450, 300);
 
-        // HUGE QR CODE TILE (480px x 480px in center)
+        // HUGE QR CODE TILE (500px x 500px in center)
         ctx.fillStyle = '#ffffff';
-        ctx.fillRect(200, 355, 500, 500);
+        ctx.fillRect(200, 350, 500, 500);
         ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(200, 355, 500, 500);
+        ctx.lineWidth = 3;
+        ctx.strokeRect(200, 350, 500, 500);
 
         if (typeof qrcode !== 'undefined') {
             const qr = qrcode(0, 'M');
@@ -12665,20 +12681,16 @@
             const count = qr.getModuleCount();
             const margin = 4;
             const totalModules = count + margin * 2;
-            const qrArea = 460;
-            const cellSize = qrArea / totalModules;
-            const qrLeft = 220;
-            const qrTop = 375;
+            const cellSize = 16; // Exact integer 16px per module
+            const qrArea = totalModules * cellSize; // 29 * 16 = 464px
+            const qrLeft = Math.round((900 - qrArea) / 2); // 218px
+            const qrTop = 368;
 
             ctx.fillStyle = '#000000';
             for (let r = 0; r < count; r++) {
                 for (let c = 0; c < count; c++) {
                     if (qr.isDark(r, c)) {
-                        const x = Math.round(qrLeft + (c + margin) * cellSize);
-                        const y = Math.round(qrTop + (r + margin) * cellSize);
-                        const w = Math.ceil(cellSize + 0.3);
-                        const h = Math.ceil(cellSize + 0.3);
-                        ctx.fillRect(x, y, w, h);
+                        ctx.fillRect(qrLeft + (c + margin) * cellSize, qrTop + (r + margin) * cellSize, cellSize, cellSize);
                     }
                 }
             }
