@@ -1753,6 +1753,17 @@
                                 <span class="text-[9px] font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full font-mono">Contrôle Wave / Orange</span>
                             </div>
 
+                            <!-- Wave Official Merchant Notice -->
+                            <div class="p-2.5 rounded-xl bg-sky-50 border border-sky-200 flex items-center gap-2.5 text-xs text-sky-950 shadow-2xs">
+                                <div class="h-7 w-7 rounded-lg bg-sky-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                    <i data-lucide="store" class="h-4 w-4"></i>
+                                </div>
+                                <div class="leading-tight">
+                                    <span class="font-extrabold uppercase tracking-wider text-[9px] text-sky-800 block">Condition de Paiement Wave</span>
+                                    <span class="font-bold text-slate-800 text-[11px]">Le reçu Wave doit obligatoirement avoir pour nom de marchand : <strong class="text-sky-950 font-black">Pitchou maillots</strong></span>
+                                </div>
+                            </div>
+
                             <div class="space-y-2">
                                 <div class="flex gap-2">
                                     <label for="proof-file-input" class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border-2 border-dashed border-slate-300 hover:border-brand-orange text-slate-700 hover:text-brand-orange text-xs font-bold cursor-pointer transition flex items-center justify-center gap-2 shadow-2xs group">
@@ -1769,7 +1780,7 @@
                                     <span id="ocr-progress-text">Analyse et reconnaissance optique (OCR) en cours...</span>
                                 </div>
 
-                                <textarea id="proof-text-input" oninput="analyzeProofText(this.value)" rows="2" placeholder="Ou collez ici le texte du reçu / SMS Wave (ex: T_...) ou Orange (ex: MP...)..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-orange font-mono"></textarea>
+                                <textarea id="proof-text-input" oninput="analyzeProofText(this.value)" rows="2" placeholder="Ou collez ici le texte du reçu / SMS Wave (ex: Marchand Pitchou maillots, T_...) ou Orange (ex: MP...)..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-orange font-mono"></textarea>
                             </div>
 
                             <!-- Real-time Analyzed Payment Status Card -->
@@ -5987,7 +5998,12 @@
         
         if (fileRefMatch) {
             const isWave = fileRefMatch[1].toUpperCase().startsWith("T_");
-            const mockText = isWave ? `wave\nMontant reçu 70.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué` : `Orange Money\nMontant transféré 20 000 FCFA\nRéférence ${fileRefMatch[1]}`;
+            const hasPitchouInFilename = /pitchou/i.test(fileName) || /maillot/i.test(fileName);
+            const mockText = isWave ? 
+                (hasPitchouInFilename 
+                    ? `wave\nPaiement marchand Pitchou maillots\nMontant reçu 70.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué` 
+                    : `wave\nMontant reçu 70.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué`) 
+                : `Orange Money\nMontant transféré 20 000 FCFA\nRéférence ${fileRefMatch[1]}`;
             analyzeProofText(mockText);
             return;
         }
@@ -6041,6 +6057,44 @@
         initializeLucideIcons();
     }
 
+    // Robust Helper to verify Wave merchant name "Pitchou maillots"
+    function isPitchouMaillotsMerchant(rawText) {
+        if (!rawText) return false;
+        const clean = rawText
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        // 1. Direct regex match
+        if (/pitchou\s*[-_]?\s*maillot[s5]?/i.test(clean)) {
+            return true;
+        }
+        // 2. OCR letter confusion (1/l for i, 0 for o)
+        if (/p[i1l]tch[o0]u\s*[-_]?\s*ma[i1l]{1,3}[o0]t[s5]?/i.test(clean)) {
+            return true;
+        }
+        // 3. Proximity match (pitchou and maillot in nearby context)
+        const pitchouMatch = clean.search(/p[i1l]tch[o0]u/i);
+        if (pitchouMatch !== -1) {
+            const snippet = clean.substring(Math.max(0, pitchouMatch - 30), Math.min(clean.length, pitchouMatch + 45));
+            if (/ma[i1l]{1,3}[o0]t[s5]?/i.test(snippet)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function extractWaveMerchantLabel(rawText) {
+        if (!rawText) return "Non détecté";
+        const clean = rawText.replace(/\r/g, '');
+        const m = clean.match(/(?:Marchand|À|A|Vers|Destinataire|Paiement à|Paiement)\s*:\s*([^\n\r,.;]{3,35})/i) ||
+                  clean.match(/Paiement\s+marchand\s+([^\n\r,.;]{3,35})/i);
+        if (m && m[1]) {
+            return m[1].trim();
+        }
+        return "Non détecté";
+    }
+
     function analyzeProofText(rawText) {
         if (!rawText || rawText.trim().length < 2) {
             document.getElementById('proof-analysis-result')?.classList.add('hidden');
@@ -6061,12 +6115,18 @@
         let detectedAmount = 0;
         let isCompliant = false;
         let isAlreadyUsed = false;
+        let isMerchantValid = true;
+        let detectedMerchant = "N/A";
         let checklistHTML = "";
 
         if (waveRefMatch) {
             detectedMode = "Wave Mobile";
             extractedRef = waveRefMatch[1].toUpperCase();
-            isCompliant = true;
+
+            // Strict Validation of Merchant Name: "Pitchou maillots" for WAVE payments
+            const isMerchantCompliant = isPitchouMaillotsMerchant(text);
+            isMerchantValid = isMerchantCompliant;
+            detectedMerchant = isMerchantCompliant ? "Pitchou maillots" : extractWaveMerchantLabel(text);
 
             const waveAmountMatch = text.match(/Montant\s*(?:reçu|recu|envoyé|envoye)?[^0-9]*([0-9]{1,3}(?:[ .][0-9]{3})*|[0-9]{3,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
                                     text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+)s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
@@ -6083,10 +6143,14 @@
             const existingRecord = state.paymentProofs[extractedRef];
             if (existingRecord && existingRecord.soldeDisponible <= 0) {
                 isAlreadyUsed = true;
-                isCompliant = false;
             }
 
+            isCompliant = isMerchantCompliant && !isAlreadyUsed;
+
             checklistHTML = `
+                <div class="flex items-center gap-1.5 ${isMerchantCompliant ? 'text-emerald-700 font-bold' : 'text-red-600 font-black'}">
+                    ${isMerchantCompliant ? '✓' : '✗'} <span>Marchand Wave : <strong class="${isMerchantCompliant ? 'text-emerald-950 bg-emerald-100' : 'text-red-950 bg-red-100'} px-1.5 py-0.5 rounded font-mono">${isMerchantCompliant ? '« Pitchou maillots » (CONFORME)' : `« ${detectedMerchant} » (REQUIS : Pitchou maillots ⛔)`}</strong></span>
+                </div>
                 <div class="flex items-center gap-1.5 text-emerald-700 font-bold">
                     ✓ <span>ID Wave (« T_ ») : <strong class="font-mono text-slate-950 bg-sky-100 px-1.5 py-0.5 rounded">${extractedRef}</strong> (VALIDE)</span>
                 </div>
@@ -6148,6 +6212,8 @@
         state.currentAnalyzedProof = {
             mode: detectedMode,
             reference: extractedRef,
+            merchant: detectedMerchant,
+            isMerchantValid: isMerchantValid,
             montantTotal: proofRecord ? proofRecord.montantTotal : detectedAmount,
             soldeDisponible: availableBalance,
             isValid: isCompliant && !isAlreadyUsed,
@@ -6197,7 +6263,15 @@
         const checkListEl = document.getElementById('proof-checklist-container');
         if (checkListEl) checkListEl.innerHTML = checklistHTML;
 
-        showNotification("Preuve Validée !", `Reçu ${detectedMode} (Réf: ${extractedRef}) détecté avec succès.`, "success");
+        if (isCompliant && !isAlreadyUsed) {
+            showNotification("Preuve Validée !", `Reçu ${detectedMode} (Marchand : Pitchou maillots, Réf: ${extractedRef}) validé avec succès.`, "success");
+        } else if (detectedMode === "Wave Mobile" && !isMerchantValid) {
+            showNotification("Marchand Wave Non Conforme", "Le reçu Wave n'est pas émis au nom du marchand officiel « Pitchou maillots ».", "error");
+        } else if (isAlreadyUsed) {
+            showNotification("Preuve Déjà Utilisée", "Ce reçu a déjà été consommé pour un autre billet.", "error");
+        } else {
+            showNotification("Reçu Non Conforme", "Le document fourni ne remplit pas les conditions de validation.", "error");
+        }
 
         revalidateCurrentProofBalance();
         initializeLucideIcons();
@@ -6224,7 +6298,11 @@
             if (!state.currentAnalyzedProof.isValid) {
                 if (warning) {
                     warning.classList.remove('hidden');
-                    warning.innerText = "❌ Reçu non conforme : Impossible d'émettre le billet sans un reçu officiel Wave (T_...) ou Orange valide.";
+                    if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Wave") && !state.currentAnalyzedProof.isMerchantValid) {
+                        warning.innerText = "❌ Marchand Wave Non Conforme : Le reçu Wave doit être adressé au marchand officiel « Pitchou maillots ».";
+                    } else {
+                        warning.innerText = "❌ Reçu non conforme : Impossible d'émettre le billet sans un reçu officiel Wave (T_...) ou Orange valide.";
+                    }
                 }
             } else if (state.currentAnalyzedProof.soldeDisponible < ticketPrice) {
                 if (warning) {
@@ -6312,7 +6390,24 @@
             }
 
             if (!state.currentAnalyzedProof.isValid) {
+                if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Wave") && !state.currentAnalyzedProof.isMerchantValid) {
+                    showNotification(
+                        "Marchand Wave Non Conforme", 
+                        "Validation impossible : Pour tout paiement WAVE, la preuve doit impérativement avoir pour nom de marchand « Pitchou maillots ».", 
+                        "error"
+                    );
+                    return;
+                }
                 showNotification("Reçu Non Valide", "Le reçu fourni est invalide ou a déjà été utilisé. Veuillez importer un reçu valide.", "error");
+                return;
+            }
+
+            if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Wave") && !state.currentAnalyzedProof.isMerchantValid) {
+                showNotification(
+                    "Marchand Wave Rejeté", 
+                    "Le paiement Wave n'a pas été effectué au marchand officiel « Pitchou maillots ».", 
+                    "error"
+                );
                 return;
             }
 
