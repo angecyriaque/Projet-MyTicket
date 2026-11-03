@@ -5814,7 +5814,7 @@
                             const y = ((r + margin) * cellSize).toFixed(2);
                             const w = (cellSize + 0.05).toFixed(2); // Overlap slightly to prevent subpixel antialiasing gaps
                             const h = (cellSize + 0.05).toFixed(2);
-                            rects += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#090D1F" />`;
+                            rects += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#000000" />`;
                         }
                     }
                 }
@@ -7004,53 +7004,39 @@
         ctx.lineWidth = 2;
         ctx.strokeRect(1063, 75, 220, 220);
 
-        // Render QR Matrix inside tile (21x21 modules)
-        let hash = 0;
-        const seedStr = String(ticketId) + "JACOB2027";
-        for (let i = 0; i < seedStr.length; i++) {
-            hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
-            hash |= 0;
-        }
-        const size = 21;
-        const cellSize = 200 / size;
-        const qrLeft = 1073;
-        const qrTop = 85;
+        // Render Certified Standard ISO/IEC QR Matrix (Readable on phone screens & print)
+        if (typeof qrcode !== 'undefined') {
+            try {
+                const qr = qrcode(0, 'M');
+                qr.addData(String(ticketId).trim());
+                qr.make();
+                const moduleCount = qr.getModuleCount();
+                const margin = 2; // Quiet zone required by ISO standard
+                const totalModules = moduleCount + margin * 2;
+                const qrAreaSize = 200;
+                const cellSize = qrAreaSize / totalModules;
+                const qrLeft = 1073;
+                const qrTop = 85;
 
-        const isFinder = (r, c) => {
-            if (r < 7 && c < 7) return true;
-            if (r < 7 && c >= size - 7) return true;
-            if (r >= size - 7 && c < 7) return true;
-            return false;
-        };
+                // Pure white quiet zone
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(qrLeft, qrTop, qrAreaSize, qrAreaSize);
 
-        const drawCanvasFinder = (startX, startY) => {
-            ctx.fillStyle = "#0f172a";
-            ctx.fillRect(qrLeft + startX * cellSize, qrTop + startY * cellSize, 7 * cellSize, 7 * cellSize);
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(qrLeft + (startX + 1) * cellSize, qrTop + (startY + 1) * cellSize, 5 * cellSize, 5 * cellSize);
-            ctx.fillStyle = "#0f172a";
-            ctx.fillRect(qrLeft + (startX + 2) * cellSize, qrTop + (startY + 2) * cellSize, 3 * cellSize, 3 * cellSize);
-        };
-
-        drawCanvasFinder(0, 0);
-        drawCanvasFinder(size - 7, 0);
-        drawCanvasFinder(0, size - 7);
-
-        ctx.fillStyle = "#0f172a";
-        for (let i = 7; i < size - 7; i++) {
-            if (i % 2 === 0) {
-                ctx.fillRect(qrLeft + i * cellSize, qrTop + 6 * cellSize, cellSize, cellSize);
-                ctx.fillRect(qrLeft + 6 * cellSize, qrTop + i * cellSize, cellSize, cellSize);
-            }
-        }
-
-        for (let r = 0; r < size; r++) {
-            for (let c = 0; c < size; c++) {
-                if (isFinder(r, c) || (r === 6 && c >= 7 && c < size - 7) || (c === 6 && r >= 7 && r < size - 7)) continue;
-                const bit = Math.abs(Math.sin((r * 31 + c * 17 + hash)) * 10000) % 1 > 0.48;
-                if (bit) {
-                    ctx.fillRect(qrLeft + c * cellSize, qrTop + r * cellSize, cellSize * 0.95, cellSize * 0.95);
+                // Pure high-contrast black modules for phone screens
+                ctx.fillStyle = "#000000";
+                for (let r = 0; r < moduleCount; r++) {
+                    for (let c = 0; c < moduleCount; c++) {
+                        if (qr.isDark(r, c)) {
+                            const x = Math.round(qrLeft + (c + margin) * cellSize);
+                            const y = Math.round(qrTop + (r + margin) * cellSize);
+                            const w = Math.ceil(cellSize + 0.2);
+                            const h = Math.ceil(cellSize + 0.2);
+                            ctx.fillRect(x, y, w, h);
+                        }
+                    }
                 }
+            } catch (err) {
+                console.error("QR Code canvas generation error:", err);
             }
         }
 
@@ -12324,9 +12310,49 @@
         requestUncheckParticipant(participantId);
     }
 
-    // QR Camera MediaStream Handler with jsQR Real-Time Decoding
+    // =========================================================
+    // DUAL-ENGINE REAL-TIME QR SCANNER (SCREEN & PAPER OPTIMIZED)
+    // Hardware BarcodeDetector (GPU/NPU) + Multi-Pass jsQR Engine
+    // =========================================================
     let qrMediaStream = null;
     let qrScanAnimationId = null;
+    let nativeBarcodeDetector = null;
+    let isTorchOn = false;
+    let isScanningActive = false;
+
+    // Initialize Native BarcodeDetector if available in browser
+    if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
+        try {
+            nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+        } catch (e) {
+            console.warn("Native BarcodeDetector notice:", e);
+        }
+    }
+
+    function playScanSuccessFeedback() {
+        // Haptic feedback (double vibration on phone)
+        if (navigator.vibrate) {
+            try { navigator.vibrate([50, 40, 50]); } catch (e) {}
+        }
+        // Web Audio Confirmation Beep
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                const ctx = new AudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.18, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.12);
+            }
+        } catch (e) {}
+    }
 
     async function openLiveCameraScanner() {
         const modal = document.getElementById('modal-qr-scanner') || document.getElementById('modal-camera-scanner');
@@ -12340,14 +12366,40 @@
             manualInput.focus();
         }
 
+        isTorchOn = false;
+        const torchBtn = document.getElementById('btn-camera-torch');
+        if (torchBtn) torchBtn.classList.add('hidden');
+
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && video) {
             try {
-                qrMediaStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
-                });
+                // Constraints tailored for scanning glowing phone screens:
+                // High definition, continuous focus & exposure to compensate for backlight
+                const constraints = {
+                    video: {
+                        facingMode: "environment",
+                        width: { ideal: 1280, min: 640 },
+                        height: { ideal: 720, min: 480 }
+                    }
+                };
+
+                qrMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = qrMediaStream;
                 video.setAttribute("playsinline", true);
+                video.setAttribute("muted", "true");
                 await video.play();
+
+                // Check for Torch (flashlight) capability on mobile
+                const track = qrMediaStream.getVideoTracks()[0];
+                if (track && track.getCapabilities) {
+                    const capabilities = track.getCapabilities();
+                    if (capabilities.torch && torchBtn) {
+                        torchBtn.classList.remove('hidden');
+                    }
+                    if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+                        track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {});
+                    }
+                }
+
                 startLiveQRDecoder(video);
             } catch (err) {
                 console.warn("Camera stream error:", err);
@@ -12357,37 +12409,135 @@
         initializeLucideIcons();
     }
 
+    async function toggleCameraTorch() {
+        if (!qrMediaStream) return;
+        const track = qrMediaStream.getVideoTracks()[0];
+        if (!track) return;
+        try {
+            isTorchOn = !isTorchOn;
+            await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
+            const torchLabel = document.getElementById('torch-label');
+            if (torchLabel) torchLabel.innerText = isTorchOn ? 'Éteindre' : 'Flash';
+        } catch (e) {
+            console.warn("Torch toggle error:", e);
+        }
+    }
+
     const qrDecodeCanvas = document.createElement('canvas');
     const qrDecodeCtx = qrDecodeCanvas.getContext('2d', { willReadFrequently: true });
+    const qrRoiCanvas = document.createElement('canvas');
+    const qrRoiCtx = qrRoiCanvas.getContext('2d', { willReadFrequently: true });
 
     function startLiveQRDecoder(video) {
         if (!video || !qrMediaStream) return;
+        isScanningActive = true;
+        let frameCount = 0;
 
-        function scanVideoFrame() {
-            if (!qrMediaStream) return;
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                qrDecodeCanvas.height = video.videoHeight;
-                qrDecodeCanvas.width = video.videoWidth;
-                qrDecodeCtx.drawImage(video, 0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
-                const imageData = qrDecodeCtx.getImageData(0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
+        async function scanVideoFrame() {
+            if (!qrMediaStream || !isScanningActive) return;
 
-                if (typeof jsQR !== 'undefined') {
-                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                        inversionAttempts: "dontInvert"
+            if (video.readyState >= video.HAVE_CURRENT_DATA) {
+                frameCount++;
+
+                // ENGINE 1: Hardware-Accelerated Native BarcodeDetector (instant screen decode)
+                if (nativeBarcodeDetector) {
+                    try {
+                        const barcodes = await nativeBarcodeDetector.detect(video);
+                        if (barcodes && barcodes.length > 0 && isScanningActive) {
+                            const found = barcodes[0].rawValue;
+                            if (found && found.trim().length > 0) {
+                                isScanningActive = false;
+                                playScanSuccessFeedback();
+                                closeLiveCameraScanner();
+                                executeCheckInForTicketId(found);
+                                return;
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                // ENGINE 2: Screen-Optimized jsQR with ROI and Contrast Adaptation
+                if (typeof jsQR !== 'undefined' && video.videoWidth > 0 && video.videoHeight > 0) {
+                    const vw = video.videoWidth;
+                    const vh = video.videoHeight;
+
+                    // PASS A: Central Region of Interest (centered on user's phone display)
+                    const roiSize = Math.min(vw, vh) * 0.72;
+                    const roiX = (vw - roiSize) / 2;
+                    const roiY = (vh - roiSize) / 2;
+                    const targetScanSize = 420;
+
+                    qrRoiCanvas.width = targetScanSize;
+                    qrRoiCanvas.height = targetScanSize;
+                    qrRoiCtx.drawImage(video, roiX, roiY, roiSize, roiSize, 0, 0, targetScanSize, targetScanSize);
+
+                    const roiImageData = qrRoiCtx.getImageData(0, 0, targetScanSize, targetScanSize);
+
+                    // Crucial for phone screens: attemptBoth (inverted contrast from screen backlight/dark mode)
+                    let code = jsQR(roiImageData.data, roiImageData.width, roiImageData.height, {
+                        inversionAttempts: "attemptBoth"
                     });
-                    if (code && code.data) {
+
+                    if (code && code.data && isScanningActive) {
+                        isScanningActive = false;
+                        playScanSuccessFeedback();
                         closeLiveCameraScanner();
                         executeCheckInForTicketId(code.data);
                         return;
                     }
+
+                    // PASS B: Screen Glare & Backlight Contrast Booster (alternate frames)
+                    if (frameCount % 2 === 0) {
+                        const d = roiImageData.data;
+                        for (let i = 0; i < d.length; i += 4) {
+                            const gray = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
+                            const enhanced = gray > 145 ? 255 : (gray < 75 ? 0 : (gray - 75) * 3.6);
+                            d[i] = enhanced;
+                            d[i+1] = enhanced;
+                            d[i+2] = enhanced;
+                        }
+                        code = jsQR(roiImageData.data, roiImageData.width, roiImageData.height, {
+                            inversionAttempts: "attemptBoth"
+                        });
+                        if (code && code.data && isScanningActive) {
+                            isScanningActive = false;
+                            playScanSuccessFeedback();
+                            closeLiveCameraScanner();
+                            executeCheckInForTicketId(code.data);
+                            return;
+                        }
+                    }
+
+                    // PASS C: Full-frame fallback every 4 frames
+                    if (frameCount % 4 === 0) {
+                        qrDecodeCanvas.width = 640;
+                        qrDecodeCanvas.height = Math.round(640 * (vh / vw));
+                        qrDecodeCtx.drawImage(video, 0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
+                        const fullImageData = qrDecodeCtx.getImageData(0, 0, qrDecodeCanvas.width, qrDecodeCanvas.height);
+                        code = jsQR(fullImageData.data, fullImageData.width, fullImageData.height, {
+                            inversionAttempts: "attemptBoth"
+                        });
+                        if (code && code.data && isScanningActive) {
+                            isScanningActive = false;
+                            playScanSuccessFeedback();
+                            closeLiveCameraScanner();
+                            executeCheckInForTicketId(code.data);
+                            return;
+                        }
+                    }
                 }
             }
-            qrScanAnimationId = requestAnimationFrame(scanVideoFrame);
+
+            if (isScanningActive) {
+                qrScanAnimationId = requestAnimationFrame(scanVideoFrame);
+            }
         }
+
         qrScanAnimationId = requestAnimationFrame(scanVideoFrame);
     }
 
     function closeLiveCameraScanner() {
+        isScanningActive = false;
         document.getElementById('modal-camera-scanner')?.classList.add('hidden');
         document.getElementById('modal-qr-scanner')?.classList.add('hidden');
 
@@ -12408,26 +12558,67 @@
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             const img = new Image();
-            img.onload = function() {
+            img.onload = async function() {
+                // 1. Try Native BarcodeDetector first
+                if (nativeBarcodeDetector) {
+                    try {
+                        const barcodes = await nativeBarcodeDetector.detect(img);
+                        if (barcodes && barcodes.length > 0) {
+                            playScanSuccessFeedback();
+                            closeLiveCameraScanner();
+                            executeCheckInForTicketId(barcodes[0].rawValue);
+                            return;
+                        }
+                    } catch (err) {}
+                }
+
+                // 2. jsQR Multi-scale & Contrast Fallback
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                const maxDim = 1000;
+                let w = img.width;
+                let h = img.height;
+                if (w > maxDim || h > maxDim) {
+                    const ratio = Math.min(maxDim / w, maxDim / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+                canvas.width = w;
+                canvas.height = h;
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
-                ctx.drawImage(img, 0, 0);
+                ctx.drawImage(img, 0, 0, w, h);
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
                 if (typeof jsQR !== 'undefined') {
-                    const code = jsQR(imgData.data, imgData.width, imgData.height);
+                    let code = jsQR(imgData.data, imgData.width, imgData.height, {
+                        inversionAttempts: "attemptBoth"
+                    });
                     if (code && code.data) {
+                        playScanSuccessFeedback();
                         closeLiveCameraScanner();
                         executeCheckInForTicketId(code.data);
-                    } else {
-                        showNotification("QR Code Non Détecté", "Aucun QR code lisible n'a été trouvé sur cette photo.", "warning");
+                        return;
                     }
-                } else {
-                    showNotification("Scanner", "Moteur de scan QR non prêt.", "error");
+                    // Try contrast enhancement
+                    const d = imgData.data;
+                    for (let i = 0; i < d.length; i += 4) {
+                        const gray = (d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114);
+                        const v = gray > 145 ? 255 : (gray < 75 ? 0 : (gray - 75) * 3.6);
+                        d[i] = v;
+                        d[i+1] = v;
+                        d[i+2] = v;
+                    }
+                    code = jsQR(imgData.data, imgData.width, imgData.height, {
+                        inversionAttempts: "attemptBoth"
+                    });
+                    if (code && code.data) {
+                        playScanSuccessFeedback();
+                        closeLiveCameraScanner();
+                        executeCheckInForTicketId(code.data);
+                        return;
+                    }
+                    showNotification("QR Code Non Détecté", "Aucun QR code lisible trouvé sur cette photo. Essayez de recadrer ou saisissez le code.", "warning");
                 }
             };
             img.src = e.target.result;
@@ -12435,7 +12626,7 @@
         reader.readAsDataURL(file);
     }
 
-    function executeModalScan() {
+function executeModalScan() {
         const idInput = document.getElementById('modal-scanner-manual-input') || document.getElementById('camera-scan-id-input') || document.getElementById('manual-scan-code-input');
         const id = idInput ? idInput.value.trim() : '';
         if (!id) {
