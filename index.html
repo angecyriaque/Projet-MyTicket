@@ -1793,7 +1793,7 @@
                                         <p id="proof-detected-balance" class="font-black text-emerald-600 font-mono text-xs">0 FCFA</p>
                                     </div>
                                 </div>
-                                <div id="proof-checklist-container" class="space-y-0.5 text-[9px] font-mono pt-1.5 border-t border-slate-100"></div>
+                                <div id="proof-checklist-container" class="hidden"></div>
                                 <p id="proof-balance-warning" class="text-[10px] font-bold text-red-600 bg-red-50 p-1.5 rounded-lg border border-red-200 hidden font-mono">
                                     ⚠️ Solde insuffisant !
                                 </p>
@@ -6010,39 +6010,34 @@
         };
 
         const resultCard = document.getElementById('proof-analysis-result');
-        if (resultCard) resultCard.classList.remove('hidden');
+        if (resultCard) {
+            resultCard.classList.remove('hidden');
+            resultCard.className = "p-3.5 rounded-2xl bg-rose-50/70 border-2 border-rose-400 shadow-sm space-y-2 transition-all duration-300";
+        }
 
         const modeBadge = document.getElementById('proof-detected-badge');
         if (modeBadge) {
-            modeBadge.innerText = "Reçu Non Reconnu";
-            modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-red-100 text-red-900 border border-red-300 font-mono";
+            modeBadge.innerText = "Reçu Invalide";
+            modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-100 text-rose-900 border border-rose-300 font-mono";
         }
 
         const validIndicator = document.getElementById('proof-valid-indicator');
         if (validIndicator) {
-            validIndicator.className = "flex items-center gap-1 text-[10px] font-black text-red-600 font-mono";
-            validIndicator.innerHTML = '<i data-lucide="alert-triangle" class="h-3.5 w-3.5"></i> REJETÉ';
+            validIndicator.className = "flex items-center gap-1.5 text-xs font-black text-rose-700 font-mono";
+            validIndicator.innerHTML = '<i data-lucide="x-circle" class="h-4 w-4 text-rose-600"></i> REFUSÉ';
         }
 
-        document.getElementById('proof-detected-ref').innerText = "AUCUN ID T_ DÉTECTÉ";
+        document.getElementById('proof-detected-ref').innerText = "NON DÉTECTÉ";
         document.getElementById('proof-detected-amount').innerText = "0 FCFA";
         document.getElementById('proof-detected-balance').innerText = "0 FCFA";
 
         const checkListEl = document.getElementById('proof-checklist-container');
-        if (checkListEl) {
-            checkListEl.innerHTML = `
-                <div class="text-red-700 font-bold p-2 bg-red-50 rounded-lg border border-red-200 text-[10px]">
-                    ❌ ${reasonMessage}
-                </div>
-            `;
-        }
+        if (checkListEl) checkListEl.innerHTML = '';
 
         const warning = document.getElementById('proof-balance-warning');
-        if (warning) {
-            warning.classList.remove('hidden');
-            warning.innerText = "❌ Document rejeté : Veuillez importer une capture d'écran nette d'un reçu Wave (avec ID T_...) ou Orange.";
-        }
+        if (warning) warning.classList.add('hidden');
 
+        showNotification("Paiement Refusé", "Le document fourni n'a pas pu être validé. Paiement refusé.", "error");
         initializeLucideIcons();
     }
 
@@ -6106,7 +6101,7 @@
         let isAlreadyUsed = false;
         let isMerchantValid = true;
         let detectedMerchant = "N/A";
-        let checklistHTML = "";
+        
 
         if (waveRefMatch) {
             detectedMode = "Wave Mobile";
@@ -6136,20 +6131,7 @@
 
             isCompliant = isMerchantCompliant && !isAlreadyUsed;
 
-            checklistHTML = `
-                <div class="flex items-center gap-1.5 ${isMerchantCompliant ? 'text-emerald-700 font-bold' : 'text-red-600 font-black'}">
-                    ${isMerchantCompliant ? '✓' : '✗'} <span>Marchand Wave : <strong class="${isMerchantCompliant ? 'text-emerald-950 bg-emerald-100' : 'text-red-950 bg-red-100'} px-1.5 py-0.5 rounded font-mono">${isMerchantCompliant ? '« Pitchou maillots » (CONFORME)' : `« ${detectedMerchant} » (REQUIS : Pitchou maillots ⛔)`}</strong></span>
-                </div>
-                <div class="flex items-center gap-1.5 text-emerald-700 font-bold">
-                    ✓ <span>ID Wave (« T_ ») : <strong class="font-mono text-slate-950 bg-sky-100 px-1.5 py-0.5 rounded">${extractedRef}</strong> (VALIDE)</span>
-                </div>
-                <div class="flex items-center gap-1.5 text-emerald-700 font-bold">
-                    ✓ <span>Montant Reçu : <strong>${detectedAmount.toLocaleString('fr-FR')} FCFA</strong></span>
-                </div>
-                <div class="flex items-center gap-1.5 ${!isAlreadyUsed ? 'text-emerald-700 font-bold' : 'text-red-600 font-black'}">
-                    ${!isAlreadyUsed ? '✓' : '✗'} <span>Statut Preuve : ${!isAlreadyUsed ? 'Valable & Actif (Prêt à émettre)' : 'DÉJÀ ÉPUISÉ / UTILISÉ ⛔'}</span>
-                </div>
-            `;
+            
 
         } else if (omRefMatch) {
             detectedMode = "Orange Money";
@@ -6172,17 +6154,7 @@
                 isCompliant = false;
             }
 
-            checklistHTML = `
-                <div class="flex items-center gap-1.5 text-emerald-700 font-bold">
-                    ✓ <span>Réf Orange Money (« MP... ») : <strong>${extractedRef}</strong> (VALIDE)</span>
-                </div>
-                <div class="flex items-center gap-1.5 text-emerald-700 font-bold">
-                    ✓ <span>Montant Transféré : <strong>${detectedAmount.toLocaleString('fr-FR')} FCFA</strong></span>
-                </div>
-                <div class="flex items-center gap-1.5 ${!isAlreadyUsed ? 'text-emerald-700 font-bold' : 'text-red-600 font-black'}">
-                    ${!isAlreadyUsed ? '✓' : '✗'} <span>Statut Preuve : ${!isAlreadyUsed ? 'Valable & Actif' : 'DÉJÀ ÉPUISÉ / UTILISÉ ⛔'}</span>
-                </div>
-            `;
+            
 
         } else {
             rejectInvalidProof("Aucun ID de transaction débutant par « T_ » (Wave) ou « MP » (Orange) trouvé sur ce document.");
@@ -6210,33 +6182,37 @@
         };
 
         const resultCard = document.getElementById('proof-analysis-result');
-        if (resultCard) resultCard.classList.remove('hidden');
-
         const modeBadge = document.getElementById('proof-detected-badge');
-        if (modeBadge) {
-            modeBadge.innerText = detectedMode;
-            if (isCompliant && !isAlreadyUsed) {
-                if (detectedMode === 'Orange Money') {
-                    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-orange-100 text-orange-900 border border-orange-300 font-mono";
-                } else {
-                    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-sky-100 text-sky-900 border border-sky-300 font-mono";
-                }
+        const validIndicator = document.getElementById('proof-valid-indicator');
+        const isActuallyValid = isCompliant && !isAlreadyUsed;
+
+        if (resultCard) {
+            resultCard.classList.remove('hidden');
+            if (isActuallyValid) {
+                // Cadrant en VERT quand le paiement est validé
+                resultCard.className = "p-3.5 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400 shadow-sm space-y-2 transition-all duration-300";
             } else {
-                modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-red-100 text-red-900 border border-red-300 font-mono";
+                // Cadrant en ROUGE quand le paiement est refusé
+                resultCard.className = "p-3.5 rounded-2xl bg-rose-50/70 border-2 border-rose-400 shadow-sm space-y-2 transition-all duration-300";
             }
         }
 
-        const validIndicator = document.getElementById('proof-valid-indicator');
-        if (validIndicator) {
-            if (isCompliant && !isAlreadyUsed) {
-                validIndicator.className = "flex items-center gap-1 text-[10px] font-black text-emerald-600 font-mono";
-                validIndicator.innerHTML = '<i data-lucide="check-circle" class="h-3.5 w-3.5"></i> REÇU VALIDE';
-            } else if (isAlreadyUsed) {
-                validIndicator.className = "flex items-center gap-1 text-[10px] font-black text-red-600 font-mono";
-                validIndicator.innerHTML = '<i data-lucide="alert-octagon" class="h-3.5 w-3.5"></i> DÉJÀ CONSOMMÉ';
+        if (modeBadge) {
+            modeBadge.innerText = detectedMode !== "Inconnu" ? detectedMode : "Reçu Inconnu";
+            if (isActuallyValid) {
+                modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 font-mono";
             } else {
-                validIndicator.className = "flex items-center gap-1 text-[10px] font-black text-red-600 font-mono";
-                validIndicator.innerHTML = '<i data-lucide="alert-triangle" class="h-3.5 w-3.5"></i> NON CONFORME';
+                modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-100 text-rose-900 border border-rose-300 font-mono";
+            }
+        }
+
+        if (validIndicator) {
+            if (isActuallyValid) {
+                validIndicator.className = "flex items-center gap-1.5 text-xs font-black text-emerald-700 font-mono";
+                validIndicator.innerHTML = '<i data-lucide="check-circle-2" class="h-4 w-4 text-emerald-600"></i> VALIDÉ';
+            } else {
+                validIndicator.className = "flex items-center gap-1.5 text-xs font-black text-rose-700 font-mono";
+                validIndicator.innerHTML = '<i data-lucide="x-circle" class="h-4 w-4 text-rose-600"></i> REFUSÉ';
             }
         }
 
@@ -6247,19 +6223,19 @@
         if (amountEl) amountEl.innerText = detectedAmount > 0 ? (state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR') + ' FCFA') : '0 FCFA';
 
         const balEl = document.getElementById('proof-detected-balance');
-        if (balEl) balEl.innerText = detectedAmount > 0 ? (state.currentAnalyzedProof.soldeDisponible.toLocaleString('fr-FR') + ' FCFA') : '0 FCFA';
+        if (balEl) {
+            balEl.innerText = detectedAmount > 0 ? (state.currentAnalyzedProof.soldeDisponible.toLocaleString('fr-FR') + ' FCFA') : '0 FCFA';
+            balEl.className = isActuallyValid ? "font-black text-emerald-700 font-mono text-xs" : "font-black text-rose-700 font-mono text-xs";
+        }
 
+        // Suppression intégrale des justificatifs (pas de liste de puces affichée)
         const checkListEl = document.getElementById('proof-checklist-container');
-        if (checkListEl) checkListEl.innerHTML = checklistHTML;
+        if (checkListEl) checkListEl.innerHTML = '';
 
-        if (isCompliant && !isAlreadyUsed) {
-            showNotification("Preuve Validée !", `Reçu ${detectedMode} (Marchand : Pitchou maillots, Réf: ${extractedRef}) validé avec succès.`, "success");
-        } else if (detectedMode === "Wave Mobile" && !isMerchantValid) {
-            showNotification("Marchand Wave Non Conforme", "Le reçu Wave n'est pas émis au nom du marchand officiel « Pitchou maillots ».", "error");
-        } else if (isAlreadyUsed) {
-            showNotification("Preuve Déjà Utilisée", "Ce reçu a déjà été consommé pour un autre billet.", "error");
+        if (isActuallyValid) {
+            showNotification("Paiement Validé", "Le reçu a été vérifié et validé avec succès.", "success");
         } else {
-            showNotification("Reçu Non Conforme", "Le document fourni ne remplit pas les conditions de validation.", "error");
+            showNotification("Paiement Refusé", "Le document fourni n'a pas pu être validé. Paiement refusé.", "error");
         }
 
         revalidateCurrentProofBalance();
@@ -6269,6 +6245,8 @@
     function revalidateCurrentProofBalance() {
         const select = document.getElementById('form-categorie');
         const warning = document.getElementById('proof-balance-warning');
+        const resultCard = document.getElementById('proof-analysis-result');
+        const validIndicator = document.getElementById('proof-valid-indicator');
 
         if (!select || !select.value) {
             if (warning) warning.classList.add('hidden');
@@ -6285,20 +6263,37 @@
 
         if (state.currentAnalyzedProof) {
             if (!state.currentAnalyzedProof.isValid) {
+                if (resultCard) {
+                    resultCard.className = "p-3.5 rounded-2xl bg-rose-50/70 border-2 border-rose-400 shadow-sm space-y-2 transition-all duration-300";
+                }
+                if (validIndicator) {
+                    validIndicator.className = "flex items-center gap-1.5 text-xs font-black text-rose-700 font-mono";
+                    validIndicator.innerHTML = '<i data-lucide="x-circle" class="h-4 w-4 text-rose-600"></i> REFUSÉ';
+                }
                 if (warning) {
                     warning.classList.remove('hidden');
-                    if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Wave") && !state.currentAnalyzedProof.isMerchantValid) {
-                        warning.innerText = "❌ Marchand Wave Non Conforme : Le reçu Wave doit être adressé au marchand officiel « Pitchou maillots ».";
-                    } else {
-                        warning.innerText = "❌ Reçu non conforme : Impossible d'émettre le billet sans un reçu officiel Wave (T_...) ou Orange valide.";
-                    }
+                    warning.innerText = "❌ Paiement refusé : reçu non conforme.";
                 }
             } else if (state.currentAnalyzedProof.soldeDisponible < ticketPrice) {
+                if (resultCard) {
+                    resultCard.className = "p-3.5 rounded-2xl bg-rose-50/70 border-2 border-rose-400 shadow-sm space-y-2 transition-all duration-300";
+                }
+                if (validIndicator) {
+                    validIndicator.className = "flex items-center gap-1.5 text-xs font-black text-rose-700 font-mono";
+                    validIndicator.innerHTML = '<i data-lucide="x-circle" class="h-4 w-4 text-rose-600"></i> REFUSÉ';
+                }
                 if (warning) {
                     warning.classList.remove('hidden');
                     warning.innerText = `⚠️ Solde insuffisant (${state.currentAnalyzedProof.soldeDisponible.toLocaleString('fr-FR')} F disponibles pour un pass à ${ticketPrice.toLocaleString('fr-FR')} F) !`;
                 }
             } else {
+                if (resultCard) {
+                    resultCard.className = "p-3.5 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400 shadow-sm space-y-2 transition-all duration-300";
+                }
+                if (validIndicator) {
+                    validIndicator.className = "flex items-center gap-1.5 text-xs font-black text-emerald-700 font-mono";
+                    validIndicator.innerHTML = '<i data-lucide="check-circle-2" class="h-4 w-4 text-emerald-600"></i> VALIDÉ';
+                }
                 if (warning) warning.classList.add('hidden');
             }
         }
