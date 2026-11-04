@@ -75,6 +75,8 @@ module.exports = async function handler(req, res) {
             currency: currency,          // XOF
             status: 'En attente',        // Statut initial obligatoire
             paymentMethod: 'Wave',
+            merchant: 'Pitchou maillots',
+            merchantId: 'M_ci_5Ak1intPKX_j',
             customer: {
                 nom: String(nom).trim(),
                 prenom: String(prenom).trim(),

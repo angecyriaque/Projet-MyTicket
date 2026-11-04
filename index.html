@@ -13097,18 +13097,131 @@
                 nom, prenom, contact1, contact2, eglise, categorie
             }));
 
-            // 4. Redirection vers l'interface sécurisée de Wave (Section 2.3 Étape 5)
-            const loadingMsg = document.getElementById('wave-loading-message');
-            if (loadingMsg) loadingMsg.innerText = "Session créée avec succès ! Redirection vers Wave en cours...";
+            // 4. Lancement de la déduction Wave et affichage du panneau interactif de validation
+            closeWaveLoadingModal();
 
-            setTimeout(() => {
-                window.location.href = data.wave_launch_url;
-            }, 400);
+            // Ouvre le lien officiel Wave pour lancer l'application Wave ou la page de paiement
+            try {
+                window.open(data.wave_launch_url, '_blank');
+            } catch (e) {
+                console.log("Popup Wave direct bloqué par le navigateur, le bouton d'ouverture reste actif.");
+            }
+
+            // Ouvre la boîte de dialogue de déduction Wave et de validation du pass
+            openWaveDeductionModal(data.client_reference, data.wave_launch_url);
 
         } catch (err) {
             closeWaveLoadingModal();
             console.error("Erreur initiateWaveCheckoutPayment:", err);
             showNotification("Erreur Connexion Wave", err.message || "Impossible de joindre la passerelle Wave.", "error");
+        }
+    }
+
+    function openWaveDeductionModal(ref, waveUrl) {
+        const modal = document.getElementById('modal-wave-deduction');
+        if (!modal) return;
+
+        const openBtn = document.getElementById('btn-open-wave-direct');
+        if (openBtn && waveUrl) {
+            openBtn.href = waveUrl;
+        }
+
+        const input = document.getElementById('wave-manual-txid-input');
+        if (input) {
+            input.value = '';
+            setTimeout(() => input.focus(), 300);
+        }
+
+        modal.classList.remove('hidden');
+        initializeLucideIcons();
+    }
+
+    function closeWaveDeductionModal() {
+        const modal = document.getElementById('modal-wave-deduction');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    async function pasteClipboardToWaveTxInput() {
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                const match = text.match(/T_[A-Za-z0-9_-]{6,}/i);
+                const input = document.getElementById('wave-manual-txid-input');
+                if (input) {
+                    input.value = match ? match[0].toUpperCase() : text.trim().toUpperCase();
+                    showNotification("Identifiant Collé", "ID Wave inséré depuis votre presse-papier.", "info");
+                }
+            } else {
+                showNotification("Presse-papier", "Veuillez coller manuellement dans le champ (Ctrl+V).", "warning");
+            }
+        } catch (e) {
+            showNotification("Presse-papier", "Veuillez coller manuellement dans le champ (Ctrl+V).", "warning");
+        }
+    }
+
+    async function confirmWaveTransactionId() {
+        const inputEl = document.getElementById('wave-manual-txid-input');
+        const rawVal = (inputEl ? inputEl.value : '').trim();
+
+        if (!rawVal) {
+            showNotification("Identifiant Requis", "Veuillez saisir ou coller l'identifiant Wave (T_...) figurant sur votre reçu.", "warning");
+            inputEl?.focus();
+            return;
+        }
+
+        // Extraction si le texte collé est un SMS Wave complet
+        const match = rawVal.match(/T_[A-Za-z0-9_-]{6,}/i);
+        const waveId = match ? match[0].toUpperCase() : rawVal.toUpperCase();
+
+        if (!/^T_[A-Za-z0-9_-]{6,}$/i.test(waveId)) {
+            showNotification("Format Invalide", "L'identifiant Wave doit impérativement commencer par 'T_' (exemple: T_QM32635D7KIPMJGH).", "error");
+            inputEl?.focus();
+            return;
+        }
+
+        const ref = sessionStorage.getItem('myticket_pending_wave_ref') || `MYT-WV-${Date.now()}`;
+        const customer = JSON.parse(sessionStorage.getItem('myticket_pending_customer') || '{}');
+
+        // Calcul du prochain numéro de ticket
+        const nextTicketNum = (state.participants || []).length + 1;
+        const ticketId = `MYT-${String(nextTicketNum).padStart(4, '0')}`;
+
+        const btnSubmit = document.getElementById('btn-wave-confirm-submit');
+        const originalText = btnSubmit ? btnSubmit.innerHTML : '';
+        if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Validation en cours...</span>`;
+            initializeLucideIcons();
+        }
+
+        try {
+            const data = await safeWaveFetchJson('/api/wave-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ref: ref,
+                    waveTransactionId: waveId,
+                    customer: customer,
+                    ticketId: ticketId
+                })
+            });
+
+            if (data && data.ok) {
+                closeWaveDeductionModal();
+                finalizeWavePaymentSuccess(data.transaction, ticketId);
+                showNotification("Paiement Confirmé", "Votre paiement Wave de 10 000 FCFA a été validé avec succès !", "success");
+            } else {
+                throw new Error(data.error || "Impossible de valider ce reçu Wave.");
+            }
+        } catch (err) {
+            console.error("Erreur confirmWaveTransactionId:", err);
+            showNotification("Validation Wave", err.message || "Erreur lors de la validation du reçu Wave.", "error");
+        } finally {
+            if (btnSubmit) {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalText || `<i data-lucide="check-circle" class="h-4 w-4"></i><span>Valider et Générer mon Billet</span>`;
+                initializeLucideIcons();
+            }
         }
     }
 
@@ -15565,6 +15678,82 @@ function toggleMobileMenu() {
 
 </script>
 
+
+    <!-- ============================================================== -->
+    <!-- MODAL: DÉDUCTION DIRECTE WAVE (PITCHOU MAILLOTS - 10 000 FCFA) -->
+    <!-- ============================================================== -->
+    <div id="modal-wave-deduction" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative border-2 border-sky-400 transform transition-all animate-in zoom-in-95">
+            <!-- Header Wave -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="h-10 w-10 rounded-2xl bg-[#1DA1F2] text-white flex items-center justify-center font-black shadow-md shadow-sky-500/30 text-lg">
+                        W
+                    </div>
+                    <div class="text-left">
+                        <h4 class="font-bold text-slate-900 text-sm">Paiement Wave Mobile Money</h4>
+                        <span class="text-[10px] text-slate-500 font-mono">Marchand : <strong class="text-sky-700">Pitchou maillots</strong></span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeWaveDeductionModal()" class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition cursor-pointer">
+                    <i data-lucide="x" class="h-4 w-4"></i>
+                </button>
+            </div>
+
+            <!-- Encart Montant Obligatoire -->
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 text-center space-y-1">
+                <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider">Montant Strict à Déduire</span>
+                <p class="text-3xl font-black text-slate-900 font-mono">10 000 <span class="text-lg text-sky-600 font-bold">FCFA</span></p>
+                <div class="flex items-center justify-center gap-1.5 text-[11px] text-slate-600">
+                    <i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i>
+                    <span>Compte marchand officiel : <strong class="text-slate-900">Pitchou maillots</strong></span>
+                </div>
+            </div>
+
+            <!-- BOUTON D'OUVERTURE DIRECTE WAVE (CAHIER DES CHARGES) -->
+            <a id="btn-open-wave-direct" href="https://pay.wave.com/m/M_ci_5Ak1intPKX_j/c/ci/?amount=10000" target="_blank" class="w-full py-3.5 px-4 rounded-2xl bg-[#1DA1F2] hover:bg-[#1a90d9] active:scale-[0.98] text-white font-black text-sm shadow-xl shadow-sky-500/30 transition flex items-center justify-center gap-2 cursor-pointer border border-sky-300">
+                <i data-lucide="external-link" class="h-4 w-4"></i>
+                <span>Ouvrir Wave pour Déduire 10 000 FCFA</span>
+            </a>
+
+            <!-- SÉPARATEUR ÉTAPE 2 -->
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">ÉTAPE 2 : VALIDATION DU BILLET</span>
+                <div class="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <!-- Saisie de l'ID Wave T_... -->
+            <div class="space-y-2 text-left">
+                <label for="wave-manual-txid-input" class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                    <span>ID Transaction Wave (commençant par T_) *</span>
+                    <span class="text-[10px] text-sky-600 font-mono">Ex: T_QM32635...</span>
+                </label>
+                <div class="relative">
+                    <input type="text" id="wave-manual-txid-input" placeholder="T_..." class="w-full py-3 px-3.5 pr-10 rounded-xl bg-slate-50 border border-slate-300 focus:border-sky-500 focus:bg-white text-xs font-mono font-bold text-slate-900 uppercase tracking-wider outline-none transition placeholder:text-slate-400 placeholder:font-normal">
+                    <button type="button" onclick="pasteClipboardToWaveTxInput()" title="Coller depuis le presse-papier" class="absolute right-2 top-2 h-7 w-7 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-xs transition cursor-pointer">
+                        <i data-lucide="clipboard-copy" class="h-3.5 w-3.5"></i>
+                    </button>
+                </div>
+                <p class="text-[10px] text-slate-500 leading-tight">
+                    💡 Entrez l'identifiant Wave affiché sur votre écran de débit ou reçu par SMS.
+                </p>
+            </div>
+
+            <!-- Bouton de validation -->
+            <button type="button" id="btn-wave-confirm-submit" onclick="confirmWaveTransactionId()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:opacity-95 active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2 cursor-pointer">
+                <i data-lucide="check-circle" class="h-4 w-4"></i>
+                <span>Valider et Générer mon Billet Officiel</span>
+            </button>
+
+            <!-- Annulation -->
+            <div class="pt-1">
+                <button type="button" onclick="closeWaveDeductionModal()" class="text-xs font-bold text-slate-400 hover:text-slate-600 transition cursor-pointer">
+                    Fermer / Payer plus tard
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ============================================================== -->
     <!-- MODAL: CHARGEMENT & INITIALISATION DU PAIEMENT WAVE            -->

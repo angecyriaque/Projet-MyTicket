@@ -186,6 +186,30 @@ async function getTransactionBySessionId(sessionId) {
 }
 
 /**
+ * Récupère une transaction par son identifiant de reçu Wave (ex: T_...)
+ * Utilisé pour la protection anti-doublon / anti-fraude (un reçu = un seul ticket)
+ */
+async function getTransactionByWaveTxId(waveTxId) {
+    if (!waveTxId) return null;
+    const cleanId = String(waveTxId).trim().toUpperCase();
+
+    // 1. Chercher d'abord en mémoire
+    for (const tx of memoryTransactions.values()) {
+        if ((tx.waveTransactionId || '').toUpperCase() === cleanId) {
+            return tx;
+        }
+    }
+
+    // 2. Si non trouvé en mémoire, interroger Firestore
+    try {
+        const all = await listTransactions({ status: 'ALL', limit: 200 });
+        return all.find(t => (t.waveTransactionId || '').toUpperCase() === cleanId) || null;
+    } catch (e) {
+        return null;
+    }
+}
+
+/**
  * Liste toutes les transactions avec filtrage optionnel
  */
 async function listTransactions({ status = 'ALL', search = '', limit = 100 } = {}) {
@@ -271,6 +295,7 @@ module.exports = {
     saveTransaction,
     getTransactionByRef,
     getTransactionBySessionId,
+    getTransactionByWaveTxId,
     listTransactions,
     getTransactionStats
 };

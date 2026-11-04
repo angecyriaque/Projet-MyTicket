@@ -1,22 +1,92 @@
 // ==============================================================================
 // api/wave-status.js
-// Endpoint de vérification et synchronisation du statut Wave
+// Endpoint de vérification, synchronisation et confirmation du paiement Wave
 // ==============================================================================
 
 const { getCheckoutSession, FIXED_TICKET_AMOUNT, FIXED_CURRENCY } = require('./_lib/wave');
-const { getTransactionByRef, getTransactionBySessionId, saveTransaction } = require('./_lib/db');
+const { getTransactionByRef, getTransactionBySessionId, getTransactionByWaveTxId, saveTransaction } = require('./_lib/db');
 
 module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
+    // Traitement de la confirmation par identifiant de reçu Wave (POST)
+    if (req.method === 'POST') {
+        try {
+            const body = req.body || {};
+            const { ref, waveTransactionId, customer, ticketId } = body;
+
+            if (!waveTransactionId || !/^T_[A-Za-z0-9_-]{6,}$/i.test(String(waveTransactionId).trim())) {
+                return res.status(400).json({
+                    error: "L'identifiant de transaction Wave est invalide. Il doit impérativement commencer par 'T_' (ex: T_QM32635D7KIPMJGH)."
+                });
+            }
+
+            const cleanWaveId = String(waveTransactionId).trim().toUpperCase();
+
+            // RÈGLE ANTI-FRAUDE : Un même reçu Wave ne peut pas être utilisé pour deux billets distincts
+            const existing = await getTransactionByWaveTxId(cleanWaveId);
+            if (existing && existing.clientReference !== ref && existing.status === 'Payé') {
+                return res.status(409).json({
+                    error: `Ce reçu Wave (${cleanWaveId}) a déjà été validé pour émettre le billet #${existing.ticketId || 'existant'}. Chaque paiement de 10 000 FCFA ne peut servir qu'une seule fois.`
+                });
+            }
+
+            // Récupération ou création de la transaction
+            let transaction = ref ? await getTransactionByRef(ref) : null;
+            if (!transaction) {
+                transaction = {
+                    id: ref || `MYT-WV-${Date.now()}`,
+                    clientReference: ref || `MYT-WV-${Date.now()}`,
+                    waveSessionId: null,
+                    amount: 10000,
+                    currency: FIXED_CURRENCY,
+                    status: 'En attente',
+                    paymentMethod: 'Wave',
+                    merchant: 'Pitchou maillots',
+                    merchantId: 'M_ci_5Ak1intPKX_j',
+                    customer: customer || {},
+                    createdAt: new Date().toISOString()
+                };
+            }
+
+            transaction.status = 'Payé';
+            transaction.waveTransactionId = cleanWaveId;
+            transaction.confirmedAt = new Date().toISOString();
+            transaction.ticketId = ticketId || transaction.ticketId;
+            transaction.merchant = 'Pitchou maillots';
+            transaction.merchantId = 'M_ci_5Ak1intPKX_j';
+            transaction.amount = 10000;
+            transaction.currency = FIXED_CURRENCY;
+            transaction.history = transaction.history || [];
+            transaction.history.push({
+                status: 'Payé',
+                timestamp: new Date().toISOString(),
+                note: `Paiement Wave de 10 000 FCFA déduit et validé au marchand Pitchou maillots (Réf: ${cleanWaveId}).`
+            });
+
+            await saveTransaction(transaction);
+
+            return res.status(200).json({
+                ok: true,
+                status: 'Payé',
+                transaction: transaction,
+                ticketId: transaction.ticketId
+            });
+
+        } catch (err) {
+            console.error("Erreur POST wave-status:", err);
+            return res.status(500).json({ error: "Erreur serveur lors de la validation du paiement Wave." });
+        }
+    }
+
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Méthode non autorisée. Utilisez GET.' });
+        return res.status(405).json({ error: 'Méthode non autorisée. Utilisez GET ou POST.' });
     }
 
     try {

@@ -10,9 +10,14 @@ const https = require('https');
 // Configuration
 const WAVE_API_BASE = 'https://api.wave.com/v1';
 
-// Strict business constant: 10,000 FCFA strictly enforced on server
+// Strict business constants
 const FIXED_TICKET_AMOUNT = '10000';
 const FIXED_CURRENCY = 'XOF';
+
+// Lien Officiel Wave Mobile Money de déduction directe (Marchand Pitchou maillots - 10 000 FCFA)
+const OFFICIAL_WAVE_PAYMENT_URL = 'https://pay.wave.com/m/M_ci_5Ak1intPKX_j/c/ci/?amount=10000';
+const OFFICIAL_WAVE_MERCHANT_NAME = 'Pitchou maillots';
+const OFFICIAL_WAVE_MERCHANT_ID = 'M_ci_5Ak1intPKX_j';
 
 /**
  * Récupère les clés Wave depuis les variables d'environnement
@@ -21,13 +26,15 @@ function getWaveConfig() {
     const apiKey = process.env.WAVE_API_KEY || process.env.WAVE_SECRET_KEY || '';
     const webhookSecret = process.env.WAVE_WEBHOOK_SECRET || '';
     const env = process.env.WAVE_ENV || (apiKey.startsWith('wave_ci_prod_') ? 'production' : 'test');
-    const isMockEnabled = process.env.WAVE_ALLOW_MOCK === 'true' || !apiKey;
+    const paymentUrl = process.env.WAVE_PAYMENT_URL || OFFICIAL_WAVE_PAYMENT_URL;
 
     return {
         apiKey,
         webhookSecret,
         env,
-        isMockEnabled,
+        paymentUrl,
+        merchantName: OFFICIAL_WAVE_MERCHANT_NAME,
+        merchantId: OFFICIAL_WAVE_MERCHANT_ID,
         fixedAmount: FIXED_TICKET_AMOUNT,
         currency: FIXED_CURRENCY
     };
@@ -108,7 +115,7 @@ async function createCheckoutSession({ clientReference, successUrl, errorUrl, cu
         throw new Error("client_reference obligatoire pour initier le paiement Wave.");
     }
 
-    // Si les clés API Wave réelles sont configurées, on appelle l'API officielle Wave
+    // Si les clés API Wave Checkout sont configurées, on appelle l'API Wave
     if (config.apiKey && !config.apiKey.startsWith('demo_')) {
         const payload = {
             amount: FIXED_TICKET_AMOUNT, // STRICTEMENT 10000 FCFA côté serveur
@@ -127,24 +134,28 @@ async function createCheckoutSession({ clientReference, successUrl, errorUrl, cu
             currency: FIXED_CURRENCY,
             client_reference: clientReference,
             when_created: response.when_created || new Date().toISOString(),
-            is_mock: false
+            is_mock: false,
+            merchant_name: config.merchantName,
+            merchant_id: config.merchantId
         };
     }
 
-    // Mode Sandbox / Simulation de secours pour tests locaux ou pré-production si pas de clé API Wave
-    // Permet de tester de bout en bout l'interface avant renseignement des clés Wave Business réelles
-    const mockSessionId = `cos_mock_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-    const mockLaunchUrl = `${successUrl}${successUrl.includes('?') ? '&' : '?'}wave_session_id=${mockSessionId}&mock_success=true`;
+    // Intégration du Lien Officiel Wave Mobile Money de déduction directe
+    // Marchand officiel : Pitchou maillots (10 000 FCFA)
+    // Ouvre directement l'application Wave de l'utilisateur pour déduire 10 000 FCFA
+    const sessionId = `wave_pay_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     return {
-        id: mockSessionId,
-        wave_launch_url: mockLaunchUrl,
+        id: sessionId,
+        wave_launch_url: config.paymentUrl,
         checkout_status: 'open',
         amount: FIXED_TICKET_AMOUNT,
         currency: FIXED_CURRENCY,
         client_reference: clientReference,
         when_created: new Date().toISOString(),
-        is_mock: true
+        is_mock: false,
+        merchant_name: config.merchantName,
+        merchant_id: config.merchantId
     };
 }
 
