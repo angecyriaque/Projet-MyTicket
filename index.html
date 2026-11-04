@@ -6350,11 +6350,11 @@
                         const g = d[i + 1];
                         const b = d[i + 2];
                         // Détection des pixels orange (#FF7900 ~ R:255, G:121, B:0)
-                        const isOrange = (r > 150) && 
-                                         (g >= 40 && g <= 195) && 
+                        const isOrange = (r > 130) && 
+                                         (g >= 35 && g <= 195) && 
                                          (b <= 120) && 
-                                         (r - g >= 20) && 
-                                         (r - b >= 60);
+                                         (r - g >= 15) && 
+                                         (r - b >= 45);
 
                         if (isOrange) {
                             d[i] = 0;
@@ -6501,7 +6501,7 @@
         }
 
         const fileName = (file.name || '');
-        const fileRefMatch = fileName.match(/\b(T_[0-9A-Za-z_-]{4,35})\b/i) || fileName.match(/\b(MP[0-9A-Za-z.]{4,35})\b/i);
+        const fileRefMatch = fileName.match(/\b(T_[0-9A-Za-z_-]{4,35})\b/i) || fileName.match(/\b((?:PP|MP|CI|OM)[0-9A-Za-z.]{4,35})\b/i);
         
         if (fileRefMatch) {
             const isWave = fileRefMatch[1].toUpperCase().startsWith("T_");
@@ -6515,7 +6515,7 @@
             return;
         }
 
-        rejectInvalidProof("Aucun ID de transaction Wave (T_...) ou Orange (MP...) lisible détecté sur cette capture ou ce document PDF. Veuillez vous assurer d'importer un reçu bien net.");
+        rejectInvalidProof("Aucun ID de transaction Wave (T_...) ou Orange Money (PP..., MP...) lisible détecté sur cette capture ou ce document PDF. Veuillez vous assurer d'importer un reçu bien net.");
     }
 
     function rejectInvalidProof(reasonMessage) {
@@ -6590,7 +6590,7 @@
         if (!rawText) return "Non détecté";
         const clean = rawText.replace(/\r/g, '');
         const m = clean.match(/(?:Marchand|À|A|Vers|Destinataire|Paiement à|Paiement)\s*:\s*([^\n\r,.;]{3,35})/i) ||
-                  clean.match(/Paiement\s+marchand\s+([^\n\r,.;]{3,35})/i);
+                  clean.match(/Paiement\s+(?:à|a|marchand|vers)?\s*([^\n\r,.;]{3,35})/i);
         if (m && m[1]) {
             return m[1].trim();
         }
@@ -6620,18 +6620,18 @@
                     continue;
                 }
                 // Recherche du montant sur cette ligne au-dessus
-                const m = line.match(/\b([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                          line.match(/^([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})$/);
+                const m = line.match(/\b([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
+                          line.match(/^([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,6})$/);
                 if (m) {
-                    const val = parseInt(m[1].replace(/[ .]/g, ''), 10);
+                    const val = parseInt(m[1].replace(/[ .',]/g, ''), 10);
                     if (val > 0) return val;
                 }
             }
 
             // Détection inline si le montant et la mention sont sur la même ligne ou collés
-            const inlineMatch = textBefore.match(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F)?\s*(?:paiement\s*(?:à|a|marchand|de)?)?\s*$/i);
+            const inlineMatch = textBefore.match(/([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F)?\s*(?:paiement\s*(?:à|a|marchand|de)?)?\s*$/i);
             if (inlineMatch) {
-                return parseInt(inlineMatch[1].replace(/[ .]/g, ''), 10);
+                return parseInt(inlineMatch[1].replace(/[ .',]/g, ''), 10);
             }
         }
 
@@ -6643,8 +6643,8 @@
             for (let i = linesBefore.length - 1; i >= 0; i--) {
                 const line = linesBefore[i];
                 if (/^(?:paiement|paiement\s+(?:marchand|à|a|vers)|vers|à|a|pour)$/i.test(line)) continue;
-                const m = line.match(/\b([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
-                if (m) return parseInt(m[1].replace(/[ .]/g, ''), 10);
+                const m = line.match(/\b([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
+                if (m) return parseInt(m[1].replace(/[ .',]/g, ''), 10);
             }
         }
 
@@ -6670,24 +6670,25 @@
         const clean = rawText.replace(/\r/g, '');
         const m = clean.match(/(?:au|vers|destinataire|bénéficiaire|beneficiaire|a|à|numero|numéro)\s*:?\s*([+0-9\s.-]{8,18})/i);
         if (m && m[1]) return m[1].trim();
-        return "Non détecté (0777588706 requis)";
+        return "Non détecté";
     }
 
     /**
      * Détection stricte du montant transféré Orange Money :
      * 1. Priorité absolue au montant issu de la couche ORANGE (via canvas)
-     * 2. Analyse textuelle contextuelle pour capturer le montant réel transféré
+     * 2. Analyse textuelle de la section en-tête située avant "Détails du bénéficiaire" (zone du montant orange)
+     * 3. Analyse textuelle contextuelle pour capturer le montant réel transféré
      *    en excluant formellement "Frais : 0 FCFA", "Nouveau solde", taxes et commissions.
-     * 3. Ne prend aucun montant par défaut (retourne 0 si non détecté).
+     * 4. Ne prend aucun montant par défaut (retourne 0 si non détecté).
      */
     function extractOrangeMoneyAmount(fullText, orangeOcrText) {
-        // 1. Priorité absolue : Montant lu dans la couche de pixels orange
+        // 1. Priorité absolue : Montant lu dans la couche de pixels orange (via canvas)
         if (orangeOcrText && typeof orangeOcrText === 'string') {
             const cleanOrange = orangeOcrText.replace(/\r/g, ' ').replace(/\s+/g, ' ');
-            const orangeMatch = cleanOrange.match(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
+            const orangeMatch = cleanOrange.match(/([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
                                 cleanOrange.match(/\b([0-9]{4,7})\b/);
             if (orangeMatch) {
-                const val = parseInt(orangeMatch[1].replace(/[ .]/g, ''), 10);
+                const val = parseInt(orangeMatch[1].replace(/[ .',]/g, ''), 10);
                 if (val >= 1000) {
                     return { amount: val, source: 'orange_layer' };
                 }
@@ -6696,55 +6697,68 @@
 
         if (!fullText) return { amount: 0, source: 'none' };
 
+        // 2. Montant situé dans l'en-tête (en orange sur l'app) avant "Détails du bénéficiaire"
+        const benefIdx = fullText.search(/(?:détails\s+du\s+bénéficiaire|details\s+du\s+beneficiaire|bénéficiaire|beneficiaire)/i);
+        if (benefIdx !== -1) {
+            const headerSection = fullText.substring(0, benefIdx);
+            const headerAmountMatch = headerSection.match(/\b([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
+            if (headerAmountMatch) {
+                const val = parseInt(headerAmountMatch[1].replace(/[ .',]/g, ''), 10);
+                if (val >= 1000) {
+                    return { amount: val, source: 'orange_header_section' };
+                }
+            }
+        }
+
         const lines = fullText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
-        // 2. Recherche par mot-clé explicite de transfert : "Montant transféré", "Montant envoyé", "Débité", "Transfert de"
-        const explicitRegex = /(?:montant\s*(?:transféré|transfere|envoyé|envoye|débité|debite|principal|en\s*orange|du\s*transfert)?\s*[:=]?\s*)([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i;
+        // 3. Recherche par mot-clé explicite de transfert : "Montant prélevé", "Montant transféré", "Montant envoyé", "Débité"
+        const explicitRegex = /(?:montant\s*(?:prélevé|preleve|transféré|transfere|envoyé|envoye|débité|debite|principal|en\s*orange|du\s*transfert)?\s*[:=]?\s*)(?:-)?\s*([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i;
         for (const line of lines) {
             const lower = line.toLowerCase();
             if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission')) continue;
             const m = line.match(explicitRegex);
             if (m) {
-                const val = parseInt(m[1].replace(/[ .]/g, ''), 10);
+                const val = parseInt(m[1].replace(/[ .',]/g, ''), 10);
                 if (val >= 1000) return { amount: val, source: 'explicit_keyword' };
             }
         }
 
-        // 3. Recherche inline : "transféré 10000 FCFA" ou "envoyé 10000 FCFA"
-        const inlineTransferMatch = fullText.match(/(?:transféré|transfere|envoyé|envoye|débité|debite)\s+([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
+        // 4. Recherche inline : "transféré 10000 FCFA" ou "envoyé 10000 FCFA"
+        const inlineTransferMatch = fullText.match(/(?:transféré|transfere|envoyé|envoye|débité|debite)\s+([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
         if (inlineTransferMatch) {
-            const val = parseInt(inlineTransferMatch[1].replace(/[ .]/g, ''), 10);
+            const val = parseInt(inlineTransferMatch[1].replace(/[ .',]/g, ''), 10);
             if (val >= 1000) return { amount: val, source: 'inline_transfer' };
         }
 
-        // 4. Recherche sur les lignes individuelles en excluant formellement "Frais" et "Solde"
+        // 5. Recherche sur les lignes individuelles en excluant formellement "Frais" et "Solde"
         for (const line of lines) {
             const lower = line.toLowerCase();
-            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('balance') || lower.includes('0777588706') || lower.includes('mp')) {
+            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('balance') || lower.includes('0777588706') || lower.includes('mp') || lower.includes('pp')) {
                 continue;
             }
-            const amountMatch = line.match(/\b([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/i);
+            const amountMatch = line.match(/\b([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/i);
             if (amountMatch) {
-                const val = parseInt(amountMatch[1].replace(/[ .]/g, ''), 10);
+                const val = parseInt(amountMatch[1].replace(/[ .',]/g, ''), 10);
                 if (val >= 1000) return { amount: val, source: 'line_currency' };
             }
         }
 
-        // 5. Recherche d'un montant isolé sur une ligne (chiffre seul sur la ligne, typique de l'affichage Max it)
+        // 6. Recherche d'un montant isolé sur une ligne (chiffre seul sur la ligne, typique de l'affichage Max it)
         for (const line of lines) {
             const lower = line.toLowerCase();
-            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('0777588706') || lower.includes('mp')) {
+            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('0777588706') || lower.includes('mp') || lower.includes('pp')) {
                 continue;
             }
-            const standaloneMatch = line.match(/^([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F)?$/i);
+            const standaloneMatch = line.match(/^([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F)?$/i);
             if (standaloneMatch) {
-                const val = parseInt(standaloneMatch[1].replace(/[ .]/g, ''), 10);
+                const val = parseInt(standaloneMatch[1].replace(/[ .',]/g, ''), 10);
                 if (val >= 1000) return { amount: val, source: 'standalone_line' };
             }
         }
 
-        // 6. Scan global de tous les montants du texte en éliminant les zones de Frais et Solde
-        const globalMatches = [...fullText.matchAll(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/gi)];
+        // 7. Scan global de tous les montants du texte en éliminant les zones de Frais et Solde
+        const globalMatches = [...fullText.matchAll(/([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/gi)];
         for (const match of globalMatches) {
             const idx = match.index;
             const contextBefore = fullText.substring(Math.max(0, idx - 40), idx).toLowerCase();
@@ -6753,7 +6767,7 @@
                 contextAfter.includes('frais') || contextAfter.includes('solde')) {
                 continue;
             }
-            const val = parseInt(match[1].replace(/[ .]/g, ''), 10);
+            const val = parseInt(match[1].replace(/[ .',]/g, ''), 10);
             if (val >= 1000) return { amount: val, source: 'global_scan' };
         }
 
@@ -6763,8 +6777,12 @@
     function normalizeProofRef(ref) {
         if (!ref) return '';
         let cleaned = String(ref).trim().toUpperCase();
+        cleaned = cleaned.replace(/\s+/g, '');
         cleaned = cleaned.replace(/^([TI1L])[_\-\.]/i, 'T_');
         cleaned = cleaned.replace(/^(M\s*P)\s*/i, 'MP');
+        cleaned = cleaned.replace(/^(P\s*P)\s*/i, 'PP');
+        cleaned = cleaned.replace(/^(C\s*I)\s*/i, 'CI');
+        cleaned = cleaned.replace(/^(O\s*M)\s*/i, 'OM');
         cleaned = cleaned.replace(/\.+$/, '');
         return cleaned;
     }
@@ -6907,10 +6925,25 @@
         let text = rawText.replace(/\r/g, '').trim();
         text = text.replace(/\b([TI1l])\s*[_\-\.]\s*([0-9A-Za-z]{3,35})\b/g, 'T_$2');
         text = text.replace(/\b(t_)([0-9A-Za-z]{3,35})\b/g, 'T_$2');
+        text = text.replace(/\b(P\s*P)\s*([0-9A-Za-z.]{4,35})\b/gi, 'PP$2');
         text = text.replace(/\b(M\s*P)\s*([0-9A-Za-z.]{4,35})\b/gi, 'MP$2');
+        text = text.replace(/\b(C\s*I)\s*([0-9A-Za-z.]{4,35})\b/gi, 'CI$2');
+        text = text.replace(/\b(O\s*M)\s*([0-9A-Za-z.]{4,35})\b/gi, 'OM$2');
+
+        // Recomposer les références coupées sur plusieurs lignes par l'OCR ou l'affichage (ex: PP261104.2142.B2434 \n 8)
+        text = text.replace(/\b((?:PP|MP|CI|OM)[0-9A-Za-z.]{6,25})\s*\r?\n\s*([0-9A-Za-z]{1,6})\b/gi, '$1$2');
 
         const waveRefMatch = text.match(/\b(T_[0-9A-Za-z_-]{3,35})\b/i) || text.match(/(T_[0-9A-Za-z_-]+)/i);
-        const omRefMatch = text.match(/\b(MP[0-9A-Za-z.]{4,35})\b/i);
+        let omRefMatch = text.match(/\b((?:PP|MP|CI|OM)[0-9A-Za-z.]{6,35})\b/i);
+        if (!omRefMatch) {
+            const refKeyword = text.match(/(?:référence|reference|ref\.?)\s*:?\s*([0-9A-Za-z.\s]{4,35})/i);
+            if (refKeyword && refKeyword[1]) {
+                const cleanKRef = refKeyword[1].replace(/\s+/g, '').replace(/\.+$/, '');
+                if (cleanKRef.length >= 6) {
+                    omRefMatch = [null, cleanKRef];
+                }
+            }
+        }
 
         let detectedMode = "Inconnu";
         let extractedRef = "";
@@ -6960,7 +6993,7 @@
             // 3. Le montant en orange doit correspondre exactement à 10 000 FCFA
             const isAmountValid = (detectedAmount === 10000);
 
-            // 4. RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money (MP...)
+            // 4. RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money (PP..., MP...)
             duplicateCheck = isProofIdentifierAlreadyUsed(extractedRef);
             if (duplicateCheck && duplicateCheck.used) {
                 isAlreadyUsed = true;
@@ -6969,7 +7002,7 @@
             isCompliant = isBeneficiaryValid && isAmountValid && !isAlreadyUsed;
 
         } else {
-            rejectInvalidProof("Aucun ID de transaction débutant par « T_ » (Wave) ou « MP » (Orange) trouvé sur ce document.");
+            rejectInvalidProof("Aucun ID de transaction débutant par « T_ » (Wave) ou « PP / MP » (Orange) trouvé sur ce document.");
             return;
         }
 
