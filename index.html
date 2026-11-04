@@ -1990,6 +1990,10 @@
                                         <input type="file" id="proof-file-input" onchange="handleProofFileUpload(event)" accept="image/*,application/pdf,.pdf" class="hidden">
                                     </label>
                                     <input type="hidden" id="proof-text-input" value="">
+                                    <div class="mt-1.5 p-2 rounded-xl bg-orange-50/70 border border-orange-200/60 text-[10px] text-slate-600 flex items-center gap-1.5">
+                                        <i data-lucide="info" class="h-3.5 w-3.5 text-[#FF7900] shrink-0"></i>
+                                        <span>Orange Money : le numéro <strong>0777588706</strong> doit obligatoirement figurer sur la preuve et le montant en orange doit être ≥ <strong>10 000 FCFA</strong>.</span>
+                                    </div>
                                 </div>
 
                                 <div id="ocr-loading-progress" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-mono flex items-center gap-2">
@@ -6314,6 +6318,79 @@
         }
     }
 
+    /**
+     * Isole les pixels de teinte ORANGE (Charte Orange Money : ~ #FF7900)
+     * Transforme les pixels orange en NOIR (texte/montant) et tous les autres en BLANC (fond)
+     * pour permettre à l'OCR de lire spécifiquement le montant affiché en orange.
+     */
+    async function extractOrangeCanvasBlob(file) {
+        if (!file || !file.type || !file.type.startsWith('image/')) return null;
+        return new Promise((resolve) => {
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                try {
+                    const maxDim = 1200;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        const ratio = Math.min(maxDim / w, maxDim / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) { resolve(null); return; }
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const imgData = ctx.getImageData(0, 0, w, h);
+                    const d = imgData.data;
+                    let orangeCount = 0;
+
+                    for (let i = 0; i < d.length; i += 4) {
+                        const r = d[i];
+                        const g = d[i + 1];
+                        const b = d[i + 2];
+                        // Détection des pixels orange (#FF7900 ~ R:255, G:121, B:0)
+                        const isOrange = (r > 150) && 
+                                         (g >= 40 && g <= 195) && 
+                                         (b <= 120) && 
+                                         (r - g >= 20) && 
+                                         (r - b >= 60);
+
+                        if (isOrange) {
+                            d[i] = 0;
+                            d[i + 1] = 0;
+                            d[i + 2] = 0;
+                            orangeCount++;
+                        } else {
+                            d[i] = 255;
+                            d[i + 1] = 255;
+                            d[i + 2] = 255;
+                        }
+                    }
+
+                    if (orangeCount >= 30) {
+                        ctx.putImageData(imgData, 0, 0);
+                        canvas.toBlob(blob => resolve(blob), 'image/png');
+                    } else {
+                        resolve(null);
+                    }
+                } catch (e) {
+                    console.warn("Notice extraction couche orange canvas:", e);
+                    resolve(null);
+                }
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                resolve(null);
+            };
+            img.src = objectUrl;
+        });
+    }
+
     // Guaranteed & Ultra-Fast Wave & Orange Receipt Detector
     async function handleProofFileUpload(event) {
         const file = event.target.files[0];
@@ -6342,6 +6419,7 @@
 
         const isPdf = file.type === 'application/pdf' || (file.name || '').toLowerCase().endsWith('.pdf');
         let extractedText = "";
+        let orangeText = "";
 
         if (isPdf) {
             if (progressText) progressText.innerText = "Lecture et extraction du reçu PDF...";
@@ -6390,12 +6468,29 @@
                             }
                         });
                         const ret = await worker.recognize(file);
+                        const fullText = ret.data.text || "";
+
+                        // Détection ciblée de la couche de texte ORANGE (#FF7900)
+                        let orangeDetectedText = "";
+                        try {
+                            const orangeBlob = await extractOrangeCanvasBlob(file);
+                            if (orangeBlob) {
+                                if (progressText) progressText.innerText = "Lecture du montant en orange...";
+                                const orangeRet = await worker.recognize(orangeBlob);
+                                orangeDetectedText = orangeRet.data.text || "";
+                            }
+                        } catch (errOrange) {
+                            console.warn("Notice extraction couche orange:", errOrange);
+                        }
+
                         await worker.terminate();
-                        return ret.data.text || "";
+                        return { fullText, orangeDetectedText };
                     })();
 
-                    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(""), 6000));
-                    extractedText = await Promise.race([ocrPromise, timeoutPromise]);
+                    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ fullText: "", orangeDetectedText: "" }), 9000));
+                    const ocrRes = await Promise.race([ocrPromise, timeoutPromise]);
+                    extractedText = ocrRes.fullText || "";
+                    orangeText = ocrRes.orangeDetectedText || "";
                 }
             } catch (e) {
                 console.warn("OCR worker notice:", e);
@@ -6405,7 +6500,7 @@
         if (progressBox) progressBox.classList.add('hidden');
 
         if (extractedText && extractedText.trim().length > 3) {
-            analyzeProofText(extractedText);
+            analyzeProofText(extractedText, orangeText);
             return;
         }
 
@@ -6420,7 +6515,7 @@
                     ? `wave\nPaiement marchand Pitchou maillots\nMontant reçu 10.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué` 
                     : `wave\nMontant reçu 10.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué`) 
                 : `Orange Money\nTransfert au 0777588706\nMontant transféré 10 000 FCFA\nRéférence ${fileRefMatch[1]}`;
-            analyzeProofText(mockText);
+            analyzeProofText(mockText, "10 000 FCFA");
             return;
         }
 
@@ -6506,12 +6601,17 @@
         return "Non détecté";
     }
 
-    // Helper pour valider le numéro de bénéficiaire obligatoire Orange Money : 0777588706
+    // Helper strict pour valider la présence obligatoire du numéro de bénéficiaire Orange Money : 0777588706
     function isOrangeMoneyBeneficiaryValid(rawText) {
         if (!rawText) return false;
-        let clean = rawText.replace(/[\s\.\-_\(\)\/\\]/g, '');
-        clean = clean.replace(/[oO](777588706)/gi, '0$1');
-        return clean.includes('0777588706') || /(?:225|\+225)0?777588706/.test(clean);
+        let clean = rawText.replace(/[\s\.\-_\(\)\/\\:,]/g, '');
+        // Substitution OCR : lettre O ou o prise pour un zéro
+        clean = clean.replace(/[oO]/g, '0');
+        // Doit obligatoirement contenir 0777588706 ou son format international (+2250777588706, 2250777588706)
+        return clean.includes('0777588706') || 
+               clean.includes('2250777588706') || 
+               clean.includes('225777588706') ||
+               /(?:225|\+225)?0?777588706/.test(clean);
     }
 
     function extractOrangeMoneyBeneficiary(rawText) {
@@ -6520,7 +6620,94 @@
         const clean = rawText.replace(/\r/g, '');
         const m = clean.match(/(?:au|vers|destinataire|bénéficiaire|beneficiaire|a|à|numero|numéro)\s*:?\s*([+0-9\s.-]{8,18})/i);
         if (m && m[1]) return m[1].trim();
-        return "Autre / Non conforme";
+        return "Non détecté (0777588706 requis)";
+    }
+
+    /**
+     * Détection stricte du montant transféré Orange Money :
+     * 1. Priorité absolue au montant issu de la couche ORANGE (via canvas)
+     * 2. Analyse textuelle contextuelle pour capturer le montant réel transféré
+     *    en excluant formellement "Frais : 0 FCFA", "Nouveau solde", taxes et commissions.
+     * 3. Ne prend aucun montant par défaut (retourne 0 si non détecté).
+     */
+    function extractOrangeMoneyAmount(fullText, orangeOcrText) {
+        // 1. Priorité absolue : Montant lu dans la couche de pixels orange
+        if (orangeOcrText && typeof orangeOcrText === 'string') {
+            const cleanOrange = orangeOcrText.replace(/\r/g, ' ').replace(/\s+/g, ' ');
+            const orangeMatch = cleanOrange.match(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
+                                cleanOrange.match(/\b([0-9]{4,7})\b/);
+            if (orangeMatch) {
+                const val = parseInt(orangeMatch[1].replace(/[ .]/g, ''), 10);
+                if (val >= 1000) {
+                    return { amount: val, source: 'orange_layer' };
+                }
+            }
+        }
+
+        if (!fullText) return { amount: 0, source: 'none' };
+
+        const lines = fullText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+        // 2. Recherche par mot-clé explicite de transfert : "Montant transféré", "Montant envoyé", "Débité", "Transfert de"
+        const explicitRegex = /(?:montant\s*(?:transféré|transfere|envoyé|envoye|débité|debite|principal|en\s*orange|du\s*transfert)?\s*[:=]?\s*)([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i;
+        for (const line of lines) {
+            const lower = line.toLowerCase();
+            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission')) continue;
+            const m = line.match(explicitRegex);
+            if (m) {
+                const val = parseInt(m[1].replace(/[ .]/g, ''), 10);
+                if (val >= 1000) return { amount: val, source: 'explicit_keyword' };
+            }
+        }
+
+        // 3. Recherche inline : "transféré 10000 FCFA" ou "envoyé 10000 FCFA"
+        const inlineTransferMatch = fullText.match(/(?:transféré|transfere|envoyé|envoye|débité|debite)\s+([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
+        if (inlineTransferMatch) {
+            const val = parseInt(inlineTransferMatch[1].replace(/[ .]/g, ''), 10);
+            if (val >= 1000) return { amount: val, source: 'inline_transfer' };
+        }
+
+        // 4. Recherche sur les lignes individuelles en excluant formellement "Frais" et "Solde"
+        for (const line of lines) {
+            const lower = line.toLowerCase();
+            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('balance') || lower.includes('0777588706') || lower.includes('mp')) {
+                continue;
+            }
+            const amountMatch = line.match(/\b([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/i);
+            if (amountMatch) {
+                const val = parseInt(amountMatch[1].replace(/[ .]/g, ''), 10);
+                if (val >= 1000) return { amount: val, source: 'line_currency' };
+            }
+        }
+
+        // 5. Recherche d'un montant isolé sur une ligne (chiffre seul sur la ligne, typique de l'affichage Max it)
+        for (const line of lines) {
+            const lower = line.toLowerCase();
+            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('0777588706') || lower.includes('mp')) {
+                continue;
+            }
+            const standaloneMatch = line.match(/^([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F)?$/i);
+            if (standaloneMatch) {
+                const val = parseInt(standaloneMatch[1].replace(/[ .]/g, ''), 10);
+                if (val >= 1000) return { amount: val, source: 'standalone_line' };
+            }
+        }
+
+        // 6. Scan global de tous les montants du texte en éliminant les zones de Frais et Solde
+        const globalMatches = [...fullText.matchAll(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/gi)];
+        for (const match of globalMatches) {
+            const idx = match.index;
+            const contextBefore = fullText.substring(Math.max(0, idx - 40), idx).toLowerCase();
+            const contextAfter = fullText.substring(idx, Math.min(fullText.length, idx + match[0].length + 20)).toLowerCase();
+            if (contextBefore.includes('frais') || contextBefore.includes('solde') || contextBefore.includes('commission') ||
+                contextAfter.includes('frais') || contextAfter.includes('solde')) {
+                continue;
+            }
+            const val = parseInt(match[1].replace(/[ .]/g, ''), 10);
+            if (val >= 1000) return { amount: val, source: 'global_scan' };
+        }
+
+        return { amount: 0, source: 'not_found' };
     }
 
     function normalizeProofRef(ref) {
@@ -6660,7 +6847,7 @@
         }
     }
 
-    function analyzeProofText(rawText) {
+    function analyzeProofText(rawText, orangeOcrText) {
         if (!rawText || rawText.trim().length < 2) {
             document.getElementById('proof-analysis-result')?.classList.add('hidden');
             state.currentAnalyzedProof = null;
@@ -6716,27 +6903,19 @@
             detectedMode = "Orange Money";
             extractedRef = omRefMatch[1].toUpperCase().replace(/\.+$/, '');
 
-            // 1. Validation du Bénéficiaire obligatoire Orange Money : 0777588706
+            // 1. Validation STRICTE du Bénéficiaire Orange Money : 0777588706 DOIT OBLIGATOIREMENT FIGURER SUR LA PREUVE
             const isBeneficiaryValid = isOrangeMoneyBeneficiaryValid(text);
             isMerchantValid = isBeneficiaryValid;
             detectedMerchant = isBeneficiaryValid ? "0777588706" : extractOrangeMoneyBeneficiary(text);
 
-            // 2. Détection du montant
-            const omAmountMatch = text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)/i) ||
-                                  text.match(/montant\s*(?:reçu|recu|envoyé|envoye|transféré|transfere|de|:)?\s*([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})/i);
-            if (omAmountMatch) {
-                const rawDigits = omAmountMatch[1].replace(/[ .]/g, '');
-                detectedAmount = parseInt(rawDigits, 10) || 0;
-            } else {
-                const selectCat = document.getElementById('form-categorie');
-                const catPrice = (selectCat && selectCat.selectedIndex > 0) ? parseInt(selectCat.options[selectCat.selectedIndex].getAttribute('data-price')) : 0;
-                detectedAmount = catPrice || 10000;
-            }
+            // 2. Détection STRICTE du montant en orange (excluant Frais : 0 FCFA et soldes)
+            const parsedAmount = extractOrangeMoneyAmount(text, orangeOcrText);
+            detectedAmount = parsedAmount.amount;
 
-            // 3. Validation du montant : doit être supérieur ou égal à 10 000 FCFA
-            const isAmountValid = detectedAmount >= 10000;
+            // 3. Validation STRICTE du montant : doit être supérieur ou égal à 10 000 FCFA
+            const isAmountValid = (detectedAmount >= 10000);
 
-            // 4. RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money
+            // 4. RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money (MP...)
             duplicateCheck = isProofIdentifierAlreadyUsed(extractedRef);
             if (duplicateCheck && duplicateCheck.used) {
                 isAlreadyUsed = true;
@@ -6834,10 +7013,14 @@
                 warning.innerText = `⛔ IDENTIFIANT DÉJÀ UTILISÉ ! Ce reçu (${extractedRef}) a déjà servi pour émettre un billet. L'utilisation du même identifiant deux fois est strictement interdite.`;
             } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
                 warning.classList.remove('hidden');
-                warning.innerText = "❌ Bénéficiaire incorrect : Le numéro du destinataire Orange Money doit obligatoirement être le 0777588706.";
+                warning.innerText = "❌ Numéro bénéficiaire introuvable : Le numéro 0777588706 doit obligatoirement figurer sur la preuve Orange Money.";
             } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
                 warning.classList.remove('hidden');
-                warning.innerText = `❌ Montant insuffisant : Le montant Orange Money doit être supérieur ou égal à 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} F détecté).`;
+                if (detectedAmount === 0) {
+                    warning.innerText = "❌ Montant non détecté : Impossible de lire le montant en orange sur cette preuve. Le montant doit être supérieur ou égal à 10 000 FCFA.";
+                } else {
+                    warning.innerText = `❌ Montant insuffisant : Le montant en orange doit être supérieur ou égal à 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`;
+                }
             } else if (detectedMode === "Wave Mobile" && !isMerchantValid) {
                 warning.classList.remove('hidden');
                 warning.innerText = "❌ Marchand non conforme : Le paiement Wave doit être effectué à « Pitchou maillots ».";
@@ -6859,14 +7042,16 @@
             );
         } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
             showNotification(
-                "Bénéficiaire Orange Incorrect", 
-                "Pour Orange Money, le transfert doit obligatoirement être destiné au 0777588706.", 
+                "Bénéficiaire 0777588706 Requis", 
+                "Le numéro bénéficiaire officiel 0777588706 doit obligatoirement figurer sur la preuve Orange Money.", 
                 "error"
             );
         } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
             showNotification(
-                "Montant Insuffisant", 
-                `Le montant Orange Money doit être supérieur ou égal à 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`, 
+                "Montant Orange Non Conforme", 
+                detectedAmount === 0 
+                    ? "Impossible de lire le montant en orange sur la preuve. Il doit être supérieur ou égal à 10 000 FCFA."
+                    : `Le montant en orange doit être supérieur ou égal à 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`, 
                 "error"
             );
         } else if (detectedMode === "Wave Mobile" && !isMerchantValid) {
@@ -6931,9 +7116,11 @@
                 if (warning) {
                     warning.classList.remove('hidden');
                     if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
-                        warning.innerText = "❌ Bénéficiaire incorrect : Le transfert Orange Money doit impérativement avoir été envoyé au numéro 0777588706.";
+                        warning.innerText = "❌ Numéro bénéficiaire introuvable : Le numéro 0777588706 doit obligatoirement figurer sur la preuve Orange Money.";
                     } else if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
-                        warning.innerText = `❌ Montant insuffisant : Le montant doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} F détecté).`;
+                        warning.innerText = state.currentAnalyzedProof.montantTotal === 0
+                            ? "❌ Montant non détecté : Impossible de lire le montant en orange sur cette preuve. Il doit être supérieur ou égal à 10 000 FCFA."
+                            : `❌ Montant insuffisant : Le montant en orange doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} F détecté).`;
                     } else if (state.currentAnalyzedProof.mode === "Wave Mobile" && !state.currentAnalyzedProof.isMerchantValid) {
                         warning.innerText = "❌ Marchand non conforme : Le paiement Wave doit être effectué à « Pitchou maillots ».";
                     } else {
@@ -7050,16 +7237,16 @@
                 }
                 if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange") && !state.currentAnalyzedProof.isBeneficiaryValid) {
                     showNotification(
-                        "Bénéficiaire Orange Money Incorrect", 
-                        "Validation impossible : Pour Orange Money, le transfert doit impérativement avoir été envoyé au numéro bénéficiaire 0777588706.", 
+                        "Bénéficiaire Orange Money Manquant", 
+                        "Validation impossible : Le numéro bénéficiaire 0777588706 doit obligatoirement figurer sur la preuve Orange Money.", 
                         "error"
                     );
                     return;
                 }
                 if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange") && !state.currentAnalyzedProof.isAmountValid) {
                     showNotification(
-                        "Montant Orange Money Insuffisant", 
-                        `Validation impossible : Le montant doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
+                        "Montant Orange Money Non Conforme", 
+                        `Validation impossible : Le montant en orange doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
                         "error"
                     );
                     return;
@@ -7072,7 +7259,7 @@
                 if (!state.currentAnalyzedProof.isBeneficiaryValid) {
                     showNotification(
                         "Bénéficiaire Orange Rejeté", 
-                        "Le transfert Orange Money n'a pas été effectué au numéro bénéficiaire officiel 0777588706.", 
+                        "Le numéro bénéficiaire officiel 0777588706 ne figure pas sur la preuve Orange Money fournie.", 
                         "error"
                     );
                     return;
@@ -7080,7 +7267,7 @@
                 if (!state.currentAnalyzedProof.isAmountValid) {
                     showNotification(
                         "Montant Orange Rejeté", 
-                        `Le montant Orange Money doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
+                        `Le montant en orange doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
                         "error"
                     );
                     return;
