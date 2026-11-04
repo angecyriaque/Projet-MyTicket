@@ -49,6 +49,7 @@
     <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -1982,8 +1983,8 @@
                                         <div class="h-6 w-6 rounded-lg bg-orange-50 group-hover:bg-orange-100 text-brand-orange flex items-center justify-center transition">
                                             <i data-lucide="upload-cloud" class="h-4 w-4"></i>
                                         </div>
-                                        <span>Importer Reçu</span>
-                                        <input type="file" id="proof-file-input" onchange="handleProofFileUpload(event)" accept="image/*" class="hidden">
+                                        <span>Importer Reçu (Capture / PDF)</span>
+                                        <input type="file" id="proof-file-input" onchange="handleProofFileUpload(event)" accept="image/*,application/pdf,.pdf" class="hidden">
                                     </label>
                                     <button type="button" onclick="pasteClipboardToProofInput('wave')" class="px-3 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
                                         <i data-lucide="clipboard-paste" class="h-4 w-4 text-[#1DA1F2]"></i>
@@ -6343,28 +6344,66 @@
 
         showNotification("Analyse du Reçu...", "Détection de l'ID de transaction et du montant réglé.", "info");
 
+        const isPdf = file.type === 'application/pdf' || (file.name || '').toLowerCase().endsWith('.pdf');
         let extractedText = "";
 
-        try {
-            if (window.Tesseract) {
-                const ocrPromise = (async () => {
-                    const worker = await Tesseract.createWorker('eng', 1, {
-                        logger: m => {
-                            if (m.status === 'recognizing text' && progressText) {
-                                progressText.innerText = `Lecture OCR : ${Math.round(m.progress * 100)}%`;
-                            }
-                        }
-                    });
-                    const ret = await worker.recognize(file);
-                    await worker.terminate();
-                    return ret.data.text || "";
-                })();
-
-                const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(""), 6000));
-                extractedText = await Promise.race([ocrPromise, timeoutPromise]);
+        if (isPdf) {
+            if (progressText) progressText.innerText = "Lecture et extraction du reçu PDF...";
+            try {
+                if (window.pdfjsLib) {
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let pdfText = "";
+                    for (let p = 1; p <= pdfDoc.numPages; p++) {
+                        const page = await pdfDoc.getPage(p);
+                        const content = await page.getTextContent();
+                        pdfText += content.items.map(it => it.str).join(' ') + '\n';
+                    }
+                    if (pdfText.trim().length > 0) {
+                        extractedText = pdfText;
+                    }
+                }
+            } catch (pdfErr) {
+                console.warn("Notice extraction PDF:", pdfErr);
             }
-        } catch (e) {
-            console.warn("OCR worker notice:", e);
+
+            // Fallback: extraction directe des chaînes de caractères lisibles du PDF
+            if (!extractedText || extractedText.trim().length < 5) {
+                try {
+                    const buf = await file.arrayBuffer();
+                    const rawStr = new TextDecoder('latin1').decode(buf);
+                    const cleanMatches = rawStr.match(/[A-Za-z0-9_.:\-+/ \t\r\n]{4,}/g);
+                    if (cleanMatches) {
+                        extractedText = cleanMatches.join(' ');
+                    }
+                } catch (e) {
+                    console.warn("Fallback PDF binary:", e);
+                }
+            }
+        } else {
+            // Lecture par Reconnaissance Optique OCR (Tesseract.js)
+            try {
+                if (window.Tesseract) {
+                    const ocrPromise = (async () => {
+                        const worker = await Tesseract.createWorker('eng', 1, {
+                            logger: m => {
+                                if (m.status === 'recognizing text' && progressText) {
+                                    progressText.innerText = `Lecture OCR : ${Math.round(m.progress * 100)}%`;
+                                }
+                            }
+                        });
+                        const ret = await worker.recognize(file);
+                        await worker.terminate();
+                        return ret.data.text || "";
+                    })();
+
+                    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(""), 6000));
+                    extractedText = await Promise.race([ocrPromise, timeoutPromise]);
+                }
+            } catch (e) {
+                console.warn("OCR worker notice:", e);
+            }
         }
 
         if (progressBox) progressBox.classList.add('hidden');
@@ -6389,7 +6428,7 @@
             return;
         }
 
-        rejectInvalidProof("Aucun ID de transaction Wave (T_...) ou Orange (MP...) lisible détecté sur cette capture. Veuillez vous assurer d'importer un reçu bien net.");
+        rejectInvalidProof("Aucun ID de transaction Wave (T_...) ou Orange (MP...) lisible détecté sur cette capture ou ce document PDF. Veuillez vous assurer d'importer un reçu bien net.");
     }
 
     function rejectInvalidProof(reasonMessage) {
@@ -13362,14 +13401,18 @@
      * - Prévient la fraude : aucun billet n'est validé si le solde est vide ou insuffisant
      * - Valide le pass dès réception du reçu / SMS officiel de débit Wave
      */
-    async function initiateWaveCheckoutPayment() {
-        // 1. Validation des coordonnées du participant
+    let pendingPaymentProvider = null; // 'wave' | 'orange'
+
+    /**
+     * Ouvre l'alerte préalable de règlement Wave
+     * - Rappelle l'obligation d'importer la capture d'écran ou le PDF de la preuve
+     * - Ouvre le lien officiel Wave dès que l'utilisateur valide sur "Okay"
+     */
+    function initiateWaveCheckoutPayment() {
+        // Validation des coordonnées du participant
         const nom = (document.getElementById('form-nom')?.value || '').trim();
         const prenom = (document.getElementById('form-prenom')?.value || '').trim();
         const contact1 = (document.getElementById('form-contact1')?.value || '').trim();
-        const contact2 = (document.getElementById('form-contact2')?.value || '').trim();
-        const eglise = (document.getElementById('form-eglise')?.value || '').trim();
-        const categorie = document.getElementById('form-categorie')?.value || 'Classique';
 
         if (!nom || !prenom || !contact1) {
             showNotification("Coordonnées Incomplètes", "Veuillez renseigner votre nom, prénom et contact téléphonique avant de payer avec Wave.", "warning");
@@ -13377,79 +13420,19 @@
             return;
         }
 
-        const btnWave = document.getElementById('btn-pay-wave');
-        const originalBtnHtml = btnWave ? btnWave.innerHTML : '';
-        if (btnWave) {
-            btnWave.disabled = true;
-            btnWave.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Ouverture de Wave...</span>`;
-            initializeLucideIcons();
-        }
-
-        try {
-            // 2. Déclenchement de la déduction officielle Wave (10 000 FCFA vers Pitchou maillots)
-            const waveLaunchUrl = 'https://pay.wave.com/m/M_ci_5Ak1intPKX_j/c/ci/?amount=10000';
-            try {
-                window.open(waveLaunchUrl, '_blank');
-            } catch (e) {
-                console.log("Notice ouverture Wave:", e);
-            }
-
-            // 3. Enregistrement de la session côté serveur en statut "En attente"
-            safeWaveFetchJson('/api/wave-create-checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nom, prenom, contact1, contact2, eglise, categorie
-                })
-            }).catch(e => console.warn("Notice sync serveur Wave:", e));
-
-            // 4. Maintien de la sécurité financière (Cahier des charges) :
-            showNotification(
-                "Paiement Wave Lancé", 
-                "Votre application Wave s'ouvre pour régler 10 000 FCFA à Pitchou maillots. Après le débit, collez votre SMS ou capture ci-dessous pour certifier le paiement.", 
-                "info"
-            );
-
-            // Faire défiler vers la zone de rapprochement/reçu
-            const proofSection = document.getElementById('payment-verification-container');
-            if (proofSection) {
-                proofSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                proofSection.classList.add('ring-2', 'ring-[#1DA1F2]');
-                setTimeout(() => proofSection.classList.remove('ring-2', 'ring-[#1DA1F2]'), 3000);
-            }
-
-            const proofInput = document.getElementById('proof-text-input');
-            if (proofInput) {
-                setTimeout(() => proofInput.focus(), 600);
-            }
-
-        } catch (err) {
-            console.error("Erreur initiateWaveCheckoutPayment:", err);
-            showNotification("Erreur Wave", err.message || "Impossible d'initier le paiement Wave.", "error");
-        } finally {
-            if (btnWave) {
-                btnWave.disabled = false;
-                btnWave.innerHTML = originalBtnHtml;
-                initializeLucideIcons();
-            }
-        }
+        showPaymentAlertModal('wave');
     }
 
     /**
-     * Paiement Orange Money (Option 2 : Déduction Orange Money + Contrôle Sécurisé du Reçu)
-     * - Ouvre l'interface officielle Orange Money pour régler 10 000 FCFA
-     * - URL officielle : https://multi.app.orange-money.com/app/v1/kapptivate/qrcode/odyssee/?id=codgen96-655552d6d2b4497ea36aa50bdfd97ccd&v=1&amount=10000
-     * - Prévient la fraude : aucun billet n'est validé si le solde est vide ou insuffisant
-     * - Valide le pass dès réception du reçu / SMS officiel de débit Orange Money
+     * Ouvre l'alerte préalable de règlement Orange Money
+     * - Rappelle l'obligation d'importer la capture d'écran ou le PDF de la preuve
+     * - Ouvre le lien officiel Orange Money dès que l'utilisateur valide sur "Okay"
      */
-    async function initiateOrangeMoneyPayment() {
-        // 1. Validation des coordonnées du participant
+    function initiateOrangeMoneyPayment() {
+        // Validation des coordonnées du participant
         const nom = (document.getElementById('form-nom')?.value || '').trim();
         const prenom = (document.getElementById('form-prenom')?.value || '').trim();
         const contact1 = (document.getElementById('form-contact1')?.value || '').trim();
-        const contact2 = (document.getElementById('form-contact2')?.value || '').trim();
-        const eglise = (document.getElementById('form-eglise')?.value || '').trim();
-        const categorie = document.getElementById('form-categorie')?.value || 'Classique';
 
         if (!nom || !prenom || !contact1) {
             showNotification("Coordonnées Incomplètes", "Veuillez renseigner votre nom, prénom et contact téléphonique avant de payer avec Orange Money.", "warning");
@@ -13457,16 +13440,105 @@
             return;
         }
 
-        const btnOM = document.getElementById('btn-pay-orange');
-        const originalBtnHtml = btnOM ? btnOM.innerHTML : '';
-        if (btnOM) {
-            btnOM.disabled = true;
-            btnOM.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Ouverture Orange Money...</span>`;
-            initializeLucideIcons();
+        showPaymentAlertModal('orange');
+    }
+
+    /**
+     * Affiche le message d'alerte lors de la sélection du mode de règlement
+     */
+    function showPaymentAlertModal(provider) {
+        pendingPaymentProvider = provider;
+        const modal = document.getElementById('modal-payment-alert');
+        if (!modal) return;
+
+        const iconContainer = document.getElementById('payment-alert-icon-container');
+        const alertBadge = document.getElementById('payment-alert-badge');
+        const alertTitle = document.getElementById('payment-alert-title');
+        const providerName = document.getElementById('payment-alert-provider-name');
+        const providerTarget = document.getElementById('payment-alert-target');
+        const btnProceed = document.getElementById('btn-payment-alert-proceed');
+
+        if (provider === 'wave') {
+            if (iconContainer) {
+                iconContainer.className = "h-16 w-16 rounded-3xl bg-[#1DA1F2] text-white flex items-center justify-center mx-auto shadow-lg shadow-sky-500/30 text-2xl font-black";
+                iconContainer.innerHTML = 'W';
+            }
+            if (alertBadge) {
+                alertBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider font-mono border bg-sky-50 text-sky-800 border-sky-200";
+                alertBadge.innerHTML = `<span class="h-2 w-2 rounded-full bg-[#1DA1F2]"></span><span>Règlement Wave • 10 000 FCFA</span>`;
+            }
+            if (alertTitle) alertTitle.innerText = "Information Importante avant Règlement Wave";
+            if (providerName) providerName.innerText = "Wave";
+            if (providerTarget) providerTarget.innerHTML = `Marchand : <strong class="text-slate-900 font-bold">Pitchou maillots</strong> • Montant : <strong class="text-emerald-700 font-black">10 000 FCFA</strong>`;
+            if (btnProceed) {
+                btnProceed.className = "py-3 px-4 rounded-xl bg-[#1DA1F2] hover:bg-[#1a90d9] text-white font-black text-xs shadow-lg shadow-sky-500/25 transition flex items-center justify-center gap-1.5 cursor-pointer";
+                btnProceed.innerHTML = `<span>Okay</span><i data-lucide="arrow-right" class="h-4 w-4"></i>`;
+            }
+        } else {
+            if (iconContainer) {
+                iconContainer.className = "h-16 w-16 rounded-3xl bg-[#FF7900] text-white flex items-center justify-center mx-auto shadow-lg shadow-orange-500/30 text-lg font-black";
+                iconContainer.innerHTML = 'OM';
+            }
+            if (alertBadge) {
+                alertBadge.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider font-mono border bg-orange-50 text-orange-800 border-orange-200";
+                alertBadge.innerHTML = `<span class="h-2 w-2 rounded-full bg-[#FF7900]"></span><span>Règlement Orange Money • 10 000 FCFA</span>`;
+            }
+            if (alertTitle) alertTitle.innerText = "Information Importante avant Règlement Orange Money";
+            if (providerName) providerName.innerText = "Orange Money";
+            if (providerTarget) providerTarget.innerHTML = `Numéro Bénéficiaire : <strong class="text-slate-900 font-bold font-mono">0777588706</strong> • Montant : <strong class="text-emerald-700 font-black">10 000 FCFA</strong>`;
+            if (btnProceed) {
+                btnProceed.className = "py-3 px-4 rounded-xl bg-[#FF7900] hover:bg-[#e66d00] text-white font-black text-xs shadow-lg shadow-orange-500/25 transition flex items-center justify-center gap-1.5 cursor-pointer";
+                btnProceed.innerHTML = `<span>Okay</span><i data-lucide="arrow-right" class="h-4 w-4"></i>`;
+            }
         }
 
-        try {
-            // 2. Déclenchement de la déduction officielle Orange Money (10 000 FCFA)
+        modal.classList.remove('hidden');
+        initializeLucideIcons();
+    }
+
+    function closePaymentAlertModal() {
+        const modal = document.getElementById('modal-payment-alert');
+        if (modal) modal.classList.add('hidden');
+        pendingPaymentProvider = null;
+    }
+
+    /**
+     * Une fois le Okay validé, ouvre le lien officiel de paiement
+     */
+    async function confirmAndProceedPayment() {
+        const provider = pendingPaymentProvider;
+        closePaymentAlertModal();
+
+        const nom = (document.getElementById('form-nom')?.value || '').trim();
+        const prenom = (document.getElementById('form-prenom')?.value || '').trim();
+        const contact1 = (document.getElementById('form-contact1')?.value || '').trim();
+        const contact2 = (document.getElementById('form-contact2')?.value || '').trim();
+        const eglise = (document.getElementById('form-eglise')?.value || '').trim();
+        const categorie = document.getElementById('form-categorie')?.value || 'Classique';
+
+        if (provider === 'wave') {
+            const waveLaunchUrl = 'https://pay.wave.com/m/M_ci_5Ak1intPKX_j/c/ci/?amount=10000';
+            try {
+                window.open(waveLaunchUrl, '_blank');
+            } catch (e) {
+                console.log("Notice ouverture Wave:", e);
+            }
+
+            safeWaveFetchJson('/api/wave-create-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nom, prenom, contact1, contact2, eglise, categorie })
+            }).catch(e => console.warn("Notice sync serveur Wave:", e));
+
+            showNotification(
+                "Lien Wave Ouvert", 
+                "Votre application Wave s'ouvre pour régler 10 000 FCFA à Pitchou maillots. Après le débit, importez votre capture d'écran ou PDF de reçu ci-dessous pour certifier votre billet.", 
+                "info"
+            );
+
+            highlightProofSection('#1DA1F2');
+
+        } else if (provider === 'orange') {
             const omLaunchUrl = 'https://multi.app.orange-money.com/app/v1/kapptivate/qrcode/odyssee/?id=codgen96-655552d6d2b4497ea36aa50bdfd97ccd&v=1&amount=10000';
             try {
                 window.open(omLaunchUrl, '_blank');
@@ -13474,35 +13546,29 @@
                 console.log("Notice ouverture Orange Money:", e);
             }
 
-            // 3. Information utilisateur et orientation vers le rapprochement
             showNotification(
-                "Paiement Orange Money Lancé", 
-                "Votre interface Orange Money s'ouvre pour régler 10 000 FCFA vers le numéro 0777588706. Après le débit, collez votre SMS (ID débutant par MP) ou capture ci-dessous pour certifier le paiement.", 
+                "Lien Orange Money Ouvert", 
+                "L'interface Orange Money s'ouvre pour régler 10 000 FCFA vers le numéro 0777588706. Après le débit, importez votre capture d'écran ou PDF de reçu (ou SMS ID MP...) ci-dessous.", 
                 "info"
             );
 
-            // Faire défiler vers la zone de rapprochement/reçu
-            const proofSection = document.getElementById('payment-verification-container');
-            if (proofSection) {
-                proofSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                proofSection.classList.add('ring-2', 'ring-[#FF7900]');
-                setTimeout(() => proofSection.classList.remove('ring-2', 'ring-[#FF7900]'), 3000);
-            }
+            highlightProofSection('#FF7900');
+        }
+    }
 
-            const proofInput = document.getElementById('proof-text-input');
-            if (proofInput) {
-                setTimeout(() => proofInput.focus(), 600);
-            }
-
-        } catch (err) {
-            console.error("Erreur initiateOrangeMoneyPayment:", err);
-            showNotification("Erreur Orange Money", err.message || "Impossible d'initier le paiement Orange Money.", "error");
-        } finally {
-            if (btnOM) {
-                btnOM.disabled = false;
-                btnOM.innerHTML = originalBtnHtml;
-                initializeLucideIcons();
-            }
+    function highlightProofSection(colorHex) {
+        const proofSection = document.getElementById('payment-verification-container');
+        if (proofSection) {
+            proofSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            proofSection.style.boxShadow = `0 0 0 4px ${colorHex}40`;
+            proofSection.classList.add('transition-all', 'duration-500');
+            setTimeout(() => {
+                if (proofSection) proofSection.style.boxShadow = '';
+            }, 4000);
+        }
+        const proofInput = document.getElementById('proof-text-input');
+        if (proofInput) {
+            setTimeout(() => proofInput.focus(), 600);
         }
     }
 
@@ -15964,6 +16030,69 @@ function toggleMobileMenu() {
 
 </script>
 
+
+    <!-- ============================================================== -->
+    <!-- MODAL: ALERTE PREUVE DE RÈGLEMENT AVANT OUVERTURE DU LIEN      -->
+    <!-- ============================================================== -->
+    <div id="modal-payment-alert" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 text-center space-y-5 shadow-2xl relative border-2 border-slate-200 transform transition-all animate-in zoom-in-95">
+            <!-- Icon -->
+            <div id="payment-alert-icon-container" class="h-16 w-16 rounded-3xl bg-[#1DA1F2] text-white flex items-center justify-center mx-auto shadow-lg shadow-sky-500/30 text-2xl font-black">
+                W
+            </div>
+
+            <div class="space-y-1.5">
+                <div id="payment-alert-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider font-mono border bg-sky-50 text-sky-800 border-sky-200">
+                    <span class="h-2 w-2 rounded-full bg-[#1DA1F2]"></span>
+                    <span>Règlement Wave • 10 000 FCFA</span>
+                </div>
+                <h3 id="payment-alert-title" class="font-display font-black text-xl text-slate-900 leading-snug">
+                    Information Importante avant Règlement
+                </h3>
+            </div>
+
+            <!-- Message d'alerte : obligation d'importer la capture d'écran ou le pdf -->
+            <div class="p-4 rounded-2xl bg-amber-50/90 border-2 border-amber-300 text-left text-xs text-amber-950 space-y-2.5 shadow-xs">
+                <div class="flex items-center gap-2 font-bold text-amber-900">
+                    <i data-lucide="alert-triangle" class="h-4 w-4 text-amber-600 shrink-0"></i>
+                    <span class="uppercase tracking-wider text-[11px] font-mono">Consigne Obligatoire</span>
+                </div>
+                <p class="leading-relaxed text-xs text-slate-800 font-medium">
+                    Les participants devront <strong class="text-slate-950 font-black underline decoration-amber-500 decoration-2">importer la capture d'écran ou le PDF de la preuve de règlement</strong> dans l'application (ou coller le SMS officiel) afin de certifier le paiement et valider leur billet.
+                </p>
+                <div id="payment-alert-target" class="text-[11px] text-slate-600 pt-1.5 border-t border-amber-200/70 font-mono">
+                    Montant Fixe : 10 000 FCFA
+                </div>
+            </div>
+
+            <!-- Étapes résumées -->
+            <div class="grid grid-cols-3 gap-2 text-left font-mono text-[10px]">
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span class="text-slate-400 font-bold block text-[9px]">1. LIEN</span>
+                    <span class="font-bold text-slate-800">Régler 10 000 F</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span class="text-slate-400 font-bold block text-[9px]">2. REÇU</span>
+                    <span class="font-bold text-slate-800">Capture / PDF</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span class="text-slate-400 font-bold block text-[9px]">3. PASS</span>
+                    <span class="font-bold text-emerald-700">Validé</span>
+                </div>
+            </div>
+
+            <!-- Actions Modal -->
+            <div class="grid grid-cols-2 gap-3 pt-1">
+                <button type="button" onclick="closePaymentAlertModal()" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Annuler
+                </button>
+                <button type="button" id="btn-payment-alert-proceed" onclick="confirmAndProceedPayment()" class="py-3 px-4 rounded-xl bg-[#1DA1F2] hover:opacity-95 text-white font-black text-xs shadow-lg transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>Okay</span>
+                    <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ============================================================== -->
     <!-- MODAL: CHARGEMENT & INITIALISATION DU PAIEMENT WAVE            -->
