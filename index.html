@@ -1990,10 +1990,6 @@
                                         <input type="file" id="proof-file-input" onchange="handleProofFileUpload(event)" accept="image/*,application/pdf,.pdf" class="hidden">
                                     </label>
                                     <input type="hidden" id="proof-text-input" value="">
-                                    <div class="mt-1.5 p-2 rounded-xl bg-orange-50/70 border border-orange-200/60 text-[10px] text-slate-600 flex items-center gap-1.5">
-                                        <i data-lucide="info" class="h-3.5 w-3.5 text-[#FF7900] shrink-0"></i>
-                                        <span>Orange Money : le numéro <strong>0777588706</strong> doit obligatoirement figurer sur la preuve et le montant en orange doit être ≥ <strong>10 000 FCFA</strong>.</span>
-                                    </div>
                                 </div>
 
                                 <div id="ocr-loading-progress" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-mono flex items-center gap-2">
@@ -7011,9 +7007,6 @@
             if (isAlreadyUsed) {
                 warning.classList.remove('hidden');
                 warning.innerText = `⛔ IDENTIFIANT DÉJÀ UTILISÉ ! Ce reçu (${extractedRef}) a déjà servi pour émettre un billet. L'utilisation du même identifiant deux fois est strictement interdite.`;
-            } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
-                warning.classList.remove('hidden');
-                warning.innerText = "❌ Numéro bénéficiaire introuvable : Le numéro 0777588706 doit obligatoirement figurer sur la preuve Orange Money.";
             } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
                 warning.classList.remove('hidden');
                 if (detectedAmount === 0) {
@@ -7038,12 +7031,6 @@
             showNotification(
                 "Identifiant Déjà Utilisé", 
                 `L'identifiant « ${extractedRef} » a déjà été utilisé pour un billet. Réutilisation strictement interdite !`, 
-                "error"
-            );
-        } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
-            showNotification(
-                "Bénéficiaire 0777588706 Requis", 
-                "Le numéro bénéficiaire officiel 0777588706 doit obligatoirement figurer sur la preuve Orange Money.", 
                 "error"
             );
         } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
@@ -7115,9 +7102,7 @@
                 }
                 if (warning) {
                     warning.classList.remove('hidden');
-                    if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
-                        warning.innerText = "❌ Numéro bénéficiaire introuvable : Le numéro 0777588706 doit obligatoirement figurer sur la preuve Orange Money.";
-                    } else if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
+                    if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
                         warning.innerText = state.currentAnalyzedProof.montantTotal === 0
                             ? "❌ Montant non détecté : Impossible de lire le montant en orange sur cette preuve. Il doit être supérieur ou égal à 10 000 FCFA."
                             : `❌ Montant insuffisant : Le montant en orange doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} F détecté).`;
@@ -7235,14 +7220,6 @@
                     );
                     return;
                 }
-                if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange") && !state.currentAnalyzedProof.isBeneficiaryValid) {
-                    showNotification(
-                        "Bénéficiaire Orange Money Manquant", 
-                        "Validation impossible : Le numéro bénéficiaire 0777588706 doit obligatoirement figurer sur la preuve Orange Money.", 
-                        "error"
-                    );
-                    return;
-                }
                 if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange") && !state.currentAnalyzedProof.isAmountValid) {
                     showNotification(
                         "Montant Orange Money Non Conforme", 
@@ -7258,8 +7235,8 @@
             if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange")) {
                 if (!state.currentAnalyzedProof.isBeneficiaryValid) {
                     showNotification(
-                        "Bénéficiaire Orange Rejeté", 
-                        "Le numéro bénéficiaire officiel 0777588706 ne figure pas sur la preuve Orange Money fournie.", 
+                        "Paiement Refusé", 
+                        "Le reçu Orange Money fourni n'a pas pu être validé.", 
                         "error"
                     );
                     return;
