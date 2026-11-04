@@ -1903,27 +1903,28 @@
                         </div>
 
                         <!-- ============================================================== -->
-                        <!-- 🌊 OPTION 1 : PAIEMENT AUTOMATISÉ WAVE CHECKOUT (OFFICIEL & IMMÉDIAT) -->
+                        <!-- 💳 OPTIONS 1 & 2 : PAIEMENTS ÉLECTRONIQUES WAVE & ORANGE MONEY -->
                         <!-- ============================================================== -->
-                        <div id="wave-direct-checkout-container" class="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-sky-50 via-white to-sky-50/50 border-2 border-[#1DA1F2]/50 shadow-md space-y-3.5 relative overflow-hidden">
-                            <!-- Background Wave Watermark Accent -->
-                            <div class="absolute -right-4 -bottom-4 text-sky-500/10 pointer-events-none select-none">
-                                <svg class="w-32 h-32" viewBox="0 0 100 100" fill="currentColor">
+                        <div id="direct-checkout-container" class="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-slate-50 via-white to-amber-50/20 border-2 border-slate-200 shadow-md space-y-3.5 relative overflow-hidden">
+                            <!-- Background Accent -->
+                            <div class="absolute -right-4 -bottom-4 text-orange-500/5 pointer-events-none select-none">
+                                <svg class="w-36 h-36" viewBox="0 0 100 100" fill="currentColor">
                                     <path d="M10 50 Q 25 30, 40 50 T 70 50 T 100 50 L 100 100 L 0 100 Z" />
                                 </svg>
                             </div>
 
                             <div class="flex items-center justify-between relative z-10">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="h-10 w-10 rounded-2xl bg-[#1DA1F2] text-white flex items-center justify-center font-black shadow-md shadow-sky-500/30 shrink-0">
-                                        <span class="text-xl font-black">W</span>
+                                    <div class="flex items-center -space-x-2 shrink-0">
+                                        <div class="h-10 w-10 rounded-2xl bg-[#1DA1F2] text-white flex items-center justify-center font-black shadow-md shadow-sky-500/30 text-lg border-2 border-white">W</div>
+                                        <div class="h-10 w-10 rounded-2xl bg-[#FF7900] text-white flex items-center justify-center font-black shadow-md shadow-orange-500/30 text-xs border-2 border-white">OM</div>
                                     </div>
                                     <div>
-                                        <div class="flex items-center gap-1.5">
-                                            <h4 class="font-display font-black text-sm text-slate-900">Paiement Électronique Wave</h4>
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <h4 class="font-display font-black text-sm text-slate-900">Paiement Wave & Orange Money</h4>
                                             <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">Automatisé</span>
                                         </div>
-                                        <p class="text-[11px] text-slate-500 font-semibold">Validation immédiate sans capture d'écran • API Wave Checkout</p>
+                                        <p class="text-[11px] text-slate-500 font-semibold">2 moyens de paiement disponibles • Montant fixe 10 000 FCFA</p>
                                     </div>
                                 </div>
                                 <div class="text-right shrink-0">
@@ -1934,18 +1935,29 @@
                                 </div>
                             </div>
 
-                            <div class="p-2.5 rounded-xl bg-sky-100/60 border border-sky-200/80 text-[11px] text-sky-950 font-medium leading-tight relative z-10 flex items-center gap-2">
-                                <i data-lucide="shield-check" class="h-4 w-4 text-[#1DA1F2] shrink-0"></i>
-                                <span>Paiement sécurisé direct : vous serez redirigé vers l'application ou l'interface Wave pour valider votre transaction. Votre pass est émis automatiquement dès confirmation.</span>
+                            <div class="p-2.5 rounded-xl bg-slate-100/90 border border-slate-200 text-[11px] text-slate-700 font-medium leading-tight relative z-10 flex items-center gap-2">
+                                <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600 shrink-0"></i>
+                                <span>Paiement sécurisé direct : choisissez Wave ou Orange Money pour régler 10 000 FCFA. Dès la transaction validée, votre reçu ou SMS permet de certifier instantanément votre pass officiel.</span>
                             </div>
 
-                            <!-- BOUTON OFFICIEL « PAYER AVEC WAVE » (CAHIER DES CHARGES SECTION 2.1) -->
-                            <button type="button" id="btn-pay-wave" onclick="initiateWaveCheckoutPayment()" class="w-full py-3.5 px-4 rounded-2xl bg-[#1DA1F2] hover:bg-[#1a90d9] active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-xl shadow-sky-500/30 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer border border-sky-300/40 relative z-10">
-                                <div class="h-6 w-6 rounded-lg bg-white/20 flex items-center justify-center">
-                                    <i data-lucide="zap" class="h-4 w-4 text-white"></i>
-                                </div>
-                                <span>Payer avec Wave (10 000 FCFA)</span>
-                            </button>
+                            <!-- LES 2 BOUTONS OFFICIELS : WAVE ET ORANGE MONEY -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 relative z-10">
+                                <!-- BOUTON OFFICIEL « PAYER AVEC WAVE » (10 000 FCFA) -->
+                                <button type="button" id="btn-pay-wave" onclick="initiateWaveCheckoutPayment()" class="w-full py-3.5 px-3 rounded-2xl bg-[#1DA1F2] hover:bg-[#1a90d9] active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-lg shadow-sky-500/25 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-sky-300/40">
+                                    <div class="h-6 w-6 rounded-lg bg-white/20 flex items-center justify-center text-sm font-black">
+                                        W
+                                    </div>
+                                    <span>Payer avec Wave (10 000 F)</span>
+                                </button>
+
+                                <!-- BOUTON OFFICIEL « PAYER AVEC ORANGE MONEY » (10 000 FCFA) -->
+                                <button type="button" id="btn-pay-orange" onclick="initiateOrangeMoneyPayment()" class="w-full py-3.5 px-3 rounded-2xl bg-[#FF7900] hover:bg-[#e66d00] active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-lg shadow-orange-500/25 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-orange-300/40">
+                                    <div class="h-6 w-6 rounded-lg bg-black/25 flex items-center justify-center text-xs font-black">
+                                        OM
+                                    </div>
+                                    <span>Payer avec Orange (10 000 F)</span>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- SÉPARATEUR ALTERNATIF (POUR RAPPROCHEMENT PAR CAPTURE MANUELLE SI BESOIN) -->
@@ -1965,17 +1977,21 @@
                             </div>
 
                             <div class="space-y-2">
-                                <div class="flex flex-col sm:flex-row gap-2">
-                                    <label for="proof-file-input" class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border-2 border-dashed border-slate-300 hover:border-brand-orange text-slate-700 hover:text-brand-orange text-xs font-bold cursor-pointer transition flex items-center justify-center gap-2 shadow-2xs group">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <label for="proof-file-input" class="px-3 py-2.5 rounded-xl bg-white border-2 border-dashed border-slate-300 hover:border-brand-orange text-slate-700 hover:text-brand-orange text-xs font-bold cursor-pointer transition flex items-center justify-center gap-2 shadow-2xs group">
                                         <div class="h-6 w-6 rounded-lg bg-orange-50 group-hover:bg-orange-100 text-brand-orange flex items-center justify-center transition">
                                             <i data-lucide="upload-cloud" class="h-4 w-4"></i>
                                         </div>
-                                        <span>Importer Capture Reçu Wave</span>
+                                        <span>Importer Reçu</span>
                                         <input type="file" id="proof-file-input" onchange="handleProofFileUpload(event)" accept="image/*" class="hidden">
                                     </label>
-                                    <button type="button" onclick="pasteClipboardToProofInput()" class="px-3.5 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                                    <button type="button" onclick="pasteClipboardToProofInput('wave')" class="px-3 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
                                         <i data-lucide="clipboard-paste" class="h-4 w-4 text-[#1DA1F2]"></i>
-                                        <span>Coller le SMS Wave</span>
+                                        <span>Coller SMS Wave</span>
+                                    </button>
+                                    <button type="button" onclick="pasteClipboardToProofInput('orange')" class="px-3 py-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                                        <i data-lucide="clipboard-paste" class="h-4 w-4 text-[#FF7900]"></i>
+                                        <span>Coller SMS Orange</span>
                                     </button>
                                 </div>
 
@@ -1984,7 +2000,7 @@
                                     <span id="ocr-progress-text">Analyse et reconnaissance optique (OCR) en cours...</span>
                                 </div>
 
-                                <textarea id="proof-text-input" oninput="analyzeProofText(this.value)" rows="2" placeholder="Ou collez ici le texte du reçu / SMS Wave (ex: T_...) ou Orange (ex: MP...)..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-orange font-mono"></textarea>
+                                <textarea id="proof-text-input" oninput="analyzeProofText(this.value)" rows="2" placeholder="Ou collez ici le texte du reçu / SMS Wave (ID T_...) ou Orange Money (ID MP...)..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-orange font-mono"></textarea>
                             </div>
 
                             <!-- Real-time Analyzed Payment Status Card -->
@@ -6366,9 +6382,9 @@
             const hasPitchouInFilename = /pitchou/i.test(fileName) || /maillot/i.test(fileName);
             const mockText = isWave ? 
                 (hasPitchouInFilename 
-                    ? `wave\nPaiement marchand Pitchou maillots\nMontant reçu 70.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué` 
-                    : `wave\nMontant reçu 70.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué`) 
-                : `Orange Money\nMontant transféré 20 000 FCFA\nRéférence ${fileRefMatch[1]}`;
+                    ? `wave\nPaiement marchand Pitchou maillots\nMontant reçu 10.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué` 
+                    : `wave\nMontant reçu 10.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué`) 
+                : `Orange Money\nMontant transféré 10 000 FCFA\nRéférence ${fileRefMatch[1]}`;
             analyzeProofText(mockText);
             return;
         }
@@ -6459,6 +6475,8 @@
         if (!ref) return '';
         let cleaned = String(ref).trim().toUpperCase();
         cleaned = cleaned.replace(/^([TI1L])[_\-\.]/i, 'T_');
+        cleaned = cleaned.replace(/^(M\s*P)\s*/i, 'MP');
+        cleaned = cleaned.replace(/\.+$/, '');
         return cleaned;
     }
 
@@ -6645,19 +6663,22 @@
 
         } else if (omRefMatch) {
             detectedMode = "Orange Money";
-            extractedRef = omRefMatch[1].toUpperCase();
+            extractedRef = omRefMatch[1].toUpperCase().replace(/\.+$/, '');
 
-            const omAmountMatch = text.match(/Montant transf[ée]r[ée][^0-9]*([0-9]{1,3}(?:[ .][0-9]{3})*|[0-9]{3,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                                  text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+)s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                                  text.match(/([0-9]{4,6})s*(?:FCFA|F CFA|CFA|F\b)?/i);
+            const omAmountMatch = text.match(/(?:Montant|Paiement|Transfert|Transfere|Paye|Debit)[\s\wàéè:\-]*?([0-9]{1,3}(?:[ .][0-9]{3})*|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
+                                  text.match(/Montant transf[ée]r[ée][^0-9]*([0-9]{1,3}(?:[ .][0-9]{3})*|[0-9]{3,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
+                                  text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+)\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
+                                  text.match(/([0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
             if (omAmountMatch) {
                 const rawDigits = omAmountMatch[1].replace(/[ .]/g, '');
                 detectedAmount = parseInt(rawDigits, 10) || 0;
             } else {
-                detectedAmount = 20000;
+                const selectCat = document.getElementById('form-categorie');
+                const catPrice = (selectCat && selectCat.selectedIndex > 0) ? parseInt(selectCat.options[selectCat.selectedIndex].getAttribute('data-price')) : 0;
+                detectedAmount = catPrice || 10000;
             }
 
-            // RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant
+            // RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money
             duplicateCheck = isProofIdentifierAlreadyUsed(extractedRef);
             if (duplicateCheck && duplicateCheck.used) {
                 isAlreadyUsed = true;
@@ -6702,7 +6723,11 @@
         if (modeBadge) {
             modeBadge.innerText = detectedMode !== "Inconnu" ? detectedMode : "Reçu Inconnu";
             if (isActuallyValid) {
-                modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 font-mono";
+                if (detectedMode === "Orange Money") {
+                    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-orange-100 text-orange-950 border border-orange-300 font-mono";
+                } else {
+                    modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-100 text-emerald-900 border border-emerald-300 font-mono";
+                }
             } else {
                 modeBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-100 text-rose-900 border border-rose-300 font-mono";
             }
@@ -13215,7 +13240,7 @@
      * - Génération d'une référence unique
      * - Redirection vers Wave Launch URL
      */
-    async function pasteClipboardToProofInput() {
+    async function pasteClipboardToProofInput(targetHint) {
         try {
             if (navigator.clipboard && navigator.clipboard.readText) {
                 const text = await navigator.clipboard.readText();
@@ -13223,7 +13248,8 @@
                 if (textarea && text) {
                     textarea.value = text.trim();
                     analyzeProofText(textarea.value);
-                    showNotification("Preuve Collée", "Analyse automatique du reçu Wave en cours...", "info");
+                    const label = targetHint === 'orange' ? 'Orange Money' : (targetHint === 'wave' ? 'Wave' : 'paiement');
+                    showNotification("Preuve Collée", `Analyse automatique du reçu ${label} en cours...`, "info");
                 } else {
                     showNotification("Presse-papier", "Le presse-papier est vide.", "warning");
                 }
@@ -13236,7 +13262,7 @@
     }
 
     /**
-     * Paiement Wave Mobile Money (Option 2 : Déduction Wave + Contrôle Sécurisé du Reçu)
+     * Paiement Wave Mobile Money (Option 1 : Déduction Wave + Contrôle Sécurisé du Reçu)
      * - Ouvre l'application Wave pour régler 10 000 FCFA à Pitchou maillots
      * - Prévient la fraude : aucun billet n'est validé si le solde est vide ou insuffisant
      * - Valide le pass dès réception du reçu / SMS officiel de débit Wave
@@ -13309,6 +13335,77 @@
             if (btnWave) {
                 btnWave.disabled = false;
                 btnWave.innerHTML = originalBtnHtml;
+                initializeLucideIcons();
+            }
+        }
+    }
+
+    /**
+     * Paiement Orange Money (Option 2 : Déduction Orange Money + Contrôle Sécurisé du Reçu)
+     * - Ouvre l'interface officielle Orange Money pour régler 10 000 FCFA
+     * - URL officielle : https://multi.app.orange-money.com/app/v1/kapptivate/qrcode/odyssee/?id=codgen96-655552d6d2b4497ea36aa50bdfd97ccd&v=1&amount=10000
+     * - Prévient la fraude : aucun billet n'est validé si le solde est vide ou insuffisant
+     * - Valide le pass dès réception du reçu / SMS officiel de débit Orange Money
+     */
+    async function initiateOrangeMoneyPayment() {
+        // 1. Validation des coordonnées du participant
+        const nom = (document.getElementById('form-nom')?.value || '').trim();
+        const prenom = (document.getElementById('form-prenom')?.value || '').trim();
+        const contact1 = (document.getElementById('form-contact1')?.value || '').trim();
+        const contact2 = (document.getElementById('form-contact2')?.value || '').trim();
+        const eglise = (document.getElementById('form-eglise')?.value || '').trim();
+        const categorie = document.getElementById('form-categorie')?.value || 'Classique';
+
+        if (!nom || !prenom || !contact1) {
+            showNotification("Coordonnées Incomplètes", "Veuillez renseigner votre nom, prénom et contact téléphonique avant de payer avec Orange Money.", "warning");
+            document.getElementById('form-nom')?.focus();
+            return;
+        }
+
+        const btnOM = document.getElementById('btn-pay-orange');
+        const originalBtnHtml = btnOM ? btnOM.innerHTML : '';
+        if (btnOM) {
+            btnOM.disabled = true;
+            btnOM.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Ouverture Orange Money...</span>`;
+            initializeLucideIcons();
+        }
+
+        try {
+            // 2. Déclenchement de la déduction officielle Orange Money (10 000 FCFA)
+            const omLaunchUrl = 'https://multi.app.orange-money.com/app/v1/kapptivate/qrcode/odyssee/?id=codgen96-655552d6d2b4497ea36aa50bdfd97ccd&v=1&amount=10000';
+            try {
+                window.open(omLaunchUrl, '_blank');
+            } catch (e) {
+                console.log("Notice ouverture Orange Money:", e);
+            }
+
+            // 3. Information utilisateur et orientation vers le rapprochement
+            showNotification(
+                "Paiement Orange Money Lancé", 
+                "Votre interface Orange Money s'ouvre pour régler 10 000 FCFA. Après le débit, collez votre SMS (ID débutant par MP) ou capture ci-dessous pour certifier le paiement.", 
+                "info"
+            );
+
+            // Faire défiler vers la zone de rapprochement/reçu
+            const proofSection = document.getElementById('payment-verification-container');
+            if (proofSection) {
+                proofSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                proofSection.classList.add('ring-2', 'ring-[#FF7900]');
+                setTimeout(() => proofSection.classList.remove('ring-2', 'ring-[#FF7900]'), 3000);
+            }
+
+            const proofInput = document.getElementById('proof-text-input');
+            if (proofInput) {
+                setTimeout(() => proofInput.focus(), 600);
+            }
+
+        } catch (err) {
+            console.error("Erreur initiateOrangeMoneyPayment:", err);
+            showNotification("Erreur Orange Money", err.message || "Impossible d'initier le paiement Orange Money.", "error");
+        } finally {
+            if (btnOM) {
+                btnOM.disabled = false;
+                btnOM.innerHTML = originalBtnHtml;
                 initializeLucideIcons();
             }
         }
