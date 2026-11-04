@@ -7901,7 +7901,7 @@
 
         // Téléchargement textuel direct du fichier sans altérer la créa
         const link = document.createElement('a');
-        link.href = verseUrl;
+        link.href = encodeURI(verseUrl);
         link.download = downloadFilename;
         link.target = '_blank';
         document.body.appendChild(link);
