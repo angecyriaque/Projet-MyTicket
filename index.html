@@ -13093,32 +13093,26 @@
                 console.log("Notice ouverture Wave:", e);
             }
 
-            // 3. Enregistrement sécurisé du paiement côté serveur
-            safeWaveFetchJson('/api/wave-status', {
+            // 3. Enregistrement de la session côté serveur en statut "En attente"
+            safeWaveFetchJson('/api/wave-create-checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    ref: clientReference,
-                    waveTransactionId: waveTxId,
-                    customer: { nom, prenom, contact1, contact2, eglise, categorie },
-                    ticketId: ticketId
+                    nom, prenom, contact1, contact2, eglise, categorie
                 })
             }).catch(e => console.warn("Notice sync serveur Wave:", e));
 
-            // 4. Validation et émission immédiate du ticket officiel dans l'application
-            finalizeWavePaymentSuccess({
-                clientReference: clientReference,
-                waveTransactionId: waveTxId,
-                amount: 10000,
-                currency: 'XOF',
-                status: 'Payé',
-                paymentMethod: 'Wave',
-                merchant: 'Pitchou maillots',
-                customer: { nom, prenom, contact1, contact2, eglise, categorie },
-                ticketId: ticketId
-            }, ticketId);
+            // 4. Maintien de la sécurité financière (Cahier des charges - Cas 3) :
+            // Le ticket reste en attente de la preuve effective du débit
+            showNotification("Paiement Wave Initié", "Votre application Wave s'ouvre pour le débit de 10 000 FCFA vers Pitchou maillots. Veuillez confirmer après le débit.", "info");
 
-            showNotification("Paiement Wave Validé", "Votre paiement de 10 000 FCFA à Pitchou maillots est validé. Votre pass officiel est prêt !", "success");
+            // Faire défiler vers la zone de rapprochement/reçu pour valider après débit effectif
+            const proofSection = document.getElementById('payment-verification-container');
+            if (proofSection) {
+                proofSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                proofSection.classList.add('ring-2', 'ring-sky-400');
+                setTimeout(() => proofSection.classList.remove('ring-2', 'ring-sky-400'), 2500);
+            }
 
         } catch (err) {
             console.error("Erreur initiateWaveCheckoutPayment:", err);
