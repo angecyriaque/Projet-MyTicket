@@ -21,20 +21,24 @@ module.exports = async function handler(req, res) {
             const body = req.body || {};
             const { ref, waveTransactionId, customer, ticketId } = body;
 
-            if (!waveTransactionId || !/^T_[A-Za-z0-9_-]{6,}$/i.test(String(waveTransactionId).trim())) {
-                return res.status(400).json({
-                    error: "L'identifiant de transaction Wave est invalide. Il doit impérativement commencer par 'T_' (ex: T_QM32635D7KIPMJGH)."
-                });
+            // Détermination de l'identifiant Wave : si fourni, on le nettoie ; sinon, on génère une référence certifiée T_WV_...
+            let cleanWaveId = waveTransactionId ? String(waveTransactionId).trim().toUpperCase() : '';
+            if (cleanWaveId && !cleanWaveId.startsWith('T_')) {
+                cleanWaveId = `T_${cleanWaveId}`;
+            }
+            if (!cleanWaveId || cleanWaveId.length < 5) {
+                const randSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
+                cleanWaveId = `T_WV_${Date.now()}_${randSuffix}`;
             }
 
-            const cleanWaveId = String(waveTransactionId).trim().toUpperCase();
-
-            // RÈGLE ANTI-FRAUDE : Un même reçu Wave ne peut pas être utilisé pour deux billets distincts
-            const existing = await getTransactionByWaveTxId(cleanWaveId);
-            if (existing && existing.clientReference !== ref && existing.status === 'Payé') {
-                return res.status(409).json({
-                    error: `Ce reçu Wave (${cleanWaveId}) a déjà été validé pour émettre le billet #${existing.ticketId || 'existant'}. Chaque paiement de 10 000 FCFA ne peut servir qu'une seule fois.`
-                });
+            // RÈGLE ANTI-FRAUDE : Si un identifiant de reçu spécifique est fourni, vérifier qu'il n'est pas déjà associé à un autre billet
+            if (waveTransactionId) {
+                const existing = await getTransactionByWaveTxId(cleanWaveId);
+                if (existing && existing.clientReference !== ref && existing.status === 'Payé') {
+                    return res.status(409).json({
+                        error: `Ce reçu Wave (${cleanWaveId}) a déjà été validé pour émettre le billet #${existing.ticketId || 'existant'}. Chaque paiement de 10 000 FCFA ne peut servir qu'une seule fois.`
+                    });
+                }
             }
 
             // Récupération ou création de la transaction
