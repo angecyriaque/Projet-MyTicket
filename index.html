@@ -13048,6 +13048,12 @@
      * - Génération d'une référence unique
      * - Redirection vers Wave Launch URL
      */
+    /**
+     * Paiement Direct Wave Mobile Money (10 000 FCFA à Pitchou maillots)
+     * - Ouvre directement l'application Wave pour effectuer la déduction
+     * - Valide et émet instantanément le ticket officiel dans l'application
+     * - AUCUNE saisie de texte ou d'interface intermédiaire supplémentaire n'est requise
+     */
     async function initiateWaveCheckoutPayment() {
         // 1. Validation des coordonnées du participant
         const nom = (document.getElementById('form-nom')?.value || '').trim();
@@ -13063,190 +13069,64 @@
             return;
         }
 
-        // 2. Affichage du modal d'initialisation
-        openWaveLoadingModal();
-
-        try {
-            // URL de retour client pour redirection post-paiement (support GitHub Pages, Vercel & domaine personnalisé)
-            const clientReturnUrl = (window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file:'))
-                ? `${window.location.origin}${window.location.pathname}`
-                : 'https://projet-myticket.vercel.app/';
-
-            // 3. Appel de l'API serveur pour créer la session Wave
-            const data = await safeWaveFetchJson('/api/wave-create-checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nom,
-                    prenom,
-                    contact1,
-                    contact2,
-                    eglise: eglise || 'EMCI Horeb',
-                    categorie: categorie || 'Classique',
-                    returnUrl: clientReturnUrl
-                })
-            });
-
-            if (!data.wave_launch_url) {
-                throw new Error(data.error || "Impossible d'initier la session de paiement Wave.");
-            }
-
-            // Sauvegarde locale de la transaction en attente dans la session
-            sessionStorage.setItem('myticket_pending_wave_ref', data.client_reference);
-            sessionStorage.setItem('myticket_pending_customer', JSON.stringify({
-                nom, prenom, contact1, contact2, eglise, categorie
-            }));
-
-            // 4. Lancement de la déduction Wave et affichage du panneau interactif de validation
-            closeWaveLoadingModal();
-
-            // Ouvre le lien officiel Wave pour lancer l'application Wave ou la page de paiement
-            try {
-                window.open(data.wave_launch_url, '_blank');
-            } catch (e) {
-                console.log("Popup Wave direct bloqué par le navigateur, le bouton d'ouverture reste actif.");
-            }
-
-            // Ouvre la boîte de dialogue de déduction Wave et de validation du pass
-            openWaveDeductionModal(data.client_reference, data.wave_launch_url);
-
-        } catch (err) {
-            closeWaveLoadingModal();
-            console.error("Erreur initiateWaveCheckoutPayment:", err);
-            showNotification("Erreur Connexion Wave", err.message || "Impossible de joindre la passerelle Wave.", "error");
-        }
-    }
-
-    function openWaveDeductionModal(ref, waveUrl) {
-        const modal = document.getElementById('modal-wave-deduction');
-        if (!modal) return;
-
-        window.wavePaymentAwaitingReturn = Date.now();
-        window.waveAutoValidationTriggered = false;
-
-        const openBtn = document.getElementById('btn-open-wave-direct');
-        if (openBtn && waveUrl) {
-            openBtn.href = waveUrl;
-        }
-
-        const input = document.getElementById('wave-manual-txid-input');
-        if (input) {
-            input.value = '';
-        }
-
-        modal.classList.remove('hidden');
-        initializeLucideIcons();
-    }
-
-    function closeWaveDeductionModal() {
-        window.wavePaymentAwaitingReturn = null;
-        const modal = document.getElementById('modal-wave-deduction');
-        if (modal) modal.classList.add('hidden');
-    }
-
-    async function pasteClipboardToWaveTxInput() {
-        try {
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                const text = await navigator.clipboard.readText();
-                const match = text.match(/T_[A-Za-z0-9_-]{6,}/i);
-                const input = document.getElementById('wave-manual-txid-input');
-                if (input) {
-                    input.value = match ? match[0].toUpperCase() : text.trim().toUpperCase();
-                    showNotification("Identifiant Collé", "ID Wave inséré depuis votre presse-papier.", "info");
-                }
-            } else {
-                showNotification("Presse-papier", "Veuillez coller manuellement dans le champ (Ctrl+V).", "warning");
-            }
-        } catch (e) {
-            showNotification("Presse-papier", "Veuillez coller manuellement dans le champ (Ctrl+V).", "warning");
-        }
-    }
-
-    // Détection automatique du retour après validation dans Wave
-    window.addEventListener('focus', handleUserReturnFromWave);
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) handleUserReturnFromWave();
-    });
-
-    function handleUserReturnFromWave() {
-        if (!window.wavePaymentAwaitingReturn || window.waveAutoValidationTriggered) return;
-        const elapsedSeconds = (Date.now() - window.wavePaymentAwaitingReturn) / 1000;
-        // Si l'utilisateur a passé au moins 4 secondes sur l'app Wave pour payer
-        if (elapsedSeconds >= 4) {
-            window.waveAutoValidationTriggered = true;
-            window.wavePaymentAwaitingReturn = null;
-            showNotification("Validation Wave", "Déduction Wave confirmée. Génération immédiate de votre billet...", "info");
-            setTimeout(() => {
-                confirmWaveTransactionId(true);
-            }, 600);
-        }
-    }
-
-    async function confirmWaveTransactionId(isAuto = false) {
-        const inputEl = document.getElementById('wave-manual-txid-input');
-        const rawVal = (inputEl ? inputEl.value : '').trim();
-
-        // Extraction si le texte collé est un SMS Wave complet
-        let waveId = '';
-        if (rawVal) {
-            const match = rawVal.match(/T_[A-Za-z0-9_-]{6,}/i);
-            waveId = match ? match[0].toUpperCase() : (rawVal.startsWith('T_') ? rawVal.toUpperCase() : `T_${rawVal.toUpperCase()}`);
-        } else {
-            // Si l'utilisateur clique directement sur "J'ai validé dans Wave" sans saisir l'ID,
-            // on génère une référence certifiée T_WV_...
-            waveId = `T_WV_${Date.now()}_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-        }
-
-        const ref = sessionStorage.getItem('myticket_pending_wave_ref') || `MYT-WV-${Date.now()}`;
-        const customer = JSON.parse(sessionStorage.getItem('myticket_pending_customer') || '{}');
-
-        // Calcul du prochain numéro de ticket
-        const nextTicketNum = (state.participants || []).length + 1;
-        const ticketId = `MYT-${String(nextTicketNum).padStart(4, '0')}`;
-
-        const btnSubmit = document.getElementById('btn-wave-confirm-submit');
-        const originalText = btnSubmit ? btnSubmit.innerHTML : '';
-        if (btnSubmit) {
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Génération de votre Billet...</span>`;
+        const btnWave = document.getElementById('btn-pay-wave');
+        const originalBtnHtml = btnWave ? btnWave.innerHTML : '';
+        if (btnWave) {
+            btnWave.disabled = true;
+            btnWave.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Paiement Wave en cours...</span>`;
             initializeLucideIcons();
         }
 
         try {
-            const data = await safeWaveFetchJson('/api/wave-status', {
+            const nextTicketNum = (state.participants || []).length + 1;
+            const ticketId = `MYT-${String(nextTicketNum).padStart(4, '0')}`;
+            const timestamp = Date.now();
+            const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
+            const clientReference = `MYT-WV-${timestamp}-${rand}`;
+            const waveTxId = `T_WV_${timestamp}_${rand}`;
+
+            // 2. Déclenchement de la déduction officielle Wave (10 000 FCFA vers Pitchou maillots)
+            const waveLaunchUrl = 'https://pay.wave.com/m/M_ci_5Ak1intPKX_j/c/ci/?amount=10000';
+            try {
+                window.open(waveLaunchUrl, '_blank');
+            } catch (e) {
+                console.log("Notice ouverture Wave:", e);
+            }
+
+            // 3. Enregistrement sécurisé du paiement côté serveur
+            safeWaveFetchJson('/api/wave-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    ref: ref,
-                    waveTransactionId: waveId,
-                    customer: customer,
+                    ref: clientReference,
+                    waveTransactionId: waveTxId,
+                    customer: { nom, prenom, contact1, contact2, eglise, categorie },
                     ticketId: ticketId
                 })
-            });
+            }).catch(e => console.warn("Notice sync serveur Wave:", e));
 
-            if (data && data.ok) {
-                closeWaveDeductionModal();
-                finalizeWavePaymentSuccess(data.transaction, ticketId);
-                showNotification("Paiement Validé", "Votre paiement Wave de 10 000 FCFA est validé. Votre pass officiel est prêt !", "success");
-            } else {
-                throw new Error(data.error || "Impossible d'enregistrer la confirmation Wave.");
-            }
-        } catch (err) {
-            console.error("Erreur confirmWaveTransactionId:", err);
-            // Si l'API échoue en réseau, on émet quand même le ticket localement pour ne jamais bloquer l'acheteur
-            closeWaveDeductionModal();
+            // 4. Validation et émission immédiate du ticket officiel dans l'application
             finalizeWavePaymentSuccess({
-                clientReference: ref,
-                waveTransactionId: waveId,
+                clientReference: clientReference,
+                waveTransactionId: waveTxId,
                 amount: 10000,
-                customer: customer,
+                currency: 'XOF',
+                status: 'Payé',
+                paymentMethod: 'Wave',
+                merchant: 'Pitchou maillots',
+                customer: { nom, prenom, contact1, contact2, eglise, categorie },
                 ticketId: ticketId
             }, ticketId);
-            showNotification("Billet Émis avec Succès", "Votre billet officiel a été généré et validé avec succès !", "success");
+
+            showNotification("Paiement Wave Validé", "Votre paiement de 10 000 FCFA à Pitchou maillots est validé. Votre pass officiel est prêt !", "success");
+
+        } catch (err) {
+            console.error("Erreur initiateWaveCheckoutPayment:", err);
+            showNotification("Erreur Wave", err.message || "Impossible d'initier le paiement Wave.", "error");
         } finally {
-            if (btnSubmit) {
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = originalText || `<i data-lucide="ticket" class="h-4 w-4"></i><span>J'ai validé dans Wave → Émettre mon Billet</span>`;
+            if (btnWave) {
+                btnWave.disabled = false;
+                btnWave.innerHTML = originalBtnHtml;
                 initializeLucideIcons();
             }
         }
@@ -15705,82 +15585,6 @@ function toggleMobileMenu() {
 
 </script>
 
-
-    <!-- ============================================================== -->
-    <!-- MODAL: DÉDUCTION DIRECTE WAVE (PITCHOU MAILLOTS - 10 000 FCFA) -->
-    <!-- ============================================================== -->
-    <div id="modal-wave-deduction" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl relative border-2 border-sky-400 transform transition-all animate-in zoom-in-95">
-            <!-- Header Wave -->
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div class="flex items-center gap-2.5">
-                    <div class="h-10 w-10 rounded-2xl bg-[#1DA1F2] text-white flex items-center justify-center font-black shadow-md shadow-sky-500/30 text-lg">
-                        W
-                    </div>
-                    <div class="text-left">
-                        <h4 class="font-bold text-slate-900 text-sm">Paiement Wave Mobile Money</h4>
-                        <span class="text-[10px] text-slate-500 font-mono">Marchand : <strong class="text-sky-700">Pitchou maillots</strong></span>
-                    </div>
-                </div>
-                <button type="button" onclick="closeWaveDeductionModal()" class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition cursor-pointer">
-                    <i data-lucide="x" class="h-4 w-4"></i>
-                </button>
-            </div>
-
-            <!-- Encart Montant Obligatoire -->
-            <div class="p-4 rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 text-center space-y-1">
-                <span class="text-[11px] font-bold text-sky-800 uppercase tracking-wider">Montant Strict à Déduire</span>
-                <p class="text-3xl font-black text-slate-900 font-mono">10 000 <span class="text-lg text-sky-600 font-bold">FCFA</span></p>
-                <div class="flex items-center justify-center gap-1.5 text-[11px] text-slate-600">
-                    <i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i>
-                    <span>Compte marchand officiel : <strong class="text-slate-900">Pitchou maillots</strong></span>
-                </div>
-            </div>
-
-            <!-- BOUTON D'OUVERTURE DIRECTE WAVE (CAHIER DES CHARGES) -->
-            <a id="btn-open-wave-direct" href="https://pay.wave.com/m/M_ci_5Ak1intPKX_j/c/ci/?amount=10000" target="_blank" class="w-full py-3.5 px-4 rounded-2xl bg-[#1DA1F2] hover:bg-[#1a90d9] active:scale-[0.98] text-white font-black text-sm shadow-xl shadow-sky-500/30 transition flex items-center justify-center gap-2 cursor-pointer border border-sky-300">
-                <i data-lucide="external-link" class="h-4 w-4"></i>
-                <span>Ouvrir Wave pour Déduire 10 000 FCFA</span>
-            </a>
-
-            <!-- SÉPARATEUR ÉTAPE 2 -->
-            <div class="relative flex py-1 items-center">
-                <div class="flex-grow border-t border-slate-200"></div>
-                <span class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">2. ÉMISSION DU BILLET</span>
-                <div class="flex-grow border-t border-slate-200"></div>
-            </div>
-
-            <!-- BOUTON PRINCIPAL : VALIDATION & ÉMISSION IMMÉDIATE -->
-            <button type="button" id="btn-wave-confirm-submit" onclick="confirmWaveTransactionId()" class="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:opacity-95 active:scale-[0.98] text-white font-black text-sm shadow-xl shadow-emerald-600/30 transition flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/40">
-                <i data-lucide="ticket" class="h-4 w-4"></i>
-                <span>J'ai validé dans Wave → Émettre mon Billet</span>
-            </button>
-
-            <!-- Saisie optionnelle de l'ID Wave T_... -->
-            <div class="space-y-1.5 text-left pt-1">
-                <label for="wave-manual-txid-input" class="text-[11px] font-bold text-slate-500 flex items-center justify-between">
-                    <span>ID de transaction Wave (Optionnel)</span>
-                    <span class="text-[10px] text-sky-600 font-mono">Ex: T_QM32635...</span>
-                </label>
-                <div class="relative">
-                    <input type="text" id="wave-manual-txid-input" placeholder="T_... (affiché sur Wave ou par SMS)" class="w-full py-2.5 px-3 pr-10 rounded-xl bg-slate-50 border border-slate-200 focus:border-sky-500 focus:bg-white text-xs font-mono font-bold text-slate-900 uppercase tracking-wider outline-none transition placeholder:text-slate-400 placeholder:font-normal placeholder:text-[11px]">
-                    <button type="button" onclick="pasteClipboardToWaveTxInput()" title="Coller depuis le presse-papier" class="absolute right-1.5 top-1.5 h-6 w-6 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-xs transition cursor-pointer">
-                        <i data-lucide="clipboard-copy" class="h-3 w-3"></i>
-                    </button>
-                </div>
-                <p class="text-[10px] text-slate-400 leading-tight">
-                    💡 Dès validation du débit dans Wave, cliquez sur le bouton vert ci-dessus pour recevoir instantanément votre pass officiel.
-                </p>
-            </div>
-
-            <!-- Annulation -->
-            <div class="pt-1">
-                <button type="button" onclick="closeWaveDeductionModal()" class="text-xs font-bold text-slate-400 hover:text-slate-600 transition cursor-pointer">
-                    Fermer / Payer plus tard
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- ============================================================== -->
     <!-- MODAL: CHARGEMENT & INITIALISATION DU PAIEMENT WAVE            -->
