@@ -22,7 +22,7 @@ module.exports = async function handler(req, res) {
 
     try {
         const body = req.body || {};
-        const { nom, prenom, contact1, contact2, eglise, categorie } = body;
+        const { nom, prenom, contact1, contact2, eglise, categorie, returnUrl } = body;
 
         // Validation des champs indispensables du participant
         if (!nom || !prenom || !contact1) {
@@ -42,10 +42,17 @@ module.exports = async function handler(req, res) {
         const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
         const clientReference = `MYT-WV-${timestamp}-${rand}`;
 
-        // Détermination de l'URL racine de l'application
-        const protocol = req.headers['x-forwarded-proto'] || 'https';
-        const host = req.headers['x-forwarded-host'] || req.headers.host || 'projet-myticket.vercel.app';
-        const baseUrl = `${protocol}://${host}`;
+        // Détermination de l'URL racine de l'application (support multi-hébergement : Vercel & GitHub Pages)
+        let baseUrl = 'https://projet-myticket.vercel.app';
+        if (returnUrl && typeof returnUrl === 'string' && returnUrl.startsWith('https://')) {
+            baseUrl = returnUrl.replace(/\/$/, '');
+        } else {
+            const protocol = req.headers['x-forwarded-proto'] || 'https';
+            const host = req.headers['x-forwarded-host'] || req.headers.host || 'projet-myticket.vercel.app';
+            if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+                baseUrl = `${protocol}://${host}`.replace(/\/$/, '');
+            }
+        }
 
         const successUrl = `${baseUrl}/?wave_status=success&ref=${clientReference}`;
         const errorUrl = `${baseUrl}/?wave_status=error&ref=${clientReference}`;
