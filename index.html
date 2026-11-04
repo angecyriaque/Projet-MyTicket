@@ -1046,6 +1046,11 @@
                 <button onclick="switchFinanceTab('consolidation')" id="fin-tab-consolidation" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">
                     Consolidation Budgétaire
                 </button>
+                <button onclick="switchFinanceTab('wave')" id="fin-tab-wave" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5">
+                    <span class="h-2 w-2 rounded-full bg-[#1DA1F2]"></span>
+                    <span>Passerelle Wave</span>
+                    <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-mono">Auto</span>
+                </button>
             </div>
 
             <!-- TAB 1: GESTION DES BUDGETS PAR COMITÉ -->
@@ -1146,6 +1151,158 @@
                             
 <tbody id="finance-consolidation-table" class="divide-y divide-slate-100 font-medium">
                                 <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 5: PASSERELLE WAVE MOBILE MONEY (SECTIONS 4, 5 & 9 DU CDC)  -->
+            <!-- ============================================================== -->
+            <div id="fin-content-wave" class="hidden space-y-6">
+                
+                <!-- Header with Action Buttons -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full bg-sky-100 text-[#1DA1F2] border border-sky-300 font-mono text-[10px] font-black uppercase">
+                                Intégration Officielle Wave Checkout
+                            </span>
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        </div>
+                        <h2 class="font-display font-black text-xl text-slate-900 mt-1">Passerelle Wave & Suivi des Transactions</h2>
+                        <p class="text-xs text-slate-500">Supervision en direct des paiements automatisés de 10 000 FCFA et rapprochement bancaire.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="reconcileWaveTransactions()" type="button" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer" title="Interroger Wave pour synchroniser les transactions en attente">
+                            <i data-lucide="refresh-cw" class="h-3.5 w-3.5 text-sky-400"></i>
+                            <span>Actualiser & Rapprocher</span>
+                        </button>
+                        <button onclick="exportWaveTransactionsCSV()" type="button" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                            <span>Exporter Relevé CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECTION 9 : PARAMÉTRAGE ADMINISTRATEUR WAVE -->
+                <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white border border-slate-800 shadow-xl space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-2xl bg-[#1DA1F2] text-white flex items-center justify-center font-black shadow-md">
+                                <span class="text-lg">W</span>
+                            </div>
+                            <div>
+                                <h3 class="font-display font-black text-base text-white">Paramétrage Officiel Wave Business</h3>
+                                <p class="text-[11px] text-slate-400">Clés API et point de terminaison Webhook sécurisé</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase font-mono">
+                                ● Passerelle Active
+                            </span>
+                            <span id="wave-admin-env-badge" class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase font-mono">
+                                Environnement Prêt
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <!-- Rule 1: Fixed Server Amount -->
+                        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1">
+                            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 font-mono block">Règle Côté Serveur (Section 2.2)</span>
+                            <p class="font-black text-sm text-emerald-400 font-mono">10 000 FCFA (Strict)</p>
+                            <p class="text-[10px] text-slate-400">Verrouillé sur le backend. Aucun montant différent n'est accepté.</p>
+                        </div>
+
+                        <!-- Rule 2: Webhook Endpoint URL -->
+                        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1 md:col-span-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 font-mono block">URL Officielle du Webhook (À copier dans Wave Business)</span>
+                                <button onclick="copyWaveWebhookUrl()" type="button" class="text-[10px] font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 cursor-pointer">
+                                    <i data-lucide="copy" class="h-3 w-3"></i> Copier
+                                </button>
+                            </div>
+                            <p id="wave-webhook-url-display" class="font-mono text-xs text-sky-300 truncate bg-black/40 px-2 py-1 rounded-lg border border-slate-700/80">
+                                https://projet-myticket.vercel.app/api/wave-webhook
+                            </p>
+                            <p class="text-[10px] text-slate-400">Réception des notifications de paiement avec signature cryptographique HMAC-SHA256.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5 : KPIS & STATISTIQUES DES PAIEMENTS WAVE -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <!-- Total Encaissé -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">TOTAL ENCAISSÉ WAVE</span>
+                        <h3 id="wave-kpi-total-volume" class="font-display font-black text-xl sm:text-2xl text-emerald-600 font-mono">0 FCFA</h3>
+                        <p class="text-[10px] text-slate-500 font-semibold">100% automatisé</p>
+                    </div>
+
+                    <!-- Confirmés (Payé) -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">PAIEMENTS VALIDÉS</span>
+                        <h3 id="wave-kpi-count-paid" class="font-display font-black text-xl sm:text-2xl text-slate-900 font-mono">0</h3>
+                        <p class="text-[10px] text-emerald-600 font-bold">Billets émis automatiquement</p>
+                    </div>
+
+                    <!-- En attente -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">EN COURS / EN ATTENTE</span>
+                        <h3 id="wave-kpi-count-pending" class="font-display font-black text-xl sm:text-2xl text-sky-600 font-mono">0</h3>
+                        <p class="text-[10px] text-slate-500">Sessions ouvertes</p>
+                    </div>
+
+                    <!-- Échoués / Anomalies -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">ÉCHOUÉS / À VÉRIFIER</span>
+                        <h3 id="wave-kpi-count-failed" class="font-display font-black text-xl sm:text-2xl text-rose-600 font-mono">0</h3>
+                        <p class="text-[10px] text-slate-500">Refusés ou annulés</p>
+                    </div>
+                </div>
+
+                <!-- TABLEAU DE SUIVI DES TRANSACTIONS (SECTIONS 4 & 5 DU CAHIER DES CHARGES) -->
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-4 sm:p-6">
+                    <!-- Filters & Search Toolbar -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="relative flex-1 max-w-sm">
+                            <i data-lucide="search" class="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="wave-tx-search-input" oninput="filterWaveTransactionsUI()" placeholder="Rechercher par référence, ID Wave T_..., nom..." class="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-sky-500">
+                        </div>
+
+                        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                            <button onclick="setWaveStatusFilter('ALL')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white transition" data-filter="ALL">Tous</button>
+                            <button onclick="setWaveStatusFilter('Payé')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="Payé">Payés</button>
+                            <button onclick="setWaveStatusFilter('En attente')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="En attente">En attente</button>
+                            <button onclick="setWaveStatusFilter('À vérifier')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="À vérifier">À vérifier</button>
+                            <button onclick="setWaveStatusFilter('Échoué')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="Échoué">Échoués</button>
+                        </div>
+                    </div>
+
+                    <!-- Transactions Table -->
+                    <div class="overflow-x-auto no-scrollbar border border-slate-100 rounded-2xl">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-slate-900 text-white text-[10px] font-extrabold uppercase tracking-wider">
+                                <tr>
+                                    <th class="py-3 px-3.5">Réf. Interne</th>
+                                    <th class="py-3 px-3.5">ID Wave (T_...)</th>
+                                    <th class="py-3 px-3.5">Participant</th>
+                                    <th class="py-3 px-3.5 text-right font-mono">Montant</th>
+                                    <th class="py-3 px-3.5 text-center">Statut</th>
+                                    <th class="py-3 px-3.5">Date Initiation</th>
+                                    <th class="py-3 px-3.5">Billet Émis</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wave-transactions-table-body" class="divide-y divide-slate-100 font-medium">
+                                <tr>
+                                    <td colspan="7" class="py-8 text-center text-slate-400">
+                                        <i data-lucide="loader" class="h-6 w-6 animate-spin mx-auto text-sky-500 mb-2"></i>
+                                        <span>Chargement des transactions Wave...</span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -1743,6 +1900,59 @@
                                 <span class="font-extrabold uppercase tracking-wider text-[10px] text-brand-orange block">Célébration des 10 Ans</span>
                                 <span class="font-bold text-slate-800 text-[11px]">Chaque participant est prié de venir avec un <strong class="text-amber-900 font-black">cadeau mixte</strong>.</span>
                             </div>
+                        </div>
+
+                        <!-- ============================================================== -->
+                        <!-- 🌊 OPTION 1 : PAIEMENT AUTOMATISÉ WAVE CHECKOUT (OFFICIEL & IMMÉDIAT) -->
+                        <!-- ============================================================== -->
+                        <div id="wave-direct-checkout-container" class="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-sky-50 via-white to-sky-50/50 border-2 border-[#1DA1F2]/50 shadow-md space-y-3.5 relative overflow-hidden">
+                            <!-- Background Wave Watermark Accent -->
+                            <div class="absolute -right-4 -bottom-4 text-sky-500/10 pointer-events-none select-none">
+                                <svg class="w-32 h-32" viewBox="0 0 100 100" fill="currentColor">
+                                    <path d="M10 50 Q 25 30, 40 50 T 70 50 T 100 50 L 100 100 L 0 100 Z" />
+                                </svg>
+                            </div>
+
+                            <div class="flex items-center justify-between relative z-10">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="h-10 w-10 rounded-2xl bg-[#1DA1F2] text-white flex items-center justify-center font-black shadow-md shadow-sky-500/30 shrink-0">
+                                        <span class="text-xl font-black">W</span>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <h4 class="font-display font-black text-sm text-slate-900">Paiement Électronique Wave</h4>
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">Automatisé</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-500 font-semibold">Validation immédiate sans capture d'écran • API Wave Checkout</p>
+                                    </div>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider font-mono">Montant Fixe</span>
+                                    <span class="text-xs font-black font-mono px-2.5 py-1 rounded-xl bg-slate-900 text-white shadow-xs">
+                                        10 000 FCFA
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="p-2.5 rounded-xl bg-sky-100/60 border border-sky-200/80 text-[11px] text-sky-950 font-medium leading-tight relative z-10 flex items-center gap-2">
+                                <i data-lucide="shield-check" class="h-4 w-4 text-[#1DA1F2] shrink-0"></i>
+                                <span>Paiement sécurisé direct : vous serez redirigé vers l'application ou l'interface Wave pour valider votre transaction. Votre pass est émis automatiquement dès confirmation.</span>
+                            </div>
+
+                            <!-- BOUTON OFFICIEL « PAYER AVEC WAVE » (CAHIER DES CHARGES SECTION 2.1) -->
+                            <button type="button" id="btn-pay-wave" onclick="initiateWaveCheckoutPayment()" class="w-full py-3.5 px-4 rounded-2xl bg-[#1DA1F2] hover:bg-[#1a90d9] active:scale-[0.98] text-white font-black text-xs sm:text-sm shadow-xl shadow-sky-500/30 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer border border-sky-300/40 relative z-10">
+                                <div class="h-6 w-6 rounded-lg bg-white/20 flex items-center justify-center">
+                                    <i data-lucide="zap" class="h-4 w-4 text-white"></i>
+                                </div>
+                                <span>Payer avec Wave (10 000 FCFA)</span>
+                            </button>
+                        </div>
+
+                        <!-- SÉPARATEUR ALTERNATIF (POUR RAPPROCHEMENT PAR CAPTURE MANUELLE SI BESOIN) -->
+                        <div class="relative flex py-1 items-center">
+                            <div class="flex-grow border-t border-slate-200"></div>
+                            <span class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">OU RAPPROCHEMENT PAR REÇU</span>
+                            <div class="flex-grow border-t border-slate-200"></div>
                         </div>
 
                         <!-- SECTION: ANALYSE INTELLIGENTE DE LA PREUVE DE PAIEMENT -->
@@ -4459,6 +4669,11 @@
         
         initializeLucideIcons();
         startTicketCountdown();
+
+        // Check for Wave Return parameters (?wave_status=success|error&ref=...) (Cahier des Charges Section 2.3 & 6)
+        if (typeof checkWaveReturnOnLoad === 'function') {
+            checkWaveReturnOnLoad();
+        }
 
         // Check for ?ticket=, ?pass=, or ?scan= query parameter in URL (e.g. from camera scan)
         try {
@@ -7453,17 +7668,20 @@
     }
 
     function switchFinanceTab(tabName) {
-        ['budgets', 'decaissements', 'dons', 'consolidation'].forEach(t => {
+        ['budgets', 'decaissements', 'dons', 'consolidation', 'wave'].forEach(t => {
             const btn = document.getElementById(`fin-tab-${t}`);
             const content = document.getElementById(`fin-content-${t}`);
             if (t === tabName) {
-                btn.className = "pb-3 border-b-2 border-brand-orange text-brand-orange font-bold transition";
-                content.classList.remove('hidden');
+                btn.className = "pb-3 border-b-2 border-brand-orange text-brand-orange font-bold transition flex items-center gap-1.5";
+                if (content) content.classList.remove('hidden');
             } else {
-                btn.className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition";
-                content.classList.add('hidden');
+                btn.className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5";
+                if (content) content.classList.add('hidden');
             }
         });
+        if (tabName === 'wave' && typeof loadWaveAdminDashboard === 'function') {
+            loadWaveAdminDashboard();
+        }
         initializeLucideIcons();
     }
 
@@ -12755,6 +12973,476 @@
     }
 
 
+
+    // ==============================================================================
+    // WAVE MOBILE MONEY - MODULE CLIENT & SYNCHRONISATION (CAHIER DES CHARGES)
+    // ==============================================================================
+
+    let currentWaveTransactionsCache = [];
+    let currentWaveStatusFilter = 'ALL';
+    let lastConfirmedWaveTicket = null;
+
+    /**
+     * Initie le paiement Wave Checkout
+     * Respecte strictement la Section 2.1, 2.2 et 2.3 du Cahier des Charges :
+     * - Montant fixé côté serveur à 10 000 FCFA
+     * - Génération d'une référence unique
+     * - Redirection vers Wave Launch URL
+     */
+    async function initiateWaveCheckoutPayment() {
+        // 1. Validation des coordonnées du participant
+        const nom = (document.getElementById('form-nom')?.value || '').trim();
+        const prenom = (document.getElementById('form-prenom')?.value || '').trim();
+        const contact1 = (document.getElementById('form-contact1')?.value || '').trim();
+        const contact2 = (document.getElementById('form-contact2')?.value || '').trim();
+        const eglise = (document.getElementById('form-eglise')?.value || '').trim();
+        const categorie = document.getElementById('form-categorie')?.value || 'Classique';
+
+        if (!nom || !prenom || !contact1) {
+            showNotification("Coordonnées Incomplètes", "Veuillez renseigner votre nom, prénom et contact téléphonique avant de payer avec Wave.", "warning");
+            document.getElementById('form-nom')?.focus();
+            return;
+        }
+
+        // 2. Affichage du modal d'initialisation
+        openWaveLoadingModal();
+
+        try {
+            // 3. Appel de l'API serveur pour créer la session Wave
+            const response = await fetch('/api/wave-create-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nom,
+                    prenom,
+                    contact1,
+                    contact2,
+                    eglise: eglise || 'EMCI Horeb',
+                    categorie: categorie || 'Classique'
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.wave_launch_url) {
+                throw new Error(data.error || "Impossible d'initier la session de paiement Wave.");
+            }
+
+            // Sauvegarde locale de la transaction en attente dans la session
+            sessionStorage.setItem('myticket_pending_wave_ref', data.client_reference);
+            sessionStorage.setItem('myticket_pending_customer', JSON.stringify({
+                nom, prenom, contact1, contact2, eglise, categorie
+            }));
+
+            // 4. Redirection vers l'interface sécurisée de Wave (Section 2.3 Étape 5)
+            const loadingMsg = document.getElementById('wave-loading-message');
+            if (loadingMsg) loadingMsg.innerText = "Session créée avec succès ! Redirection vers Wave en cours...";
+
+            setTimeout(() => {
+                window.location.href = data.wave_launch_url;
+            }, 400);
+
+        } catch (err) {
+            closeWaveLoadingModal();
+            console.error("Erreur initiateWaveCheckoutPayment:", err);
+            showNotification("Erreur Connexion Wave", err.message || "Impossible de joindre la passerelle Wave.", "error");
+        }
+    }
+
+    function openWaveLoadingModal() {
+        const modal = document.getElementById('modal-wave-loading');
+        if (modal) {
+            modal.classList.remove('hidden');
+            initializeLucideIcons();
+        }
+    }
+
+    function closeWaveLoadingModal() {
+        const modal = document.getElementById('modal-wave-loading');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    /**
+     * Vérification automatique au retour de Wave (Section 2.3 & 6 du Cahier des Charges)
+     * "Important : la redirection de l'utilisateur vers l'application après paiement ne constitue
+     * pas une preuve de paiement. Seule la confirmation vérifiée côté serveur doit déclencher la validation."
+     */
+    async function checkWaveReturnOnLoad() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const waveStatus = params.get('wave_status');
+            const ref = params.get('ref') || sessionStorage.getItem('myticket_pending_wave_ref');
+            const sessionId = params.get('wave_session_id') || params.get('session_id');
+
+            if (!waveStatus && !ref) return;
+
+            // Nettoyage de l'URL pour ne pas ré-exécuter en boucle en cas de rafraîchissement
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+
+            // Cas d'échec ou d'annulation
+            if (waveStatus === 'error' || waveStatus === 'cancel') {
+                showWaveResultModal({
+                    success: false,
+                    title: "Paiement Non Confirmé",
+                    message: "Votre paiement n'a pas pu être confirmé. Vous pouvez réessayer.",
+                    ref: ref || 'MYT-WV-ANNULE'
+                });
+                return;
+            }
+
+            // Cas de succès retour : vérification cryptographique et confirmation CÔTÉ SERVEUR
+            if (waveStatus === 'success' || ref) {
+                // Afficher un modal de vérification en cours
+                showWaveResultModal({
+                    success: true,
+                    isLoading: true,
+                    title: "Vérification en Cours...",
+                    message: "Vérification cryptographique de votre paiement Wave de 10 000 FCFA auprès du serveur...",
+                    ref: ref || 'En attente'
+                });
+
+                // Polling côté serveur
+                let attempts = 0;
+                const maxAttempts = 6;
+                const checkInterval = setInterval(async () => {
+                    attempts++;
+                    try {
+                        const statusUrl = `/api/wave-status?ref=${encodeURIComponent(ref || '')}&session_id=${encodeURIComponent(sessionId || '')}`;
+                        const res = await fetch(statusUrl);
+                        const data = await res.json();
+
+                        if (res.ok && data.status === 'Payé') {
+                            clearInterval(checkInterval);
+                            finalizeWavePaymentSuccess(data.transaction, data.ticketId || data.transaction?.ticketId);
+                        } else if (attempts >= maxAttempts) {
+                            clearInterval(checkInterval);
+                            // Si toujours en attente après 6 tentatives (environ 12s)
+                            if (data && data.status === 'En attente') {
+                                finalizeWavePaymentPending(data.transaction || { clientReference: ref });
+                            } else {
+                                showWaveResultModal({
+                                    success: false,
+                                    title: "Paiement Non Confirmé",
+                                    message: "Votre paiement n'a pas pu être confirmé. Vous pouvez réessayer.",
+                                    ref: ref
+                                });
+                            }
+                        }
+                    } catch (pollErr) {
+                        if (attempts >= maxAttempts) {
+                            clearInterval(checkInterval);
+                        }
+                    }
+                }, 2000);
+            }
+        } catch (e) {
+            console.warn("Notice checkWaveReturnOnLoad:", e);
+        }
+    }
+
+    /**
+     * Finalise le paiement confirmé avec succès (Section 6 du Cahier des Charges)
+     */
+    function finalizeWavePaymentSuccess(transaction, ticketId) {
+        lastConfirmedWaveTicket = ticketId || transaction?.ticketId || 'MYT-0001';
+        const customer = transaction?.customer || JSON.parse(sessionStorage.getItem('myticket_pending_customer') || '{}');
+
+        // Créer ou mettre à jour le participant dans state.participants
+        let participant = (state.participants || []).find(p => p.id === lastConfirmedWaveTicket || p.preuveReglement === transaction?.waveTransactionId);
+
+        if (!participant) {
+            participant = {
+                id: lastConfirmedWaveTicket,
+                nom: customer.nom || 'Participant',
+                prenom: customer.prenom || 'Wave',
+                contact1: customer.contact1 || '',
+                contact2: customer.contact2 || '',
+                eglise: customer.eglise || 'EMCI Horeb',
+                categorie: customer.categorie || 'Classique',
+                prix: 10000,
+                modeReglement: 'Wave',
+                preuveReglement: transaction?.waveTransactionId || transaction?.clientReference || `T_WV_${Date.now()}`,
+                dateTicket: new Date().toLocaleDateString('fr-FR'),
+                checkedIn: false
+            };
+            state.participants.unshift(participant);
+            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+        }
+
+        // Mettre à jour les finances
+        if (state.finance && state.finance.accounts) {
+            state.finance.accounts.wave = (state.finance.accounts.wave || 0) + 10000;
+            state.finance.ticketsIncome = (state.finance.ticketsIncome || 0) + 10000;
+            state.finance.incomesTotal = (state.finance.incomesTotal || 0) + 10000;
+            state.finance.balance = (state.finance.incomesTotal || 0) - (state.finance.expensesTotal || 0);
+            localStorage.setItem('myticket_finance_v14', JSON.stringify(state.finance));
+        }
+
+        // Synchroniser MyTicketCloudDB
+        if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.syncParticipants) {
+            try { MyTicketCloudDB.syncParticipants(); } catch(e) {}
+        }
+
+        // Activer le billet courant et basculer sur view-ticket
+        state.currentTicket = participant;
+        switchView('ticket');
+        updateTicketPreviewUI(participant);
+
+        // Effets festifs
+        triggerJubileeConfetti();
+        playScanSuccessFeedback();
+
+        // Afficher le message officiel exigé par la Section 6
+        showWaveResultModal({
+            success: true,
+            title: "Paiement Wave Confirmé !",
+            message: "Votre paiement de 10 000 FCFA a été confirmé avec succès. Merci pour votre confiance.",
+            ref: transaction?.clientReference || 'MYT-WV-OK',
+            ticketId: lastConfirmedWaveTicket
+        });
+
+        // Nettoyage session
+        sessionStorage.removeItem('myticket_pending_wave_ref');
+        sessionStorage.removeItem('myticket_pending_customer');
+    }
+
+    function finalizeWavePaymentPending(transaction) {
+        showWaveResultModal({
+            success: true,
+            title: "Paiement en Cours de Validation",
+            message: "Votre transaction Wave a été initiée. Elle sera validée automatiquement dès notification de Wave.",
+            ref: transaction?.clientReference || 'En attente',
+            ticketId: 'Attribution en cours'
+        });
+    }
+
+    function showWaveResultModal({ success, title, message, ref, ticketId, isLoading = false }) {
+        const modal = document.getElementById('modal-wave-result');
+        if (!modal) return;
+
+        const iconContainer = document.getElementById('wave-result-icon-container');
+        const iconEl = document.getElementById('wave-result-icon');
+        const titleEl = document.getElementById('wave-result-title');
+        const textEl = document.getElementById('wave-result-text');
+        const refEl = document.getElementById('wave-result-ref');
+        const ticketEl = document.getElementById('wave-result-ticket-badge');
+        const btnViewPass = document.getElementById('btn-wave-view-pass');
+        const card = document.getElementById('wave-result-card');
+
+        if (titleEl) titleEl.innerText = title;
+        if (textEl) textEl.innerText = message;
+        if (refEl) refEl.innerText = ref || '--';
+        if (ticketEl) ticketEl.innerText = ticketId ? (ticketId.startsWith('#') ? ticketId : `#${ticketId}`) : '--';
+
+        if (isLoading) {
+            if (iconContainer) iconContainer.className = "h-16 w-16 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center mx-auto shadow-md ring-8 ring-sky-50 animate-spin";
+            if (iconEl) iconEl.setAttribute('data-lucide', 'loader');
+            if (card) card.className = "bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 text-center space-y-5 shadow-2xl relative border-4 border-sky-400";
+            if (btnViewPass) btnViewPass.classList.add('hidden');
+        } else if (success) {
+            if (iconContainer) iconContainer.className = "h-16 w-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md ring-8 ring-emerald-50";
+            if (iconEl) iconEl.setAttribute('data-lucide', 'check-circle');
+            if (card) card.className = "bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 text-center space-y-5 shadow-2xl relative border-4 border-emerald-500 animate-in zoom-in-95";
+            if (btnViewPass) btnViewPass.classList.remove('hidden');
+        } else {
+            if (iconContainer) iconContainer.className = "h-16 w-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-md ring-8 ring-rose-50";
+            if (iconEl) iconEl.setAttribute('data-lucide', 'alert-circle');
+            if (card) card.className = "bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 text-center space-y-5 shadow-2xl relative border-4 border-rose-500 animate-in zoom-in-95";
+            if (btnViewPass) btnViewPass.classList.add('hidden');
+        }
+
+        modal.classList.remove('hidden');
+        initializeLucideIcons();
+    }
+
+    function closeWaveResultModal() {
+        document.getElementById('modal-wave-result')?.classList.add('hidden');
+    }
+
+    function viewGeneratedTicketFromWave() {
+        closeWaveResultModal();
+        switchView('ticket');
+        if (state.currentTicket && typeof openVisitorPassModal === 'function') {
+            openVisitorPassModal(state.currentTicket);
+        }
+    }
+
+    /**
+     * Charge le tableau de bord Wave Admin (Sections 5 & 9 du Cahier des Charges)
+     */
+    async function loadWaveAdminDashboard() {
+        const tableBody = document.getElementById('wave-transactions-table-body');
+        if (!tableBody) return;
+
+        try {
+            // 1. Charger la configuration Wave
+            const configRes = await fetch('/api/wave-config');
+            if (configRes.ok) {
+                const configData = await configRes.json();
+                const urlDisplay = document.getElementById('wave-webhook-url-display');
+                if (urlDisplay && configData.webhook_url) urlDisplay.innerText = configData.webhook_url;
+                const envBadge = document.getElementById('wave-admin-env-badge');
+                if (envBadge && configData.environment) {
+                    envBadge.innerText = configData.environment === 'production' ? 'Production Réelle' : 'Mode Test / Sandbox';
+                    envBadge.className = configData.environment === 'production'
+                        ? 'px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase font-mono'
+                        : 'px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase font-mono';
+                }
+            }
+
+            // 2. Charger les transactions
+            const txRes = await fetch('/api/wave-transactions');
+            if (!txRes.ok) throw new Error("Impossible de charger les transactions.");
+            const txData = await txRes.json();
+
+            currentWaveTransactionsCache = txData.transactions || [];
+
+            // Mettre à jour les KPIs
+            const stats = txData.stats || {};
+            const totalVolEl = document.getElementById('wave-kpi-total-volume');
+            const countPaidEl = document.getElementById('wave-kpi-count-paid');
+            const countPendingEl = document.getElementById('wave-kpi-count-pending');
+            const countFailedEl = document.getElementById('wave-kpi-count-failed');
+
+            if (totalVolEl) totalVolEl.innerText = `${(stats.totalVolumePaid || 0).toLocaleString('fr-FR')} FCFA`;
+            if (countPaidEl) countPaidEl.innerText = stats.countPaid || 0;
+            if (countPendingEl) countPendingEl.innerText = stats.countPending || 0;
+            if (countFailedEl) countFailedEl.innerText = (stats.countFailed || 0) + (stats.countToReview || 0);
+
+            // Rendu du tableau
+            renderWaveTransactionsTable(currentWaveTransactionsCache);
+
+        } catch (err) {
+            console.error("Erreur loadWaveAdminDashboard:", err);
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-8 text-center text-slate-400">
+                        <i data-lucide="alert-circle" class="h-6 w-6 mx-auto text-rose-500 mb-2"></i>
+                        <span>Erreur lors du chargement des transactions Wave : ${err.message}</span>
+                    </td>
+                </tr>
+            `;
+            initializeLucideIcons();
+        }
+    }
+
+    /**
+     * Rendu du tableau des transactions Wave (Section 4 & 5 du Cahier des Charges)
+     */
+    function renderWaveTransactionsTable(list) {
+        const tbody = document.getElementById('wave-transactions-table-body');
+        if (!tbody) return;
+
+        if (!list || list.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-8 text-center text-slate-400 font-medium">
+                        <div class="h-10 w-10 rounded-2xl bg-sky-50 text-sky-500 flex items-center justify-center mx-auto mb-2">
+                            <i data-lucide="inbox" class="h-5 w-5"></i>
+                        </div>
+                        <p class="text-xs">Aucune transaction Wave enregistrée pour le moment.</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Les paiements validés par Wave apparaîtront automatiquement ici.</p>
+                    </td>
+                </tr>
+            `;
+            initializeLucideIcons();
+            return;
+        }
+
+        const statusBadges = {
+            'Payé': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono">● Payé</span>',
+            'En attente': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-sky-100 text-sky-800 border border-sky-300 font-mono">⏳ En attente</span>',
+            'Échoué': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-100 text-rose-800 border border-rose-300 font-mono">✗ Échoué</span>',
+            'Annulé': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-300 font-mono">Annulé</span>',
+            'Expiré': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-300 font-mono">Expiré</span>',
+            'À vérifier': '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-red-100 text-red-800 border border-red-300 font-mono animate-pulse">⚠️ À vérifier</span>'
+        };
+
+        let html = '';
+        list.forEach(t => {
+            const badge = statusBadges[t.status] || `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100">${t.status || 'Inconnu'}</span>`;
+            const dateStr = t.createdAt ? new Date(t.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '--';
+            const fullName = `${t.customer?.prenom || ''} ${t.customer?.nom || 'Anonyme'}`.trim();
+            const contact = t.customer?.contact1 || '--';
+            const ticketBadge = t.ticketId ? `<span class="font-mono font-bold text-amber-600">#${t.ticketId}</span>` : '<span class="text-slate-400">--</span>';
+
+            html += `
+                <tr class="hover:bg-slate-50/80 transition text-slate-700">
+                    <td class="py-3 px-3.5 font-mono text-xs font-bold text-slate-900">${t.clientReference || '--'}</td>
+                    <td class="py-3 px-3.5 font-mono text-xs text-sky-700 font-bold">${t.waveTransactionId || '<span class="text-slate-400 font-normal">En attente</span>'}</td>
+                    <td class="py-3 px-3.5">
+                        <strong class="text-slate-900 block truncate max-w-[140px]">${fullName}</strong>
+                        <span class="text-[10px] text-slate-400 font-mono">${contact}</span>
+                    </td>
+                    <td class="py-3 px-3.5 text-right font-mono font-black text-slate-900 whitespace-nowrap">${Number(t.amount || 10000).toLocaleString('fr-FR')} FCFA</td>
+                    <td class="py-3 px-3.5 text-center">${badge}</td>
+                    <td class="py-3 px-3.5 font-mono text-[11px] text-slate-500 whitespace-nowrap">${dateStr}</td>
+                    <td class="py-3 px-3.5">${ticketBadge}</td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+        initializeLucideIcons();
+    }
+
+    function filterWaveTransactionsUI() {
+        const query = (document.getElementById('wave-tx-search-input')?.value || '').toLowerCase().trim();
+        let filtered = currentWaveTransactionsCache.slice();
+
+        if (currentWaveStatusFilter !== 'ALL') {
+            filtered = filtered.filter(t => (t.status || '').toLowerCase() === currentWaveStatusFilter.toLowerCase());
+        }
+
+        if (query) {
+            filtered = filtered.filter(t =>
+                (t.clientReference || '').toLowerCase().includes(query) ||
+                (t.waveTransactionId || '').toLowerCase().includes(query) ||
+                (t.customer?.nom || '').toLowerCase().includes(query) ||
+                (t.customer?.prenom || '').toLowerCase().includes(query) ||
+                (t.customer?.contact1 || '').includes(query) ||
+                (t.ticketId || '').toLowerCase().includes(query)
+            );
+        }
+
+        renderWaveTransactionsTable(filtered);
+    }
+
+    function setWaveStatusFilter(filter) {
+        currentWaveStatusFilter = filter;
+        document.querySelectorAll('.wave-status-filter-btn').forEach(btn => {
+            if (btn.getAttribute('data-filter') === filter) {
+                btn.className = "wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white transition";
+            } else {
+                btn.className = "wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+            }
+        });
+        filterWaveTransactionsUI();
+    }
+
+    function exportWaveTransactionsCSV() {
+        window.open('/api/wave-transactions?format=csv', '_blank');
+        showNotification("Export CSV Lancé", "Le relevé officiel des transactions Wave est en cours de téléchargement.", "success");
+    }
+
+    async function reconcileWaveTransactions() {
+        showNotification("Rapprochement Wave", "Interrogation et synchronisation des transactions Wave en cours...", "info");
+        await loadWaveAdminDashboard();
+        showNotification("Synchronisation Terminée", "Le tableau des transactions Wave a été mis à jour.", "success");
+    }
+
+    function copyWaveWebhookUrl() {
+        const urlEl = document.getElementById('wave-webhook-url-display');
+        const url = urlEl ? urlEl.innerText.trim() : 'https://projet-myticket.vercel.app/api/wave-webhook';
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification("URL Webhook Copiée", "Collez cette URL dans l'onglet Développeurs > Webhooks de votre compte Wave Business.", "success");
+            });
+        }
+    }
+
+
     async function startCameraStream(facing = "environment") {
         const video = document.getElementById('qr-video-feed');
         if (!video) return;
@@ -14814,6 +15502,74 @@ function toggleMobileMenu() {
     }
 
 </script>
+
+
+    <!-- ============================================================== -->
+    <!-- MODAL: CHARGEMENT & INITIALISATION DU PAIEMENT WAVE            -->
+    <!-- ============================================================== -->
+    <div id="modal-wave-loading" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl relative border-2 border-sky-400 transform transition-all animate-in zoom-in-95">
+            <!-- Pulsing Wave Icon -->
+            <div class="h-16 w-16 rounded-3xl bg-[#1DA1F2] text-white flex items-center justify-center mx-auto shadow-lg shadow-sky-500/40 animate-pulse">
+                <span class="text-3xl font-black">W</span>
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-display font-black text-lg text-slate-900">Connexion Sécurisée à Wave...</h3>
+                <p id="wave-loading-message" class="text-xs text-slate-500">Initialisation de votre session de paiement de 10 000 FCFA. Redirection en cours...</p>
+            </div>
+            <div class="flex items-center justify-center gap-1.5 text-xs font-mono font-bold text-sky-600 bg-sky-50 py-2 px-3 rounded-xl border border-sky-200">
+                <i data-lucide="shield-check" class="h-4 w-4"></i>
+                <span>Cryptage HTTPS & Protection Wave</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL: CONFIRMATION / ÉCHEC DU PAIEMENT WAVE RETOUR (SECTION 6)-->
+    <!-- ============================================================== -->
+    <div id="modal-wave-result" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 text-center space-y-5 shadow-2xl relative border-4 border-slate-200 transform transition-all animate-in zoom-in-95" id="wave-result-card">
+            <!-- Result Icon -->
+            <div id="wave-result-icon-container" class="h-16 w-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md ring-8 ring-emerald-50">
+                <i id="wave-result-icon" data-lucide="check-circle" class="h-9 w-9"></i>
+            </div>
+
+            <div class="space-y-1.5">
+                <h3 id="wave-result-title" class="font-display font-black text-xl text-slate-900">Paiement Wave Confirmé !</h3>
+                <!-- Message obligatoire Section 6 du Cahier des Charges -->
+                <p id="wave-result-text" class="text-xs text-slate-600 font-medium">
+                    Votre paiement de 10 000 FCFA a été confirmé avec succès. Merci pour votre confiance.
+                </p>
+            </div>
+
+            <!-- Details Box -->
+            <div id="wave-result-details" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs space-y-2 font-mono">
+                <div class="flex justify-between items-center border-b border-slate-200/60 pb-1.5">
+                    <span class="text-slate-400 uppercase text-[10px] font-bold">Réf. Transaction</span>
+                    <strong id="wave-result-ref" class="text-slate-900 font-bold">MYT-WV-...</strong>
+                </div>
+                <div class="flex justify-between items-center border-b border-slate-200/60 pb-1.5">
+                    <span class="text-slate-400 uppercase text-[10px] font-bold">Montant Validé</span>
+                    <strong class="text-emerald-600 font-black">10 000 FCFA</strong>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-400 uppercase text-[10px] font-bold">N° Billet Attribué</span>
+                    <strong id="wave-result-ticket-badge" class="text-amber-600 font-black">#MYT-....</strong>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button type="button" onclick="closeWaveResultModal()" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Fermer
+                </button>
+                <button type="button" id="btn-wave-view-pass" onclick="viewGeneratedTicketFromWave()" class="py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i data-lucide="ticket" class="h-3.5 w-3.5"></i>
+                    <span>Voir mon Billet</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
