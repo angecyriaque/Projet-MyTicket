@@ -1937,7 +1937,7 @@
 
                             <div class="p-2.5 rounded-xl bg-slate-100/90 border border-slate-200 text-[11px] text-slate-700 font-medium leading-tight relative z-10 flex items-center gap-2">
                                 <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600 shrink-0"></i>
-                                <span>Paiement sécurisé direct : choisissez Wave ou Orange Money pour régler 10 000 FCFA. Dès la transaction validée, votre reçu ou SMS permet de certifier instantanément votre pass officiel.</span>
+                                <span>Paiement sécurisé direct : choisissez Wave (marchand Pitchou maillots) ou Orange Money (numéro bénéficiaire 0777588706) pour régler 10 000 FCFA. Dès la transaction validée, votre reçu ou SMS permet de certifier instantanément votre pass officiel.</span>
                             </div>
 
                             <!-- LES 2 BOUTONS OFFICIELS : WAVE ET ORANGE MONEY -->
@@ -6384,7 +6384,7 @@
                 (hasPitchouInFilename 
                     ? `wave\nPaiement marchand Pitchou maillots\nMontant reçu 10.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué` 
                     : `wave\nMontant reçu 10.000F\nID de transaction ${fileRefMatch[1]}\nStatut Effectué`) 
-                : `Orange Money\nMontant transféré 10 000 FCFA\nRéférence ${fileRefMatch[1]}`;
+                : `Orange Money\nTransfert au 0777588706\nMontant transféré 10 000 FCFA\nRéférence ${fileRefMatch[1]}`;
             analyzeProofText(mockText);
             return;
         }
@@ -6469,6 +6469,23 @@
             return m[1].trim();
         }
         return "Non détecté";
+    }
+
+    // Helper pour valider le numéro de bénéficiaire obligatoire Orange Money : 0777588706
+    function isOrangeMoneyBeneficiaryValid(rawText) {
+        if (!rawText) return false;
+        let clean = rawText.replace(/[\s\.\-_\(\)\/\\]/g, '');
+        clean = clean.replace(/[oO](777588706)/gi, '0$1');
+        return clean.includes('0777588706') || /(?:225|\+225)0?777588706/.test(clean);
+    }
+
+    function extractOrangeMoneyBeneficiary(rawText) {
+        if (!rawText) return "Non détecté";
+        if (isOrangeMoneyBeneficiaryValid(rawText)) return "0777588706";
+        const clean = rawText.replace(/\r/g, '');
+        const m = clean.match(/(?:au|vers|destinataire|bénéficiaire|beneficiaire|a|à|numero|numéro)\s*:?\s*([+0-9\s.-]{8,18})/i);
+        if (m && m[1]) return m[1].trim();
+        return "Autre / Non conforme";
     }
 
     function normalizeProofRef(ref) {
@@ -6641,9 +6658,8 @@
             isMerchantValid = isMerchantCompliant;
             detectedMerchant = isMerchantCompliant ? "Pitchou maillots" : extractWaveMerchantLabel(text);
 
-            const waveAmountMatch = text.match(/Montant\s*(?:reçu|recu|envoyé|envoye)?[^0-9]*([0-9]{1,3}(?:[ .][0-9]{3})*|[0-9]{3,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                                    text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+)s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                                    text.match(/([0-9]{4,6})s*(?:FCFA|F CFA|CFA|F\b)?/i);
+            const waveAmountMatch = text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)/i) ||
+                                    text.match(/montant\s*(?:reçu|recu|envoyé|envoye|transféré|transfere|de|:)?\s*([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})/i);
             if (waveAmountMatch) {
                 const rawDigits = waveAmountMatch[1].replace(/[ .]/g, '');
                 detectedAmount = parseInt(rawDigits, 10) || 0;
@@ -6665,10 +6681,14 @@
             detectedMode = "Orange Money";
             extractedRef = omRefMatch[1].toUpperCase().replace(/\.+$/, '');
 
-            const omAmountMatch = text.match(/(?:Montant|Paiement|Transfert|Transfere|Paye|Debit)[\s\wàéè:\-]*?([0-9]{1,3}(?:[ .][0-9]{3})*|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                                  text.match(/Montant transf[ée]r[ée][^0-9]*([0-9]{1,3}(?:[ .][0-9]{3})*|[0-9]{3,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                                  text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+)\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                                  text.match(/([0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
+            // 1. Validation du Bénéficiaire obligatoire Orange Money : 0777588706
+            const isBeneficiaryValid = isOrangeMoneyBeneficiaryValid(text);
+            isMerchantValid = isBeneficiaryValid;
+            detectedMerchant = isBeneficiaryValid ? "0777588706" : extractOrangeMoneyBeneficiary(text);
+
+            // 2. Détection du montant
+            const omAmountMatch = text.match(/([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})\s*(?:FCFA|F CFA|CFA|F\b)/i) ||
+                                  text.match(/montant\s*(?:reçu|recu|envoyé|envoye|transféré|transfere|de|:)?\s*([0-9]{1,3}(?:[ .][0-9]{3})+|[0-9]{4,6})/i);
             if (omAmountMatch) {
                 const rawDigits = omAmountMatch[1].replace(/[ .]/g, '');
                 detectedAmount = parseInt(rawDigits, 10) || 0;
@@ -6678,13 +6698,16 @@
                 detectedAmount = catPrice || 10000;
             }
 
-            // RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money
+            // 3. Validation du montant : doit être supérieur ou égal à 10 000 FCFA
+            const isAmountValid = detectedAmount >= 10000;
+
+            // 4. RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money
             duplicateCheck = isProofIdentifierAlreadyUsed(extractedRef);
             if (duplicateCheck && duplicateCheck.used) {
                 isAlreadyUsed = true;
             }
 
-            isCompliant = !isAlreadyUsed;
+            isCompliant = isBeneficiaryValid && isAmountValid && !isAlreadyUsed;
 
         } else {
             rejectInvalidProof("Aucun ID de transaction débutant par « T_ » (Wave) ou « MP » (Orange) trouvé sur ce document.");
@@ -6699,9 +6722,11 @@
             merchant: detectedMerchant,
             isMerchantValid: isMerchantValid,
             montantTotal: detectedAmount,
-            soldeDisponible: isAlreadyUsed ? 0 : detectedAmount,
+            soldeDisponible: isActuallyValid ? detectedAmount : 0,
             isValid: isActuallyValid,
             isAlreadyUsed: isAlreadyUsed,
+            isBeneficiaryValid: detectedMode === "Orange Money" ? isOrangeMoneyBeneficiaryValid(text) : true,
+            isAmountValid: detectedMode === "Orange Money" ? (detectedAmount >= 10000) : (detectedAmount > 0),
             duplicateCheck: duplicateCheck
         };
 
@@ -6772,6 +6797,15 @@
             if (isAlreadyUsed) {
                 warning.classList.remove('hidden');
                 warning.innerText = `⛔ IDENTIFIANT DÉJÀ UTILISÉ ! Ce reçu (${extractedRef}) a déjà servi pour émettre un billet. L'utilisation du même identifiant deux fois est strictement interdite.`;
+            } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
+                warning.classList.remove('hidden');
+                warning.innerText = "❌ Bénéficiaire incorrect : Le numéro du destinataire Orange Money doit obligatoirement être le 0777588706.";
+            } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
+                warning.classList.remove('hidden');
+                warning.innerText = `❌ Montant insuffisant : Le montant Orange Money doit être supérieur ou égal à 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} F détecté).`;
+            } else if (detectedMode === "Wave Mobile" && !isMerchantValid) {
+                warning.classList.remove('hidden');
+                warning.innerText = "❌ Marchand non conforme : Le paiement Wave doit être effectué à « Pitchou maillots ».";
             } else if (!isCompliant) {
                 warning.classList.remove('hidden');
                 warning.innerText = "❌ Paiement refusé : reçu non conforme.";
@@ -6786,6 +6820,24 @@
             showNotification(
                 "Identifiant Déjà Utilisé", 
                 `L'identifiant « ${extractedRef} » a déjà été utilisé pour un billet. Réutilisation strictement interdite !`, 
+                "error"
+            );
+        } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
+            showNotification(
+                "Bénéficiaire Orange Incorrect", 
+                "Pour Orange Money, le transfert doit obligatoirement être destiné au 0777588706.", 
+                "error"
+            );
+        } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
+            showNotification(
+                "Montant Insuffisant", 
+                `Le montant Orange Money doit être supérieur ou égal à 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`, 
+                "error"
+            );
+        } else if (detectedMode === "Wave Mobile" && !isMerchantValid) {
+            showNotification(
+                "Marchand Wave Incorrect", 
+                "Le paiement Wave doit être effectué au marchand « Pitchou maillots ».", 
                 "error"
             );
         } else {
@@ -6843,7 +6895,15 @@
                 }
                 if (warning) {
                     warning.classList.remove('hidden');
-                    warning.innerText = "❌ Paiement refusé : reçu non conforme.";
+                    if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isBeneficiaryValid) {
+                        warning.innerText = "❌ Bénéficiaire incorrect : Le transfert Orange Money doit impérativement avoir été envoyé au numéro 0777588706.";
+                    } else if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
+                        warning.innerText = `❌ Montant insuffisant : Le montant doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} F détecté).`;
+                    } else if (state.currentAnalyzedProof.mode === "Wave Mobile" && !state.currentAnalyzedProof.isMerchantValid) {
+                        warning.innerText = "❌ Marchand non conforme : Le paiement Wave doit être effectué à « Pitchou maillots ».";
+                    } else {
+                        warning.innerText = "❌ Paiement refusé : reçu non conforme.";
+                    }
                 }
             } else if (state.currentAnalyzedProof.soldeDisponible < ticketPrice) {
                 if (resultCard) {
@@ -6953,8 +7013,43 @@
                     );
                     return;
                 }
+                if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange") && !state.currentAnalyzedProof.isBeneficiaryValid) {
+                    showNotification(
+                        "Bénéficiaire Orange Money Incorrect", 
+                        "Validation impossible : Pour Orange Money, le transfert doit impérativement avoir été envoyé au numéro bénéficiaire 0777588706.", 
+                        "error"
+                    );
+                    return;
+                }
+                if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange") && !state.currentAnalyzedProof.isAmountValid) {
+                    showNotification(
+                        "Montant Orange Money Insuffisant", 
+                        `Validation impossible : Le montant doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
+                        "error"
+                    );
+                    return;
+                }
                 showNotification("Reçu Non Valide", "Le reçu fourni est invalide ou a déjà été utilisé. Veuillez importer un reçu valide.", "error");
                 return;
+            }
+
+            if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange")) {
+                if (!state.currentAnalyzedProof.isBeneficiaryValid) {
+                    showNotification(
+                        "Bénéficiaire Orange Rejeté", 
+                        "Le transfert Orange Money n'a pas été effectué au numéro bénéficiaire officiel 0777588706.", 
+                        "error"
+                    );
+                    return;
+                }
+                if (!state.currentAnalyzedProof.isAmountValid) {
+                    showNotification(
+                        "Montant Orange Rejeté", 
+                        `Le montant Orange Money doit être supérieur ou égal à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
+                        "error"
+                    );
+                    return;
+                }
             }
 
             if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Wave") && !state.currentAnalyzedProof.isMerchantValid) {
@@ -13382,7 +13477,7 @@
             // 3. Information utilisateur et orientation vers le rapprochement
             showNotification(
                 "Paiement Orange Money Lancé", 
-                "Votre interface Orange Money s'ouvre pour régler 10 000 FCFA. Après le débit, collez votre SMS (ID débutant par MP) ou capture ci-dessous pour certifier le paiement.", 
+                "Votre interface Orange Money s'ouvre pour régler 10 000 FCFA vers le numéro 0777588706. Après le débit, collez votre SMS (ID débutant par MP) ou capture ci-dessous pour certifier le paiement.", 
                 "info"
             );
 
