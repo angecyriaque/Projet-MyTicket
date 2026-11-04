@@ -2150,40 +2150,22 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-2 max-w-[660px] mx-auto">
-                        <!-- Button 1: Download Smartphone Portrait Pass JPG -->
-                        <button id="btn-download-mobile-pass" disabled onclick="downloadMobilePassImage()" class="px-2.5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-amber-600 hover:opacity-95 text-white font-black text-xs transition flex flex-col items-center justify-center gap-1 opacity-50 cursor-not-allowed shadow-md cursor-pointer text-center" title="Pass vertical géant pour smartphone">
-                            <i data-lucide="smartphone" class="h-4 w-4"></i>
-                            <span class="text-[11px] leading-tight">Pass Mobile</span>
-                        </button>
-                        <!-- Button 2: Download Official Ticket as JPG (Visual Screenshot replica) -->
-                        <button id="btn-download-ticket-jpg" disabled onclick="downloadTicketImage()" class="px-2.5 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:opacity-95 text-white font-black text-xs transition flex flex-col items-center justify-center gap-1 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer text-center">
-                            <i data-lucide="camera" class="h-4 w-4"></i>
-                            <span class="text-[11px] leading-tight">Billet (JPG)</span>
-                        </button>
-
-                        <!-- Button 2: WhatsApp Share -->
-                        <button id="btn-share-ticket-whatsapp" disabled onclick="shareTicketWhatsApp()" class="px-3 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-black text-xs transition-all duration-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer">
+                    <!-- ACTION BUTTONS (WHATSAPP SHARE + MON VERSET JPEG) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 max-w-[660px] mx-auto">
+                        <!-- Button: WhatsApp Share -->
+                        <button id="btn-share-ticket-whatsapp" disabled onclick="shareTicketWhatsApp()" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-black text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer">
                             <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="send" class="h-3.5 w-3.5"></i>
                             </div>
                             <span>Partager (WhatsApp)</span>
                         </button>
 
-                        <!-- Button 3: Download Verse Card as JPG -->
-                        <button id="btn-download-verset" disabled onclick="downloadVersetImage()" class="px-3 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-pink-500 hover:opacity-95 text-white font-black text-xs transition-all duration-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg border border-amber-300/40 cursor-pointer">
+                        <!-- Button: Download Verse Card as JPG -->
+                        <button id="btn-download-verset" disabled onclick="downloadVersetImage()" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-pink-500 hover:opacity-95 text-white font-black text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg border border-amber-300/40 cursor-pointer">
                             <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="image" class="h-3.5 w-3.5"></i>
                             </div>
                             <span>Mon Verset (JPEG)</span>
-                        </button>
-
-                        <!-- Button 4: Print Ticket in PDF -->
-                        <button id="btn-print-ticket" disabled onclick="printTicket()" class="px-3 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs transition-all duration-200 flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer">
-                            <div class="h-5 w-5 rounded-lg bg-white/10 text-white flex items-center justify-center shrink-0">
-                                <i data-lucide="printer" class="h-3.5 w-3.5"></i>
-                            </div>
-                            <span>Imprimer en PDF</span>
                         </button>
                     </div>
                 </div>
@@ -7504,7 +7486,7 @@
 
         showNotification(
             "Pass Émis avec Succès !", 
-            `Billet ${categorie} (#${customId}) généré pour ${prenom} ${nom}. Vous pouvez maintenant le télécharger en JPG, en carte verset ou l'imprimer en PDF.`, 
+            `Billet ${categorie} (#${customId}) généré pour ${prenom} ${nom}. Vous pouvez maintenant télécharger votre carte verset ou le partager par WhatsApp.`, 
             "success"
         );
     }
