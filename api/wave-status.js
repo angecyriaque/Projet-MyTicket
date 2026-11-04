@@ -94,6 +94,19 @@ module.exports = async function handler(req, res) {
     }
 
     try {
+        // Point de contrôle rapide : vérifier si un identifiant de reçu a déjà été consommé
+        const checkWaveId = req.query.check_wave_id || req.query.check_tx_id;
+        if (checkWaveId) {
+            const cleanCheckId = String(checkWaveId).trim().toUpperCase();
+            const existingWithWaveId = await getTransactionByWaveTxId(cleanCheckId);
+            return res.status(200).json({
+                ok: true,
+                exists: !!existingWithWaveId,
+                used: existingWithWaveId ? (existingWithWaveId.status === 'Payé') : false,
+                ticketId: existingWithWaveId ? existingWithWaveId.ticketId : null
+            });
+        }
+
         const ref = req.query.ref || req.query.client_reference;
         const sessionId = req.query.session_id || req.query.wave_session_id;
 

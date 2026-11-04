@@ -5,7 +5,7 @@
 // ==============================================================================
 
 const { verifyWebhookSignature, FIXED_TICKET_AMOUNT, FIXED_CURRENCY } = require('./_lib/wave');
-const { getTransactionByRef, saveTransaction } = require('./_lib/db');
+const { getTransactionByRef, getTransactionByWaveTxId, saveTransaction } = require('./_lib/db');
 
 // Helper pour lire le corps brut de la requête (requis pour le calcul HMAC-SHA256)
 function getRawBody(req) {
@@ -70,11 +70,25 @@ module.exports = async function handler(req, res) {
             return res.status(200).json({ received: true, warning: 'Transaction introuvable.' });
         }
 
-        // 3. PROTECTION CONTRE LES DOUBLES NOTIFICATIONS (IDEMPOTENCE - CAS 4 DU CAHIER DES CHARGES)
+        // 3. PROTECTION CONTRE LES DOUBLES NOTIFICATIONS ET RÉUTILISATION DU MÊME IDENTIFIANT
         // "Notification reçue plusieurs fois : Une seule validation doit être effectuée. Aucun double enregistrement."
+        // "N'autorise pas deux fois l'utilisation du même identifiant"
         if (transaction.status === 'Payé') {
             console.log(`ℹ️ Transaction ${clientReference} DÉJÀ confirmée. Idempotence appliquée.`);
             return res.status(200).json({ received: true, already_processed: true });
+        }
+
+        if (waveTransactionId) {
+            const cleanWaveId = String(waveTransactionId).trim().toUpperCase();
+            const existingWithWaveId = await getTransactionByWaveTxId(cleanWaveId);
+            if (existingWithWaveId && existingWithWaveId.clientReference !== clientReference && existingWithWaveId.status === 'Payé') {
+                console.error(`🚨 FRAUDE/DOUBLON INTERCEPTÉ : L'identifiant Wave ${cleanWaveId} a déjà servi pour le billet #${existingWithWaveId.ticketId}. Rejet formel.`);
+                return res.status(200).json({
+                    received: true,
+                    rejected_duplicate: true,
+                    error: `L'identifiant Wave ${cleanWaveId} a déjà été utilisé pour un autre billet.`
+                });
+            }
         }
 
         // 4. VÉRIFICATION DU MONTANT STRICT DE 10 000 FCFA (CAS 5 DU CAHIER DES CHARGES)
