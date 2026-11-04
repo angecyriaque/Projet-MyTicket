@@ -1965,14 +1965,18 @@
                             </div>
 
                             <div class="space-y-2">
-                                <div class="flex gap-2">
+                                <div class="flex flex-col sm:flex-row gap-2">
                                     <label for="proof-file-input" class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border-2 border-dashed border-slate-300 hover:border-brand-orange text-slate-700 hover:text-brand-orange text-xs font-bold cursor-pointer transition flex items-center justify-center gap-2 shadow-2xs group">
                                         <div class="h-6 w-6 rounded-lg bg-orange-50 group-hover:bg-orange-100 text-brand-orange flex items-center justify-center transition">
                                             <i data-lucide="upload-cloud" class="h-4 w-4"></i>
                                         </div>
-                                        <span>Importer Capture Reçu (Wave / Orange Money)</span>
+                                        <span>Importer Capture Reçu Wave</span>
                                         <input type="file" id="proof-file-input" onchange="handleProofFileUpload(event)" accept="image/*" class="hidden">
                                     </label>
+                                    <button type="button" onclick="pasteClipboardToProofInput()" class="px-3.5 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                                        <i data-lucide="clipboard-paste" class="h-4 w-4 text-[#1DA1F2]"></i>
+                                        <span>Coller le SMS Wave</span>
+                                    </button>
                                 </div>
 
                                 <div id="ocr-loading-progress" class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-mono flex items-center gap-2">
@@ -13048,11 +13052,31 @@
      * - Génération d'une référence unique
      * - Redirection vers Wave Launch URL
      */
+    async function pasteClipboardToProofInput() {
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                const textarea = document.getElementById('proof-text-input');
+                if (textarea && text) {
+                    textarea.value = text.trim();
+                    analyzeProofText(textarea.value);
+                    showNotification("Preuve Collée", "Analyse automatique du reçu Wave en cours...", "info");
+                } else {
+                    showNotification("Presse-papier", "Le presse-papier est vide.", "warning");
+                }
+            } else {
+                showNotification("Presse-papier", "Veuillez coller le texte directement dans la zone avec Ctrl+V ou appui long.", "warning");
+            }
+        } catch (e) {
+            showNotification("Presse-papier", "Veuillez coller le texte directement dans la zone de saisie.", "warning");
+        }
+    }
+
     /**
-     * Paiement Direct Wave Mobile Money (10 000 FCFA à Pitchou maillots)
-     * - Ouvre directement l'application Wave pour effectuer la déduction
-     * - Valide et émet instantanément le ticket officiel dans l'application
-     * - AUCUNE saisie de texte ou d'interface intermédiaire supplémentaire n'est requise
+     * Paiement Wave Mobile Money (Option 2 : Déduction Wave + Contrôle Sécurisé du Reçu)
+     * - Ouvre l'application Wave pour régler 10 000 FCFA à Pitchou maillots
+     * - Prévient la fraude : aucun billet n'est validé si le solde est vide ou insuffisant
+     * - Valide le pass dès réception du reçu / SMS officiel de débit Wave
      */
     async function initiateWaveCheckoutPayment() {
         // 1. Validation des coordonnées du participant
@@ -13073,18 +13097,11 @@
         const originalBtnHtml = btnWave ? btnWave.innerHTML : '';
         if (btnWave) {
             btnWave.disabled = true;
-            btnWave.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Paiement Wave en cours...</span>`;
+            btnWave.innerHTML = `<i data-lucide="loader" class="h-4 w-4 animate-spin"></i><span>Ouverture de Wave...</span>`;
             initializeLucideIcons();
         }
 
         try {
-            const nextTicketNum = (state.participants || []).length + 1;
-            const ticketId = `MYT-${String(nextTicketNum).padStart(4, '0')}`;
-            const timestamp = Date.now();
-            const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const clientReference = `MYT-WV-${timestamp}-${rand}`;
-            const waveTxId = `T_WV_${timestamp}_${rand}`;
-
             // 2. Déclenchement de la déduction officielle Wave (10 000 FCFA vers Pitchou maillots)
             const waveLaunchUrl = 'https://pay.wave.com/m/M_ci_5Ak1intPKX_j/c/ci/?amount=10000';
             try {
@@ -13102,16 +13119,24 @@
                 })
             }).catch(e => console.warn("Notice sync serveur Wave:", e));
 
-            // 4. Maintien de la sécurité financière (Cahier des charges - Cas 3) :
-            // Le ticket reste en attente de la preuve effective du débit
-            showNotification("Paiement Wave Initié", "Votre application Wave s'ouvre pour le débit de 10 000 FCFA vers Pitchou maillots. Veuillez confirmer après le débit.", "info");
+            // 4. Maintien de la sécurité financière (Cahier des charges) :
+            showNotification(
+                "Paiement Wave Lancé", 
+                "Votre application Wave s'ouvre pour régler 10 000 FCFA à Pitchou maillots. Après le débit, collez votre SMS ou capture ci-dessous pour certifier le paiement.", 
+                "info"
+            );
 
-            // Faire défiler vers la zone de rapprochement/reçu pour valider après débit effectif
+            // Faire défiler vers la zone de rapprochement/reçu
             const proofSection = document.getElementById('payment-verification-container');
             if (proofSection) {
                 proofSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                proofSection.classList.add('ring-2', 'ring-sky-400');
-                setTimeout(() => proofSection.classList.remove('ring-2', 'ring-sky-400'), 2500);
+                proofSection.classList.add('ring-2', 'ring-[#1DA1F2]');
+                setTimeout(() => proofSection.classList.remove('ring-2', 'ring-[#1DA1F2]'), 3000);
+            }
+
+            const proofInput = document.getElementById('proof-text-input');
+            if (proofInput) {
+                setTimeout(() => proofInput.focus(), 600);
             }
 
         } catch (err) {
