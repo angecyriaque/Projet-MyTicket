@@ -2181,7 +2181,7 @@
                             <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="image" class="h-3.5 w-3.5"></i>
                             </div>
-                            <span>Carte Verset (JPG)</span>
+                            <span>Mon Verset (JPEG)</span>
                         </button>
 
                         <!-- Button 4: Print Ticket in PDF -->
@@ -4493,6 +4493,7 @@
     // Global Application State
     let state = {
         participants: [],
+        availableVerses: [], // Pool de versets bibliques uniques JPEG
         currentTicket: null,
         user: DEFAULT_VISITOR_USER,
         isAdminUnlocked: true, // Direction Admin
@@ -4657,6 +4658,7 @@
         loadStoredUser();
         initializeParticipantsData();
         loadPaymentProofs();
+        loadAvailableBibleVerses();
         loadFinanceData();
         initializeUsersRegistry();
         initializeChronogramme();
@@ -7163,8 +7165,12 @@
             dateTicket: dateTicket,
             statut: 'Validé',
             checkedIn: false,
+            assignedVerse: null,
             dateAdded: new Date().toISOString()
         };
+
+        // RÈGLE OBLIGATOIRE : Attribution unique et sans répétition d'un verset biblique
+        newTicket.assignedVerse = assignUniqueVerseToParticipant(newTicket);
         
         state.participants.unshift(newTicket);
         
@@ -7230,6 +7236,14 @@
         });
 
         if (found) {
+            // Attribution d'un verset unique si non encore présent
+            if (!found.assignedVerse) {
+                found.assignedVerse = assignUniqueVerseToParticipant(found);
+                try {
+                    localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                    if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncParticipant(found);
+                } catch(e){}
+            }
             state.currentTicket = found;
             updateTicketPreviewUI(found);
             showNotification("Billet Retrouvé !", `Pass de ${found.prenom} ${found.nom} (${found.categorie}) chargé avec succès.`, "success");
@@ -7775,106 +7789,130 @@
         showNotification("Billet Téléchargé !", `Votre Billet Officiel (${ticketId}) en haute définition (JPG) a été téléchargé avec succès.`, "success");
     }
 
-    // Direct High-Resolution JPG Year Verse Graphic Card Generator & Downloader
+    /**
+     * Moteur de Gestion des Versets Bibliques Uniques
+     * - Respect strict des créas graphiques originales sans altération (import/export textuel)
+     * - Règle anti-répétition : un verset attribué ne peut jamais être attribué à un autre participant
+     * - Évolutif : supporte 50 images initiales puis extension continue par ajout dans assets/versets
+     */
+    async function loadAvailableBibleVerses() {
+        try {
+            // 1. Essai API dynamique Vercel (/api/versets)
+            const res = await fetch('/api/versets');
+            if (res.ok) {
+                const data = await res.json();
+                if (data && Array.isArray(data.versets) && data.versets.length > 0) {
+                    state.availableVerses = data.versets;
+                    console.log(`[VERSETS] ${data.versets.length} créas de versets chargées via API.`);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log("Notice fetch /api/versets:", e);
+        }
+
+        try {
+            // 2. Repli manifeste statique (assets/versets/manifest.json)
+            const resManifest = await fetch('assets/versets/manifest.json');
+            if (resManifest.ok) {
+                const list = await resManifest.json();
+                if (Array.isArray(list) && list.length > 0) {
+                    state.availableVerses = list;
+                    console.log(`[VERSETS] ${list.length} créas de versets chargées via manifest.json.`);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log("Notice fetch manifest.json:", e);
+        }
+
+        // 3. Modèles de réserve si le dossier est vide
+        if (!state.availableVerses || state.availableVerses.length === 0) {
+            state.availableVerses = ['modele_purple_verset.jpg', 'modele_verset.jpeg'];
+        }
+    }
+
+    /**
+     * Attribue un verset unique sans répétition à un participant
+     */
+    function assignUniqueVerseToParticipant(participant) {
+        if (!participant) return null;
+
+        // Si le participant possède déjà son verset, le conserver définitivement (pas de double réattribution)
+        if (participant.assignedVerse) {
+            return participant.assignedVerse;
+        }
+
+        // Collecter tous les versets déjà attribués à tous les participants
+        const usedVerses = new Set();
+        (state.participants || []).forEach(p => {
+            if (p.id !== participant.id && p.assignedVerse) {
+                usedVerses.add(p.assignedVerse);
+            }
+        });
+
+        // Trouver le premier verset du pool non encore consommé
+        const availablePool = Array.isArray(state.availableVerses) ? state.availableVerses : [];
+        const nextVerse = availablePool.find(v => !usedVerses.has(v));
+
+        if (nextVerse) {
+            participant.assignedVerse = nextVerse;
+            console.log(`[VERSETS] Verset '${nextVerse}' attribué à ${participant.nom} ${participant.prenom} (#${participant.id})`);
+            return nextVerse;
+        }
+
+        console.warn(`[VERSETS] Pool de versets épuisé (${usedVerses.size}/${availablePool.length}). En attente de nouvelles créas.`);
+        return null;
+    }
+
+    /**
+     * Téléchargement direct du fichier JPEG original du verset attribué (créa 100% intacte)
+     */
     function downloadVersetImage() {
-        const ticket = state.currentTicket || {
-            id: 'MYT-0001',
-            prenom: 'Festivalier',
-            nom: 'Béni',
-            categorie: 'Classique'
-        };
+        const ticket = state.currentTicket;
+        if (!ticket) {
+            showNotification("Aucun Billet Émis", "Veuillez d'abord générer ou rechercher votre billet.", "error");
+            return;
+        }
 
-        const canvas = document.createElement('canvas');
-        canvas.width = 1200;
-        canvas.height = 700;
-        const ctx = canvas.getContext('2d');
+        // Si pas encore de verset attribué, tenter l'attribution
+        if (!ticket.assignedVerse) {
+            ticket.assignedVerse = assignUniqueVerseToParticipant(ticket);
+            try {
+                localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncParticipant(ticket);
+            } catch (e) {}
+        }
 
-        const grad = ctx.createLinearGradient(0, 0, 1200, 700);
-        grad.addColorStop(0, '#090D1F');
-        grad.addColorStop(0.5, '#131B3A');
-        grad.addColorStop(1, '#050711');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 1200, 700);
+        if (!ticket.assignedVerse) {
+            showNotification(
+                "Versets en Attente", 
+                "Tous les versets actuels ont été attribués de manière unique. De nouvelles créas seront ajoutées très prochainement dans le dossier !", 
+                "warning"
+            );
+            return;
+        }
 
-        let accentColor = '#94a3b8';
-        let accentLabel = 'PASS CLASSIQUE';
-        if (ticket.categorie === 'Gold') { accentColor = '#f59e0b'; accentLabel = 'PASS GOLD'; }
-        
-        else if (ticket.categorie === 'Invité') { accentColor = '#10b981'; accentLabel = "INVITÉ D'HONNEUR"; }
+        const verseUrl = ticket.assignedVerse;
+        const rawFileName = verseUrl.split('/').pop() || 'verset.jpg';
+        const cleanNom = (ticket.nom || 'Beni').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const cleanPrenom = (ticket.prenom || 'Festivalier').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const downloadFilename = `Verset_2027_${cleanPrenom}_${cleanNom}_${rawFileName}`;
 
-        const glow = ctx.createRadialGradient(200, 150, 20, 200, 150, 400);
-        glow.addColorStop(0, accentColor + '33');
-        glow.addColorStop(1, 'transparent');
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, 1200, 700);
-
-        ctx.strokeStyle = accentColor + '88';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(40, 40, 1120, 620);
-        ctx.strokeStyle = '#ffffff22';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(50, 50, 1100, 600);
-
-        ctx.fillStyle = '#FF5A36';
-        ctx.font = '900 24px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText("NUIT DE JACOB À ISRAËL • 10 ANS DE GRÂCE", 600, 110);
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '700 16px monospace';
-        ctx.fillText("Verset Prophétique de l'Année 2027", 600, 140);
-
-        ctx.fillStyle = '#ffffff0a';
-        ctx.fillRect(100, 175, 1000, 280);
-        ctx.strokeStyle = '#ffffff15';
-        ctx.strokeRect(100, 175, 1000, 280);
-
-        ctx.fillStyle = accentColor;
-        ctx.font = '900 60px Georgia, serif';
-        ctx.fillText("“", 140, 230);
-
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'italic 700 28px Georgia, serif';
-        ctx.fillText("« Ton nom ne sera plus appelé Jacob, mais Israël;", 600, 260);
-        ctx.fillText("car tu as lutté avec Dieu et avec des hommes,", 600, 310);
-        ctx.fillText("et tu as été vainqueur. »", 600, 360);
-
-        ctx.fillStyle = accentColor;
-        ctx.font = '900 26px system-ui, sans-serif';
-        ctx.fillText("GENÈSE 32 : 28", 600, 420);
-
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(100, 480, 1000, 130);
-        ctx.strokeStyle = accentColor;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(100, 480, 1000, 130);
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '700 14px monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText("FESTIVALIER BÉNI", 140, 520);
-        ctx.fillText("CATÉGORIE", 550, 520);
-        ctx.fillText("RÉFÉRENCE OFFICIELLE", 850, 520);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 24px system-ui, sans-serif';
-        ctx.fillText(`${ticket.prenom || ''} ${ticket.nom || ''}`.trim() || 'Festivalier', 140, 565);
-
-        ctx.fillStyle = accentColor;
-        ctx.font = '900 20px monospace';
-        ctx.fillText(accentLabel, 550, 565);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 20px monospace';
-        ctx.fillText(`#${ticket.id || 'MYT-0001'}`, 850, 565);
-
+        // Téléchargement textuel direct du fichier sans altérer la créa
         const link = document.createElement('a');
-        link.download = `Carte_Verset_2027_${(ticket.prenom || 'Festivalier')}_${(ticket.nom || 'Beni')}_${ticket.id || 'MYT-0001'}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.95);
+        link.href = verseUrl;
+        link.download = downloadFilename;
+        link.target = '_blank';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        showNotification("Carte Verset Téléchargée !", "Votre carte prophétique 2027 en haute définition (JPG) a été téléchargée.", "success");
+
+        showNotification(
+            "Verset Biblique Téléchargé !", 
+            `Votre verset prophétique unique (${rawFileName}) a été téléchargé avec succès.`, 
+            "success"
+        );
     }
 
     function shareTicketWhatsApp() {
@@ -10491,6 +10529,7 @@
                         <td class="py-3.5 px-6 text-slate-700 text-xs">
                             <span class="font-bold text-slate-900">${p.modeReglement || 'Espèces'}</span><br>
                             <span class="text-[10px] text-brand-orange font-mono font-bold">${p.preuveReglement || '-'}</span>
+                            ${p.assignedVerse ? `<div class="text-[9px] text-amber-700 font-bold truncate max-w-[130px]" title="${p.assignedVerse}">📖 ${p.assignedVerse.split('/').pop()}</div>` : ''}
                         </td>
                         <td class="py-3.5 px-6 text-right space-x-2">
                             <button onclick="viewAttendeeTicket('${p.id}')" class="p-2 text-slate-600 hover:text-brand-orange bg-slate-100 hover:bg-orange-50 rounded-xl transition cursor-pointer" title="Voir le Pass">
@@ -13689,6 +13728,12 @@
                 checkedIn: false
             };
             state.participants.unshift(participant);
+            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+        }
+
+        // RÈGLE OBLIGATOIRE : Attribution d'un verset biblique unique sans répétition
+        if (!participant.assignedVerse) {
+            participant.assignedVerse = assignUniqueVerseToParticipant(participant);
             localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
         }
 

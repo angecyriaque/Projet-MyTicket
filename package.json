@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "MyTicket - Festival de la Jeunesse Chrétienne",
   "scripts": {
-    "dev": "npx -y http-server -p 3000"
+    "dev": "npx -y http-server -p 3000",
+    "update-versets": "node update-versets.js"
   },
   "keywords": [],
   "author": "",
