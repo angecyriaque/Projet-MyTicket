@@ -1938,7 +1938,7 @@
 
                             <div class="p-2.5 rounded-xl bg-slate-100/90 border border-slate-200 text-[11px] text-slate-700 font-medium leading-tight relative z-10 flex items-center gap-2">
                                 <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600 shrink-0"></i>
-                                <span>Paiement sécurisé direct : choisissez Wave (marchand Pitchou maillots) ou Orange Money (numéro bénéficiaire 0777588706) pour régler 10 000 FCFA. Dès la transaction validée, votre reçu ou SMS permet de certifier instantanément votre pass officiel.</span>
+                                <span>Paiement sécurisé direct : choisissez Wave (marchand Pitchou maillots) ou Orange Money (numéro bénéficiaire 0777588706) pour régler 10 000 FCFA. Dès la transaction validée, l'importation de votre reçu (capture d'écran ou PDF) permet de certifier instantanément votre pass officiel.</span>
                             </div>
 
                             <!-- LES 2 BOUTONS OFFICIELS : WAVE ET ORANGE MONEY -->
@@ -1961,10 +1961,10 @@
                             </div>
                         </div>
 
-                        <!-- SÉPARATEUR ALTERNATIF (POUR RAPPROCHEMENT PAR CAPTURE MANUELLE SI BESOIN) -->
+                        <!-- SÉPARATEUR ALTERNATIF (JUSTIFICATIF DU RÈGLEMENT) -->
                         <div class="relative flex py-1 items-center">
                             <div class="flex-grow border-t border-slate-200"></div>
-                            <span class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">OU RAPPROCHEMENT PAR REÇU</span>
+                            <span class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">JUSTIFICATIF DU RÈGLEMENT</span>
                             <div class="flex-grow border-t border-slate-200"></div>
                         </div>
 
@@ -1978,30 +1978,24 @@
                             </div>
 
                             <div class="space-y-2">
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <label for="proof-file-input" class="px-3 py-2.5 rounded-xl bg-white border-2 border-dashed border-slate-300 hover:border-brand-orange text-slate-700 hover:text-brand-orange text-xs font-bold cursor-pointer transition flex items-center justify-center gap-2 shadow-2xs group">
-                                        <div class="h-6 w-6 rounded-lg bg-orange-50 group-hover:bg-orange-100 text-brand-orange flex items-center justify-center transition">
-                                            <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                                <div>
+                                    <label for="proof-file-input" class="w-full py-4 px-4 rounded-2xl bg-white border-2 border-dashed border-slate-300 hover:border-brand-orange text-slate-700 hover:text-brand-orange cursor-pointer transition flex items-center justify-center gap-3 shadow-2xs group">
+                                        <div class="h-10 w-10 rounded-xl bg-orange-50 group-hover:bg-orange-100 text-brand-orange flex items-center justify-center transition shrink-0">
+                                            <i data-lucide="upload-cloud" class="h-5 w-5"></i>
                                         </div>
-                                        <span>Importer Reçu (Capture / PDF)</span>
+                                        <div class="text-left">
+                                            <span class="block font-black text-slate-900 group-hover:text-brand-orange text-xs sm:text-sm">Importer votre Reçu de Paiement</span>
+                                            <span class="block text-[11px] text-slate-500 font-medium">Formats acceptés : Capture d'écran (Image) ou Document PDF</span>
+                                        </div>
                                         <input type="file" id="proof-file-input" onchange="handleProofFileUpload(event)" accept="image/*,application/pdf,.pdf" class="hidden">
                                     </label>
-                                    <button type="button" onclick="pasteClipboardToProofInput('wave')" class="px-3 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
-                                        <i data-lucide="clipboard-paste" class="h-4 w-4 text-[#1DA1F2]"></i>
-                                        <span>Coller SMS Wave</span>
-                                    </button>
-                                    <button type="button" onclick="pasteClipboardToProofInput('orange')" class="px-3 py-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
-                                        <i data-lucide="clipboard-paste" class="h-4 w-4 text-[#FF7900]"></i>
-                                        <span>Coller SMS Orange</span>
-                                    </button>
+                                    <input type="hidden" id="proof-text-input" value="">
                                 </div>
 
-                                <div id="ocr-loading-progress" class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-mono flex items-center gap-2">
+                                <div id="ocr-loading-progress" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-mono flex items-center gap-2">
                                     <i data-lucide="loader" class="h-4 w-4 animate-spin text-amber-600"></i>
-                                    <span id="ocr-progress-text">Analyse et reconnaissance optique (OCR) en cours...</span>
+                                    <span id="ocr-progress-text">Lecture et reconnaissance de la preuve en cours...</span>
                                 </div>
-
-                                <textarea id="proof-text-input" oninput="analyzeProofText(this.value)" rows="2" placeholder="Ou collez ici le texte du reçu / SMS Wave (ID T_...) ou Orange Money (ID MP...)..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-orange font-mono"></textarea>
                             </div>
 
                             <!-- Real-time Analyzed Payment Status Card -->
@@ -13407,38 +13401,10 @@
     }
 
     /**
-     * Initie le paiement Wave Checkout
-     * Respecte strictement la Section 2.1, 2.2 et 2.3 du Cahier des Charges :
-     * - Montant fixé côté serveur à 10 000 FCFA
-     * - Génération d'une référence unique
-     * - Redirection vers Wave Launch URL
-     */
-    async function pasteClipboardToProofInput(targetHint) {
-        try {
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                const text = await navigator.clipboard.readText();
-                const textarea = document.getElementById('proof-text-input');
-                if (textarea && text) {
-                    textarea.value = text.trim();
-                    analyzeProofText(textarea.value);
-                    const label = targetHint === 'orange' ? 'Orange Money' : (targetHint === 'wave' ? 'Wave' : 'paiement');
-                    showNotification("Preuve Collée", `Analyse automatique du reçu ${label} en cours...`, "info");
-                } else {
-                    showNotification("Presse-papier", "Le presse-papier est vide.", "warning");
-                }
-            } else {
-                showNotification("Presse-papier", "Veuillez coller le texte directement dans la zone avec Ctrl+V ou appui long.", "warning");
-            }
-        } catch (e) {
-            showNotification("Presse-papier", "Veuillez coller le texte directement dans la zone de saisie.", "warning");
-        }
-    }
-
-    /**
      * Paiement Wave Mobile Money (Option 1 : Déduction Wave + Contrôle Sécurisé du Reçu)
      * - Ouvre l'application Wave pour régler 10 000 FCFA à Pitchou maillots
      * - Prévient la fraude : aucun billet n'est validé si le solde est vide ou insuffisant
-     * - Valide le pass dès réception du reçu / SMS officiel de débit Wave
+     * - Valide le pass dès réception et analyse de la capture d'écran ou du PDF
      */
     let pendingPaymentProvider = null; // 'wave' | 'orange'
 
@@ -13587,7 +13553,7 @@
 
             showNotification(
                 "Lien Orange Money Ouvert", 
-                "L'interface Orange Money s'ouvre pour régler 10 000 FCFA vers le numéro 0777588706. Après le débit, importez votre capture d'écran ou PDF de reçu (ou SMS ID MP...) ci-dessous.", 
+                "L'interface Orange Money s'ouvre pour régler 10 000 FCFA vers le numéro 0777588706. Après le débit, importez votre capture d'écran ou PDF de reçu ci-dessous pour certifier votre billet.", 
                 "info"
             );
 
@@ -13605,9 +13571,9 @@
                 if (proofSection) proofSection.style.boxShadow = '';
             }, 4000);
         }
-        const proofInput = document.getElementById('proof-text-input');
-        if (proofInput) {
-            setTimeout(() => proofInput.focus(), 600);
+        const fileInput = document.getElementById('proof-file-input');
+        if (fileInput) {
+            setTimeout(() => fileInput.focus(), 600);
         }
     }
 
@@ -16103,7 +16069,7 @@ function toggleMobileMenu() {
                     <span class="uppercase tracking-wider text-[11px] font-mono">Consigne Obligatoire</span>
                 </div>
                 <p class="leading-relaxed text-xs text-slate-800 font-medium">
-                    Les participants devront <strong class="text-slate-950 font-black underline decoration-amber-500 decoration-2">importer la capture d'écran ou le PDF de la preuve de règlement</strong> dans l'application (ou coller le SMS officiel) afin de certifier le paiement et valider leur billet.
+                    Les participants devront <strong class="text-slate-950 font-black underline decoration-amber-500 decoration-2">importer la capture d'écran ou le PDF de la preuve de règlement</strong> dans l'application afin de certifier le paiement et valider leur billet.
                 </p>
                 <div id="payment-alert-target" class="text-[11px] text-slate-600 pt-1.5 border-t border-amber-200/70 font-mono">
                     Montant Fixe : 10 000 FCFA
