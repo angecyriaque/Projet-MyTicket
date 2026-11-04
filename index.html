@@ -2011,7 +2011,7 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 text-[10px]">
                                     <div>
-                                        <span class="text-slate-400 block font-bold uppercase text-[9px]">Montant Transféré :</span>
+                                        <span id="proof-amount-label" class="text-slate-400 block font-bold uppercase text-[9px]">Montant Réglé :</span>
                                         <p id="proof-detected-amount" class="font-black text-slate-900 font-mono text-xs">0 FCFA</p>
                                     </div>
                                     <div>
@@ -6545,6 +6545,8 @@
             validIndicator.innerHTML = '<i data-lucide="x-circle" class="h-4 w-4 text-rose-600"></i> REFUSÉ';
         }
 
+        const amountLabelEl = document.getElementById('proof-amount-label');
+        if (amountLabelEl) amountLabelEl.innerText = "Montant Réglé :";
         document.getElementById('proof-detected-ref').innerText = "NON DÉTECTÉ";
         document.getElementById('proof-detected-amount').innerText = "0 FCFA";
         document.getElementById('proof-detected-balance').innerText = "0 FCFA";
@@ -6674,15 +6676,80 @@
     }
 
     /**
-     * Détection stricte du montant transféré Orange Money :
-     * 1. Priorité absolue au montant issu de la couche ORANGE (via canvas)
-     * 2. Analyse textuelle de la section en-tête située avant "Détails du bénéficiaire" (zone du montant orange)
-     * 3. Analyse textuelle contextuelle pour capturer le montant réel transféré
-     *    en excluant formellement "Frais : 0 FCFA", "Nouveau solde", taxes et commissions.
-     * 4. Ne prend aucun montant par défaut (retourne 0 si non détecté).
+     * Détection stricte Orange Money :
+     * Le montant à considérer est "Montant prélevé" : -10 000 FCFA (ou -10.000 F CFA).
+     * 1. Priorité absolue : extraction de la mention "Montant prélevé" et de sa valeur négative (-10 000 FCFA).
+     * 2. Analyse de proximité : recherche de la valeur négative immédiatement après "Montant prélevé".
+     * 3. Fallbacks secondaires sur montants négatifs explicites, en excluant formellement "Frais" et "Nouveau solde".
      */
     function extractOrangeMoneyAmount(fullText, orangeOcrText) {
-        // 1. Priorité absolue : Montant lu dans la couche de pixels orange (via canvas)
+        if (!fullText) return { amount: 0, rawString: "", isNegative: false, found: false, source: 'none' };
+        const clean = fullText.replace(/\r/g, '');
+
+        // 1. Priorité absolue : "Montant prélevé" suivi du montant (ex: "Montant prélevé : -10 000 FCFA" ou "-10.000 F CFA")
+        const directPreleveRegex = /(?:montant\s*(?:prélevé|preleve|préleve|prélèvement|prelevement|débité|debite))\s*[:=]?\s*([–—-]?\s*[0-9]{1,3}(?:[ .',][0-9]{3})+|[–—-]?\s*[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i;
+        const directMatch = clean.match(directPreleveRegex);
+        if (directMatch) {
+            const raw = directMatch[1].replace(/\s+/g, '');
+            const isNegative = /^[–—-]/.test(raw);
+            const val = parseInt(raw.replace(/[–—\- .',]/g, ''), 10);
+            if (val >= 1000) {
+                return {
+                    amount: val,
+                    rawString: directMatch[0].trim(),
+                    isNegative: isNegative,
+                    found: true,
+                    source: 'montant_preleve_direct'
+                };
+            }
+        }
+
+        // 2. Proximité : si "Montant prélevé" est séparé de son montant par un saut de ligne ou des espaces
+        const prelevePos = clean.search(/(?:montant\s*(?:prélevé|preleve|préleve)|(?:prélevé|preleve)\b)/i);
+        if (prelevePos !== -1) {
+            const textAfter = clean.substring(prelevePos, Math.min(clean.length, prelevePos + 180));
+            // Ne pas déborder sur "Frais" ou "Nouveau solde"
+            const endIdx = textAfter.search(/(?:frais|solde)/i);
+            const snippet = endIdx !== -1 ? textAfter.substring(0, endIdx) : textAfter;
+            const proxMatch = snippet.match(/([–—-]?\s*[0-9]{1,3}(?:[ .',][0-9]{3})+|[–—-]?\s*[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
+            if (proxMatch) {
+                const raw = proxMatch[1].replace(/\s+/g, '');
+                const isNegative = /^[–—-]/.test(raw);
+                const val = parseInt(raw.replace(/[–—\- .',]/g, ''), 10);
+                if (val >= 1000) {
+                    return {
+                        amount: val,
+                        rawString: proxMatch[0].trim(),
+                        isNegative: isNegative,
+                        found: true,
+                        source: 'montant_preleve_proximity'
+                    };
+                }
+            }
+        }
+
+        // 3. Montant négatif explicite sur une ligne (ex: -10 000 FCFA ou -10.000 F CFA)
+        const lines = fullText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        for (const line of lines) {
+            const lower = line.toLowerCase();
+            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission')) continue;
+            const negMatch = line.match(/([–—-]\s*[0-9]{1,3}(?:[ .',][0-9]{3})+|[–—-]\s*[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
+            if (negMatch) {
+                const raw = negMatch[1].replace(/\s+/g, '');
+                const val = parseInt(raw.replace(/[–—\- .',]/g, ''), 10);
+                if (val >= 1000) {
+                    return {
+                        amount: val,
+                        rawString: negMatch[0].trim(),
+                        isNegative: true,
+                        found: true,
+                        source: 'negative_amount_line'
+                    };
+                }
+            }
+        }
+
+        // 4. Fallback si l'OCR a manqué le mot "prélevé" mais a la couche orange
         if (orangeOcrText && typeof orangeOcrText === 'string') {
             const cleanOrange = orangeOcrText.replace(/\r/g, ' ').replace(/\s+/g, ' ');
             const orangeMatch = cleanOrange.match(/([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
@@ -6690,88 +6757,12 @@
             if (orangeMatch) {
                 const val = parseInt(orangeMatch[1].replace(/[ .',]/g, ''), 10);
                 if (val >= 1000) {
-                    return { amount: val, source: 'orange_layer' };
+                    return { amount: val, rawString: orangeMatch[0].trim(), isNegative: true, found: true, source: 'orange_layer_fallback' };
                 }
             }
         }
 
-        if (!fullText) return { amount: 0, source: 'none' };
-
-        // 2. Montant situé dans l'en-tête (en orange sur l'app) avant "Détails du bénéficiaire"
-        const benefIdx = fullText.search(/(?:détails\s+du\s+bénéficiaire|details\s+du\s+beneficiaire|bénéficiaire|beneficiaire)/i);
-        if (benefIdx !== -1) {
-            const headerSection = fullText.substring(0, benefIdx);
-            const headerAmountMatch = headerSection.match(/\b([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
-            if (headerAmountMatch) {
-                const val = parseInt(headerAmountMatch[1].replace(/[ .',]/g, ''), 10);
-                if (val >= 1000) {
-                    return { amount: val, source: 'orange_header_section' };
-                }
-            }
-        }
-
-        const lines = fullText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-
-        // 3. Recherche par mot-clé explicite de transfert : "Montant prélevé", "Montant transféré", "Montant envoyé", "Débité"
-        const explicitRegex = /(?:montant\s*(?:prélevé|preleve|transféré|transfere|envoyé|envoye|débité|debite|principal|en\s*orange|du\s*transfert)?\s*[:=]?\s*)(?:-)?\s*([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i;
-        for (const line of lines) {
-            const lower = line.toLowerCase();
-            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission')) continue;
-            const m = line.match(explicitRegex);
-            if (m) {
-                const val = parseInt(m[1].replace(/[ .',]/g, ''), 10);
-                if (val >= 1000) return { amount: val, source: 'explicit_keyword' };
-            }
-        }
-
-        // 4. Recherche inline : "transféré 10000 FCFA" ou "envoyé 10000 FCFA"
-        const inlineTransferMatch = fullText.match(/(?:transféré|transfere|envoyé|envoye|débité|debite)\s+([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i);
-        if (inlineTransferMatch) {
-            const val = parseInt(inlineTransferMatch[1].replace(/[ .',]/g, ''), 10);
-            if (val >= 1000) return { amount: val, source: 'inline_transfer' };
-        }
-
-        // 5. Recherche sur les lignes individuelles en excluant formellement "Frais" et "Solde"
-        for (const line of lines) {
-            const lower = line.toLowerCase();
-            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('balance') || lower.includes('0777588706') || lower.includes('mp') || lower.includes('pp')) {
-                continue;
-            }
-            const amountMatch = line.match(/\b([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/i);
-            if (amountMatch) {
-                const val = parseInt(amountMatch[1].replace(/[ .',]/g, ''), 10);
-                if (val >= 1000) return { amount: val, source: 'line_currency' };
-            }
-        }
-
-        // 6. Recherche d'un montant isolé sur une ligne (chiffre seul sur la ligne, typique de l'affichage Max it)
-        for (const line of lines) {
-            const lower = line.toLowerCase();
-            if (lower.includes('frais') || lower.includes('solde') || lower.includes('commission') || lower.includes('0777588706') || lower.includes('mp') || lower.includes('pp')) {
-                continue;
-            }
-            const standaloneMatch = line.match(/^([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F)?$/i);
-            if (standaloneMatch) {
-                const val = parseInt(standaloneMatch[1].replace(/[ .',]/g, ''), 10);
-                if (val >= 1000) return { amount: val, source: 'standalone_line' };
-            }
-        }
-
-        // 7. Scan global de tous les montants du texte en éliminant les zones de Frais et Solde
-        const globalMatches = [...fullText.matchAll(/([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)/gi)];
-        for (const match of globalMatches) {
-            const idx = match.index;
-            const contextBefore = fullText.substring(Math.max(0, idx - 40), idx).toLowerCase();
-            const contextAfter = fullText.substring(idx, Math.min(fullText.length, idx + match[0].length + 20)).toLowerCase();
-            if (contextBefore.includes('frais') || contextBefore.includes('solde') || contextBefore.includes('commission') ||
-                contextAfter.includes('frais') || contextAfter.includes('solde')) {
-                continue;
-            }
-            const val = parseInt(match[1].replace(/[ .',]/g, ''), 10);
-            if (val >= 1000) return { amount: val, source: 'global_scan' };
-        }
-
-        return { amount: 0, source: 'not_found' };
+        return { amount: 0, rawString: "", isNegative: false, found: false, source: 'not_found' };
     }
 
     function normalizeProofRef(ref) {
@@ -6986,11 +6977,11 @@
             isMerchantValid = isBeneficiaryValid;
             detectedMerchant = isBeneficiaryValid ? "0777588706" : extractOrangeMoneyBeneficiary(text);
 
-            // 2. Sur Orange : le montant à considérer est celui en orange (excluant Frais : 0 FCFA et soldes)
+            // 2. Sur Orange : Le montant à considérer est « Montant prélevé » : -10 000 FCFA
             const parsedAmount = extractOrangeMoneyAmount(text, orangeOcrText);
             detectedAmount = parsedAmount.amount;
 
-            // 3. Le montant en orange doit correspondre exactement à 10 000 FCFA
+            // 3. Le « Montant prélevé » doit correspondre exactement à -10 000 FCFA (ou -10.000 F CFA)
             const isAmountValid = (detectedAmount === 10000);
 
             // 4. RÈGLE ANTI-FRAUDE : Contrôle strict de réutilisation du même identifiant Orange Money (PP..., MP...)
@@ -7066,8 +7057,19 @@
         const refEl = document.getElementById('proof-detected-ref');
         if (refEl) refEl.innerText = extractedRef || 'NON DÉTECTÉ';
 
+        const amountLabelEl = document.getElementById('proof-amount-label');
+        if (amountLabelEl) {
+            amountLabelEl.innerText = detectedMode === "Orange Money" ? "Montant Prélevé :" : "Montant Réglé :";
+        }
+
         const amountEl = document.getElementById('proof-detected-amount');
-        if (amountEl) amountEl.innerText = detectedAmount > 0 ? (detectedAmount.toLocaleString('fr-FR') + ' FCFA') : '0 FCFA';
+        if (amountEl) {
+            if (detectedMode === "Orange Money") {
+                amountEl.innerText = detectedAmount > 0 ? (`-${detectedAmount.toLocaleString('fr-FR')} FCFA`) : '0 FCFA';
+            } else {
+                amountEl.innerText = detectedAmount > 0 ? (detectedAmount.toLocaleString('fr-FR') + ' FCFA') : '0 FCFA';
+            }
+        }
 
         const balEl = document.getElementById('proof-detected-balance');
         if (balEl) {
@@ -7102,9 +7104,9 @@
             } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
                 warning.classList.remove('hidden');
                 if (detectedAmount === 0) {
-                    warning.innerText = "❌ Montant non détecté : Le montant en orange doit correspondre à 10 000 FCFA.";
+                    warning.innerText = "❌ Montant non détecté : Le « Montant prélevé » doit correspondre à -10 000 FCFA.";
                 } else {
-                    warning.innerText = `❌ Montant incorrect : Le montant en orange doit être de 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`;
+                    warning.innerText = `❌ Montant incorrect : Le « Montant prélevé » doit être de -10 000 FCFA (-${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`;
                 }
             } else if (!isCompliant) {
                 warning.classList.remove('hidden');
@@ -7140,8 +7142,8 @@
             showNotification(
                 "Montant Orange Non Conforme", 
                 detectedAmount === 0 
-                    ? "Le montant en orange sur la preuve doit correspondre à 10 000 FCFA."
-                    : `Le montant en orange doit correspondre à 10 000 FCFA (${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`, 
+                    ? "Le « Montant prélevé » sur la preuve doit correspondre à -10 000 FCFA."
+                    : `Le « Montant prélevé » doit correspondre à -10 000 FCFA (-${detectedAmount.toLocaleString('fr-FR')} FCFA détecté).`, 
                 "error"
             );
         } else {
@@ -7201,8 +7203,8 @@
                     warning.classList.remove('hidden');
                     if (state.currentAnalyzedProof.mode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
                         warning.innerText = state.currentAnalyzedProof.montantTotal === 0
-                            ? "❌ Montant non détecté : Le montant en orange doit correspondre à 10 000 FCFA."
-                            : `❌ Montant incorrect : Le montant en orange doit correspondre à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} F détecté).`;
+                            ? "❌ Montant non détecté : Le « Montant prélevé » doit correspondre à -10 000 FCFA."
+                            : `❌ Montant incorrect : Le « Montant prélevé » doit correspondre à -10 000 FCFA (-${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`;
                     } else if (state.currentAnalyzedProof.mode === "Wave Mobile" && !state.currentAnalyzedProof.isMerchantValid) {
                         warning.innerText = "❌ Marchand non conforme : Le paiement Wave doit être effectué à « Pitchou maillots ».";
                     } else if (state.currentAnalyzedProof.mode === "Wave Mobile" && !state.currentAnalyzedProof.isAmountValid) {
@@ -7332,7 +7334,7 @@
                 if (state.currentAnalyzedProof.mode && state.currentAnalyzedProof.mode.includes("Orange") && !state.currentAnalyzedProof.isAmountValid) {
                     showNotification(
                         "Montant Orange Money Non Conforme", 
-                        `Validation impossible : Le montant en orange doit correspondre à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
+                        `Validation impossible : Le « Montant prélevé » doit correspondre à -10 000 FCFA.`, 
                         "error"
                     );
                     return;
@@ -7372,7 +7374,7 @@
                 if (!state.currentAnalyzedProof.isAmountValid) {
                     showNotification(
                         "Montant Orange Rejeté", 
-                        `Le montant en orange doit correspondre à 10 000 FCFA (${state.currentAnalyzedProof.montantTotal.toLocaleString('fr-FR')} FCFA détecté).`, 
+                        `Le « Montant prélevé » doit correspondre à -10 000 FCFA.`, 
                         "error"
                     );
                     return;
