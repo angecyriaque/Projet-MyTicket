@@ -4618,30 +4618,39 @@
     
     function clearLegacyCacheOnFirstRun() {
         try {
-            const version = localStorage.getItem('myticket_reset_final_prod_v2');
-            if (version !== 'production_clean_no_users_v2') {
+            const version = localStorage.getItem('myticket_reset_final_prod_v4');
+            if (version !== 'production_clean_v4_reset_participants_and_verses') {
                 const keysToRemove = [
                     'myticket_reset_final_v3',
                     'myticket_reset_final_v4',
                     'myticket_reset_final_v5',
                     'myticket_reset_final_v6',
                     'myticket_reset_final_prod_v1',
+                    'myticket_reset_final_prod_v2',
+                    'myticket_reset_final_prod_v3',
                     'myticket_participants_v6',
+                    'myticket_participants_v7',
                     'myticket_payment_proofs_v6',
-                    'myticket_users_v3',
-                    'myticket_active_user_v3',
-                    'myticket_user_v6',
-                    'myticket_finance_v13',
-                    'myticket_finance_v10',
-                    'myticket_gallery_albums_v1'
+                    'myticket_payment_proofs_v7',
+                    'myticket_used_proof_ids_v1'
                 ];
                 keysToRemove.forEach(k => localStorage.removeItem(k));
-                localStorage.setItem('myticket_reset_final_prod_v2', 'production_clean_no_users_v2');
-                localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
-                localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify({}));
+                localStorage.setItem('myticket_reset_final_prod_v4', 'production_clean_v4_reset_participants_and_verses');
+                localStorage.setItem('myticket_participants_v8', JSON.stringify([]));
+                localStorage.setItem('myticket_payment_proofs_v8', JSON.stringify({}));
+                localStorage.setItem('myticket_used_proof_ids_v1', JSON.stringify([]));
                 localStorage.setItem('myticket_users_v4', JSON.stringify([]));
                 localStorage.setItem('myticket_gallery_albums_v2', JSON.stringify([]));
                 localStorage.setItem('myticket_active_user_v4', JSON.stringify(DEFAULT_VISITOR_USER));
+                state.participants = [];
+                state.paymentProofs = {};
+                state.currentTicket = null;
+                if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.appDb) {
+                    try {
+                        MyTicketCloudDB.appDb.get('participants_data').put(JSON.stringify([]));
+                        MyTicketCloudDB.appDb.get('participants_data_v2').put(JSON.stringify([]));
+                    } catch(e){}
+                }
             }
         } catch (e) {}
     }
@@ -4849,12 +4858,12 @@
             });
 
             // 2. Realtime Listen: Participants & Tickets
-            this.appDb.get('participants_data').on((dataStr) => {
+            this.appDb.get('participants_data_v2').on((dataStr) => {
                 if (!dataStr) return;
                 try {
                     const cloudParticipants = JSON.parse(dataStr);
                     if (Array.isArray(cloudParticipants)) {
-                        const localPartStr = localStorage.getItem('myticket_participants_v7') || '[]';
+                        const localPartStr = localStorage.getItem('myticket_participants_v8') || '[]';
                         const currentLocal = JSON.parse(localPartStr);
 
                         const mergedMap = new Map();
@@ -4864,7 +4873,7 @@
 
                         if (JSON.stringify(state.participants) !== JSON.stringify(merged)) {
                             state.participants = merged;
-                            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                            localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
                             this.refreshParticipantViews();
                         }
                     }
@@ -4916,12 +4925,12 @@
                         this.refreshUserViews();
                     }
                 });
-                this.db.collection("myticket_participants").onSnapshot(snap => {
+                this.db.collection("myticket_participants_v2").onSnapshot(snap => {
                     const list = [];
                     snap.forEach(d => list.push(d.data()));
                     if (list.length > 0) {
                         state.participants = list;
-                        localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                        localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
                         if (typeof syncUsedProofIdentifiers === 'function') syncUsedProofIdentifiers();
                         this.refreshParticipantViews();
                     }
@@ -4977,13 +4986,13 @@
                         } catch(e){console.error(e);}
                     }
                 });
-                this.appDb.get('participants_data').once((dataStr) => {
+                this.appDb.get('participants_data_v2').once((dataStr) => {
                     if (dataStr) {
                         try {
                             const parsed = JSON.parse(dataStr);
                             if (Array.isArray(parsed) && parsed.length > (state.participants || []).length) {
                                 state.participants = parsed;
-                                localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                                localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
                                 this.refreshParticipantViews();
                             }
                         } catch(e){console.error(e);}
@@ -5019,11 +5028,11 @@
             this.broadcastLocally({ type: 'PARTICIPANT_SAVED', data: participant });
             if (this.appDb) {
                 try {
-                    this.appDb.get('participants_data').put(JSON.stringify(state.participants || []));
+                    this.appDb.get('participants_data_v2').put(JSON.stringify(state.participants || []));
                 } catch(e){console.error(e);}
             }
             if (this.db && participant.id) {
-                try { this.db.collection("myticket_participants").doc(participant.id).set(participant, { merge: true }); } catch(e){console.error(e);}
+                try { this.db.collection("myticket_participants_v2").doc(participant.id).set(participant, { merge: true }); } catch(e){console.error(e);}
             }
         },
 
@@ -5031,7 +5040,7 @@
             this.broadcastLocally({ type: 'PARTICIPANTS_SYNCED', data: participantsList });
             if (this.appDb) {
                 try {
-                    this.appDb.get('participants_data').put(JSON.stringify(participantsList || []));
+                    this.appDb.get('participants_data_v2').put(JSON.stringify(participantsList || []));
                 } catch(e){console.error(e);}
             }
         },
@@ -5039,15 +5048,15 @@
         deleteParticipant: function(participantId) {
             if (!participantId) return;
             state.participants = (state.participants || []).filter(p => p.id !== participantId);
-            try { localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants || [])); } catch(e){}
+            try { localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants || [])); } catch(e){}
             this.broadcastLocally({ type: 'PARTICIPANT_DELETED', data: { id: participantId } });
             if (this.appDb) {
                 try {
-                    this.appDb.get('participants_data').put(JSON.stringify(state.participants || []));
+                    this.appDb.get('participants_data_v2').put(JSON.stringify(state.participants || []));
                 } catch(e){console.error(e);}
             }
             if (this.db) {
-                try { this.db.collection("myticket_participants").doc(participantId).delete(); } catch(e){console.error(e);}
+                try { this.db.collection("myticket_participants_v2").doc(participantId).delete(); } catch(e){console.error(e);}
             }
         },
 
@@ -5128,6 +5137,7 @@
                 try {
                     this.appDb.get('users_data').put(JSON.stringify([]));
                     this.appDb.get('participants_data').put(JSON.stringify([]));
+                    this.appDb.get('participants_data_v2').put(JSON.stringify([]));
                     this.appDb.get('finance_data').put(JSON.stringify({
                         encaissements: [],
                         decaissements: [],
@@ -5140,6 +5150,7 @@
             if (this.db) {
                 try {
                     this.db.collection("myticket_participants").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
+                    this.db.collection("myticket_participants_v2").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
                     this.db.collection("myticket_finance").doc("current").delete().catch(()=>{});
                     this.db.collection("myticket_users").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
                     this.db.collection("myticket_gallery").get().then(snap => snap.forEach(d => d.ref.delete())).catch(()=>{});
@@ -5160,7 +5171,7 @@
                 state.users = local;
                 this.refreshUserViews();
             } else if (msg.type === 'PARTICIPANT_SAVED' || msg.type === 'PARTICIPANTS_SYNCED' || msg.type === 'PARTICIPANT_DELETED') {
-                const local = JSON.parse(localStorage.getItem('myticket_participants_v7') || '[]');
+                const local = JSON.parse(localStorage.getItem('myticket_participants_v8') || '[]');
                 state.participants = local;
                 this.refreshParticipantViews();
             } else if (msg.type === 'FINANCE_SAVED') {
@@ -5349,13 +5360,13 @@
 
     function initializeParticipantsData() {
         try {
-            const stored = localStorage.getItem('myticket_participants_v7');
+            const stored = localStorage.getItem('myticket_participants_v8');
             if (stored) {
                 const parsed = JSON.parse(stored);
                 state.participants = Array.isArray(parsed) ? parsed : [];
             } else {
                 state.participants = [];
-                localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
+                localStorage.setItem('myticket_participants_v8', JSON.stringify([]));
             }
         } catch (e) {
             state.participants = [];
@@ -5364,12 +5375,12 @@
 
     function loadPaymentProofs() {
         try {
-            const storedProofs = localStorage.getItem('myticket_payment_proofs_v7');
+            const storedProofs = localStorage.getItem('myticket_payment_proofs_v8');
             if (storedProofs) {
                 state.paymentProofs = JSON.parse(storedProofs);
             } else {
                 state.paymentProofs = {};
-                localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify({}));
+                localStorage.setItem('myticket_payment_proofs_v8', JSON.stringify({}));
             }
         } catch(e) {
             state.paymentProofs = {};
@@ -5382,7 +5393,7 @@
     
     function saveParticipantsData() {
         try {
-            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants || []));
+            localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants || []));
             if (typeof MyTicketCloudDB !== 'undefined') {
                 MyTicketCloudDB.syncAllParticipants(state.participants || []);
             }
@@ -5400,7 +5411,7 @@
 
     function savePaymentProofs() {
         try {
-            localStorage.setItem('myticket_payment_proofs_v7', JSON.stringify(state.paymentProofs));
+            localStorage.setItem('myticket_payment_proofs_v8', JSON.stringify(state.paymentProofs));
         } catch(e){console.error(e);}
     }
 
@@ -7461,7 +7472,7 @@
         }
 
         try {
-            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+            localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
             if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
         } catch(e){console.error(e);}
         
@@ -7521,7 +7532,7 @@
             if (!found.assignedVerse) {
                 found.assignedVerse = assignUniqueVerseToParticipant(found);
                 try {
-                    localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                    localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
                     if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncParticipant(found);
                 } catch(e){}
             }
@@ -8160,7 +8171,7 @@
         if (!ticket.assignedVerse) {
             ticket.assignedVerse = assignUniqueVerseToParticipant(ticket);
             try {
-                localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
                 if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncParticipant(ticket);
             } catch (e) {}
         }
@@ -10333,7 +10344,7 @@
 
         // 1. Purge Participants
         state.participants = [];
-        try { localStorage.setItem('myticket_participants_v7', JSON.stringify([])); } catch(e){console.error(e);}
+        try { localStorage.setItem('myticket_participants_v8', JSON.stringify([])); } catch(e){console.error(e);}
 
         // 2. Purge Finance
         state.finance = {
@@ -10925,7 +10936,7 @@
         if (confirm("Réinitialiser tout l'historique ?")) {
             state.participants = [];
             try {
-                localStorage.setItem('myticket_participants_v7', JSON.stringify([]));
+                localStorage.setItem('myticket_participants_v8', JSON.stringify([]));
             } catch(e){console.error(e);}
             renderHistoryList();
             updateDashboardStats();
@@ -13330,7 +13341,7 @@
         p.checkedIn = false;
         p.checkInTime = null;
         try {
-            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+            localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
             if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
         } catch(e){console.error(e);}
         renderReceptionTable();
@@ -13981,13 +13992,13 @@
                 checkedIn: false
             };
             state.participants.unshift(participant);
-            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+            localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
         }
 
         // RÈGLE OBLIGATOIRE : Attribution d'un verset biblique unique sans répétition
         if (!participant.assignedVerse) {
             participant.assignedVerse = assignUniqueVerseToParticipant(participant);
-            localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+            localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
         }
 
         // RÈGLE OBLIGATOIRE : Marquer l'identifiant Wave comme consommé
@@ -14703,7 +14714,7 @@
             p.checkInTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
             try {
-                localStorage.setItem('myticket_participants_v7', JSON.stringify(state.participants));
+                localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
                 if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
             } catch (e) {}
 
