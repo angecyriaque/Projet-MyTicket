@@ -2150,9 +2150,17 @@
                         </button>
                     </div>
 
-                    <!-- ACTION BUTTONS (WHATSAPP SHARE + MON VERSET JPEG) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 max-w-[660px] mx-auto">
-                        <!-- Button: WhatsApp Share -->
+                    <!-- ACTION BUTTONS (BILLET IMAGE + WHATSAPP SHARE + MON VERSET JPEG) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 max-w-[660px] mx-auto">
+                        <!-- Button 1: Download Ticket Image -->
+                        <button id="btn-download-ticket-jpg" disabled onclick="downloadTicketImage()" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:opacity-95 text-white font-black text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer" title="Télécharger mon billet officiel en image">
+                            <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
+                                <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                            </div>
+                            <span>Billet (Image)</span>
+                        </button>
+
+                        <!-- Button 2: WhatsApp Share -->
                         <button id="btn-share-ticket-whatsapp" disabled onclick="shareTicketWhatsApp()" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-black text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg cursor-pointer">
                             <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="send" class="h-3.5 w-3.5"></i>
@@ -2160,7 +2168,7 @@
                             <span>Partager (WhatsApp)</span>
                         </button>
 
-                        <!-- Button: Download Verse Card as JPG -->
+                        <!-- Button 3: Download Verse Card as JPG -->
                         <button id="btn-download-verset" disabled onclick="downloadVersetImage()" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-brand-orange to-pink-500 hover:opacity-95 text-white font-black text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 opacity-50 cursor-not-allowed shadow-md hover:shadow-lg border border-amber-300/40 cursor-pointer">
                             <div class="h-5 w-5 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
                                 <i data-lucide="image" class="h-3.5 w-3.5"></i>
@@ -7466,7 +7474,7 @@
 
         showNotification(
             "Pass Émis avec Succès !", 
-            `Billet ${categorie} (#${customId}) généré pour ${prenom} ${nom}. Vous pouvez maintenant télécharger votre carte verset ou le partager par WhatsApp.`, 
+            `Billet ${categorie} (#${customId}) généré pour ${prenom} ${nom}. Vous pouvez maintenant télécharger votre billet en image, votre carte verset ou le partager par WhatsApp.`, 
             "success"
         );
     }
