@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=6" as="script">
+    <link rel="preload" href="assets/app.js?v=7" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=6" defer></script>
+    <script src="assets/app.js?v=7" defer></script>
 
 
 
@@ -1458,17 +1458,18 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 text-[10px]">
                                     <div>
-                                        <span id="proof-amount-label" class="text-slate-400 block font-bold uppercase text-[9px]">Montant Réglé :</span>
-                                        <p id="proof-detected-amount" class="font-black text-slate-900 font-mono text-xs">0 FCFA</p>
+                                        <span id="proof-amount-label" class="text-slate-400 block font-bold uppercase text-[9px]">Montant Débité :</span>
+                                        <p id="proof-detected-amount" class="font-black text-slate-900 font-mono text-xs">0 F</p>
                                     </div>
                                     <div>
-                                        <span class="text-slate-400 block font-bold uppercase text-[9px]">Solde Disponible :</span>
-                                        <p id="proof-detected-balance" class="font-black text-emerald-600 font-mono text-xs">0 FCFA</p>
+                                        <span id="proof-code-label" class="text-slate-400 block font-bold uppercase text-[9px]">Code Transaction :</span>
+                                        <p id="proof-detected-code" class="font-black text-slate-900 font-mono text-xs truncate">NON DÉTECTÉ</p>
+                                        <p id="proof-detected-balance" class="hidden">0 F</p>
                                     </div>
                                 </div>
                                 <div id="proof-checklist-container" class="hidden"></div>
                                 <p id="proof-balance-warning" class="text-[10px] font-bold text-red-600 bg-red-50 p-1.5 rounded-lg border border-red-200 hidden font-mono">
-                                    ⚠️ Solde insuffisant !
+                                    ❌ Reçu non conforme
                                 </p>
                             </div>
                         </div>

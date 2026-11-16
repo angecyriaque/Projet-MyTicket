@@ -2259,10 +2259,15 @@
         }
 
         const amountLabelEl = document.getElementById('proof-amount-label');
-        if (amountLabelEl) amountLabelEl.innerText = "Montant Réglé :";
-        document.getElementById('proof-detected-ref').innerText = "NON DÉTECTÉ";
-        document.getElementById('proof-detected-amount').innerText = "0 FCFA";
-        document.getElementById('proof-detected-balance').innerText = "0 FCFA";
+        if (amountLabelEl) amountLabelEl.innerText = "Montant Débité :";
+        const refEl = document.getElementById('proof-detected-ref');
+        if (refEl) refEl.innerText = "NON DÉTECTÉ";
+        const codeEl = document.getElementById('proof-detected-code');
+        if (codeEl) codeEl.innerText = "NON DÉTECTÉ";
+        const amountEl = document.getElementById('proof-detected-amount');
+        if (amountEl) amountEl.innerText = "0 F";
+        const balEl = document.getElementById('proof-detected-balance');
+        if (balEl) balEl.innerText = "0 F";
 
         const checkListEl = document.getElementById('proof-checklist-container');
         if (checkListEl) checkListEl.innerHTML = '';
@@ -2818,6 +2823,9 @@
         const refEl = document.getElementById('proof-detected-ref');
         if (refEl) refEl.innerText = extractedRef || 'NON DÉTECTÉ';
 
+        const codeEl = document.getElementById('proof-detected-code');
+        if (codeEl) codeEl.innerText = extractedRef || 'NON DÉTECTÉ';
+
         const amountLabelEl = document.getElementById('proof-amount-label');
         if (amountLabelEl) {
             amountLabelEl.innerText = detectedMode === "Wave Mobile" ? "Montant Débité (Wave) :" : (detectedMode === "Orange Money" ? "Montant Prélevé :" : "Montant Réglé :");
@@ -2835,16 +2843,7 @@
         }
 
         const balEl = document.getElementById('proof-detected-balance');
-        if (balEl) {
-            if (isAlreadyUsed) {
-                balEl.innerText = '0 FCFA (Épuisé)';
-                balEl.className = "font-black text-rose-700 font-mono text-xs";
-            } else {
-                const bal = isActuallyValid ? Math.abs(detectedAmount) : 0;
-                balEl.innerText = bal > 0 ? (bal.toLocaleString('fr-FR') + ' FCFA') : '0 FCFA';
-                balEl.className = isActuallyValid ? "font-black text-emerald-700 font-mono text-xs" : "font-black text-rose-700 font-mono text-xs";
-            }
-        }
+        if (balEl) balEl.innerText = isActuallyValid ? "10 000 FCFA" : "0 FCFA";
 
         // Suppression intégrale des justificatifs (pas de liste de puces affichée)
         const checkListEl = document.getElementById('proof-checklist-container');
@@ -2982,18 +2981,6 @@
                     } else {
                         warning.innerText = "❌ Paiement refusé : reçu non conforme.";
                     }
-                }
-            } else if (state.currentAnalyzedProof.soldeDisponible < ticketPrice) {
-                if (resultCard) {
-                    resultCard.className = "p-3.5 rounded-2xl bg-rose-50/70 border-2 border-rose-400 shadow-sm space-y-2 transition-all duration-300";
-                }
-                if (validIndicator) {
-                    validIndicator.className = "flex items-center gap-1.5 text-xs font-black text-rose-700 font-mono";
-                    validIndicator.innerHTML = '<i data-lucide="x-circle" class="h-4 w-4 text-rose-600"></i> REFUSÉ';
-                }
-                if (warning) {
-                    warning.classList.remove('hidden');
-                    warning.innerText = `⚠️ Solde insuffisant (${state.currentAnalyzedProof.soldeDisponible.toLocaleString('fr-FR')} F disponibles pour un pass à ${ticketPrice.toLocaleString('fr-FR')} F) !`;
                 }
             } else {
                 if (resultCard) {
@@ -3168,15 +3155,6 @@
                 showNotification(
                     "Identifiant Déjà Utilisé", 
                     `Validation impossible : L'identifiant « ${proof.reference} » a déjà été utilisé pour émettre le billet #${duplicateCheck.ticketId || ''}. L'utilisation du même identifiant deux fois est strictement interdite.`, 
-                    "error"
-                );
-                return;
-            }
-
-            if (proof.soldeDisponible < prix) {
-                showNotification(
-                    "Solde Insuffisant", 
-                    `Le solde disponible sur ce reçu (${proof.soldeDisponible.toLocaleString('fr-FR')} FCFA) ne couvre pas le tarif du pass (${prix.toLocaleString('fr-FR')} FCFA).`, 
                     "error"
                 );
                 return;
