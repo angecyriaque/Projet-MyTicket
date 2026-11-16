@@ -1,0 +1,590 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === INLINE STYLE BLOCK 1 === */
+/* Festive Jubilee Warm Atmosphere */
+        .jubilee-glow-pulse {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+        }
+        
+        .step-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .step-card-hover:hover {
+            transform: translateY(-4px);
+        }
+        .festive-glow {
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(245, 158, 11, 0.12) 0%, rgba(139, 92, 246, 0.06) 45%, transparent 75%);
+        }
+        
+        @keyframes subtle-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        .animate-float {
+            animation: subtle-float 4s ease-in-out infinite;
+        }
+
+        .festive-gold-badge {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(255, 90, 54, 0.15) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+        }
+
+        /* Mobile safe-area support & Touch UI */
+        .safe-area-pb {
+            padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
+        }
+        
+        /* Smooth touch scrolling without scrollbar clutter on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Fluid word break and typography alignment */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF5A36;
+        }
+        
+        /* Custom Ticket Visual Elements */
+        .ticket-stub {
+            border-left: 2px dashed #e2e8f0;
+            position: relative;
+        }
+        .ticket-stub::before, .ticket-stub::after {
+            content: '';
+            position: absolute;
+            left: -9px;
+            width: 16px;
+            height: 16px;
+            background: #F8FAFC;
+            border-radius: 50%;
+            border: 1px solid #e2e8f0;
+        }
+        .ticket-stub::before { top: -8px; }
+        .ticket-stub::after { bottom: -8px; }
+        
+        /* ===== NAVIGATION MULTI-VUES : CSS PROPRE ===== */
+        /* Toutes les sections sont cachées par défaut via HTML style="display:none" */
+        /* JS les affiche/cache via style.display uniquement */
+        .view-section {
+            /* Transition douce à l'affichage */
+            transition: opacity 0.18s ease-out;
+        }
+
+        /* =========================================================
+           EXPERT A4 PRINT IMPOSITION (210mm x 297mm Portrait)
+           Zero Overflow Guarantee • High-Prestige Official Sheet
+           ========================================================= */
+        @page {
+            size: A4 portrait;
+            margin: 8mm 10mm;
+        }
+
+        @media screen {
+            #a4-print-sheet {
+                display: none !important;
+            }
+        }
+
+        @media print {
+            html, body {
+                width: 190mm !important;
+                height: 275mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                color: #0f172a !important;
+                font-family: system-ui, -apple-system, sans-serif !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Hide all screen UI components */
+            body > *:not(#a4-print-sheet) {
+                display: none !important;
+            }
+
+            #a4-print-sheet {
+                display: block !important;
+                width: 190mm !important;
+                max-width: 190mm !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                background: white !important;
+                box-sizing: border-box !important;
+                page-break-inside: avoid !important;
+                overflow: hidden !important;
+            }
+        }
+    
+        /* =========================================================
+           PREMIUM DIAPORAMA TRANSITIONS & ANIMATIONS ENGINE
+           ========================================================= */
+        @keyframes diapoKenBurns {
+            0% {
+                transform: scale(1.0) translate(0, 0);
+            }
+            50% {
+                transform: scale(1.10) translate(-1.5%, -1%);
+            }
+            100% {
+                transform: scale(1.05) translate(1%, 0.8%);
+            }
+        }
+        .anim-kenburns {
+            animation: diapoKenBurns 10s ease-in-out infinite alternate !important;
+            transform-origin: center center;
+        }
+
+        @keyframes diapoFadeSmooth {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .anim-fade {
+            animation: diapoFadeSmooth 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoSlideInRight {
+            0% {
+                opacity: 0;
+                transform: perspective(1000px) rotateY(-18deg) translateX(80px) scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(1000px) rotateY(0deg) translateX(0) scale(1);
+            }
+        }
+        @keyframes diapoSlideInLeft {
+            0% {
+                opacity: 0;
+                transform: perspective(1000px) rotateY(18deg) translateX(-80px) scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(1000px) rotateY(0deg) translateX(0) scale(1);
+            }
+        }
+        .anim-slide-next {
+            animation: diapoSlideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+        .anim-slide-prev {
+            animation: diapoSlideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoDreamyBlur {
+            0% {
+                opacity: 0;
+                filter: blur(25px) brightness(1.3);
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                filter: blur(0px) brightness(1);
+                transform: scale(1);
+            }
+        }
+        .anim-blur {
+            animation: diapoDreamyBlur 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoCubeFlip {
+            0% {
+                opacity: 0;
+                transform: perspective(1200px) rotateX(25deg) scale(0.88);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(1200px) rotateX(0deg) scale(1);
+            }
+        }
+        .anim-cube {
+            animation: diapoCubeFlip 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards !important;
+        }
+
+        @keyframes diapoPulseGlow {
+            0% {
+                opacity: 0;
+                filter: drop-shadow(0 0 35px rgba(245, 158, 11, 0.8)) brightness(1.2);
+                transform: scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 0px transparent) brightness(1);
+                transform: scale(1);
+            }
+        }
+        .anim-pulse {
+            animation: diapoPulseGlow 0.6s ease-out forwards !important;
+        }
+
+        /* Diaporama progress bar */
+        #slideshow-progress-bar {
+            height: 3px;
+            background: linear-gradient(90deg, #F59E0B, #FF5A36, #FDE68A);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+            transition: width 0.05s linear;
+        }
+
+        /* Diaporama interactive thumbnail item */
+        .diapo-thumb-item {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        .diapo-thumb-item:hover {
+            transform: scale(1.08) translateY(-2px);
+            border-color: rgba(245, 158, 11, 0.6);
+        }
+        .diapo-thumb-item.active {
+            border-color: #F59E0B !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+            transform: scale(1.12) translateY(-2px);
+        }
+
+        /* Enhanced Album Cards 3D Tilt & Sheen */
+        .album-card-interactive {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .album-card-interactive:hover {
+            transform: translateY(-6px) scale(1.015);
+            box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.18), 0 0 25px -5px rgba(245, 158, 11, 0.15);
+        }
+
+    
+        /* High-Performance Mobile Optimization & 60 FPS GPU Rendering */
+        @media (max-width: 768px) {
+            /* Prevent iOS automatic input zoom */
+            input, select, textarea {
+                font-size: 14px !important;
+                touch-action: manipulation;
+            }
+
+            /* Responsive touch targets & zero-latency taps */
+            button, a, input[type="button"], input[type="submit"] {
+                min-height: 38px;
+                touch-action: manipulation;
+            }
+
+            /* 1. Désactivation des filtres de flou GPU lourds sur mobile pour garantir 60 FPS fluide */
+            .backdrop-blur-sm,
+            .backdrop-blur-md,
+            .backdrop-blur-lg,
+            .backdrop-blur-xl,
+            .backdrop-blur-2xl,
+            .backdrop-blur {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            /* 2. Optimisation du scroll natif accéléré */
+            body, main {
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-y: none;
+            }
+
+            /* 3. Déchargement des vues inactives pour libérer la mémoire vive (RAM) */
+            .view-section[style*="display: none"] {
+                content-visibility: hidden;
+            }
+
+            /* Clear card elevation on mobile */
+            .mobile-card-elevated {
+                box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+            }
+
+            /* Responsive typography clamping for phone screens */
+            .font-display {
+                letter-spacing: -0.02em;
+            }
+        }
+
+/* === INLINE STYLE BLOCK 2 === */
+/* ========================================================= */
+    /* MODULE D'ADAPTATION MULTI-ÉCRANS UNIVERSEL MOBILE ENGINE  */
+    /* ========================================================= */
+    :root {
+        --app-vh: 1vh;
+        --app-height: 100vh;
+        --app-width: 100vw;
+        --device-dpr: 1;
+        --adaptive-scale: 1;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+    }
+
+    @supports (height: 100dvh) {
+        :root {
+            --app-height: 100dvh;
+        }
+    }
+
+    html {
+        font-size: calc(16px * var(--adaptive-scale, 1));
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    /* Micro Screen Scale (<= 360px: iPhone SE, fold cover) */
+    [data-screen-class="micro"] {
+        font-size: calc(14px * var(--adaptive-scale, 1));
+    }
+    [data-screen-class="micro"] main {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    [data-screen-class="micro"] .ticket-stub {
+        width: 6.25rem !important;
+        padding: 0.5rem 0.25rem !important;
+    }
+
+    /* Compact Screen Scale (361px - 390px) */
+    [data-screen-class="compact"] {
+        font-size: calc(15px * var(--adaptive-scale, 1));
+    }
+
+    /* Landscape Mode on Phones */
+    @media screen and (max-height: 520px) and (orientation: landscape) {
+        #mobile-bottom-nav {
+            padding-top: 2px !important;
+            padding-bottom: 2px !important;
+        }
+        #mobile-bottom-nav .mobile-nav-tab {
+            padding: 2px 6px !important;
+        }
+        main {
+            padding-bottom: 4.5rem !important;
+        }
+    }
+
+    body {
+        min-height: var(--app-height, 100vh);
+        touch-action: manipulation;
+    }
+
+    /* Global Mobile Layout Hardening: Zero horizontal scroll / offset */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* iOS Safari Automatic Zoom Fix: 16px font-size on form controls */
+    @media screen and (max-width: 768px) {
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="email"],
+        input[type="password"],
+        input[type="search"],
+        input[type="url"],
+        select,
+        textarea {
+            font-size: 16px !important;
+        }
+    }
+
+    /* Active Mobile Bottom Navigation State */
+    .active-mobile-tab {
+        color: #FF5A36 !important;
+    }
+    .active-mobile-tab i,
+    .active-mobile-tab svg {
+        color: #FF5A36 !important;
+        stroke: #FF5A36 !important;
+    }
+    .active-mobile-tab span {
+        color: #FF5A36 !important;
+        font-weight: 800 !important;
+    }
+    .active-mobile-tab-card {
+        background-color: #FFF7ED !important;
+        border-color: #FF5A36 !important;
+        color: #EA580C !important;
+        box-shadow: 0 4px 12px rgba(255, 90, 54, 0.15) !important;
+    }
+
+    /* Ticket Card Responsive Phone Adaptation */
+    @media screen and (max-width: 480px) {
+        #live-ticket-card {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        #live-ticket-card .ticket-body-col {
+            padding: 0.75rem !important;
+        }
+        #ticket-stub-box {
+            width: 7.25rem !important;
+            padding: 0.5rem 0.25rem !important;
+        }
+        #ticket-qr {
+            width: 6rem !important;
+            height: 6rem !important;
+        }
+    }
+    @media (max-width: 767px) {
+        /* Finance Tables to Cards */
+        #finance-decaissements-table,
+        #finance-dons-table,
+        #finance-consolidation-table {
+            display: block !important;
+            width: 100% !important;
+        }
+        #view-finance table thead {
+            display: none !important;
+        }
+        #view-finance table, #view-finance tbody {
+            display: block !important;
+            width: 100% !important;
+        }
+        #view-finance tr {
+            display: flex !important;
+            flex-direction: column !important;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        #view-finance td {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 0.75rem 0.5rem !important;
+            border-bottom: 1px solid #f8fafc !important;
+            text-align: right !important;
+            font-size: 0.75rem !important;
+        }
+        #view-finance td:last-child {
+            border-bottom: none !important;
+            justify-content: flex-end !important;
+            gap: 0.5rem;
+        }
+        #view-finance td::before {
+            font-weight: 800;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            text-align: left;
+            margin-right: 1rem;
+        }
+        /* No Data Row fallback */
+        #view-finance tr:has(td[colspan]) {
+            border: 1px dashed #cbd5e1 !important;
+            background: #f8fafc !important;
+            box-shadow: none !important;
+            padding: 2rem 1rem !important;
+            align-items: center;
+        }
+        #view-finance tr:has(td[colspan]) td {
+            justify-content: center !important;
+            border: none !important;
+        }
+        #view-finance tr:has(td[colspan]) td::before { content: none !important; }
+
+        /* Labels injection via CSS */
+        /* Decaissements */
+        #finance-decaissements-table td:nth-child(1)::before { content: "Réf / Date"; }
+        #finance-decaissements-table td:nth-child(2)::before { content: "Comité"; }
+        #finance-decaissements-table td:nth-child(3)::before { content: "Ligne de Dépense"; }
+        #finance-decaissements-table td:nth-child(4)::before { content: "Montant"; }
+        #finance-decaissements-table td:nth-child(5)::before { content: "Mode"; }
+        #finance-decaissements-table td:nth-child(6)::before { content: "Statut"; }
+        #finance-decaissements-table td:nth-child(7)::before { content: "Validation"; }
+
+        /* Dons */
+        #finance-dons-table td:nth-child(1)::before { content: "Date"; }
+        #finance-dons-table td:nth-child(2)::before { content: "Donateur / Sponsor"; }
+        #finance-dons-table td:nth-child(3)::before { content: "Type"; }
+        #finance-dons-table td:nth-child(4)::before { content: "Montant"; }
+        #finance-dons-table td:nth-child(5)::before { content: "Compte Cible"; }
+        #finance-dons-table td:nth-child(6)::before { content: "Enregistré par"; }
+        #finance-dons-table td:nth-child(7)::before { content: "Actions"; }
+
+        /* Consolidation */
+        #finance-consolidation-table td:nth-child(1)::before { content: "Comité"; }
+        #finance-consolidation-table td:nth-child(2)::before { content: "Rubriques"; }
+        #finance-consolidation-table td:nth-child(3)::before { content: "Budget Affecté"; }
+        #finance-consolidation-table td:nth-child(4)::before { content: "Dépenses"; }
+        #finance-consolidation-table td:nth-child(5)::before { content: "Solde Dispo"; }
+        #finance-consolidation-table td:nth-child(6)::before { content: "Taux Exécution"; }
+        #finance-consolidation-table td:nth-child(7)::before { content: "Action"; }
+
+        /* Inputs sizing */
+        input[type="text"], input[type="number"], input[type="tel"], select {
+            font-size: 16px !important; /* Prevents iOS Safari Zoom */
+        }
+    }
+
+/* === INLINE STYLE BLOCK 3 === */
+.active-tab {
+    background-color: #0F172A !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* === INLINE STYLE BLOCK 4 === */
+.pb-safe { padding-bottom: calc(env(safe-area-inset-bottom, 1rem) + 1rem); }
+.active-mobile-tab {
+    color: #0F172A !important;
+}
+.active-mobile-tab i {
+    color: #FF5A36 !important;
+}
+.active-mobile-tab-card {
+    border-color: #cbd5e1 !important; /* border-slate-300 */
+    box-shadow: inset 0 0 0 2px #0F172A;
+}
+body {
+    /* To prevent content from hiding behind the bottom nav */
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+@media (max-width: 767px) {
+    body {
+        padding-bottom: 70px;
+    }
+}
+

@@ -4,9 +4,13 @@
   "description": "MyTicket - Festival de la Jeunesse Chrétienne",
   "scripts": {
     "dev": "npx -y http-server -p 3000",
-    "update-versets": "node update-versets.js"
+    "update-versets": "node update-versets.js",
+    "build:css": "tailwindcss -i assets/input.css -o assets/tailwind.css --minify"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
 }
