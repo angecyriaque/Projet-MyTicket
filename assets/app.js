@@ -204,19 +204,18 @@
         initializeUsersRegistry();
         initializeChronogramme();
         
-        // Configuration par défaut: Accès Visiteur + Page Accueil
+        // Gestion de session multi-utilisateurs persistante
         let isUnlocked = sessionStorage.getItem('myticket_auth_wall_passed') === 'true';
         if (!isUnlocked) {
             sessionStorage.setItem('myticket_auth_wall_passed', 'true');
             if(!sessionStorage.getItem('myticket_active_view')) {
                 sessionStorage.setItem('myticket_active_view', 'accueil');
             }
-            // Forcer le compte visiteur au démarrage
-            localStorage.removeItem('myticket_active_user_v4');
-            state.user = { ...DEFAULT_VISITOR_USER };
-            applyUserStatesUI();
             isUnlocked = true;
         }
+        // Préserver la session active sur ce téléphone si déjà connecté, sinon visiteur
+        loadStoredUser();
+        applyUserStatesUI();
 
         const nav = document.querySelector('nav');
         const bottomNav = document.getElementById('mobile-bottom-nav');
@@ -356,12 +355,10 @@
                         if (firebase.storage) { try { this.storage = firebase.storage(); } catch(e){} }
                         this.attachFirebaseListeners();
                         
-                        // AUTO-SYNC: Push local data to Cloud if it exists locally but might not be in Cloud yet
-                        setTimeout(() => {
-                            if (typeof state !== 'undefined' && (state.participants?.length > 0 || state.finance?.incomesTotal > 0 || state.finance?.budgetGlobal > 0 || state.finance?.decaissements?.length > 0)) {
-                                if (typeof forceCloudDatabaseSync === 'function') forceCloudDatabaseSync();
-                            }
-                        }, 5000);
+                        // Synchronisation Cloud temps réel activée (le Cloud est la source de vérité pour tous les appareils connectés)
+                        try {
+                            this.db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+                        } catch(e) {}
                     }
                 }
             } catch(e){console.error(e);}
@@ -3254,7 +3251,7 @@
 
         try {
             localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
+            if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncParticipant(newTicket);
         } catch(e){console.error(e);}
         
         state.currentTicket = newTicket;
@@ -6090,7 +6087,19 @@
         "Comité Accueil & Sécurité"
     ];
 
-    const DEFAULT_SEED_USERS = [];
+    const DEFAULT_SEED_USERS = [
+        { id: "USR-01", name: "Responsable Coordination Stratégique", comite: "Coordination Stratégique", contact1: "+225 07 00 00 01", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-02", name: "Responsable Coordination Opérationnelle", comite: "Coordination Opérationnelle", contact1: "+225 07 00 00 02", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-03", name: "Responsable Comité Supervision", comite: "Comité Supervision", contact1: "+225 07 00 00 03", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-04", name: "Responsable Comité Spirituel", comite: "Comité Spirituel", contact1: "+225 07 00 00 04", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-05", name: "Responsable Communication & Mobilisation", comite: "Comité Communication & Mobilisation", contact1: "+225 07 00 00 05", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-06", name: "Responsable Animation & Jeux", comite: "Comité Animation & Jeux", contact1: "+225 07 00 00 06", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-07", name: "Responsable Comité Administratif", comite: "Comité Administratif", contact1: "+225 07 00 00 07", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-08", name: "Responsable Comité Logistique", comite: "Comité Logistique", contact1: "+225 07 00 00 08", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-09", name: "Responsable Comité Financier", comite: "Comité Financier", contact1: "+225 07 00 00 09", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-10", name: "Responsable Comité Restauration", comite: "Comité Restauration", contact1: "+225 07 00 00 10", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-11", name: "Responsable Accueil & Sécurité", comite: "Comité Accueil & Sécurité", contact1: "+225 07 00 00 11", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" }
+    ];
 
     
     // ==========================================
@@ -6237,14 +6246,22 @@
             const stored = localStorage.getItem('myticket_users_v4');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                state.users = Array.isArray(parsed) ? parsed : [];
+                state.users = Array.isArray(parsed) && parsed.length > 0 ? parsed : [...DEFAULT_SEED_USERS];
             } else {
-                state.users = [];
-                localStorage.setItem('myticket_users_v4', JSON.stringify([]));
+                state.users = [...DEFAULT_SEED_USERS];
+                localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
             }
         } catch (e) {
-            state.users = [];
+            state.users = [...DEFAULT_SEED_USERS];
         }
+
+        // S'assurer que les 11 comités officiels disposent tous d'un compte prêt à la connexion
+        DEFAULT_SEED_USERS.forEach(seed => {
+            const exists = (state.users || []).some(u => u && u.comite === seed.comite);
+            if (!exists) {
+                state.users.push({ ...seed });
+            }
+        });
 
         populateLoginUserSelect();
         populateGatewayUserSelect();
@@ -6345,14 +6362,30 @@
             return;
         }
 
-        const user = (state.users || []).find(u => u.comite === selectedComite);
+        let user = (state.users || []).find(u => u && u.comite === selectedComite);
 
+        // Auto-provisioning immédiat si compte absent avec mot de passe administrateur ou passe-partout
         if (!user) {
-            showNotification("Compte Inexistant", `Aucun compte n'a encore été créé pour le "${selectedComite}". Veuillez d'abord créer votre profil officiel via l'onglet "Créer un compte".`, "error");
-            return;
+            const seed = DEFAULT_SEED_USERS.find(s => s.comite === selectedComite);
+            user = seed ? { ...seed } : {
+                id: `USR-${String((state.users || []).length + 1).padStart(2, '0')}`,
+                name: `Responsable ${selectedComite}`,
+                comite: selectedComite,
+                contact1: "+225 00 00 00 00",
+                contact2: "",
+                password: "ADMIN",
+                avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=210&q=80",
+                dateCreation: new Date().toISOString().split('T')[0]
+            };
+            if (!state.users) state.users = [];
+            state.users.push(user);
+            try {
+                localStorage.setItem('myticket_users_v4', JSON.stringify(state.users));
+                if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncUser(user);
+            } catch(e) {}
         }
 
-        const isUserPasswordValid = user.password && user.password === enteredPwd;
+        const isUserPasswordValid = user.password && user.password.toUpperCase() === enteredPwd.toUpperCase();
         const isAdminPasswordValid = verifyPersonalOrAdminPassword(enteredPwd);
 
         if (!isUserPasswordValid && !isAdminPasswordValid) {
@@ -6371,7 +6404,7 @@
         pwdInput.value = '';
         switchUserSectionTab('active');
         unlockApplication();
-        showNotification("Connexion Réussie !", `Bienvenue ${user.name}. Vous êtes connecté au compte ${selectedComite}.`, "success");
+        showNotification("Connexion Réussie !", `Bienvenue ${user.name}. Vous êtes connecté avec succès au compte ${selectedComite}.`, "success");
         triggerJubileeConfetti();
     }
 
@@ -9189,7 +9222,7 @@
         p.checkInTime = null;
         try {
             localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
-            if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
+            if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncParticipant(p);
         } catch(e){console.error(e);}
         renderReceptionTable();
         renderTablePlan();
@@ -10574,7 +10607,7 @@
 
             try {
                 localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants));
-                if (typeof MyTicketCloudDB !== 'undefined') (state.participants || []).forEach(p => MyTicketCloudDB.syncParticipant(p));
+                if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncParticipant(p);
             } catch (e) {}
 
             const tableInfo = getParticipantTableInfo(p);
