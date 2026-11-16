@@ -395,12 +395,25 @@
         touch-action: manipulation;
     }
 
-    /* Global Mobile Layout Hardening: Zero horizontal scroll / offset */
-    html, body {
-        overflow-x: hidden !important;
-        width: 100% !important;
-        max-width: 100vw !important;
+    /* Native Smooth Scrolling Architecture (Unlocks 120 FPS natural scroll) */
+    html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+        overflow-y: auto !important;
+        overflow-x: clip !important;
+    }
+
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-y: visible !important;
+        overflow-x: clip !important;
+        touch-action: pan-y !important;
         -webkit-overflow-scrolling: touch;
+    }
+
+    main {
+        overflow: visible !important;
     }
 
     /* iOS Safari Automatic Zoom Fix: 16px font-size on form controls */

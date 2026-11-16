@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-slate-50">
+<html lang="fr" class="bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
@@ -14,13 +14,16 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
-    <link rel="stylesheet" href="assets/tailwind.css?v=2">
+        <!-- Preload Critical CSS and JS for ultra-fast load -->
+    <link rel="preload" href="assets/tailwind.css?v=3" as="style">
+    <link rel="preload" href="assets/app.js?v=5" as="script">
+    <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
-    <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.400.0/dist/umd/lucide.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
     <!-- Heavy libraries (Tesseract.js, PDF.js, ZXing, jsQR) are loaded on-demand only when needed -->
@@ -30,9 +33,8 @@
     <!-- Firebase SDK Compat v10 (Google Cloud Firestore Backend - Loaded with Defer) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js" defer></script>
-    <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=4" defer></script>
+        <!-- Core Application Bundle (Fast Cached Asset) -->
+    <script src="assets/app.js?v=5" defer></script>
 
 
 
@@ -146,7 +148,7 @@
 <!-- Mobile Tabs Strip Removed (Navigation via Accueil Hub) -->
 
 <!-- Main Central Application Container -->
-<main class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-28 sm:pb-12">
+<main class="flex-1 p-3 sm:p-6 lg:p-8 pb-28 sm:pb-12">
     <div class="max-w-7xl mx-auto">
 
         <!-- ========================================== -->

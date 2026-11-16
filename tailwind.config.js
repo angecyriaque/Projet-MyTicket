@@ -4,14 +4,6 @@ module.exports = {
     './index.html',
     './assets/app.js'
   ],
-  safelist: [
-    {
-      pattern: /(bg|text|border|ring)-(brand|emerald|green|amber|orange|purple|blue|rose|red|teal|slate|indigo)-(50|100|200|300|400|500|600|700|800|900|950)/,
-    },
-    {
-      pattern: /(bg|text|border)-(brand|emerald|green|amber|orange|purple|blue|rose|red|teal|slate|indigo)-(100|200|500|600)\/(10|20|30|40|50|60|70|80|90)/,
-    }
-  ],
   theme: {
     extend: {
       colors: {
