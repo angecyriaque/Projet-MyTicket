@@ -6040,47 +6040,7 @@
             `;
         }
 
-        // 4. Visual 25 Mini Tables Seating Grid Map
-        const miniTablesGrid = document.getElementById('dash-mini-tables-grid');
-        if (miniTablesGrid) {
-            miniTablesGrid.innerHTML = '';
-            const tableTypes = [
-                ...Array(19).fill({ type: 'Classique', color: 'bg-blue-500 border-blue-600 text-white', label: 'C' }),
-                ...Array(7).fill({ type: 'Gold', color: 'bg-amber-500 border-amber-600 text-slate-900', label: 'G' }),
-                ...Array(2).fill({ type: 'Invité', color: 'bg-emerald-500 border-emerald-600 text-white', label: 'I' })
-            ];
-
-            tableTypes.forEach((t, i) => {
-                const tableNumber = i + 1;
-                let catParticipants = [];
-                let offset = 0;
-                if (t.type === 'Classique') {
-                    catParticipants = participants.filter(p => !p.categorie || p.categorie === 'Classique');
-                    offset = i * 8;
-                } else if (t.type === 'Gold') {
-                    catParticipants = participants.filter(p => p.categorie === 'Gold');
-                    offset = (i - 19) * 8;
-                } else {
-                    catParticipants = participants.filter(p => p.categorie === 'Invité');
-                    offset = (i - 26) * 8;
-                }
-                const guests = catParticipants.slice(offset, offset + 8);
-                const occ = guests.length;
-
-                miniTablesGrid.innerHTML += `
-                    <div class="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:bg-white hover:shadow-md transition text-center space-y-1 group cursor-pointer" title="Table ${t.type} N°${tableNumber} (${occ}/8 places occupées)">
-                        <div class="h-8 w-8 rounded-xl ${t.color} flex items-center justify-center font-mono font-black text-xs mx-auto shadow-xs group-hover:scale-110 transition">
-                            T${tableNumber}
-                        </div>
-                        <div class="text-[10px] font-mono font-black ${occ === 10 ? 'text-emerald-600' : (occ > 0 ? 'text-amber-600' : 'text-slate-400')}">
-                            ${occ}/10
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // 5. Top Churches Leaderboard
+        // 4. Top Churches Leaderboard
         const churchCounts = {};
         participants.forEach(p => {
             const c = (p.eglise || 'Non spécifié').trim();

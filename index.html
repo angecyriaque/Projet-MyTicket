@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=11" as="script">
+    <link rel="preload" href="assets/app.js?v=12" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=11" defer></script>
+    <script src="assets/app.js?v=12" defer></script>
 
 
 
@@ -1192,64 +1192,26 @@
                 </div>
             </div>
 
-            <!-- 4. CARTE VISUELLE DES 27 Tables & PODIUM MOBILISATION -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                
-                <!-- Left (2 cols): Visual 27 Tables Seating Mini-Map -->
-                <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-5">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-black">
-                                <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-display font-black text-lg text-slate-900">Disposition Visuelle des 27 Tables de Gala</h3>
-                                <p class="text-xs text-slate-500">Plan interactif de la salle de réception (8 places / table, sauf Honneur 10 pl.)</p>
-                            </div>
-                        </div>
-                        <button onclick="switchView('organisation')" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
-                            <span>Plan Détaillé</span>
-                            <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
-                        </button>
-                    </div>
-
-                    <!-- 25 Mini Tables Visual Grid -->
-                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3.5 pt-1" id="dash-mini-tables-grid">
-                        <!-- Populated dynamically -->
-                    </div>
-
-                    <!-- Legend -->
-                    <div class="flex flex-wrap items-center gap-5 pt-3.5 text-xs font-bold border-t border-slate-100">
-                        <span class="flex items-center gap-1.5 text-blue-950 font-mono">
-                            <span class="h-3 w-3 rounded-md bg-blue-500"></span> Classique (19 T.)
-                        </span>
-                        <span class="flex items-center gap-1.5 text-amber-950 font-mono">
-                            <span class="h-3 w-3 rounded-md bg-amber-500"></span> Gold (7 T.)
-                        </span>
-
-                        <span class="flex items-center gap-1.5 text-emerald-950 font-mono">
-                            <span class="h-3 w-3 rounded-md bg-emerald-500"></span> Invité (2 T.)
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Right (1 col): Mobilisation par Église / Leaderboard -->
-                <div class="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-5">
-                    <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-                        <div class="h-10 w-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-black">
+            <!-- 4. PODIUM DE MOBILISATION DES COMMUNAUTÉS & ÉGLISES -->
+            <div class="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-black shadow-xs">
                             <i data-lucide="trophy" class="h-5 w-5 text-amber-600"></i>
                         </div>
                         <div>
                             <h3 class="font-display font-black text-lg text-slate-900">Podium de Mobilisation</h3>
-                            <p class="text-xs text-slate-500">Communautés les plus mobilisées</p>
+                            <p class="text-xs text-slate-500">Communautés et églises les plus mobilisées pour la Célébration des 10 Ans</p>
                         </div>
                     </div>
-
-                    <div id="top-churches-list" class="space-y-3">
-                        <!-- Filled dynamically -->
-                    </div>
+                    <span class="px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-black font-mono self-start sm:self-auto">
+                        Top Mobilisation
+                    </span>
                 </div>
 
+                <div id="top-churches-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Filled dynamically -->
+                </div>
             </div>
 
         </section>
