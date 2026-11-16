@@ -5486,13 +5486,13 @@
 
     
     
-    let currentWeeklyChartFilter = 'all';
+    let currentDailyChartFilter = 'all';
 
-    function switchWeeklyChartFilter(filterKey) {
-        currentWeeklyChartFilter = filterKey;
-        const btnIds = ['all', 'sept', 'oct', 'nov', 'dec'];
+    function switchDailyChartFilter(filterKey) {
+        currentDailyChartFilter = filterKey;
+        const btnIds = ['all', '30d', '14d', '7d'];
         btnIds.forEach(id => {
-            const btn = document.getElementById(`btn-week-filter-${id}`);
+            const btn = document.getElementById(`btn-daily-filter-${id}`);
             if (btn) {
                 if (id === filterKey) {
                     btn.className = "px-3 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs transition font-bold";
@@ -5504,27 +5504,9 @@
         updateDashboardStats();
     }
 
-    // Weekly timeline definition from 01 Sept 2026 to 01 Jan 2027 (18 Weeks)
-    const WEEKS_TIMELINE = [
-        { id: 'w1', monthGroup: 'sept', label: 'S1', period: '01 - 07 Sept', month: 'Sept 2026', startDate: '2026-09-01', endDate: '2026-09-07' },
-        { id: 'w2', monthGroup: 'sept', label: 'S2', period: '08 - 14 Sept', month: 'Sept 2026', startDate: '2026-09-08', endDate: '2026-09-14' },
-        { id: 'w3', monthGroup: 'sept', label: 'S3', period: '15 - 21 Sept', month: 'Sept 2026', startDate: '2026-09-15', endDate: '2026-09-21' },
-        { id: 'w4', monthGroup: 'sept', label: 'S4', period: '22 - 30 Sept', month: 'Sept 2026', startDate: '2026-09-22', endDate: '2026-09-30' },
-        { id: 'w5', monthGroup: 'oct',  label: 'S5', period: '01 - 07 Oct',  month: 'Oct 2026',  startDate: '2026-10-01', endDate: '2026-10-07' },
-        { id: 'w6', monthGroup: 'oct',  label: 'S6', period: '08 - 14 Oct',  month: 'Oct 2026',  startDate: '2026-10-08', endDate: '2026-10-14' },
-        { id: 'w7', monthGroup: 'oct',  label: 'S7', period: '15 - 21 Oct',  month: 'Oct 2026',  startDate: '2026-10-15', endDate: '2026-10-21' },
-        { id: 'w8', monthGroup: 'oct',  label: 'S8', period: '22 - 31 Oct',  month: 'Oct 2026',  startDate: '2026-10-22', endDate: '2026-10-31' },
-        { id: 'w9', monthGroup: 'nov',  label: 'S9', period: '01 - 07 Nov',  month: 'Nov 2026',  startDate: '2026-11-01', endDate: '2026-11-07' },
-        { id: 'w10', monthGroup: 'nov', label: 'S10', period: '08 - 14 Nov', month: 'Nov 2026', startDate: '2026-11-08', endDate: '2026-11-14' },
-        { id: 'w11', monthGroup: 'nov', label: 'S11', period: '15 - 21 Nov', month: 'Nov 2026', startDate: '2026-11-15', endDate: '2026-11-21' },
-        { id: 'w12', monthGroup: 'nov', label: 'S12', period: '22 - 30 Nov', month: 'Nov 2026', startDate: '2026-11-22', endDate: '2026-11-30' },
-        { id: 'w13', monthGroup: 'dec', label: 'S13', period: '01 - 07 Déc', month: 'Déc 2026', startDate: '2026-12-01', endDate: '2026-12-07' },
-        { id: 'w14', monthGroup: 'dec', label: 'S14', period: '08 - 14 Déc', month: 'Déc 2026', startDate: '2026-12-08', endDate: '2026-12-14' },
-        { id: 'w15', monthGroup: 'dec', label: 'S15', period: '15 - 21 Déc', month: 'Déc 2026', startDate: '2026-12-15', endDate: '2026-12-21' },
-        { id: 'w16', monthGroup: 'dec', label: 'S16', period: '22 - 28 Déc', month: 'Déc 2026', startDate: '2026-12-22', endDate: '2026-12-28' },
-        { id: 'w17', monthGroup: 'dec', label: 'S17', period: '29 - 31 Déc', month: 'Déc 2026', startDate: '2026-12-29', endDate: '2026-12-31' },
-        { id: 'w18', monthGroup: 'dec', label: 'S18', period: '01 Janv 2027', month: 'Janv 2027', startDate: '2027-01-01', endDate: '2027-01-01' }
-    ];
+    function switchWeeklyChartFilter(filterKey) {
+        switchDailyChartFilter(filterKey === 'all' ? 'all' : '30d');
+    }
 
     function updateDashboardStats() {
         const participants = state.participants || [];
@@ -5693,65 +5675,370 @@
             `;
         }
 
-        // 3. Monthly Ticket Purchases & Revenue Graph
-        const monthlyData = {
-            'Août 2026': { tickets: 0, revenue: 0, checkedIn: 0 },
-            'Sept 2026': { tickets: 0, revenue: 0, checkedIn: 0 },
-            'Oct 2026': { tickets: 0, revenue: 0, checkedIn: 0 },
-            'Nov 2026': { tickets: 0, revenue: 0, checkedIn: 0 },
-            'Déc 2026': { tickets: 0, revenue: 0, checkedIn: 0 },
-            'Janv 2027': { tickets: 0, revenue: 0, checkedIn: 0 }
-        };
-
-        participants.forEach((p, index) => {
-            const price = Number(p.prix) || 0;
-            const isEmarge = p.checkedIn || p.statut === 'Checked-in' || p.statut === 'Émargé';
-            
-            let monthKey = 'Sept 2026';
+        // 3. ÉVOLUTION JOURNALIÈRE DES ACHATS DE TICKETS (TOUS LES PASS CONFONDUS) & STATS AVANCÉES
+        function extractParticipantDayKey(p) {
             if (p.dateAdded) {
-                const d = new Date(p.dateAdded);
-                const m = d.getMonth();
-                if (m === 7) monthKey = 'Août 2026';
-                else if (m === 8) monthKey = 'Sept 2026';
-                else if (m === 9) monthKey = 'Oct 2026';
-                else if (m === 10) monthKey = 'Nov 2026';
-                else if (m === 11) monthKey = 'Déc 2026';
-                else if (m === 0) monthKey = 'Janv 2027';
-            } else {
-                const monthsArr = ['Août 2026', 'Sept 2026', 'Oct 2026', 'Nov 2026', 'Déc 2026', 'Janv 2027'];
-                monthKey = monthsArr[index % monthsArr.length];
+                try {
+                    const d = new Date(p.dateAdded);
+                    if (!isNaN(d.getTime())) {
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        return `${y}-${m}-${day}`;
+                    }
+                } catch(e) {}
             }
+            if (p.dateTicket && typeof p.dateTicket === 'string') {
+                const parts = p.dateTicket.split('/');
+                if (parts.length === 3) {
+                    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                }
+            }
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
 
-            if (monthlyData[monthKey]) {
-                monthlyData[monthKey].tickets++;
-                monthlyData[monthKey].revenue += price;
-                if (isEmarge) monthlyData[monthKey].checkedIn++;
+        const dailyMap = {};
+        participants.forEach(p => {
+            const k = extractParticipantDayKey(p);
+            if (!dailyMap[k]) {
+                dailyMap[k] = { dateKey: k, count: 0, classique: 0, gold: 0, invite: 0, revenue: 0, checkedIn: 0 };
+            }
+            dailyMap[k].count++;
+            const cat = (p.categorie || 'Classique').trim();
+            if (cat === 'Gold') dailyMap[k].gold++;
+            else if (cat === 'Invité') dailyMap[k].invite++;
+            else dailyMap[k].classique++;
+
+            const pr = Number(p.prix) || (cat === 'Classique' ? 10000 : 0);
+            dailyMap[k].revenue += pr;
+            if (p.checkedIn || p.statut === 'Checked-in' || p.statut === 'Émargé') {
+                dailyMap[k].checkedIn++;
             }
         });
 
-        const chartContainer = document.getElementById('dashboard-monthly-chart');
-        if (chartContainer) {
-            chartContainer.innerHTML = '';
-            const maxTicketsInMonth = Math.max(1, ...Object.values(monthlyData).map(m => m.tickets));
-
-            Object.entries(monthlyData).forEach(([month, data]) => {
-                const barHeightPct = Math.max(18, Math.round((data.tickets / maxTicketsInMonth) * 100));
-                chartContainer.innerHTML += `
-                    <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
-                        <div class="text-[10px] font-black text-slate-800 bg-white px-2.5 py-1 rounded-xl shadow-md border border-slate-200/80 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap -mb-2 z-10 transform -translate-y-1 font-mono">
-                            ${data.tickets} billets • ${data.revenue.toLocaleString('fr-FR')} F
-                        </div>
-                        <div class="w-full max-w-[50px] bg-gradient-to-t from-brand-orange via-orange-500 to-amber-300 rounded-2xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-lg relative flex flex-col justify-end p-1" style="height: ${barHeightPct}%">
-                            ${data.checkedIn > 0 ? `<div class="w-full bg-emerald-500 rounded-xl transition-all duration-500" style="height: ${Math.round((data.checkedIn/Math.max(1,data.tickets))*100)}%" title="${data.checkedIn} festivaliers émargés"></div>` : ''}
-                        </div>
-                        <span class="text-[11px] font-black text-slate-700 truncate max-w-[58px] mt-1 font-mono">${month}</span>
-                    </div>
-                `;
-            });
+        // Determine days to display based on currentDailyChartFilter
+        const sortedActiveDates = Object.keys(dailyMap).sort();
+        let numDays = 14;
+        if (currentDailyChartFilter === '7d') numDays = 7;
+        else if (currentDailyChartFilter === '14d') numDays = 14;
+        else if (currentDailyChartFilter === '30d') numDays = 30;
+        else if (currentDailyChartFilter === 'all') {
+            numDays = Math.max(14, sortedActiveDates.length);
         }
 
-        const elMonthlySummary = document.getElementById('dash-monthly-total-summary');
-        if (elMonthlySummary) elMonthlySummary.innerText = `Total : ${totalTickets} / ${TOTAL_MAX_TICKETS} billets (${totalTicketsRevenue.toLocaleString('fr-FR')} FCFA)`;
+        const targetDays = [];
+        const baseDate = new Date();
+        for (let i = numDays - 1; i >= 0; i--) {
+            const d = new Date(baseDate.getTime() - i * 86400000);
+            const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            targetDays.push(k);
+        }
+
+        // In 'all' mode, also ensure any earlier days with sales are prepended
+        if (currentDailyChartFilter === 'all') {
+            sortedActiveDates.forEach(k => {
+                if (!targetDays.includes(k)) targetDays.push(k);
+            });
+            targetDays.sort();
+        }
+
+        // Compute Quick KPIs
+        let peakDayCount = 0;
+        let peakDayKey = '';
+        let totalPeriodTickets = 0;
+        let totalPeriodRevenue = 0;
+        let activeDaysCount = 0;
+
+        targetDays.forEach(k => {
+            const d = dailyMap[k];
+            if (d && d.count > 0) {
+                activeDaysCount++;
+                totalPeriodTickets += d.count;
+                totalPeriodRevenue += d.revenue;
+                if (d.count > peakDayCount) {
+                    peakDayCount = d.count;
+                    peakDayKey = k;
+                }
+            }
+        });
+
+        const monthNamesShort = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
+        const monthNamesLong = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        const weekDaysShort = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+        const weekDaysLong = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+
+        // Format Peak Day Label
+        const elPeak = document.getElementById('dash-stat-daily-peak');
+        if (elPeak) {
+            if (peakDayCount > 0 && peakDayKey) {
+                const [py, pm, pd] = peakDayKey.split('-').map(Number);
+                elPeak.innerText = `${peakDayCount} billet${peakDayCount > 1 ? 's' : ''} (${pd} ${monthNamesShort[pm - 1]})`;
+            } else {
+                elPeak.innerText = `0 billet`;
+            }
+        }
+
+        // Format Daily Average
+        const elAvg = document.getElementById('dash-stat-daily-avg');
+        if (elAvg) {
+            const avg = activeDaysCount > 0 ? (totalPeriodTickets / activeDaysCount).toFixed(1) : 0;
+            elAvg.innerText = `${avg} billet${avg > 1 ? 's' : ''}/j`;
+        }
+
+        // Format Last Purchase
+        const elLast = document.getElementById('dash-stat-last-purchase');
+        if (elLast) {
+            if (participants.length > 0) {
+                const latest = participants[0]; // unshift put recent first
+                const dTicket = latest.dateTicket || (latest.dateAdded ? new Date(latest.dateAdded).toLocaleDateString('fr-FR') : '--');
+                elLast.innerText = `${latest.prenom || latest.nom || 'Pass'} • ${dTicket}`;
+            } else {
+                elLast.innerText = `--`;
+            }
+        }
+
+        // Active Days Count
+        const elActive = document.getElementById('dash-stat-active-days');
+        if (elActive) {
+            elActive.innerText = `${activeDaysCount} jour${activeDaysCount > 1 ? 's' : ''} actif${activeDaysCount > 1 ? 's' : ''}`;
+        }
+
+        // Render Daily Chart
+        const dailyChartContainer = document.getElementById('dashboard-daily-chart');
+        if (dailyChartContainer) {
+            dailyChartContainer.innerHTML = '';
+            if (targetDays.length === 0 || (totalPeriodTickets === 0 && participants.length === 0)) {
+                dailyChartContainer.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center text-center p-6 space-y-2 text-slate-400">
+                        <i data-lucide="calendar-x-2" class="h-10 w-10 text-slate-300"></i>
+                        <p class="text-sm font-bold text-slate-600">Aucun achat de billet enregistré pour le moment</p>
+                        <p class="text-xs text-slate-400">Les statistiques journalières s'afficheront automatiquement dès la première émission de Pass.</p>
+                    </div>
+                `;
+            } else {
+                const maxDayCount = Math.max(1, peakDayCount);
+                targetDays.forEach(dateKey => {
+                    const d = dailyMap[dateKey] || { count: 0, classique: 0, gold: 0, invite: 0, revenue: 0, checkedIn: 0 };
+                    const [y, m, dayNum] = dateKey.split('-').map(Number);
+                    const dateObj = new Date(y, m - 1, dayNum);
+                    const dayLabel = `${dayNum} ${monthNamesShort[m - 1]}`;
+                    const weekday = weekDaysShort[dateObj.getDay()];
+                    const fullDateStr = `${weekDaysLong[dateObj.getDay()]} ${dayNum} ${monthNamesLong[m - 1]} ${y}`;
+
+                    const heightPct = d.count > 0 ? Math.max(18, Math.round((d.count / maxDayCount) * 100)) : 6;
+                    const clasHeight = d.count > 0 ? Math.round((d.classique / d.count) * 100) : 0;
+                    const goldHeight = d.count > 0 ? Math.round((d.gold / d.count) * 100) : 0;
+                    const invHeight = d.count > 0 ? Math.max(0, 100 - (clasHeight + goldHeight)) : 0;
+
+                    dailyChartContainer.innerHTML += `
+                        <div class="flex-1 min-w-[36px] max-w-[54px] flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer relative">
+                            <!-- Floating Tooltip -->
+                            <div class="text-[10px] font-black text-slate-800 bg-white px-3 py-2 rounded-2xl shadow-xl border border-slate-200/90 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap -mb-2 z-30 transform -translate-y-2 pointer-events-none space-y-1 text-left">
+                                <div class="font-extrabold text-slate-900 border-b border-slate-100 pb-1 flex items-center justify-between gap-3">
+                                    <span>${fullDateStr}</span>
+                                    <span class="px-1.5 py-0.5 rounded-md ${d.count > 0 ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-500'} font-mono">${d.count} billet${d.count > 1 ? 's' : ''}</span>
+                                </div>
+                                <div class="text-blue-700 font-bold font-mono">Total : ${d.count} billet(s) (tous pass)</div>
+                                <div class="text-slate-600 font-medium text-[9px] flex items-center gap-2">
+                                    <span class="inline-flex items-center gap-1 text-blue-600 font-bold"><span class="h-1.5 w-1.5 rounded-full bg-blue-600"></span>${d.classique} Classique</span>
+                                    <span class="inline-flex items-center gap-1 text-amber-600 font-bold"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>${d.gold} Gold</span>
+                                    <span class="inline-flex items-center gap-1 text-emerald-600 font-bold"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>${d.invite} Invité</span>
+                                </div>
+                                <div class="text-emerald-700 font-bold font-mono text-[9px]">Recette : ${d.revenue.toLocaleString('fr-FR')} FCFA</div>
+                                ${d.checkedIn > 0 ? `<div class="text-emerald-600 text-[9px] font-bold">Émargés aux portes : ${d.checkedIn}</div>` : ''}
+                            </div>
+
+                            <!-- Count on Top of Bar -->
+                            <span class="text-[10px] font-black font-mono ${d.count > 0 ? 'text-slate-800' : 'text-transparent'} transition">${d.count}</span>
+
+                            <!-- Vertical Pillar -->
+                            <div class="w-full rounded-2xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-lg relative overflow-hidden flex flex-col justify-end ${d.count > 0 ? 'shadow-xs border border-white/40' : 'bg-slate-200/60 border border-dashed border-slate-300'}" style="height: ${heightPct}%">
+                                ${d.count > 0 ? `
+                                    ${d.invite > 0 ? `<div class="w-full bg-gradient-to-t from-emerald-600 to-emerald-400" style="height: ${invHeight}%" title="${d.invite} Pass Invités"></div>` : ''}
+                                    ${d.gold > 0 ? `<div class="w-full bg-gradient-to-t from-amber-500 to-amber-300" style="height: ${goldHeight}%" title="${d.gold} Pass Gold"></div>` : ''}
+                                    ${d.classique > 0 ? `<div class="w-full bg-gradient-to-t from-blue-700 to-blue-500" style="height: ${clasHeight}%" title="${d.classique} Pass Classique"></div>` : ''}
+                                ` : ''}
+                            </div>
+
+                            <!-- Day Label at Bottom -->
+                            <div class="flex flex-col items-center mt-1">
+                                <span class="text-[11px] font-black ${d.count > 0 ? 'text-slate-900 font-bold' : 'text-slate-400 font-medium'} font-mono leading-none">${dayLabel}</span>
+                                <span class="text-[9px] font-extrabold ${d.count > 0 ? 'text-brand-orange' : 'text-slate-400'} uppercase font-mono mt-0.5">${weekday}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        const elDailySummary = document.getElementById('dash-daily-total-summary');
+        if (elDailySummary) {
+            elDailySummary.innerText = `Total Période : ${totalPeriodTickets} billet${totalPeriodTickets > 1 ? 's' : ''} (${totalPeriodRevenue.toLocaleString('fr-FR')} FCFA)`;
+        }
+
+        // 3.B. PANORAMA DES AUTRES STATISTIQUES (MODES DE RÈGLEMENT, ÉMARGEMENT & OCCUPATION)
+        let waveCount = 0, waveAmount = 0;
+        let omCount = 0, omAmount = 0;
+        let cashCount = 0, cashAmount = 0;
+        let freeCount = 0; // Gold & Invité
+
+        let checkedClassique = 0, totalClassique = 0;
+        let checkedGold = 0, totalGold = 0;
+        let checkedInvite = 0, totalInvite = 0;
+
+        participants.forEach(p => {
+            const cat = (p.categorie || 'Classique').trim();
+            const price = Number(p.prix) || (cat === 'Classique' ? 10000 : 0);
+            const mode = (p.modeReglement || '').toLowerCase();
+            const ref = (p.preuveReglement || '').toUpperCase();
+            const isEmarge = !!(p.checkedIn || p.statut === 'Checked-in' || p.statut === 'Émargé');
+
+            // Category check-in tracking
+            if (cat === 'Gold') {
+                totalGold++;
+                if (isEmarge) checkedGold++;
+            } else if (cat === 'Invité') {
+                totalInvite++;
+                if (isEmarge) checkedInvite++;
+            } else {
+                totalClassique++;
+                if (isEmarge) checkedClassique++;
+            }
+
+            // Payment mode tracking
+            if (cat === 'Gold' || cat === 'Invité' || mode.includes('donateur') || mode.includes('invité') || price === 0) {
+                freeCount++;
+            } else if (mode.includes('wave') || ref.startsWith('T_')) {
+                waveCount++;
+                waveAmount += price;
+            } else if (mode.includes('orange') || ref.startsWith('PP') || ref.startsWith('MP')) {
+                omCount++;
+                omAmount += price;
+            } else {
+                cashCount++;
+                cashAmount += price;
+            }
+        });
+
+        const totalP = Math.max(1, participants.length);
+        const wavePct = totalTickets > 0 ? Math.round((waveCount / totalP) * 100) : 0;
+        const omPct = totalTickets > 0 ? Math.round((omCount / totalP) * 100) : 0;
+        const cashPct = totalTickets > 0 ? Math.round((cashCount / totalP) * 100) : 0;
+        const freePct = totalTickets > 0 ? Math.max(0, 100 - (wavePct + omPct + cashPct)) : 0;
+
+        // Payment Total Count Badge
+        const elPayTotal = document.getElementById('dash-payment-total-count');
+        if (elPayTotal) {
+            elPayTotal.innerText = `${totalTickets} billet${totalTickets > 1 ? 's' : ''}`;
+        }
+
+        // Payment Methods Visual Cards
+        const elPaymentGrid = document.getElementById('dash-payment-methods-grid');
+        if (elPaymentGrid) {
+            elPaymentGrid.innerHTML = `
+                <!-- Wave -->
+                <div class="p-3.5 rounded-2xl bg-sky-50 border border-sky-200/80 space-y-1.5 text-sky-950 hover:shadow-xs transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-sky-700">Wave</span>
+                        <span class="h-2 w-2 rounded-full bg-sky-500"></span>
+                    </div>
+                    <div class="text-base font-black font-mono text-sky-900">${waveCount} <span class="text-[11px] font-bold text-sky-600">(${wavePct}%)</span></div>
+                    <div class="text-[10px] font-extrabold text-sky-700 font-mono">${waveAmount.toLocaleString('fr-FR')} F</div>
+                </div>
+
+                <!-- Orange Money -->
+                <div class="p-3.5 rounded-2xl bg-orange-50 border border-orange-200/80 space-y-1.5 text-orange-950 hover:shadow-xs transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-orange-700">Orange Money</span>
+                        <span class="h-2 w-2 rounded-full bg-orange-500"></span>
+                    </div>
+                    <div class="text-base font-black font-mono text-orange-900">${omCount} <span class="text-[11px] font-bold text-orange-600">(${omPct}%)</span></div>
+                    <div class="text-[10px] font-extrabold text-orange-700 font-mono">${omAmount.toLocaleString('fr-FR')} F</div>
+                </div>
+
+                <!-- Espèces -->
+                <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 space-y-1.5 text-emerald-950 hover:shadow-xs transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-emerald-700">Espèces</span>
+                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <div class="text-base font-black font-mono text-emerald-900">${cashCount} <span class="text-[11px] font-bold text-emerald-600">(${cashPct}%)</span></div>
+                    <div class="text-[10px] font-extrabold text-emerald-700 font-mono">${cashAmount.toLocaleString('fr-FR')} F</div>
+                </div>
+
+                <!-- Donateurs & VIP Offerts -->
+                <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 space-y-1.5 text-amber-950 hover:shadow-xs transition">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-amber-700">Pass Offerts</span>
+                        <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                    </div>
+                    <div class="text-base font-black font-mono text-amber-900">${freeCount} <span class="text-[11px] font-bold text-amber-600">(${freePct}%)</span></div>
+                    <div class="text-[10px] font-extrabold text-amber-700 font-mono">0 F (Gold & VIP)</div>
+                </div>
+            `;
+        }
+
+        // Stacked Payment Mix Bar
+        const elStackedBar = document.getElementById('dash-payment-stacked-bar');
+        if (elStackedBar) {
+            if (totalTickets === 0) {
+                elStackedBar.innerHTML = `<div class="h-full w-full bg-slate-200"></div>`;
+            } else {
+                elStackedBar.innerHTML = `
+                    ${waveCount > 0 ? `<div class="h-full bg-sky-500 transition-all duration-700" style="width: ${wavePct}%" title="Wave: ${waveCount} billets (${wavePct}%)"></div>` : ''}
+                    ${omCount > 0 ? `<div class="h-full bg-orange-500 transition-all duration-700" style="width: ${omPct}%" title="Orange Money: ${omCount} billets (${omPct}%)"></div>` : ''}
+                    ${cashCount > 0 ? `<div class="h-full bg-emerald-500 transition-all duration-700" style="width: ${cashPct}%" title="Espèces: ${cashCount} billets (${cashPct}%)"></div>` : ''}
+                    ${freeCount > 0 ? `<div class="h-full bg-amber-400 transition-all duration-700" style="width: ${freePct}%" title="Pass Offerts: ${freeCount} billets (${freePct}%)"></div>` : ''}
+                `;
+            }
+        }
+
+        const elMixLabel = document.getElementById('dash-payment-mix-label');
+        if (elMixLabel) {
+            elMixLabel.innerText = `Wave ${wavePct}% • Orange ${omPct}% • Espèces ${cashPct}% • Offerts ${freePct}%`;
+        }
+
+        // Émargement & Contrôle d'Accès Détaillé
+        const elCheckinPct = document.getElementById('dash-checkin-global-pct');
+        if (elCheckinPct) {
+            elCheckinPct.innerText = `${checkinRate}% Présents`;
+        }
+
+        const elCheckinRatio = document.getElementById('dash-checkin-detail-ratio');
+        if (elCheckinRatio) {
+            elCheckinRatio.innerText = `${checkedInCount} émargés / ${totalTickets} émis (${Math.max(0, totalTickets - checkedInCount)} attendus)`;
+        }
+
+        const elCheckinCards = document.getElementById('dash-checkin-breakdown-cards');
+        if (elCheckinCards) {
+            const clasRate = totalClassique > 0 ? Math.round((checkedClassique / totalClassique) * 100) : 0;
+            const goldRate = totalGold > 0 ? Math.round((checkedGold / totalGold) * 100) : 0;
+            const invRate = totalInvite > 0 ? Math.round((checkedInvite / totalInvite) * 100) : 0;
+
+            elCheckinCards.innerHTML = `
+                <!-- Classique Checkin -->
+                <div class="p-3 bg-blue-50/70 rounded-2xl border border-blue-200/80 text-center space-y-1">
+                    <span class="text-[9px] font-black uppercase text-blue-900 block font-mono">Classique</span>
+                    <span class="text-sm font-black font-mono text-blue-950 block">${checkedClassique}/${totalClassique}</span>
+                    <span class="text-[10px] font-bold text-blue-700 font-mono">${clasRate}% présent${clasRate > 1 ? 's' : ''}</span>
+                </div>
+
+                <!-- Gold Checkin -->
+                <div class="p-3 bg-amber-50/70 rounded-2xl border border-amber-200/80 text-center space-y-1">
+                    <span class="text-[9px] font-black uppercase text-amber-900 block font-mono">Pass Gold</span>
+                    <span class="text-sm font-black font-mono text-amber-950 block">${checkedGold}/${totalGold}</span>
+                    <span class="text-[10px] font-bold text-amber-700 font-mono">${goldRate}% présent${goldRate > 1 ? 's' : ''}</span>
+                </div>
+
+                <!-- Invité Checkin -->
+                <div class="p-3 bg-emerald-50/70 rounded-2xl border border-emerald-200/80 text-center space-y-1">
+                    <span class="text-[9px] font-black uppercase text-emerald-900 block font-mono">Invités</span>
+                    <span class="text-sm font-black font-mono text-emerald-950 block">${checkedInvite}/${totalInvite}</span>
+                    <span class="text-[10px] font-bold text-emerald-700 font-mono">${invRate}% présent${invRate > 1 ? 's' : ''}</span>
+                </div>
+            `;
+        }
 
         // 4. Visual 25 Mini Tables Seating Grid Map
         const miniTablesGrid = document.getElementById('dash-mini-tables-grid');

@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=9" as="script">
+    <link rel="preload" href="assets/app.js?v=10" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=9" defer></script>
+    <script src="assets/app.js?v=10" defer></script>
 
 
 
@@ -306,12 +306,6 @@
                     </div>
                     </div>
 
-                </div>
-
-                <!-- Bottom Banner Notice -->
-                <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-2.5 text-xs text-amber-950 font-bold">
-                    <i data-lucide="info" class="h-4 w-4 text-brand-orange shrink-0"></i>
-                    <span>Un tapis rouge officiel et un photocall professionnel seront installés dès 23h30 à l'entrée de Noces d'Or.</span>
                 </div>
             </div>
 
@@ -1032,63 +1026,169 @@
                 </div>
             </div>
 
-            <!-- 3. GRAPHIQUE ÉVOLUTION HEBDOMADAIRE DE LA BILLETTERIE & DES RECETTES (JUSQU'AU 01 JANVIER 2027) -->
+            <!-- 3. ÉVOLUTION JOURNALIÈRE DES ACHATS DE TICKETS (TOUS LES PASS CONFONDUS) & STATS AVANCÉES -->
             <div class="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-6">
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                     <div class="flex items-center gap-3.5">
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black shadow-md shadow-blue-500/20 shrink-0">
-                            <i data-lucide="trending-up" class="h-6 w-6"></i>
+                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-brand-orange to-amber-500 text-white flex items-center justify-center font-black shadow-md shadow-brand-orange/20 shrink-0">
+                            <i data-lucide="calendar-days" class="h-6 w-6"></i>
                         </div>
                         <div>
-                            <h3 class="font-display font-black text-xl text-slate-900">Évolution Hebdomadaire de la Billetterie & des Recettes</h3>
-                            <p class="text-xs text-slate-500">Suivi chronologique par semaine des ventes et inscriptions jusqu'au Gala du 01 Janvier 2027</p>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="font-display font-black text-xl text-slate-900">Évolution Journalière des Achats de Tickets</h3>
+                                <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-black uppercase font-mono tracking-wider">Tous pass confondus</span>
+                            </div>
+                            <p class="text-xs text-slate-500">Suivi chronologique quotidien des émissions de billets (Classique, Gold, Invité) et encaissements</p>
                         </div>
                     </div>
 
                     <!-- Interactive Period Filter Switcher -->
                     <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80 self-start lg:self-auto text-xs font-bold">
-                        <button onclick="switchWeeklyChartFilter('all')" id="btn-week-filter-all" class="px-3 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs transition">
-                            Toutes (18 Sem.)
+                        <button onclick="switchDailyChartFilter('all')" id="btn-daily-filter-all" class="px-3 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs transition">
+                            Toutes les dates
                         </button>
-                        <button onclick="switchWeeklyChartFilter('sept')" id="btn-week-filter-sept" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
-                            Septembre
+                        <button onclick="switchDailyChartFilter('30d')" id="btn-daily-filter-30d" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
+                            30 derniers jours
                         </button>
-                        <button onclick="switchWeeklyChartFilter('oct')" id="btn-week-filter-oct" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
-                            Octobre
+                        <button onclick="switchDailyChartFilter('14d')" id="btn-daily-filter-14d" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
+                            14 derniers jours
                         </button>
-                        <button onclick="switchWeeklyChartFilter('nov')" id="btn-week-filter-nov" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
-                            Novembre
-                        </button>
-                        <button onclick="switchWeeklyChartFilter('dec')" id="btn-week-filter-dec" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
-                            Déc. - 01 Janv. 2027
+                        <button onclick="switchDailyChartFilter('7d')" id="btn-daily-filter-7d" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
+                            7 derniers jours
                         </button>
                     </div>
                 </div>
 
-                <!-- Spacious Weekly Pillars Chart Container with Horizontal Scroll -->
+                <!-- 4 Quick Daily Metrics Bar -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-1">
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="flame" class="h-5 w-5"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Pic Journalier</span>
+                            <span id="dash-stat-daily-peak" class="text-sm font-black text-slate-900 font-mono truncate block">0 billet</span>
+                        </div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="calculator" class="h-5 w-5"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Moyenne / Jour</span>
+                            <span id="dash-stat-daily-avg" class="text-sm font-black text-slate-900 font-mono truncate block">0 billet/j</span>
+                        </div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="clock" class="h-5 w-5"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Dernier Achat</span>
+                            <span id="dash-stat-last-purchase" class="text-sm font-black text-slate-900 font-mono truncate block">--</span>
+                        </div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="check-circle-2" class="h-5 w-5"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Période Active</span>
+                            <span id="dash-stat-active-days" class="text-sm font-black text-emerald-700 font-mono truncate block">0 jours</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Pillars Chart Container with Smooth Horizontal Scroll -->
                 <div class="overflow-x-auto pb-2 -mx-2 px-2">
-                    <div class="min-w-[780px] h-80 flex items-end justify-between gap-2.5 sm:gap-3.5 pt-14 pb-4 px-4 sm:px-6 bg-gradient-to-b from-slate-50/50 via-slate-50/90 to-slate-100/70 rounded-3xl border border-slate-200/80 relative" id="dashboard-weekly-chart">
+                    <div class="min-w-[760px] h-80 flex items-end justify-between gap-2 sm:gap-3 pt-14 pb-4 px-4 sm:px-6 bg-gradient-to-b from-slate-50/50 via-slate-50/90 to-slate-100/70 rounded-3xl border border-slate-200/80 relative" id="dashboard-daily-chart">
                         <!-- Populated dynamically via JS -->
                     </div>
                 </div>
 
-                <!-- Chart Legend & Metrics Footer (Only 4 Ticket Categories) -->
+                <!-- Chart Legend & Metrics Footer -->
                 <div class="flex flex-wrap items-center justify-between gap-4 pt-3 text-xs border-t border-slate-100">
                     <div class="flex flex-wrap items-center gap-4 sm:gap-6">
                         <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-blue-600 shadow-xs"></span> Pass Classique (10k)
+                            <span class="h-3.5 w-3.5 rounded-md bg-blue-600 shadow-xs"></span> Pass Classique (10 000 F)
                         </span>
                         <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-amber-400 shadow-xs"></span> Pass Gold (Gratuit)
+                            <span class="h-3.5 w-3.5 rounded-md bg-amber-400 shadow-xs"></span> Pass Gold (Gratuit Donateur)
                         </span>
-
                         <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-emerald-500 shadow-xs"></span> Pass Invité (0k)
+                            <span class="h-3.5 w-3.5 rounded-md bg-emerald-500 shadow-xs"></span> Pass Invité (Offert)
                         </span>
                     </div>
-                    <span id="dash-weekly-total-summary" class="font-mono font-black text-slate-900 bg-slate-100 border border-slate-200/80 px-4 py-1.5 rounded-2xl shadow-2xs">
-                        Total Ventes : 0 billets (0 FCFA)
+                    <span id="dash-daily-total-summary" class="font-mono font-black text-slate-900 bg-slate-100 border border-slate-200/80 px-4 py-1.5 rounded-2xl shadow-2xs">
+                        Total Période : 0 billet (0 FCFA)
                     </span>
+                </div>
+            </div>
+
+            <!-- 3.B. PANORAMA DES AUTRES STATISTIQUES (MODES DE RÈGLEMENT & PRÉSENCE & TABLES) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                <!-- Modes de règlement -->
+                <div class="bg-white p-6 sm:p-7 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
+                                <i data-lucide="credit-card" class="h-5 w-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-display font-black text-lg text-slate-900">Mix & Modes de Règlement</h3>
+                                <p class="text-xs text-slate-500">Ventilation des encaissements par canal de paiement</p>
+                            </div>
+                        </div>
+                        <span id="dash-payment-total-count" class="px-3 py-1 rounded-full bg-slate-100 text-slate-800 font-mono font-bold text-xs">
+                            0 transactions
+                        </span>
+                    </div>
+
+                    <!-- Payment methods visual cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="dash-payment-methods-grid">
+                        <!-- Filled dynamically -->
+                    </div>
+
+                    <!-- Stacked distribution bar -->
+                    <div class="space-y-1.5 pt-2">
+                        <div class="flex justify-between text-[11px] font-bold text-slate-500">
+                            <span>Répartition des flux</span>
+                            <span id="dash-payment-mix-label">Wave / Orange / Espèces / Donateurs</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex" id="dash-payment-stacked-bar">
+                            <!-- Stacked bar segments -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Émargement & Contrôle d'Accès Détaillé -->
+                <div class="bg-white p-6 sm:p-7 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black">
+                                <i data-lucide="user-check" class="h-5 w-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-display font-black text-lg text-slate-900">Émargement & Présence aux Portes</h3>
+                                <p class="text-xs text-slate-500">Contrôle d'accès en direct le soir du Gala Noces d'Or</p>
+                            </div>
+                        </div>
+                        <span id="dash-checkin-global-pct" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-mono font-black text-xs">
+                            0% Présents
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3" id="dash-checkin-breakdown-cards">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600"></i>
+                            <span class="text-slate-600 font-medium">Contrôle QR Code & Billets Papier</span>
+                        </div>
+                        <span id="dash-checkin-detail-ratio" class="font-mono font-black text-slate-900">0 / 210 festivaliers</span>
+                    </div>
                 </div>
             </div>
 
