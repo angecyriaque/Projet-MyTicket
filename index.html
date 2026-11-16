@@ -1847,6 +1847,23 @@
 
                     <form id="ticket-generation-form" onsubmit="generateNewTicket(event)" class="space-y-3.5">
                         
+                        <!-- Sélecteur Donateur pour Pass Gold (Masqué par défaut, réservé Pass Gold) -->
+                        <div id="gold-donor-container" class="hidden p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border border-amber-200/90 space-y-2 shadow-xs transition-all">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[11px] font-black text-amber-900 flex items-center gap-1.5 uppercase tracking-wide">
+                                    <i data-lucide="award" class="h-4 w-4 text-amber-600"></i>
+                                    <span>Sélectionner le Donateur Éligible *</span>
+                                </label>
+                                <span id="gold-donors-count-badge" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900 font-mono">0 Donateur(s)</span>
+                            </div>
+                            <select id="form-gold-donateur" onchange="handleGoldDonorSelection()" class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white focus:outline-none focus:border-brand-orange text-xs font-bold text-slate-800 transition">
+                                <option value="" selected disabled>-- Choisir un donateur dans la liste des dons --</option>
+                            </select>
+                            <p class="text-[10px] text-amber-800/80 font-medium">
+                                ⭐ Sélection obligatoire depuis la liste des dons. Le nom et prénom sont automatiquement renseignés et verrouillés. Dès l'émission, ce donateur sera retiré de la liste.
+                            </p>
+                        </div>
+
                         <!-- Nom & Prénoms -->
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1">
@@ -1962,7 +1979,7 @@
                         </div>
 
                         <!-- SÉPARATEUR ALTERNATIF (JUSTIFICATIF DU RÈGLEMENT) -->
-                        <div class="relative flex py-1 items-center">
+                        <div id="checkout-separator" class="relative flex py-1 items-center">
                             <div class="flex-grow border-t border-slate-200"></div>
                             <span class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">JUSTIFICATIF DU RÈGLEMENT</span>
                             <div class="flex-grow border-t border-slate-200"></div>
@@ -3638,6 +3655,45 @@
     </div>
 </div>
 
+<!-- MODAL: AUTORISATION ADMIN POUR PASS GOLD ET INVITÉ -->
+<div id="modal-admin-guest" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95">
+        <div class="h-16 w-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner border border-amber-100">
+            <i data-lucide="shield-check" class="h-8 w-8"></i>
+        </div>
+        
+        <div class="space-y-2">
+            <h3 id="admin-guest-modal-title" class="font-display font-black text-xl text-slate-900">Autorisation Administrateur Requise</h3>
+            <p id="admin-guest-modal-desc" class="text-xs text-slate-500 leading-relaxed pt-1">
+                L'émission d'un <strong>Pass Gold (Donateur)</strong> ou <strong>Pass Invité (Gratuit)</strong> est strictement réservée à l'administration. Veuillez confirmer votre mot de passe pour continuer.
+            </p>
+        </div>
+
+        <div class="space-y-2 text-left">
+            <label class="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span>Code / Mot de Passe Administrateur *</span>
+                <span class="text-[10px] text-amber-600 font-semibold">Obligatoire</span>
+            </label>
+            <div class="relative">
+                <input type="password" id="admin-guest-code-input" onkeyup="if(event.key==='Enter') verifyAdminGuestAuth()" placeholder="Saisir votre mot de passe administrateur..." class="w-full pl-4 pr-11 py-3.5 rounded-xl border border-slate-300 text-sm font-bold tracking-wider focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-xs">
+                <button type="button" onclick="togglePasswordVisibility('admin-guest-code-input', this)" class="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-700 transition" title="Afficher / Masquer le mot de passe">
+                    <i data-lucide="eye" class="h-5 w-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button onclick="cancelAdminGuestAuth()" class="flex-1 px-4 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition">
+                Annuler
+            </button>
+            <button onclick="verifyAdminGuestAuth()" class="flex-1 px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-lg shadow-orange-500/25 transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <i data-lucide="shield-check" class="h-4 w-4"></i>
+                <span>Déverrouiller le Pass</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- MODALS FOR FINANCE & PRINT -->
 <!-- MODALE DEMANDE DE DÉCAISSEMENT STRICTEMENT LIÉE AU BUDGET -->
 <div id="modal-disbursement" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
@@ -4010,7 +4066,7 @@
             <div class="p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 text-center space-y-1.5 shadow-sm">
                 <span class="text-[10px] font-black uppercase text-amber-800 tracking-wider">Affectation Table & Place</span>
                 <h4 id="popup-checkin-table" class="font-display font-black text-2xl text-amber-950">Table Gold N°1 (Place 4/10)</h4>
-                <p id="popup-checkin-category" class="text-xs font-bold text-amber-700">Pass Gold • 30 000 FCFA</p>
+                <p id="popup-checkin-category" class="text-xs font-bold text-amber-700">Pass Gold • Gratuit</p>
             </div>
 
             <div class="flex justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
@@ -4058,7 +4114,7 @@
                 </div>
                 <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
                     <span class="text-[10px] uppercase font-bold text-slate-400">Pass & Tarif</span>
-                    <span id="visitor-pass-category" class="font-mono text-xs font-bold text-amber-300">Pass Gold • 30 000 F</span>
+                    <span id="visitor-pass-category" class="font-mono text-xs font-bold text-amber-300">Pass Gold • Gratuit</span>
                 </div>
                 <div class="flex justify-between items-center">
                     <span class="text-[10px] uppercase font-bold text-slate-400">Affectation</span>
@@ -5432,6 +5488,15 @@
                     if (parsed.accounts) state.finance.accounts = parsed.accounts;
                     if (parsed.decaissements) state.finance.decaissements = parsed.decaissements;
                     if (parsed.dons) state.finance.dons = parsed.dons;
+                    if (!state.finance.dons || state.finance.dons.length === 0) {
+                        state.finance.dons = [
+                            { date: '2026-11-01', donateur: 'Dr. Bamba Seydou', type: 'Don Partenaire', montant: 150000, compte: 'Orange Money', enregistrePar: 'Comité PCO' },
+                            { date: '2026-11-02', donateur: 'Famille Kouassi Konan', type: 'Soutien Particulier', montant: 100000, compte: 'Wave', enregistrePar: 'Comité PCO' },
+                            { date: '2026-11-03', donateur: 'Mme Marie-Claire Akissi', type: 'Don Partenaire', montant: 50000, compte: 'Wave', enregistrePar: 'Comité PCO' },
+                            { date: '2026-11-04', donateur: 'M. Emmanuel Yao Kouassi', type: 'Sponsoring', montant: 200000, compte: 'Virement', enregistrePar: 'Comité PCO' },
+                            { date: '2026-11-05', donateur: 'Pasteur David Koffi', type: 'Don Partenaire', montant: 80000, compte: 'Espèces', enregistrePar: 'Comité PCO' }
+                        ];
+                    }
 
                     state.finance.committees.forEach(c => {
                         const savedC = parsed.committees.find(sc => sc.id === c.id);
@@ -6091,16 +6156,17 @@
         const select = document.getElementById('form-categorie');
         if (select) {
             const currentSelected = select.value;
-            const isCoordinator = (state.user && (state.user.comite === 'Coordination Opérationnelle' || state.user.comite === 'Coordination Stratégique' || state.user.role === 'admin'));
+            // RÈGLE OBLIGATOIRE : Le Pass Gold et le Pass Invité ne sont visibles que par les connexions non-Visiteur
+            const isNonVisitor = Boolean(state.user && !state.user.isVisitor);
             
             select.innerHTML = `
                 <option value="" disabled ${!currentSelected ? 'selected' : ''}>-- Choisir une catégorie de Pass --</option>
                 <option value="Classique" data-price="10000" ${currentSelected === 'Classique' ? 'selected' : ''} ${remClassique <= 0 ? 'disabled' : ''}>
                     Pass Classique — 10 000 FCFA ${remClassique > 0 ? `(${remClassique} places restantes / 140)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
-                ${isCoordinator ? `
+                ${isNonVisitor ? `
                 <option value="Gold" data-price="0" ${currentSelected === 'Gold' ? 'selected' : ''} ${remGold <= 0 ? 'disabled' : ''}>
-                    Pass Gold — Gratuit ${remGold > 0 ? `(${remGold} places restantes / 60)` : '⛔ QUOTA ATTEINT (0 place)'}
+                    Pass Gold — Gratuit (Donateurs) ${remGold > 0 ? `(${remGold} places restantes / 60)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
                 <option value="Invité" data-price="0" ${currentSelected === 'Invité' ? 'selected' : ''} ${remInvite <= 0 ? 'disabled' : ''}>
                     Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 10)` : '⛔ QUOTA ATTEINT (0 place)'}
@@ -6215,27 +6281,179 @@
         }
     }
 
+    // ==========================================
+    // GESTIONNAIRE DONATEURS & PASS GOLD
+    // ==========================================
+    function splitDonorName(fullName) {
+        if (!fullName) return { nom: '', prenom: '' };
+        const clean = fullName.trim();
+        const parts = clean.split(/\s+/);
+        if (parts.length === 1) {
+            return { nom: parts[0], prenom: 'Donateur' };
+        }
+        const prenom = parts.pop();
+        const nom = parts.join(' ');
+        return { nom: nom, prenom: prenom };
+    }
+
+    function getEligibleGoldDonors() {
+        const dons = (state.finance && Array.isArray(state.finance.dons)) ? state.finance.dons : [];
+        const usedDonors = new Set();
+        
+        // Identifier les donateurs ayant déjà reçu un billet Pass Gold
+        (state.participants || []).forEach(p => {
+            if (p) {
+                if (p.donateurOrigine) {
+                    usedDonors.add(p.donateurOrigine.trim().toLowerCase());
+                }
+                if (p.categorie === 'Gold') {
+                    const combined = `${p.nom || ''} ${p.prenom || ''}`.trim().toLowerCase();
+                    if (combined) usedDonors.add(combined);
+                    if (p.nom) usedDonors.add(p.nom.trim().toLowerCase());
+                }
+            }
+        });
+
+        const eligible = [];
+        const seenInDons = new Set();
+
+        dons.forEach(d => {
+            const dName = (d.donateur || '').trim();
+            if (!dName) return;
+            const key = dName.toLowerCase();
+            if (seenInDons.has(key)) return;
+            seenInDons.add(key);
+
+            const { nom, prenom } = splitDonorName(dName);
+            const combined = `${nom} ${prenom}`.trim().toLowerCase();
+
+            if (!usedDonors.has(key) && !usedDonors.has(combined)) {
+                eligible.push({
+                    donateur: dName,
+                    montant: d.montant,
+                    date: d.date,
+                    type: d.type
+                });
+            }
+        });
+
+        return eligible;
+    }
+
+    function populateGoldDonorsDropdown() {
+        const select = document.getElementById('form-gold-donateur');
+        const badge = document.getElementById('gold-donors-count-badge');
+        if (!select) return;
+
+        const eligible = getEligibleGoldDonors();
+        if (badge) badge.innerText = `${eligible.length} Donateur(s) Éligible(s)`;
+
+        const currentVal = select.value;
+        select.innerHTML = '<option value="" disabled selected>-- Choisir un donateur dans la liste des dons --</option>';
+        
+        if (eligible.length === 0) {
+            select.innerHTML += '<option value="" disabled>⚠️ Aucun donateur disponible (tous ont déjà reçu un Pass Gold ou aucun don enregistré)</option>';
+        } else {
+            eligible.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.donateur;
+                opt.textContent = `${d.donateur} • Don: ${Number(d.montant || 0).toLocaleString('fr-FR')} FCFA (${d.type || 'Don'})`;
+                if (currentVal && d.donateur === currentVal) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+    }
+
+    function handleGoldDonorSelection() {
+        const select = document.getElementById('form-gold-donateur');
+        if (!select || !select.value) return;
+        const donateurName = select.value;
+        const { nom, prenom } = splitDonorName(donateurName);
+        
+        const nomInput = document.getElementById('form-nom');
+        const prenomInput = document.getElementById('form-prenom');
+        const egliseInput = document.getElementById('form-eglise');
+        
+        if (nomInput) {
+            nomInput.value = nom;
+            nomInput.readOnly = true;
+            nomInput.classList.add('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+        }
+        if (prenomInput) {
+            prenomInput.value = prenom;
+            prenomInput.readOnly = true;
+            prenomInput.classList.add('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+        }
+        if (egliseInput && (!egliseInput.value || egliseInput.value === 'EMCI Horeb Toits Rouges')) {
+            egliseInput.value = 'Donateur & Partenaire EMCI';
+        }
+
+        updateLiveTicketPreviewFromForm();
+    }
+
     function handleCategorySelection() {
         const select = document.getElementById('form-categorie');
         const selectedVal = select ? select.value : '';
         const container = document.getElementById('payment-verification-container');
+        const checkoutContainer = document.getElementById('direct-checkout-container');
+        const checkoutSeparator = document.getElementById('checkout-separator');
+        const donorContainer = document.getElementById('gold-donor-container');
         const notice = document.getElementById('form-category-availability-notice');
+        const nomInput = document.getElementById('form-nom');
+        const prenomInput = document.getElementById('form-prenom');
         
-        // Strict Rule: Only authorized administrators can select/generate a free guest pass
-        if (selectedVal === 'Invité') {
+        // RÈGLE OBLIGATOIRE : Pour Pass Gold et Pass Invité, masquage des options et preuves de paiement + Code Admin requis
+        if (selectedVal === 'Gold' || selectedVal === 'Invité') {
             container?.classList.add('hidden');
+            checkoutContainer?.classList.add('hidden');
+            checkoutSeparator?.classList.add('hidden');
+
             if (!state.adminGuestAuthorized) {
-                // Open Admin Security Verification Modal
+                // Ouvrir la modale de sécurité administrateur
                 const modal = document.getElementById('modal-admin-guest');
                 const codeInput = document.getElementById('admin-guest-code-input');
+                const titleModal = document.getElementById('admin-guest-modal-title');
+                const descModal = document.getElementById('admin-guest-modal-desc');
+
+                if (titleModal) {
+                    titleModal.innerText = selectedVal === 'Gold' ? "Autorisation Admin — Pass Gold" : "Autorisation Admin — Pass Invité";
+                }
+                if (descModal) {
+                    descModal.innerHTML = selectedVal === 'Gold'
+                        ? "L'émission d'un <strong>Pass Gold (Donateur)</strong> est gratuite et strictement réservée aux personnes ayant fait un don. Veuillez saisir votre mot de passe administrateur pour débloquer l'opération."
+                        : "L'émission d'un <strong>Pass Invité (Gratuit)</strong> est strictement réservée à l'administration. Veuillez saisir votre mot de passe administrateur pour débloquer l'opération.";
+                }
+
                 if (codeInput) codeInput.value = '';
                 if (modal) modal.classList.remove('hidden');
                 setTimeout(() => codeInput?.focus(), 150);
-                showNotification("Accès Réservé", "L'émission d'un Pass Gratuit (Invité) est strictement réservée aux Administrateurs.", "info");
+                showNotification("Accès Réservé", `L'émission d'un Pass ${selectedVal} exige la saisie préalable du Code Administrateur.`, "info");
             }
         } else {
+            // Catégorie Classique (Payant) : Réafficher les options de paiement et le contrôle de preuve
             container?.classList.remove('hidden');
-            state.adminGuestAuthorized = false; // Reset free pass lock when switching away
+            checkoutContainer?.classList.remove('hidden');
+            checkoutSeparator?.classList.remove('hidden');
+            state.adminGuestAuthorized = false; // Reset lock when switching away
+        }
+
+        // Gestion spécifique du sélecteur Donateur pour le Pass Gold
+        if (selectedVal === 'Gold') {
+            donorContainer?.classList.remove('hidden');
+            populateGoldDonorsDropdown();
+            // Si un donateur est déjà sélectionné dans le dropdown, on remplit immédiatement
+            handleGoldDonorSelection();
+        } else {
+            donorContainer?.classList.add('hidden');
+            // Réactiver les champs nom et prénom si on quitte Gold
+            if (nomInput) {
+                nomInput.readOnly = false;
+                nomInput.classList.remove('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+            }
+            if (prenomInput) {
+                prenomInput.readOnly = false;
+                prenomInput.classList.remove('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+            }
         }
         
         updateCategoryPrice();
@@ -6255,7 +6473,7 @@
                 notice.innerHTML = `<span>⚠️ <strong>Plus que ${remaining} place${remaining > 1 ? 's' : ''}</strong> sur ${maxQuota} (Pass ${selectedVal})</span>`;
             } else {
                 notice.className = "text-[11px] font-bold py-2 px-3 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 flex items-center justify-between";
-                notice.innerHTML = `<span>✅ <strong>${remaining}/${maxQuota} places disponibles</strong> (Pass ${selectedVal}${selectedVal === 'Invité' ? ' - Réservé' : ''})</span>`;
+                notice.innerHTML = `<span>✅ <strong>${remaining}/${maxQuota} places disponibles</strong> (Pass ${selectedVal}${selectedVal === 'Gold' ? ' - Donateurs Uniquement' : (selectedVal === 'Invité' ? ' - Réservé' : '')})</span>`;
             }
         } else if (notice) {
             notice.classList.add('hidden');
@@ -7255,10 +7473,22 @@
             return;
         }
 
-        const isCoordinator = (state.user && (state.user.comite === 'Coordination Opérationnelle' || state.user.comite === 'Coordination Stratégique' || state.user.role === 'admin'));
-        if ((categorie === 'Gold' || categorie === 'Invité') && !isCoordinator) {
-            showNotification("Accès Refusé", "Seuls les Coordinateurs peuvent générer des Pass Gold ou Invités.", "error");
+        // RÈGLE OBLIGATOIRE : Les Pass Gold et Invité ne sont accessibles qu'aux connexions non-Visiteur
+        if ((categorie === 'Gold' || categorie === 'Invité') && (!state.user || state.user.isVisitor)) {
+            showNotification("Accès Réservé", "Les Pass Gold et Invité ne sont pas accessibles aux comptes Visiteurs.", "error");
             return;
+        }
+
+        // Validation Donateur pour Pass Gold (Pas de saisie manuelle autorisée)
+        let selectedDonor = '';
+        if (categorie === 'Gold') {
+            const goldDonorSelect = document.getElementById('form-gold-donateur');
+            selectedDonor = (goldDonorSelect ? goldDonorSelect.value : '').trim();
+            if (!selectedDonor) {
+                showNotification("Donateur Requis", "Veuillez sélectionner une personne dans la liste des dons pour émettre ce Pass Gold.", "error");
+                goldDonorSelect?.focus();
+                return;
+            }
         }
 
         const prix = (select && select.options[select.selectedIndex] && parseInt(select.options[select.selectedIndex].getAttribute('data-price'))) || 0;
@@ -7281,17 +7511,8 @@
         let modeReglement = "Espèces";
         let preuveReglement = "REC-CAISSE";
 
-        // Restriction: Gold and Invité limited to Coordinators
-        if (categorie === 'Invité' || categorie === 'Gold') {
-            const allowedComites = ["Coordination Stratégique", "Coordination Opérationnelle"];
-            if (!state.user || !allowedComites.includes(state.user.comite)) {
-                showNotification("Accès Restreint", `La génération de pass ${categorie} est strictement réservée aux Coordinateurs Opérationnels et Stratégiques.`, "error");
-                return;
-            }
-        }
-
-        // Validation 6: Preuve de Paiement pour les billets payants / Sécurité Admin pour les pass gratuits
-        if (categorie !== 'Invité') {
+        // Validation 6: Preuve de Paiement pour les billets payants (Classique) / Sécurité Admin pour les pass gratuits (Gold & Invité)
+        if (categorie !== 'Invité' && categorie !== 'Gold') {
             if (!state.currentAnalyzedProof || !state.currentAnalyzedProof.reference) {
                 showNotification("Preuve de Paiement Requise", "Veuillez importer la capture de votre reçu Wave (avec ID T_...) ou Orange Money.", "error");
                 return;
@@ -7393,20 +7614,37 @@
             saveFinanceData();
 
         } else {
-            // STRICT ADMIN SECURITY ENFORCEMENT FOR FREE GUEST TICKETS
+            // RÈGLE OBLIGATOIRE : Sécurité Admin préalable pour les Pass Gratuits (Gold et Invité)
             if (!state.adminGuestAuthorized) {
                 const modal = document.getElementById('modal-admin-guest');
                 const codeInput = document.getElementById('admin-guest-code-input');
+                const titleModal = document.getElementById('admin-guest-modal-title');
+                const descModal = document.getElementById('admin-guest-modal-desc');
+
+                if (titleModal) {
+                    titleModal.innerText = categorie === 'Gold' ? "Autorisation Admin — Pass Gold" : "Autorisation Admin — Pass Invité";
+                }
+                if (descModal) {
+                    descModal.innerHTML = categorie === 'Gold'
+                        ? "L'émission d'un <strong>Pass Gold (Donateur)</strong> est gratuite et strictement réservée aux personnes ayant fait un don. Veuillez saisir votre mot de passe administrateur pour débloquer l'opération."
+                        : "L'émission d'un <strong>Pass Invité (Gratuit)</strong> est strictement réservée à l'administration. Veuillez saisir votre mot de passe administrateur pour débloquer l'opération.";
+                }
+
                 if (codeInput) codeInput.value = '';
                 if (modal) modal.classList.remove('hidden');
                 setTimeout(() => codeInput?.focus(), 150);
-                showNotification("Accès Refusé", "Seuls les administrateurs habilités peuvent émettre un Pass Gratuit (Invité). Veuillez saisir le code secret.", "error");
+                showNotification("Accès Refusé", `Seuls les administrateurs habilités peuvent émettre un Pass ${categorie}. Veuillez saisir votre mot de passe administrateur.`, "error");
                 return;
             }
 
-            modeReglement = "Invité";
-            preuveReglement = "AUTORISATION-ADMIN-DIR";
-            state.adminGuestAuthorized = false; // Reset authorization after successful emission
+            if (categorie === 'Gold') {
+                modeReglement = "Donateur";
+                preuveReglement = "DON-GOLD-OFFICIEL";
+            } else {
+                modeReglement = "Invité";
+                preuveReglement = "AUTORISATION-ADMIN-DIR";
+            }
+            state.adminGuestAuthorized = false; // Réinitialiser après émission réussie
         }
         
         const customId = getNextTicketId();
@@ -7424,6 +7662,7 @@
             prix: prix,
             modeReglement: modeReglement,
             preuveReglement: preuveReglement,
+            donateurOrigine: categorie === 'Gold' ? selectedDonor : null,
             dateTicket: dateTicket,
             statut: 'Validé',
             checkedIn: false,
@@ -7436,9 +7675,14 @@
         
         state.participants.unshift(newTicket);
         
-        // RÈGLE OBLIGATOIRE : Un identifiant ne peut servir qu'une seule et unique fois
-        if (categorie !== 'Invité' && preuveReglement) {
+        // RÈGLE OBLIGATOIRE : Un identifiant ne peut servir qu'une seule et unique fois pour les reçus payants
+        if (categorie !== 'Invité' && categorie !== 'Gold' && preuveReglement) {
             markProofIdentifierAsUsed(preuveReglement, customId, `${nom} ${prenom}`.trim());
+        }
+
+        // Dès qu'une invitation Pass Gold est générée, rafraîchir la liste des donateurs pour retirer le nom immédiatement
+        if (categorie === 'Gold') {
+            populateGoldDonorsDropdown();
         }
 
         try {
@@ -7458,13 +7702,30 @@
         if (typeof renderFinanceDashboard === 'function') renderFinanceDashboard();
         if (typeof renderFinanceConsolidation === 'function') renderFinanceConsolidation();
         
-        // Reset form inputs
-        if (document.getElementById('form-nom')) document.getElementById('form-nom').value = '';
-        if (document.getElementById('form-prenom')) document.getElementById('form-prenom').value = '';
+        // Reset form inputs & unlock read-only fields
+        const nomEl = document.getElementById('form-nom');
+        const prenomEl = document.getElementById('form-prenom');
+        if (nomEl) {
+            nomEl.value = '';
+            nomEl.readOnly = false;
+            nomEl.classList.remove('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+        }
+        if (prenomEl) {
+            prenomEl.value = '';
+            prenomEl.readOnly = false;
+            prenomEl.classList.remove('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+        }
         if (document.getElementById('form-contact1')) document.getElementById('form-contact1').value = '';
         if (document.getElementById('form-contact2')) document.getElementById('form-contact2').value = '';
         if (document.getElementById('form-eglise')) document.getElementById('form-eglise').value = '';
         if (document.getElementById('form-categorie')) document.getElementById('form-categorie').value = '';
+        if (document.getElementById('form-gold-donateur')) document.getElementById('form-gold-donateur').value = '';
+        document.getElementById('gold-donor-container')?.classList.add('hidden');
+        document.getElementById('direct-checkout-container')?.classList.remove('hidden');
+        document.getElementById('checkout-separator')?.classList.remove('hidden');
+        document.getElementById('payment-verification-container')?.classList.remove('hidden');
+        populateGoldDonorsDropdown();
+        updateCategoryDropdownQuotas();
         updateCategoryPrice();
         
         // Reset proof input and clear state so the same ID cannot be immediately resubmitted
@@ -7735,7 +7996,7 @@
             // Gold: Or
             if (badge) {
                 badge.className = "text-xs font-black px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 border border-amber-300 flex items-center gap-1.5 shadow-md font-mono";
-                badge.innerHTML = `<i data-lucide="crown" class="h-3.5 w-3.5"></i> PASS GOLD • 30 000 FCFA`;
+                badge.innerHTML = `<i data-lucide="crown" class="h-3.5 w-3.5"></i> PASS GOLD • GRATUIT`;
             }
             if (iconBg) iconBg.className = "h-5 w-5 rounded-md bg-amber-500 text-slate-950 flex items-center justify-center font-bold";
             if (titleTop) titleTop.innerText = "Pass Officiel GOLD 2027";
@@ -9414,6 +9675,7 @@
         state.finance.dons.splice(idx, 1);
         saveFinanceState();
         renderFinanceDashboard();
+        if (typeof populateGoldDonorsDropdown === 'function') populateGoldDonorsDropdown();
         showNotification("Don Supprimé", "L'enregistrement a été supprimé avec succès.", "info");
     }
 
@@ -9945,6 +10207,7 @@
         }
 
         updateCategoryDropdownQuotas();
+        populateGoldDonorsDropdown();
         updateLiveTicketPreviewFromForm();
         initializeLucideIcons();
     }
@@ -10088,6 +10351,9 @@
         if (editComite && !user.isVisitor) editComite.value = user.comite || 'Comité Supervision';
         if (editContact1) editContact1.value = user.contact1 || '';
         if (editContact2) editContact2.value = user.contact2 || '';
+
+        updateCategoryDropdownQuotas();
+        populateGoldDonorsDropdown();
 
         initializeLucideIcons();
     }
@@ -14770,6 +15036,7 @@
         saveFinanceState();
         closeDonationModal();
         renderFinanceDashboard();
+        if (typeof populateGoldDonorsDropdown === 'function') populateGoldDonorsDropdown();
         showNotification("Don Enregistré !", `${type} de ${montant.toLocaleString('fr-FR')} FCFA enregistré avec succès.`, "success");
     }
 
@@ -14971,13 +15238,30 @@
         
         // Reset category to empty if user cancels admin authentication
         const select = document.getElementById('form-categorie');
-        if (select && select.value === 'Invité') {
+        if (select && (select.value === 'Invité' || select.value === 'Gold')) {
             select.value = '';
+            document.getElementById('direct-checkout-container')?.classList.remove('hidden');
+            document.getElementById('checkout-separator')?.classList.remove('hidden');
             document.getElementById('payment-verification-container')?.classList.remove('hidden');
+            document.getElementById('gold-donor-container')?.classList.add('hidden');
+
+            const nomInput = document.getElementById('form-nom');
+            const prenomInput = document.getElementById('form-prenom');
+            if (nomInput) {
+                nomInput.value = '';
+                nomInput.readOnly = false;
+                nomInput.classList.remove('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+            }
+            if (prenomInput) {
+                prenomInput.value = '';
+                prenomInput.readOnly = false;
+                prenomInput.classList.remove('bg-slate-100', 'text-slate-600', 'cursor-not-allowed');
+            }
+
             updateCategoryPrice();
             const notice = document.getElementById('form-category-availability-notice');
             if (notice) notice.classList.add('hidden');
-            showNotification("Annulation", "Émission du pass gratuit annulée.", "info");
+            showNotification("Annulation", "Émission du pass restreint annulée.", "info");
         }
     }
 
@@ -14994,15 +15278,26 @@
         if (verifyPersonalOrAdminPassword(enteredCode)) {
             state.adminGuestAuthorized = true;
             document.getElementById('modal-admin-guest')?.classList.add('hidden');
-            showNotification("Autorisation Accordée !", "Identité Administrateur confirmée. Vous pouvez émettre ce Pass Invité Gratuit.", "success");
+            
+            const cat = document.getElementById('form-categorie')?.value;
+            const isGold = cat === 'Gold';
+            const catLabel = isGold ? 'Pass Gold (Donateur)' : 'Pass Invité (Gratuit)';
+            
+            showNotification("Autorisation Accordée !", `Identité Administrateur confirmée. Vous pouvez émettre ce ${catLabel}.`, "success");
             
             const notice = document.getElementById('form-category-availability-notice');
             if (notice) {
                 notice.className = "text-[11px] font-bold p-2.5 rounded-xl border bg-emerald-50 text-emerald-900 border-emerald-200 flex items-center gap-1.5";
-                notice.innerHTML = '🛡️ <strong>Autorisation Admin Active :</strong> Pass Invité (Gratuit) déverrouillé pour cette émission.';
+                notice.innerHTML = `🛡️ <strong>Autorisation Admin Active :</strong> ${catLabel} déverrouillé pour cette émission.`;
+            }
+
+            if (isGold) {
+                document.getElementById('gold-donor-container')?.classList.remove('hidden');
+                populateGoldDonorsDropdown();
+                document.getElementById('form-gold-donateur')?.focus();
             }
         } else {
-            showNotification("Accès Refusé", "Code Administrateur incorrect. Seuls les administrateurs habilités peuvent émettre un pass gratuit.", "error");
+            showNotification("Accès Refusé", "Code Administrateur incorrect. Seuls les administrateurs habilités peuvent émettre un pass restreint.", "error");
             input?.focus();
         }
     }
