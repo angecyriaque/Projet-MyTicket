@@ -6357,7 +6357,8 @@
             eligible.forEach(d => {
                 const opt = document.createElement('option');
                 opt.value = d.donateur;
-                opt.textContent = `${d.donateur} • Don: ${Number(d.montant || 0).toLocaleString('fr-FR')} FCFA (${d.type || 'Don'})`;
+                // RÈGLE OBLIGATOIRE : Afficher uniquement le nom du donateur (aucun montant affiché)
+                opt.textContent = d.donateur;
                 if (currentVal && d.donateur === currentVal) opt.selected = true;
                 select.appendChild(opt);
             });
@@ -7041,7 +7042,7 @@
      */
     function markProofIdentifierAsUsed(ref, ticketId, participantName) {
         const cleanRef = normalizeProofRef(ref);
-        if (!cleanRef || cleanRef === 'REC-CAISSE' || cleanRef === 'AUTORISATION-ADMIN-DIR' || cleanRef === 'NON_CONFORME') return;
+        if (!cleanRef || cleanRef === 'REC-CAISSE' || cleanRef === 'AUTORISATION-ADMIN-DIR' || cleanRef === 'DON-GOLD-OFFICIEL' || cleanRef === 'NON_CONFORME') return;
 
         state.paymentProofs = state.paymentProofs || {};
         state.paymentProofs[cleanRef] = {
@@ -7062,6 +7063,27 @@
             const set = new Set(Array.isArray(stored) ? stored : []);
             set.add(cleanRef);
             localStorage.setItem('myticket_used_proof_ids_v1', JSON.stringify(Array.from(set)));
+        } catch (e) {}
+    }
+
+    /**
+     * Libère l'identifiant de preuve lorsqu'une inscription est supprimée par un administrateur
+     */
+    function unmarkProofIdentifier(ref) {
+        const cleanRef = normalizeProofRef(ref);
+        if (!cleanRef || cleanRef === 'REC-CAISSE' || cleanRef === 'AUTORISATION-ADMIN-DIR' || cleanRef === 'DON-GOLD-OFFICIEL' || cleanRef === 'NON_CONFORME') return;
+
+        if (state.paymentProofs && state.paymentProofs[cleanRef]) {
+            delete state.paymentProofs[cleanRef];
+            savePaymentProofs();
+        }
+
+        try {
+            const stored = JSON.parse(localStorage.getItem('myticket_used_proof_ids_v1') || '[]');
+            if (Array.isArray(stored)) {
+                const updated = stored.filter(id => id !== cleanRef);
+                localStorage.setItem('myticket_used_proof_ids_v1', JSON.stringify(updated));
+            }
         } catch (e) {}
     }
 
@@ -7783,8 +7805,10 @@
         }
         
         document.getElementById('delete-participant-id').value = id;
-        document.getElementById('delete-participant-name').innerText = `${p.nom} ${p.prenom}`;
-        document.getElementById('delete-participant-admin-pwd').value = '';
+        const nameEl = document.getElementById('delete-participant-name');
+        if (nameEl) nameEl.innerText = `${p.prenom} ${p.nom} (#${p.id})`;
+        const pwdInput = document.getElementById('delete-participant-admin-pwd');
+        if (pwdInput) pwdInput.value = '';
         
         const modal = document.getElementById('modal-delete-participant-auth');
         if (modal) {
@@ -7802,15 +7826,15 @@
     window.executeDeleteParticipantWithAuth = function() {
         const id = document.getElementById('delete-participant-id').value;
         const pwdInput = document.getElementById('delete-participant-admin-pwd');
-        const code = pwdInput ? pwdInput.value : '';
+        const code = (pwdInput ? pwdInput.value : '').trim();
 
-        if (!code.trim()) {
+        if (!code) {
             showNotification("Code Requis", "Veuillez saisir le code administrateur.", "error");
             pwdInput?.focus();
             return;
         }
 
-        const trimmed = code.trim().toUpperCase();
+        const trimmed = code.toUpperCase();
         
         const adminCommittees = [
             "Coordination Stratégique",
@@ -7832,9 +7856,11 @@
             'SARAH2027', 'MARC2027', 'AUDE2027', 'PASTEUR2027', 'FINANCE2027', 'PCO2027'
         ];
         
-        if (!hasAdminMatch && !masterPasswords.includes(trimmed)) {
-            showNotification("Accès Refusé", "Code Administrateur incorrect.", "error");
-            pwdInput.value = '';
+        const isValid = hasAdminMatch || masterPasswords.includes(trimmed) || (typeof verifyPersonalOrAdminPassword === 'function' && verifyPersonalOrAdminPassword(code));
+
+        if (!isValid) {
+            showNotification("Accès Refusé", "Code Administrateur incorrect. Seuls les administrateurs habilités peuvent supprimer une inscription.", "error");
+            if (pwdInput) pwdInput.value = '';
             pwdInput?.focus();
             return;
         }
@@ -7844,15 +7870,49 @@
         const p = (state.participants || []).find(part => part.id === id);
         if (p) {
             setTimeout(() => {
-                MyTicketCloudDB.deleteParticipant(p.id);
-                showNotification("Suppression réussie", `Le participant ${p.nom} a été supprimé.`, "info");
-                
-                // Re-render UI
-                updateDashboardChartsAndStats();
-                renderParticipantsTable();
-                renderTablePlan();
-                updateCategoryDropdownQuotas();
-                renderGlobalOverviewUI();
+                // 1. Libérer le reçu de paiement dans le registre des preuves si applicable
+                if (p.preuveReglement && typeof unmarkProofIdentifier === 'function') {
+                    unmarkProofIdentifier(p.preuveReglement);
+                }
+
+                // 2. Supprimer définitivement le participant de la liste locale et cloud
+                if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.deleteParticipant) {
+                    MyTicketCloudDB.deleteParticipant(p.id);
+                } else {
+                    state.participants = (state.participants || []).filter(part => part.id !== p.id);
+                    try { localStorage.setItem('myticket_participants_v8', JSON.stringify(state.participants)); } catch(e){}
+                }
+
+                // 3. Réinitialiser la prévisualisation du billet si ce billet était affiché
+                if (state.currentTicket && state.currentTicket.id === p.id) {
+                    state.currentTicket = null;
+                    if (typeof updateTicketPreviewUI === 'function') updateTicketPreviewUI(null);
+                }
+
+                // 4. Actualiser immédiatement les points financiers (recette billetterie, comptes de trésorerie, solde général)
+                if (typeof renderFinanceDashboard === 'function') renderFinanceDashboard();
+                if (typeof saveFinanceState === 'function') saveFinanceState();
+                if (typeof renderFinanceConsolidation === 'function') renderFinanceConsolidation();
+                if (typeof MyTicketCloudDB !== 'undefined' && MyTicketCloudDB.syncFinance) {
+                    MyTicketCloudDB.syncFinance(state.finance);
+                }
+
+                // 5. Actualiser les quotas, la liste des donateurs Gold et les registres
+                if (typeof updateCategoryDropdownQuotas === 'function') updateCategoryDropdownQuotas();
+                if (typeof populateGoldDonorsDropdown === 'function') populateGoldDonorsDropdown();
+                if (typeof renderParticipantsTable === 'function') renderParticipantsTable();
+                if (typeof renderReceptionTable === 'function') renderReceptionTable();
+                if (typeof renderTablePlan === 'function') renderTablePlan();
+                if (typeof updateDashboardChartsAndStats === 'function') updateDashboardChartsAndStats();
+                if (typeof updateDashboardStats === 'function') updateDashboardStats();
+                if (typeof renderGlobalOverviewUI === 'function') renderGlobalOverviewUI();
+                if (typeof populateChurchFilterOptions === 'function') populateChurchFilterOptions();
+
+                showNotification(
+                    "Inscription Supprimée & Finances Actualisées", 
+                    `Le billet #${p.id} de ${p.prenom} ${p.nom} a été supprimé. Les recettes et soldes financiers ont été immédiatement recalculés.`, 
+                    "success"
+                );
             }, 100);
         }
     }
@@ -13409,7 +13469,7 @@
                                     </span>
                                 `}
                             </td>
-                            <td class="py-3.5 px-4 text-right">
+                            <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                                 ${isChecked ? `
                                     <button onclick="requestUncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Seul un Administrateur peut annuler l'émargement">
                                         <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-amber-600"></i>
@@ -13421,6 +13481,9 @@
                                         <span>Émarger</span>
                                     </button>
                                 `}
+                                <button onclick="deleteParticipant('${p.id}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer inline-flex items-center" title="Supprimer l'inscription (Admin)">
+                                    <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                </button>
                             </td>
                         </tr>
                     `;
@@ -13480,7 +13543,7 @@
                                         </span>
                                     `}
                                 </div>
-                                <div>
+                                <div class="flex items-center gap-1.5">
                                     ${isChecked ? `
                                         <button onclick="requestUncheckParticipant('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition inline-flex items-center gap-1 cursor-pointer">
                                             <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-amber-600"></i>
@@ -13492,6 +13555,9 @@
                                             <span>Émarger</span>
                                         </button>
                                     `}
+                                    <button onclick="deleteParticipant('${p.id}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl border border-rose-200 transition cursor-pointer inline-flex items-center" title="Supprimer l'inscription">
+                                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -16058,8 +16124,8 @@
             <div class="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
                 <i data-lucide="trash-2" class="h-6 w-6"></i>
             </div>
-            <h3 class="font-display font-black text-lg text-slate-900">Suppression du Billet</h3>
-            <p class="text-xs text-slate-500">Cette action est irréversible. Veuillez saisir le mot de passe administrateur pour confirmer la suppression de <strong id="delete-participant-name" class="text-rose-600">--</strong>.</p>
+            <h3 class="font-display font-black text-lg text-slate-900">Suppression d'une Inscription</h3>
+            <p class="text-xs text-slate-500">Cette action supprime définitivement le billet et <strong>réajuste automatiquement les points financiers</strong> (recette billetterie, comptes de caisse et solde). Veuillez saisir le mot de passe administrateur pour confirmer la suppression de <strong id="delete-participant-name" class="text-rose-600">--</strong>.</p>
         </div>
         
         <input type="hidden" id="delete-participant-id">
