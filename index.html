@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
-    <link rel="stylesheet" href="assets/tailwind.css?v=1">
+    <link rel="stylesheet" href="assets/tailwind.css?v=2">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
     <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.js" defer></script>
@@ -32,7 +32,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js" defer></script>
     <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=3" defer></script>
+    <script src="assets/app.js?v=4" defer></script>
 
 
 
@@ -2532,11 +2532,11 @@
                         À Propos des <strong class="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FF5A36] to-[#FF8C00]">10 Ans de Grâce</strong>
                     </h1>
                     <p class="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
-                        L'<strong>EMCI Horeb des Toits Rouges</strong> célèbre une décennie d'impact spirituel, d'excellence et d'élévation prophétique. Découvrez notre histoire, les archives multimédias des éditions passées, le plan d'accès au lieu de gala et l'annuaire des 11 entités organisatrices.
+                        L'<strong>EMCI Horeb des Toits Rouges</strong> célèbre une décennie d'impact spirituel, d'excellence et d'élévation prophétique. Découvrez notre histoire, le plan d'accès officiel au lieu de gala et l'annuaire des 11 entités organisatrices.
                     </p>
 
                     <!-- Key Jubilee Facts -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
                         <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
                             <span class="text-[10px] font-mono text-amber-300 uppercase block font-bold">Événement</span>
                             <strong class="text-white font-black text-xs sm:text-sm">Nuit de JACOB</strong>
@@ -2558,100 +2558,7 @@
             </div>
 
                         <!-- ============================================== -->
-            <!-- 1. ALBUMS PHOTOS & VIDÉOS DES ÉVÉNEMENTS (GALERIE DYNAMIQUE) -->
-            <!-- ============================================== -->
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6" id="apropos-gallery-section">
-                
-                <!-- Main Header with Action Buttons -->
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-                    <div class="space-y-1">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200 text-xs font-black font-mono">
-                            <i data-lucide="images" class="h-3.5 w-3.5"></i> ALBUMS PHOTOS & VIDÉOS
-                        </div>
-                        <h3 class="font-display font-black text-2xl text-slate-900">Albums & Rétrospectives Multimédias</h3>
-                        <p class="text-xs text-slate-500">Parcourez les albums souvenirs des éditions passées, visualisez les photos et vidéos ou créez vos propres albums.</p>
-                    </div>
-
-                    <!-- Actions Bar: Dynamic based on Admin vs Visitor -->
-                    <div id="gallery-admin-actions-bar" class="flex flex-wrap items-center gap-2.5">
-                        <!-- Rendered dynamically by renderGalleryAlbums() based on isUserAdmin -->
-                    </div>
-                </div>
-
-                <!-- VIEW A: LIST OF ALBUMS (GRID) -->
-                <div id="gallery-albums-view-wrapper" class="space-y-6">
-                    <!-- Album Categories Filter Pills & Stats -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200/80">
-                        <div class="flex flex-wrap gap-1.5" id="album-filter-buttons">
-                            <button onclick="filterAlbumsByCategory('all')" id="alb-btn-all" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-2xs transition cursor-pointer">Tous les Albums</button>
-                            <button onclick="filterAlbumsByCategory('Célébrations')" id="alb-btn-celebrations" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Célébrations</button>
-                            <button onclick="filterAlbumsByCategory('Banquets & Gala')" id="alb-btn-banquets" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Banquets & Gala</button>
-                            <button onclick="filterAlbumsByCategory('Louange & Concerts')" id="alb-btn-louange" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Louange & Concerts</button>
-                            <button onclick="filterAlbumsByCategory('Rétrospective 10 Ans')" id="alb-btn-retrospective" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer">Rétrospective 10 Ans</button>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs font-mono font-bold text-slate-600 shrink-0">
-                            <span id="gallery-total-albums-count" class="px-2.5 py-1 rounded-xl bg-purple-100 text-purple-800 border border-purple-200">0 Albums</span>
-                            <span id="gallery-total-medias-count" class="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-800 border border-amber-200">0 Médias</span>
-                        </div>
-                    </div>
-
-                    <!-- Albums Cards Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="gallery-albums-grid">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-                <!-- VIEW B: INSIDE SINGLE ALBUM (DETAIL MEDIA GRID) -->
-                <div id="gallery-single-album-view" class="space-y-6 hidden">
-                    
-                    <!-- Back Button & Album Hero Header -->
-                    <div class="p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white shadow-xl border border-slate-800 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <button onclick="closeSingleAlbumView()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition cursor-pointer">
-                                <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Retour aux Albums
-                            </button>
-                            <span id="album-detail-category-badge" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                                Célébrations
-                            </span>
-                        </div>
-
-                        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                            <div class="space-y-1.5 max-w-2xl">
-                                <div class="flex items-center gap-2 text-slate-400 text-xs font-mono">
-                                    <span id="album-detail-year">2026</span>
-                                    <span>•</span>
-                                    <span id="album-detail-createdby">Par Direction EMCI</span>
-                                </div>
-                                <h3 id="album-detail-title" class="font-display font-black text-2xl sm:text-3xl text-white">Titre de l'Album</h3>
-                                <p id="album-detail-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">Description de l'album.</p>
-                            </div>
-
-                            <div id="album-view-admin-actions-bar" class="flex items-center gap-2 shrink-0">
-                                <!-- Rendered dynamically by openSingleAlbumView() based on isUserAdmin -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Inner Album Media Filter -->
-                    <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                        <div class="flex items-center gap-1.5">
-                            <button onclick="filterInnerAlbumMedias('all')" id="inner-filter-all" class="px-3 py-1 rounded-lg text-xs font-bold bg-brand-orange text-white shadow-2xs">Tous les Médias</button>
-                            <button onclick="filterInnerAlbumMedias('photo')" id="inner-filter-photo" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">Photos 📷</button>
-                            <button onclick="filterInnerAlbumMedias('video')" id="inner-filter-video" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">Vidéos 🎥</button>
-                        </div>
-                        <span id="album-inner-media-count" class="text-xs font-mono font-bold text-slate-500">0 Médias</span>
-                    </div>
-
-                    <!-- Inner Album Medias Grid -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4" id="album-inner-medias-grid">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- ============================================== -->
-            <!-- 2. PLAN D'ACCÈS & CARTE GPS INTERACTIVE (NOCES D'OR) -->
+            <!-- 1. PLAN D'ACCÈS & CARTE GPS INTERACTIVE (NOCES D'OR) -->
             <!-- ============================================== -->
             <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
@@ -2736,309 +2643,6 @@
         </section>
 
         
-        <!-- =========================================================
-             MODAL 1: CRÉATION D'UN NOUVEL ALBUM
-             ========================================================= -->
-        <div id="modal-create-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
-            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="h-10 w-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                            <i data-lucide="folder-plus" class="h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display font-black text-lg text-slate-900">Créer un Nouvel Album</h3>
-                            <p class="text-xs text-slate-500">Créez un dossier thématique pour vos photos et vidéos.</p>
-                        </div>
-                    </div>
-                    <button onclick="closeCreateAlbumModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
-                        <i data-lucide="x" class="h-5 w-5"></i>
-                    </button>
-                </div>
-
-                <form onsubmit="handleCreateAlbumSubmit(event)" class="space-y-4">
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-700">Titre de l'Album *</label>
-                        <input type="text" id="album-form-title" required placeholder="ex: Célébration des 10 Ans - Soirée de Gala" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-purple-600">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-700">Année / Édition *</label>
-                            <input type="text" id="album-form-year" required value="2026" placeholder="ex: 2026" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold font-mono focus:outline-none focus:border-purple-600">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-700">Catégorie *</label>
-                            <select id="album-form-category" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-purple-600">
-                                <option value="Célébrations">Célébrations</option>
-                                <option value="Banquets & Gala">Banquets & Gala</option>
-                                <option value="Louange & Concerts">Louange & Concerts</option>
-                                <option value="Vidéos & Témoignages">Vidéos & Témoignages</option>
-                                <option value="Rétrospective 10 Ans">Rétrospective 10 Ans</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-700">Description de l'Album</label>
-                        <textarea id="album-form-desc" rows="2" placeholder="Décrivez l'événement, les moments clés ou les thèmes abordés..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-purple-600"></textarea>
-                    </div>
-
-                    <!-- Image de Couverture: Upload ou URL -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-700">Photo de Couverture de l'Album</label>
-                        <div class="flex items-center gap-3">
-                            <div class="h-16 w-24 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                                <img id="album-form-cover-preview" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80" alt="Preview" class="h-full w-full object-cover">
-                            </div>
-                            <div class="flex-1 space-y-1.5">
-                                <input type="file" id="album-form-cover-file" accept="image/*,video/*" onchange="handleAlbumCoverFileUpload(event)" class="text-[11px] text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer">
-                                <input type="text" id="album-form-cover-url" placeholder="Ou coller une URL d'image ou vidéo..." oninput="handleAlbumCoverUrlInput(this.value)" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-[11px] focus:outline-none focus:border-purple-600">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-700">Créé par / Auteur</label>
-                        <input type="text" id="album-form-author" placeholder="Nom de l'auteur ou du comité" class="w-full px-4 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-purple-600">
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button type="button" onclick="closeCreateAlbumModal()" class="flex-1 px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition">Annuler</button>
-                        <button type="button" onclick="handleCreateAlbumSubmit(event)" id="btn-submit-album" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
-                            <i data-lucide="check" class="h-4 w-4"></i>
-                            <span id="btn-submit-album-text">Créer l'Album</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- =========================================================
-             MODAL 2: AJOUT DE PHOTOS / VIDÉOS DANS UN ALBUM
-             ========================================================= -->
-        <div id="modal-add-media-to-album" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
-            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div class="flex items-center gap-2.5">
-                        <div class="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                            <i data-lucide="upload" class="h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display font-black text-lg text-slate-900">Ajouter un Média à un Album</h3>
-                            <p class="text-xs text-slate-500">Ajoutez des photos ou vidéos souvenirs dans un album.</p>
-                        </div>
-                    </div>
-                    <button onclick="closeAddMediaModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
-                        <i data-lucide="x" class="h-5 w-5"></i>
-                    </button>
-                </div>
-
-                <form onsubmit="saveNewMediaAction(event); return false;" class="space-y-4">
-                    <div class="space-y-1">
-                        <div class="flex items-center justify-between">
-                            <label class="text-xs font-bold text-slate-700">Sélectionner l'Album Cible *</label>
-                            <button type="button" onclick="closeAddMediaModal(); openCreateAlbumModal();" class="text-[11px] font-bold text-brand-orange hover:underline flex items-center gap-1 cursor-pointer">
-                                <i data-lucide="folder-plus" class="h-3.5 w-3.5"></i> Créer un album
-                            </button>
-                        </div>
-                        <select id="media-form-album-select" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-600">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-700">Type de Média *</label>
-                            <select id="media-form-type" onchange="toggleMediaTypeInputs(this.value)" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-600">
-                                <option value="photo">Photo 📷</option>
-                                <option value="video">Vidéo 🎥</option>
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-xs font-bold text-slate-700">Date du Souvenir</label>
-                            <input type="text" id="media-form-date" placeholder="ex: 01/01/2026" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-mono focus:outline-none focus:border-emerald-600">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-700">Titre du Média *</label>
-                        <input type="text" id="media-form-title" required placeholder="ex: Prière prophétique & onction" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-emerald-600">
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-700">Légende / Description</label>
-                        <textarea id="media-form-desc" rows="2" placeholder="Précisez le moment, les personnes présentes, l'atmosphère..." class="w-full px-4 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-emerald-600"></textarea>
-                    </div>
-
-                    <!-- Source du Média (Fichier ou URL) -->
-                    <div class="space-y-2 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                        <label class="text-xs font-bold text-slate-800 block">Fichier / Source Média *</label>
-                        
-                        <!-- Upload Fichier -->
-                        <div class="space-y-1">
-                            <input type="file" id="media-form-file" accept="image/*,video/*" onchange="handleMediaFileUpload(event)" class="w-full text-xs text-slate-600 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-800 hover:file:bg-emerald-200 cursor-pointer">
-                            <span class="text-[10px] text-emerald-700 font-semibold block">Formats acceptés : JPG, PNG, WebP, MP4, WebM (Téléversement Cloud synchronisé pour tous les festivaliers).</span>
-                        </div>
-
-                        <!-- URL Alternative -->
-                        <div class="pt-2 border-t border-slate-200 space-y-1">
-                            <span class="text-[10px] font-bold text-slate-500 uppercase">Ou Lien Web / Vidéo Embed :</span>
-                            <input type="text" id="media-form-url" placeholder="Coller un lien YouTube, Google Drive, Vimeo, MP4 ou image..." oninput="handleMediaUrlInput(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:border-emerald-600">
-                        </div>
-
-                        <!-- Preview Box -->
-                        <div id="media-form-preview-box" class="w-full rounded-2xl bg-slate-950 overflow-hidden hidden flex items-center justify-center relative mt-2 min-h-36 max-h-52 border border-slate-800 shadow-inner">
-                            <img id="media-form-image-preview" src="" alt="Preview" class="h-full w-full object-cover">
-                            <video id="media-form-video-preview" controls class="max-h-52 w-full object-contain hidden"></video>
-                            <iframe id="media-form-iframe-preview" class="w-full aspect-video hidden border-0" allowfullscreen></iframe>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-700">Auteur / Photographe</label>
-                        <input type="text" id="media-form-author" placeholder="ex: Comité Médias, Frère Jean..." class="w-full px-4 py-2 rounded-xl border border-slate-300 text-xs font-medium focus:outline-none focus:border-emerald-600">
-                    </div>
-
-                    <div class="flex gap-3 pt-2">
-                        <button type="button" onclick="closeAddMediaModal()" class="flex-1 px-4 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition">Annuler</button>
-                        <button type="button" onclick="saveNewMediaAction(event)" id="btn-submit-media" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
-                            <i data-lucide="check" class="h-4 w-4"></i>
-                            <span id="btn-submit-media-text">Enregistrer le Média</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- =========================================================
-             MODAL: VISIONNEUSE DE MÉDIA & DIAPORAMA CINÉMATIQUE (PREMIUM)
-             ========================================================= -->
-        <div id="modal-gallery-preview" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 hidden transition-all duration-300">
-            <div id="gal-modal-container" class="relative w-full max-w-5xl bg-slate-900/95 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 text-white flex flex-col max-h-[96vh] animate-in zoom-in-95">
-                
-                <!-- Lightbox Top Header Bar -->
-                <div class="flex flex-wrap items-center justify-between p-3 sm:p-4 border-b border-slate-800/80 bg-slate-950/90 shrink-0 gap-2">
-                    <!-- Media & Album Title -->
-                    <div class="flex items-center gap-3 min-w-0 flex-1">
-                        <span id="gal-modal-tag" class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-brand-orange text-slate-950 font-mono shrink-0 shadow-sm">Photo</span>
-                        <div class="min-w-0">
-                            <h4 id="gal-modal-title" class="font-display font-black text-sm sm:text-base text-white truncate drop-shadow-sm">Titre du Média</h4>
-                            <p id="gal-modal-album-name" class="text-[10px] text-slate-400 font-mono truncate">Album : --</p>
-                        </div>
-                    </div>
-
-                    <!-- Diaporama Controls & Toolbar -->
-                    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                        
-                        <!-- Transition Selector Dropdown -->
-                        <div class="relative inline-block text-left" title="Style de transition du Diaporama">
-                            <select id="slideshow-transition-select" onchange="setSlideshowTransition(this.value)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold rounded-xl px-2.5 py-1.5 border border-slate-700 focus:outline-none focus:border-amber-400 cursor-pointer">
-                                <option value="kenburns">🎬 Cinéma (Ken Burns)</option>
-                                <option value="fade">✨ Fondu Doux</option>
-                                <option value="slide">🪄 Glissement 3D</option>
-                                <option value="blur">🔮 Flou Artistique</option>
-                                <option value="cube">💫 Cube 3D Flip</option>
-                                <option value="pulse">💥 Éclat & Glow</option>
-                                <option value="random">🎲 Aléatoire Magique</option>
-                            </select>
-                        </div>
-
-                        <!-- Speed Selector Dropdown -->
-                        <div class="relative inline-block text-left" title="Vitesse de défilement">
-                            <select id="slideshow-speed-select" onchange="setSlideshowSpeed(this.value)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl px-2 py-1.5 border border-slate-700 focus:outline-none focus:border-amber-400 cursor-pointer">
-                                <option value="2100">⚡ 2.5s (Rapide)</option>
-                                <option value="4000" selected>⏱️ 4s (Normal)</option>
-                                <option value="6000">🌿 6s (Posé)</option>
-                                <option value="8000">🧘 8s (Zen)</option>
-                            </select>
-                        </div>
-
-                        <!-- Slideshow Auto-Play Toggle -->
-                        <button onclick="toggleSlideshowPlay()" id="slideshow-toggle-btn" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold transition flex items-center gap-1.5 text-slate-200 cursor-pointer shadow" title="Lancer / Arrêter le Diaporama automatique (Espace)">
-                            <i data-lucide="play" id="slideshow-play-icon" class="h-3.5 w-3.5 text-amber-400"></i>
-                            <span id="slideshow-play-text" class="hidden sm:inline">Diaporama</span>
-                        </button>
-
-                        <!-- Fullscreen Toggle Button -->
-                        <button onclick="toggleGalleryFullscreen()" id="gal-fullscreen-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer" title="Mode Plein Écran (Touche F)">
-                            <i data-lucide="maximize" class="h-4 w-4"></i>
-                        </button>
-
-                        <!-- Download Button -->
-                        <button onclick="downloadCurrentGalleryMedia()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition cursor-pointer" title="Télécharger">
-                            <i data-lucide="download" class="h-4 w-4"></i>
-                        </button>
-
-                        <!-- Close Button -->
-                        <button onclick="closeGalleryPreview()" class="p-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white transition cursor-pointer" title="Fermer (Échap)">
-                            <i data-lucide="x" class="h-5 w-5"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Animated Live Progress Bar for Slideshow -->
-                <div class="w-full bg-slate-950 overflow-hidden h-[3px]">
-                    <div id="slideshow-progress-bar" style="width: 0%;"></div>
-                </div>
-
-                <!-- Lightbox Media Stage (Center View with Nav Arrows) -->
-                <div id="gal-stage-container" class="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[300px] sm:min-h-[440px] max-h-[62vh] select-none">
-                    
-                    <!-- Prev Button -->
-                    <button onclick="galleryNavigatePrev()" class="absolute left-3 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-slate-900/80 hover:bg-amber-500 hover:text-slate-950 text-white backdrop-blur-md flex items-center justify-center transition shadow-2xl cursor-pointer transform hover:scale-110 border border-white/10" title="Précédent (Flèche Gauche)">
-                        <i data-lucide="chevron-left" class="h-7 w-7"></i>
-                    </button>
-
-                    <!-- Photo Display Frame -->
-                    <div id="gal-photo-wrapper" class="w-full h-full flex items-center justify-center p-2">
-                        <img id="gal-modal-img" src="" alt="Aperçu" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl select-none">
-                    </div>
-
-                    <!-- Video Player Display Frame -->
-                    <div id="gal-modal-video-container" class="w-full h-full flex items-center justify-center hidden p-2">
-                        <video id="gal-modal-video-player" controls class="max-h-full max-w-full rounded-xl shadow-2xl"></video>
-                    </div>
-
-                    <!-- Next Button -->
-                    <button onclick="galleryNavigateNext()" class="absolute right-3 top-1/2 -translate-y-1/2 z-30 h-12 w-12 rounded-full bg-slate-900/80 hover:bg-amber-500 hover:text-slate-950 text-white backdrop-blur-md flex items-center justify-center transition shadow-2xl cursor-pointer transform hover:scale-110 border border-white/10" title="Suivant (Flèche Droite)">
-                        <i data-lucide="chevron-right" class="h-7 w-7"></i>
-                    </button>
-
-                    <!-- Slideshow Indicator Badge (Floating on Top Right) -->
-                    <div id="gal-slideshow-indicator" class="absolute top-3 right-3 z-20 px-3 py-1 rounded-full bg-amber-500/90 text-slate-950 font-black text-[10px] tracking-wider uppercase backdrop-blur-md shadow-lg flex items-center gap-1.5 hidden animate-pulse">
-                        <span class="h-2 w-2 rounded-full bg-rose-600 animate-ping"></span>
-                        Diaporama en cours
-                    </div>
-                </div>
-
-                <!-- Lightbox Bottom Caption & Metadata Bar -->
-                <div class="p-3 sm:p-4 bg-slate-950/95 border-t border-slate-800/80 flex flex-col gap-3 shrink-0">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="space-y-0.5 min-w-0">
-                            <p id="gal-modal-desc" class="text-xs sm:text-sm text-slate-200 font-medium line-clamp-2">Légende du média...</p>
-                            <div class="flex items-center gap-3 text-[11px] text-slate-400 font-mono">
-                                <span id="gal-modal-author" class="text-amber-400/90">Auteur : --</span>
-                                <span>•</span>
-                                <span id="gal-modal-date">Date : --</span>
-                            </div>
-                        </div>
-
-                        <!-- Media Counter Badge -->
-                        <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-                            <span id="gal-modal-counter" class="px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs font-mono font-bold text-amber-400">1 / 1</span>
-                        </div>
-                    </div>
-
-                    <!-- Interactive Thumbnails Strip Carousel -->
-                    <div id="gal-thumbnails-strip" class="flex items-center gap-2 overflow-x-auto py-1 px-0.5 scrollbar-thin scrollbar-thumb-slate-700">
-                        <!-- Dynamic Thumbnails Rendered Here -->
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
         <!-- MODAL: AUTORISATION ADMIN POUR ANNULATION D'ÉMARGEMENT -->
 <div id="modal-admin-uncheck" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-100 text-center animate-in zoom-in-95">
@@ -4229,10 +3833,7 @@
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Responsables Comités</span>
                     <span id="cloud-modal-count-users" class="font-mono font-black text-lg text-indigo-600">0 Comptes</span>
                 </div>
-                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Albums Souvenirs</span>
-                    <span id="cloud-modal-count-albums" class="font-mono font-black text-lg text-purple-600">0 Albums</span>
-                </div>
+                
             </div>
 
             <!-- Connection Status Pill -->
