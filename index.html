@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=10" as="script">
+    <link rel="preload" href="assets/app.js?v=11" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=10" defer></script>
+    <script src="assets/app.js?v=11" defer></script>
 
 
 
@@ -1426,9 +1426,9 @@
                             </div>
                             <select id="form-categorie" onchange="handleCategorySelection()" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-brand-orange text-xs font-bold transition">
                                 <option value="" selected disabled>-- Choisir une catégorie de Pass --</option>
-                                <option value="Classique" data-price="10000">Classique — 10 000 FCFA</option>
-                                <option value="Gold" data-price="0">Gold — Gratuit</option>
-                                <option value="Invité" data-price="0">Invité — Gratuit (Direction / Admin)</option>
+                                <option value="Classique" data-price="10000">Pass Classique (140 places restantes)</option>
+                                <option value="Gold" data-price="0">Pass Gold (60 places restantes)</option>
+                                <option value="Invité" data-price="0">Pass Invité (10 places restantes)</option>
                             </select>
                             <div id="form-category-availability-notice" class="hidden text-[11px] font-bold p-2.5 rounded-xl border transition-all"></div>
                         </div>

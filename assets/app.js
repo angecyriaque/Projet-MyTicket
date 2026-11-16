@@ -1664,14 +1664,14 @@
             select.innerHTML = `
                 <option value="" disabled ${!currentSelected ? 'selected' : ''}>-- Choisir une catégorie de Pass --</option>
                 <option value="Classique" data-price="10000" ${currentSelected === 'Classique' ? 'selected' : ''} ${remClassique <= 0 ? 'disabled' : ''}>
-                    Pass Classique — 10 000 FCFA ${remClassique > 0 ? `(${remClassique} places restantes / 140)` : '⛔ QUOTA ATTEINT (0 place)'}
+                    Pass Classique ${remClassique > 0 ? `(${remClassique} places restantes)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
                 ${isNonVisitor ? `
                 <option value="Gold" data-price="0" ${currentSelected === 'Gold' ? 'selected' : ''} ${remGold <= 0 ? 'disabled' : ''}>
-                    Pass Gold — Gratuit (Donateurs) ${remGold > 0 ? `(${remGold} places restantes / 60)` : '⛔ QUOTA ATTEINT (0 place)'}
+                    Pass Gold ${remGold > 0 ? `(${remGold} places restantes)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
                 <option value="Invité" data-price="0" ${currentSelected === 'Invité' ? 'selected' : ''} ${remInvite <= 0 ? 'disabled' : ''}>
-                    Pass Invité — Gratuit ${remInvite > 0 ? `(${remInvite} places restantes / 10)` : '⛔ QUOTA ATTEINT (0 place)'}
+                    Pass Invité ${remInvite > 0 ? `(${remInvite} places restantes)` : '⛔ QUOTA ATTEINT (0 place)'}
                 </option>
                 ` : ''}
             `;
