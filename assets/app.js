@@ -2309,8 +2309,9 @@
     function extractWaveMerchantLabel(rawText) {
         if (!rawText) return "Non détecté";
         const clean = rawText.replace(/\r/g, '');
-        const m = clean.match(/(?:Marchand|À|A|Vers|Destinataire|Paiement à|Paiement)\s*:\s*([^\n\r,.;]{3,35})/i) ||
-                  clean.match(/Paiement\s+(?:à|a|marchand|vers)?\s*([^\n\r,.;]{3,35})/i);
+        const m = clean.match(/(?:Marchand|À|A|Vers|Destinataire|Paiement à|Paiement)\s*[:]?\s*([^\n\r,.;]{3,35})/i) ||
+                  clean.match(/Paiement\s+(?:à|a|marchand|vers)?\s*([^\n\r,.;]{3,35})/i) ||
+                  clean.match(/Marchand\s+([^\n\r,.;]{3,35})/i);
         if (m && m[1]) {
             return m[1].trim();
         }
@@ -2318,82 +2319,116 @@
     }
 
     /**
-     * RÈGLE STRICTE WAVE : Le montant à considérer est obligatoirement celui situé AU-DESSUS de la mention
-     * "Paiement Pitchou maillots" (en grand / en gras).
-     * Ce montant correspond au montant négatif débité : -10.000F (-10000).
-     * S'il n'est pas de -10.000F, ce n'est pas correct.
+     * RÈGLE UNIFIÉE WAVE : Valide les 2 formats officiels Wave :
+     * 1. Format Reçu de Transaction (document téléchargé) : "Montant 10.000F" ou sous "Marchand Pitchou maillots"
+     * 2. Format Capture Application Mobile (in-app) : "-10.000F" en gras au-dessus de "Paiement Pitchou maillots"
+     * Dans les 2 cas, le montant débité officiel doit correspondre à 10 000 FCFA (-10.000F / -10000).
      */
     function extractWaveAmount(rawText) {
-        if (!rawText) return { amount: 0, rawString: "", found: false };
+        if (!rawText) return { amount: 0, rawString: "", found: false, source: 'none' };
         const clean = rawText.replace(/\r/g, '');
 
-        function hasExplicitCredit(str) {
-            return /[+＋]/.test(str);
-        }
+        function parseAmountFromLine(str) {
+            if (!str) return null;
+            // Rejeter formellement les lignes contenant un crédit explicite avec le signe '+'
+            if (/[+＋]/.test(str)) return null;
 
-        function matchLineAmount(line) {
-            if (!line || hasExplicitCredit(line)) return null;
+            // Ignorer les lignes de métadonnées qui ne sont pas le montant de la transaction
+            const lower = str.toLowerCase();
+            if (lower.includes('frais') || lower.includes('solde') || lower.includes('heure') || lower.includes('date')) {
+                return null;
+            }
 
-            // Match amounts: -10.000F, -10 000F, -10000F, –10.000F, —10.000F, −10.000F, 10.000F, 10000F, etc.
-            const m = line.match(/([–—−-]?\s*[0-9]{1,3}(?:[ .',][0-9]{3})+|[–—−-]?\s*[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
-                      line.match(/^[–—−-]?\s*([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})$/);
+            // Remplacement intelligent des confusions OCR : lettre O / o à la place du chiffre 0
+            let cleaned = str.replace(/(?:^|[–—−~_\-\s])1[oO0][\.\s,']?[oO0]{3}/g, (m) => m.replace(/[oO]/g, '0'));
+            cleaned = cleaned.replace(/([0-9])[oO]/g, '$10').replace(/[oO]([0-9])/g, '0$1');
+
+            // Match amounts: -10.000F, 10.000F, -10 000F, 10 000F, -10000F, 10000F, -10 000 FCFA, etc.
+            const m = cleaned.match(/([–—−~_-]?\s*[0-9]{1,3}(?:[ .',][0-9]{3})+|[–—−~_-]?\s*[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F\b)?/i) ||
+                      cleaned.match(/^[–—−~_-]?\s*([0-9]{1,3}(?:[ .',][0-9]{3})+|[0-9]{4,7})$/);
             if (!m) return null;
 
             const raw = m[1].replace(/\s+/g, '');
-            const isExplicitNegative = /^[–—−-]/.test(raw) || /^[–—−-]/.test(line.trim());
-            const val = parseInt(raw.replace(/[–—−\- .',]/g, ''), 10);
-            if (isNaN(val) || val <= 0) return null;
+            const val = parseInt(raw.replace(/[–—−~_\- .',]/g, ''), 10);
+            if (isNaN(val) || val < 1000) return null;
 
-            // Sur Wave, le montant débité affiché en gras au-dessus de 'Paiement Pitchou maillots' correspond à -10.000F (-10000)
             return {
                 amount: -val,
-                rawString: m[0].trim(),
                 val: val,
-                isExplicitNegative: isExplicitNegative,
+                rawString: m[0].trim(),
                 found: true
             };
         }
 
-        // 1. Position de la mention "Pitchou maillots" (ou "Pitchou")
-        const pitchouMatch = clean.search(/p[i1l]tch[o0]u/i);
-        if (pitchouMatch !== -1) {
-            // Examiner le segment de texte situé immédiatement AU-DESSUS (jusqu'à 300 caractères avant)
-            const textBefore = clean.substring(Math.max(0, pitchouMatch - 300), pitchouMatch);
-            const linesBefore = textBefore.split('\n').map(l => l.trim()).filter(Boolean);
-
-            // Parcourir de bas en haut (en partant de la ligne la plus proche au-dessus de 'Paiement Pitchou maillots')
-            for (let i = linesBefore.length - 1; i >= 0; i--) {
-                const line = linesBefore[i];
-                // Ignorer les lignes intermédiaires (ex: 'Paiement', 'Paiement marchand', 'Paiement à')
-                if (/^(?:paiement|paiement\s+(?:marchand|à|a|vers)|vers|à|a|pour)$/i.test(line)) {
-                    continue;
-                }
-                const res = matchLineAmount(line);
-                if (res) return res;
-            }
-
-            // Détection inline si le montant et la mention sont sur la même ligne ou collés
-            const inlineMatch = textBefore.match(/(?:^|[^\d+＋])([–—−-]?\s*[0-9]{1,3}(?:[ .',][0-9]{3})+|[–—−-]?\s*[0-9]{4,7})\s*(?:FCFA|F CFA|CFA|F)?\s*(?:paiement\s*(?:à|a|marchand|de)?)?\s*$/i);
-            if (inlineMatch && !hasExplicitCredit(inlineMatch[0])) {
-                const res = matchLineAmount(inlineMatch[1]);
-                if (res) return res;
+        // STRATÉGIE 1 : Format 1 (Reçu officiel téléchargeable) -> Ligne "Montant [:] X"
+        const montantLineMatch = clean.match(/(?:^|\n)[ \t]*montant[ \t]*:?[ \t]*([–—−~_-]?\s*[0-9]{1,3}(?:[ .',][0-9]{3})+|[–—−~_-]?\s*[0-9]{4,7}\s*(?:FCFA|F CFA|CFA|F\b)?)/i);
+        if (montantLineMatch) {
+            const res = parseAmountFromLine(montantLineMatch[1]);
+            if (res) {
+                res.source = 'v1_montant_label';
+                return res;
             }
         }
 
-        // 2. Recherche générale du montant principal situé au-dessus d'une mention 'Paiement'
-        const paymentMatch = clean.search(/paiement\s*(?:marchand|à|a|vers)?[^\n\r]*/i);
-        if (paymentMatch !== -1) {
-            const textBefore = clean.substring(Math.max(0, paymentMatch - 250), paymentMatch);
+        // STRATÉGIE 2 : Autour de la mention "Pitchou maillots" (Format 2 au-dessus ou Format 1 au-dessous)
+        const pitchouPos = clean.search(/p[i1l]tch[o0]u/i);
+        if (pitchouPos !== -1) {
+            // 2.A : Lignes AU-DESSUS de "Pitchou maillots" (Format 2 écran in-app : -10.000F en gras)
+            const textBefore = clean.substring(Math.max(0, pitchouPos - 300), pitchouPos);
             const linesBefore = textBefore.split('\n').map(l => l.trim()).filter(Boolean);
             for (let i = linesBefore.length - 1; i >= 0; i--) {
                 const line = linesBefore[i];
                 if (/^(?:paiement|paiement\s+(?:marchand|à|a|vers)|vers|à|a|pour)$/i.test(line)) continue;
-                const res = matchLineAmount(line);
-                if (res) return res;
+                const res = parseAmountFromLine(line);
+                if (res) {
+                    res.source = 'v2_above_pitchou';
+                    return res;
+                }
+            }
+
+            // 2.B : Lignes AU-DESSOUS de "Pitchou maillots" (Format 1 reçu PDF : Montant 10.000F sous Marchand)
+            const textAfter = clean.substring(pitchouPos, Math.min(clean.length, pitchouPos + 300));
+            const linesAfter = textAfter.split('\n').map(l => l.trim()).filter(Boolean);
+            for (let i = 0; i < linesAfter.length; i++) {
+                const line = linesAfter[i];
+                if (/p[i1l]tch[o0]u/i.test(line)) continue;
+                if (/^(?:acheteur|details|détails|statut|frais)/i.test(line)) break;
+                const res = parseAmountFromLine(line);
+                if (res) {
+                    res.source = 'v1_below_pitchou';
+                    return res;
+                }
             }
         }
 
-        return { amount: 0, rawString: "", found: false };
+        // STRATÉGIE 3 : Détection au-dessus d'une mention "Paiement"
+        const paymentPos = clean.search(/paiement\s*(?:marchand|à|a|vers)?[^\n\r]*/i);
+        if (paymentPos !== -1) {
+            const textBefore = clean.substring(Math.max(0, paymentPos - 250), paymentPos);
+            const linesBefore = textBefore.split('\n').map(l => l.trim()).filter(Boolean);
+            for (let i = linesBefore.length - 1; i >= 0; i--) {
+                const line = linesBefore[i];
+                if (/^(?:paiement|paiement\s+(?:marchand|à|a|vers)|vers|à|a|pour)$/i.test(line)) continue;
+                const res = parseAmountFromLine(line);
+                if (res) {
+                    res.source = 'above_paiement';
+                    return res;
+                }
+            }
+        }
+
+        // STRATÉGIE 4 : Recherche globale sécurisée du montant 10.000F / -10.000F dans le texte
+        const allLines = clean.split('\n').map(l => l.trim()).filter(Boolean);
+        for (const line of allLines) {
+            if (/^(?:frais|solde|nouveau solde|date|heure|id|acheteur|07|05|01)/i.test(line)) continue;
+            const res = parseAmountFromLine(line);
+            if (res && res.val === 10000) {
+                res.source = 'global_10k_fallback';
+                return res;
+            }
+        }
+
+        return { amount: 0, rawString: "", found: false, source: 'none' };
     }
 
     // Helper strict pour valider la présence obligatoire du numéro de bénéficiaire Orange Money : 0777588706
@@ -2860,10 +2895,10 @@
             } else if (detectedMode === "Wave Mobile" && !state.currentAnalyzedProof.isAmountValid) {
                 warning.classList.remove('hidden');
                 if (detectedAmount === 0) {
-                    warning.innerText = "❌ Montant non détecté : Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F.";
+                    warning.innerText = "❌ Montant non détecté : Le reçu Wave doit comporter le montant officiel de -10.000F (ou 10.000F).";
                 } else {
                     const formatted = detectedAmount < 0 ? `${detectedAmount}F` : `-${detectedAmount}F`;
-                    warning.innerText = `❌ Montant incorrect : Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F (${formatted} détecté).`;
+                    warning.innerText = `❌ Montant incorrect : Le montant du reçu Wave doit être de -10.000F (${formatted} détecté).`;
                 }
             } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
                 warning.classList.remove('hidden');
@@ -2899,8 +2934,8 @@
             showNotification(
                 "Montant Wave Non Conforme", 
                 detectedAmount === 0 
-                    ? "Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F."
-                    : `Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F (${formatted} détecté).`, 
+                    ? "Le reçu Wave doit comporter le montant officiel de -10.000F (ou 10.000F)."
+                    : `Le montant Wave doit correspondre à -10.000F (${formatted} détecté).`, 
                 "error"
             );
         } else if (detectedMode === "Orange Money" && !state.currentAnalyzedProof.isAmountValid) {
@@ -2976,8 +3011,8 @@
                         const val = state.currentAnalyzedProof.montantPreleve;
                         const formatted = val < 0 ? `${val}F` : `-${val}F`;
                         warning.innerText = (val === 0 || !val)
-                            ? "❌ Montant non détecté : Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F."
-                            : `❌ Montant incorrect : Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F (${formatted} détecté).`;
+                            ? "❌ Montant non détecté : Le reçu Wave doit comporter le montant officiel de -10.000F."
+                            : `❌ Montant incorrect : Le montant du reçu Wave doit être de -10.000F (${formatted} détecté).`;
                     } else {
                         warning.innerText = "❌ Paiement refusé : reçu non conforme.";
                     }
@@ -3087,8 +3122,8 @@
                     showNotification(
                         "Montant Wave Non Conforme", 
                         (val === 0 || !val)
-                            ? `Validation impossible : Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F.`
-                            : `Validation impossible : Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F (${formatted} détecté).`, 
+                            ? `Validation impossible : Le reçu Wave doit comporter le montant officiel de -10.000F.`
+                            : `Validation impossible : Le montant du reçu Wave doit être de -10.000F (${formatted} détecté).`, 
                         "error"
                     );
                     return;
@@ -3120,8 +3155,8 @@
                     showNotification(
                         "Montant Wave Rejeté", 
                         (val === 0 || !val)
-                            ? `Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F.`
-                            : `Le montant au-dessus de « Paiement Pitchou maillots » doit être de -10.000F (${formatted} détecté).`, 
+                            ? `Le reçu Wave doit comporter le montant officiel de -10.000F.`
+                            : `Le montant du reçu Wave doit être de -10.000F (${formatted} détecté).`, 
                         "error"
                     );
                     return;
