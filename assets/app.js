@@ -2196,7 +2196,7 @@
                         return { fullText, orangeDetectedText };
                     })();
 
-                    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ fullText: "", orangeDetectedText: "" }), 9000));
+                    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ fullText: "", orangeDetectedText: "" }), 25000));
                     const ocrRes = await Promise.race([ocrPromise, timeoutPromise]);
                     extractedText = ocrRes.fullText || "";
                     orangeText = ocrRes.orangeDetectedText || "";
