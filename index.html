@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=12" as="script">
+    <link rel="preload" href="assets/app.js?v=13" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=12" defer></script>
+    <script src="assets/app.js?v=13" defer></script>
 
 
 
@@ -813,367 +813,237 @@
             </div>
         </section>
 
-                                                        <!-- ========================================== -->
-        <!-- 4. TABLEAU DE BORD PRESTIGE & ILLUSTRÉ     -->
         <!-- ========================================== -->
-        <section id="view-dashboard" class="view-section space-y-8" style="display:none;">
-            
-            <!-- Hero Dashboard Banner with Luxury Ambient Glow & 3D Artwork -->
-            <div class="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-slate-950 via-[#0B1026] to-slate-900 text-white p-7 sm:p-10 shadow-2xl border border-slate-800/80">
-                <!-- Ambient luxury light flares -->
-                <div class="absolute -top-28 -right-28 w-96 h-96 bg-gradient-to-br from-amber-500/20 to-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -bottom-28 -left-28 w-96 h-96 bg-gradient-to-tr from-blue-600/20 to-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <div class="space-y-3 max-w-2xl">
-                        <div class="flex items-center gap-2">
-                            <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-display font-bold text-xs backdrop-blur-md border border-white/15 transition transform hover:-translate-y-0.5">
-                                <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Retour Accueil
-                            </button>
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-[10px] font-black uppercase tracking-widest font-mono">
-                                <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
-                                Célébration des 10 Ans
-                            </span>
-                        </div>
-
-                        <h1 class="font-display font-black text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight">
-                            Cockpit Exécutif <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange via-amber-400 to-yellow-300">& Billetterie</span>
-                        </h1>
-                        <p class="text-xs sm:text-sm text-slate-300 font-light leading-relaxed">
-                            Supervision stratégique des 210 festivaliers, flux financiers et disposition des 27 Tables de gala à Noces d'Or.
-                        </p>
-                    </div>
-
-                    <!-- Right Live Badges Hub -->
-                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-3.5 shrink-0">
-                        <!-- Émargement Badge -->
-                        <div class="p-4 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/15 flex items-center gap-3.5 shadow-lg">
-                            <div class="h-12 w-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black border border-emerald-500/30 shrink-0">
-                                <i data-lucide="scan-face" class="h-6 w-6"></i>
-                            </div>
-                            <div>
-                                <span class="text-[10px] uppercase tracking-widest text-slate-400 font-extrabold block">Contrôle Accès</span>
-                                <span id="dash-header-checkin-rate" class="text-base font-black text-emerald-400 font-mono">0% aux Portes</span>
-                            </div>
-                        </div>
-
-                        <!-- 27 Tables Badge -->
-                        <div class="p-4 rounded-3xl bg-white/10 backdrop-blur-xl border border-white/15 flex items-center gap-3.5 shadow-lg">
-                            <div class="h-12 w-12 rounded-2xl bg-brand-orange/20 text-brand-orange flex items-center justify-center font-black border border-brand-orange/30 shrink-0">
-                                <i data-lucide="crown" class="h-6 w-6 text-amber-300"></i>
-                            </div>
-                            <div>
-                                <span class="text-[10px] uppercase tracking-widest text-slate-400 font-extrabold block">Gala Dinner</span>
-                                <span class="text-base font-black text-white font-mono">27 Tables (210 Pl.)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 1. TOP 4 EXECUTIVE ILLUSTRATED KPI CARDS -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- 4. TABLEAU DE BORD EXEC SAAS (MOCKUP DESIGN)-->
+        <!-- ========================================== -->
+        <section id="view-dashboard" class="view-section" style="display:none;">
+            <!-- Outer Canvas Shell Matching Mockup (soft gray/blue tint, rounded-3xl, shadow) -->
+            <div class="bg-[#F0F4FA] rounded-[2.5rem] p-4 sm:p-6 lg:p-8 border border-slate-200/80 shadow-2xl space-y-6">
                 
-                <!-- CARD 1: BILLETTERIE ÉMISE -->
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 space-y-4 relative overflow-hidden group">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Jauge Billetterie</span>
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold shadow-md shadow-orange-500/20 group-hover:scale-110 transition">
-                            <i data-lucide="ticket" class="h-6 w-6"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-baseline gap-2">
-                            <h3 id="dash-kpi-tickets" class="font-display font-black text-4xl text-slate-900 font-mono">0</h3>
-                            <span class="text-xs font-bold text-slate-400 font-mono">/ 210 Places</span>
-                        </div>
-                        <p id="dash-kpi-tickets-sub" class="text-[11px] text-slate-500 mt-1 font-medium">0% de la jauge totale</p>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="dash-kpi-tickets-bar" class="bg-gradient-to-r from-brand-orange via-orange-500 to-amber-400 h-2.5 rounded-full transition-all duration-700" style="width: 0%"></div>
-                    </div>
-                    <div class="pt-1.5 flex items-center justify-between text-xs border-t border-slate-100">
-                        <span class="text-slate-400">Places Disponibles</span>
-                        <span id="dash-kpi-tickets-remaining" class="font-black text-emerald-600 font-mono">210 libres</span>
-                    </div>
-                </div>
-
-                <!-- CARD 2: RECETTES BILLETTERIE -->
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 space-y-4 relative overflow-hidden group">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Ventes Billetterie</span>
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20 group-hover:scale-110 transition">
-                            <i data-lucide="coins" class="h-6 w-6"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 id="dash-kpi-tickets-total" class="font-display font-black text-2xl sm:text-3xl text-blue-700 font-mono">0 FCFA</h3>
-                        <p id="dash-kpi-tickets-potentiel" class="text-[11px] text-slate-500 mt-1 font-medium">Objectif : 3 600 000 FCFA</p>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div id="dash-kpi-revenue-bar" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-400 h-2.5 rounded-full transition-all duration-700" style="width: 0%"></div>
-                    </div>
-                    <div class="pt-1.5 flex items-center justify-between text-xs border-t border-slate-100">
-                        <span class="text-slate-400">Taux Réalisation</span>
-                        <span id="dash-kpi-revenue-rate" class="font-black text-blue-700 font-mono">0%</span>
-                    </div>
-                </div>
-
-                <!-- CARD 3: RECETTES GLOBALES -->
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 space-y-4 relative overflow-hidden group">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Recettes Encaissées</span>
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold shadow-md shadow-emerald-500/20 group-hover:scale-110 transition">
-                            <i data-lucide="trending-up" class="h-6 w-6"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 id="dash-kpi-incomes" class="font-display font-black text-2xl sm:text-3xl text-emerald-700 font-mono">0 FCFA</h3>
-                        <p id="dash-kpi-incomes-sub" class="text-[11px] text-slate-500 mt-1 font-medium">Billetterie + Sponsoring / Dons</p>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 rounded-full" style="width: 100%"></div>
-                    </div>
-                    <div class="pt-1.5 flex items-center justify-between text-xs border-t border-slate-100">
-                        <span class="text-slate-400">Dons & Sponsoring</span>
-                        <span id="dash-kpi-dons-total" class="font-black text-purple-700 font-mono">0 FCFA</span>
-                    </div>
-                </div>
-
-                <!-- CARD 4: TRÉSORERIE DISPONIBLE -->
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-200/90 shadow-sm hover:shadow-xl transition-all duration-300 space-y-4 relative overflow-hidden group">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Trésorerie Nette</span>
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 text-white flex items-center justify-center font-bold shadow-md shadow-purple-500/20 group-hover:scale-110 transition">
-                            <i data-lucide="wallet" class="h-6 w-6"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 id="dash-kpi-balance" class="font-display font-black text-2xl sm:text-3xl text-slate-900 font-mono">0 FCFA</h3>
-                        <p id="dash-kpi-balance-sub" class="text-[11px] text-slate-500 mt-1 font-medium">Sorties Comités : 0 FCFA</p>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div class="bg-gradient-to-r from-purple-600 to-fuchsia-500 h-2.5 rounded-full" style="width: 100%"></div>
-                    </div>
-                    <div class="pt-1.5 flex items-center justify-between text-xs border-t border-slate-100">
-                        <span class="text-slate-400">Budget Global</span>
-                        <span id="dash-kpi-budget-total" class="font-black text-slate-900 font-mono">0 FCFA</span>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- 2. QUOTAS PAR CATÉGORIE AVEC JAUGES RADIALES DONUT SVG & BADGES THÉMATIQUES -->
-            <div class="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="h-11 w-11 rounded-2xl bg-gradient-to-tr from-brand-orange to-amber-500 text-white flex items-center justify-center font-black shadow-md shadow-brand-orange/20">
-                            <i data-lucide="pie-chart" class="h-5 w-5"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display font-black text-xl text-slate-900">Suivi des Quotas par Catégorie de Billets</h3>
-                            <p class="text-xs text-slate-500">Jauges radiales de consommation sur la jauge stricte de 210 festivaliers</p>
-                        </div>
-                    </div>
-                    <span class="px-4 py-1.5 rounded-full bg-slate-900 text-white font-mono font-bold text-xs shadow-xs self-start sm:self-auto">
-                        210 Places Assises • 27 Tables
-                    </span>
-                </div>
-
-                <!-- 4 Circular Radial Donut Cards Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" id="dash-categories-breakdown">
-                    <!-- Populated dynamically with High-Definition SVG Rings -->
-                </div>
-            </div>
-
-            <!-- 3. ÉVOLUTION JOURNALIÈRE DES ACHATS DE TICKETS (TOUS LES PASS CONFONDUS) & STATS AVANCÉES -->
-            <div class="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-6">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                    <div class="flex items-center gap-3.5">
-                        <div class="h-12 w-12 rounded-2xl bg-gradient-to-tr from-brand-orange to-amber-500 text-white flex items-center justify-center font-black shadow-md shadow-brand-orange/20 shrink-0">
-                            <i data-lucide="calendar-days" class="h-6 w-6"></i>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <h3 class="font-display font-black text-xl text-slate-900">Évolution Journalière des Achats de Tickets</h3>
-                                <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-black uppercase font-mono tracking-wider">Tous pass confondus</span>
+                <!-- Main Layout: Left Sidebar + Right Dashboard Canvas -->
+                <div class="flex flex-col lg:flex-row gap-6 items-stretch">
+                    
+                    <!-- Left Sidebar (Desktop Rail) -->
+                    <aside class="w-full lg:w-48 bg-white rounded-3xl p-4 border border-slate-200/70 shadow-sm flex lg:flex-col items-center lg:items-stretch justify-between gap-4 shrink-0">
+                        <div class="flex lg:flex-col items-center lg:items-stretch gap-2.5 w-full">
+                            <!-- User Profile Avatar with Notification Badge '2' -->
+                            <div class="flex items-center gap-3 p-1.5 lg:mb-3">
+                                <div class="relative">
+                                    <div class="h-12 w-12 rounded-2xl bg-[#2B85FF] text-white flex items-center justify-center font-black shadow-md shadow-blue-500/25">
+                                        <i data-lucide="user" class="h-6 w-6"></i>
+                                    </div>
+                                    <span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 text-white font-mono text-[9px] font-black flex items-center justify-center border-2 border-white">2</span>
+                                </div>
+                                <div class="hidden lg:block min-w-0">
+                                    <span class="text-xs font-black text-slate-900 block truncate">Direction</span>
+                                    <span class="text-[10px] text-slate-400 font-mono block">10 Ans Horeb</span>
+                                </div>
                             </div>
-                            <p class="text-xs text-slate-500">Suivi chronologique quotidien des émissions de billets (Classique, Gold, Invité) et encaissements</p>
-                        </div>
-                    </div>
 
-                    <!-- Interactive Period Filter Switcher -->
-                    <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80 self-start lg:self-auto text-xs font-bold">
-                        <button onclick="switchDailyChartFilter('all')" id="btn-daily-filter-all" class="px-3 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs transition">
-                            Toutes les dates
-                        </button>
-                        <button onclick="switchDailyChartFilter('30d')" id="btn-daily-filter-30d" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
-                            30 derniers jours
-                        </button>
-                        <button onclick="switchDailyChartFilter('14d')" id="btn-daily-filter-14d" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
-                            14 derniers jours
-                        </button>
-                        <button onclick="switchDailyChartFilter('7d')" id="btn-daily-filter-7d" class="px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition">
-                            7 derniers jours
-                        </button>
-                    </div>
-                </div>
+                            <!-- Nav Links -->
+                            <button onclick="switchView('accueil')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
+                                <i data-lucide="home" class="h-4 w-4 text-slate-500 shrink-0"></i>
+                                <span class="hidden lg:inline">Home</span>
+                            </button>
+                            <button class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-[#2B85FF] text-white shadow-md shadow-blue-500/25 text-xs font-bold transition">
+                                <i data-lucide="layout-dashboard" class="h-4 w-4 text-white shrink-0"></i>
+                                <span class="hidden lg:inline">Dashboard</span>
+                            </button>
+                            <button onclick="switchView('organisation')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
+                                <i data-lucide="users" class="h-4 w-4 text-slate-500 shrink-0"></i>
+                                <span class="hidden lg:inline">Admin</span>
+                            </button>
+                            <button onclick="switchView('chronogramme')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
+                                <i data-lucide="message-square" class="h-4 w-4 text-slate-500 shrink-0"></i>
+                                <span class="hidden lg:inline">Messages</span>
+                            </button>
+                            <button onclick="switchView('finance')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
+                                <i data-lucide="settings" class="h-4 w-4 text-slate-500 shrink-0"></i>
+                                <span class="hidden lg:inline">Settings</span>
+                            </button>
+                        </div>
 
-                <!-- 4 Quick Daily Metrics Bar -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-1">
-                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
-                            <i data-lucide="flame" class="h-5 w-5"></i>
+                        <!-- Logout / Return Accueil at bottom -->
+                        <div class="lg:pt-4 lg:border-t border-slate-100 w-full">
+                            <button onclick="switchView('accueil')" class="w-full flex items-center justify-center lg:justify-start gap-2.5 px-3 py-2 rounded-2xl text-slate-400 hover:text-red-600 hover:bg-red-50 text-xs font-bold transition">
+                                <i data-lucide="power" class="h-4 w-4 shrink-0"></i>
+                                <span class="hidden lg:inline">Logout</span>
+                            </button>
                         </div>
-                        <div class="min-w-0">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Pic Journalier</span>
-                            <span id="dash-stat-daily-peak" class="text-sm font-black text-slate-900 font-mono truncate block">0 billet</span>
-                        </div>
-                    </div>
-                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                            <i data-lucide="calculator" class="h-5 w-5"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Moyenne / Jour</span>
-                            <span id="dash-stat-daily-avg" class="text-sm font-black text-slate-900 font-mono truncate block">0 billet/j</span>
-                        </div>
-                    </div>
-                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                            <i data-lucide="clock" class="h-5 w-5"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Dernier Achat</span>
-                            <span id="dash-stat-last-purchase" class="text-sm font-black text-slate-900 font-mono truncate block">--</span>
-                        </div>
-                    </div>
-                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                            <i data-lucide="check-circle-2" class="h-5 w-5"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-extrabold block">Période Active</span>
-                            <span id="dash-stat-active-days" class="text-sm font-black text-emerald-700 font-mono truncate block">0 jours</span>
-                        </div>
-                    </div>
-                </div>
+                    </aside>
 
-                <!-- Daily Pillars Chart Container with Smooth Horizontal Scroll -->
-                <div class="overflow-x-auto pb-2 -mx-2 px-2">
-                    <div class="min-w-[760px] h-80 flex items-end justify-between gap-2 sm:gap-3 pt-14 pb-4 px-4 sm:px-6 bg-gradient-to-b from-slate-50/50 via-slate-50/90 to-slate-100/70 rounded-3xl border border-slate-200/80 relative" id="dashboard-daily-chart">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-                <!-- Chart Legend & Metrics Footer -->
-                <div class="flex flex-wrap items-center justify-between gap-4 pt-3 text-xs border-t border-slate-100">
-                    <div class="flex flex-wrap items-center gap-4 sm:gap-6">
-                        <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-blue-600 shadow-xs"></span> Pass Classique (10 000 F)
-                        </span>
-                        <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-amber-400 shadow-xs"></span> Pass Gold (Gratuit Donateur)
-                        </span>
-                        <span class="flex items-center gap-2 text-slate-700 font-bold">
-                            <span class="h-3.5 w-3.5 rounded-md bg-emerald-500 shadow-xs"></span> Pass Invité (Offert)
-                        </span>
-                    </div>
-                    <span id="dash-daily-total-summary" class="font-mono font-black text-slate-900 bg-slate-100 border border-slate-200/80 px-4 py-1.5 rounded-2xl shadow-2xs">
-                        Total Période : 0 billet (0 FCFA)
-                    </span>
-                </div>
-            </div>
-
-            <!-- 3.B. PANORAMA DES AUTRES STATISTIQUES (MODES DE RÈGLEMENT & PRÉSENCE & TABLES) -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                <!-- Modes de règlement -->
-                <div class="bg-white p-6 sm:p-7 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-5">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
-                                <i data-lucide="credit-card" class="h-5 w-5"></i>
-                            </div>
+                    <!-- Main Dashboard Work Area -->
+                    <main class="flex-1 min-w-0 space-y-6">
+                        
+                        <!-- Top Header Row -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl border border-slate-200/70 shadow-sm">
                             <div>
-                                <h3 class="font-display font-black text-lg text-slate-900">Mix & Modes de Règlement</h3>
-                                <p class="text-xs text-slate-500">Ventilation des encaissements par canal de paiement</p>
+                                <h1 class="font-display font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">Dashboard</h1>
+                                <p class="text-xs text-slate-400 font-medium">Cockpit exécutif & billetterie — 10 Ans EMCI Horeb (210 festivaliers)</p>
+                            </div>
+                            <div class="flex items-center gap-2.5 self-start sm:self-auto">
+                                <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                                    <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                                    <span>Accueil</span>
+                                </button>
+                                <span id="dash-header-checkin-rate" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 font-mono text-xs font-black border border-emerald-200 shadow-2xs">0% aux Portes</span>
                             </div>
                         </div>
-                        <span id="dash-payment-total-count" class="px-3 py-1 rounded-full bg-slate-100 text-slate-800 font-mono font-bold text-xs">
-                            0 transactions
-                        </span>
-                    </div>
 
-                    <!-- Payment methods visual cards -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="dash-payment-methods-grid">
-                        <!-- Filled dynamically -->
-                    </div>
+                        <!-- ============================================== -->
+                        <!-- ROW 1 : ACTIVITY BAR CHART + CALENDAR & EVENTS -->
+                        <!-- ============================================== -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                            <!-- Left: Activity Bar Chart (8 cols) -->
+                            <div class="lg:col-span-8 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm flex flex-col justify-between space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div class="flex items-center gap-3">
+                                        <h3 class="font-display font-black text-lg text-slate-900">Activity</h3>
+                                        <div class="flex items-center gap-1 p-0.5 bg-slate-100 rounded-xl text-[11px] font-bold font-mono">
+                                            <button onclick="switchDailyChartFilter('7d')" id="btn-dash-toggle-day" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Day</button>
+                                            <button onclick="switchDailyChartFilter('all')" id="btn-dash-toggle-week" class="px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition">Weekly</button>
+                                        </div>
+                                    </div>
+                                    <span id="dash-stat-daily-peak" class="text-xs font-black text-slate-700 font-mono bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl">0 billet</span>
+                                </div>
 
-                    <!-- Stacked distribution bar -->
-                    <div class="space-y-1.5 pt-2">
-                        <div class="flex justify-between text-[11px] font-bold text-slate-500">
-                            <span>Répartition des flux</span>
-                            <span id="dash-payment-mix-label">Wave / Orange / Espèces / Donateurs</span>
+                                <!-- Bars Canvas Container with Y-Axis Gridlines -->
+                                <div class="relative pt-6 pb-2 min-h-[190px] flex items-end">
+                                    <!-- Y-axis Guidelines -->
+                                    <div class="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none text-[9px] font-mono text-slate-300 font-bold">
+                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>500</span></div>
+                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>400</span></div>
+                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>300</span></div>
+                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>200</span></div>
+                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>100</span></div>
+                                        <div class="border-b border-slate-200 w-full flex justify-between pr-2"><span>0</span></div>
+                                    </div>
+                                    <!-- Daily Activity Bars Container -->
+                                    <div class="w-full h-44 flex items-end justify-between gap-1.5 sm:gap-2 px-2 relative z-10" id="dash-mock-activity-chart">
+                                        <!-- Populated dynamically via JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Calendar & Scheduled Events (4 cols) -->
+                            <div class="lg:col-span-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                    <span class="font-mono font-bold text-xs text-slate-400">2026/11</span>
+                                    <span class="font-display font-black text-sm text-slate-900">Novembre</span>
+                                    <button class="h-6 w-6 rounded-lg bg-blue-50 text-[#2B85FF] flex items-center justify-center font-black text-xs hover:bg-[#2B85FF] hover:text-white transition">+</button>
+                                </div>
+
+                                <!-- Calendar Month Grid -->
+                                <div class="space-y-1">
+                                    <div class="grid grid-cols-7 gap-1 text-center font-mono text-[9px] font-bold text-slate-400 pb-1">
+                                        <span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
+                                    </div>
+                                    <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px]" id="dash-calendar-days-grid">
+                                        <!-- Injected dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Schedule Events Side Pills -->
+                                <div class="space-y-2 pt-2 border-t border-slate-100 text-xs">
+                                    <div class="p-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-[#2B85FF] text-white shadow-xs flex items-center justify-between">
+                                        <div class="space-y-0.5">
+                                            <span class="text-[9px] font-black uppercase tracking-wider text-blue-200 block font-mono">VEN 01 JANV • 20:00</span>
+                                            <span class="font-black text-xs block">Gala Noces d'Or 10 Ans</span>
+                                        </div>
+                                        <span class="h-7 w-7 rounded-xl bg-white/20 flex items-center justify-center text-xs font-bold font-mono">210</span>
+                                    </div>
+                                    <div class="p-2.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-xs flex items-center justify-between">
+                                        <div class="space-y-0.5">
+                                            <span class="text-[9px] font-black uppercase tracking-wider text-teal-200 block font-mono">DIM 15 DÉC • 18:00</span>
+                                            <span class="font-black text-xs block">Clôture des Réservations</span>
+                                        </div>
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex" id="dash-payment-stacked-bar">
-                            <!-- Stacked bar segments -->
+
+                        <!-- ============================================== -->
+                        <!-- ROW 2 : TREND LINE GRAPH + 4 DONUT METERS 2X2 -->
+                        <!-- ============================================== -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                            <!-- Left: Dual Line Curve Chart (7 cols) -->
+                            <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div class="flex items-center gap-3">
+                                        <h3 class="font-display font-black text-lg text-slate-900">Activity</h3>
+                                        <div class="flex items-center gap-1 p-0.5 bg-slate-100 rounded-xl text-[11px] font-bold font-mono">
+                                            <button class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Day</button>
+                                            <button class="px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition">Weekly</button>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[10px] font-mono font-bold">
+                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#FF5B60]"></span>Objectif (210)</span>
+                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#2B85FF]"></span>Réel 2026</span>
+                                    </div>
+                                </div>
+                                <div class="w-full h-48 relative overflow-hidden" id="dash-trend-line-chart">
+                                    <!-- Injected SVG curve lines -->
+                                </div>
+                            </div>
+
+                            <!-- Right: 4 Radial Donut Meters 2x2 (5 cols) -->
+                            <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <h3 class="font-display font-black text-lg text-slate-900">Activity</h3>
+                                    <span class="text-xs text-slate-400 font-mono font-bold">Quotas & Portes</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3" id="dash-four-radial-meters">
+                                    <!-- Injected 4 radial meters -->
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <!-- ============================================== -->
+                        <!-- ROW 3 : CLUSTERED DUAL BARS + DUAL DONUTS      -->
+                        <!-- ============================================== -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                            <!-- Left: Clustered Comparative Bars (7 cols) -->
+                            <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-200 flex items-center gap-2">
+                                            <span class="text-[10px] font-bold text-blue-700 font-mono">Wave</span>
+                                            <span id="dash-sparkline-wave-pct" class="text-xs font-black text-[#2B85FF] font-mono">+34.4%</span>
+                                        </div>
+                                        <div class="px-3 py-1.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2">
+                                            <span class="text-[10px] font-bold text-rose-700 font-mono">Orange</span>
+                                            <span id="dash-sparkline-om-pct" class="text-xs font-black text-[#FF5B60] font-mono">+18.2%</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[10px] font-mono font-bold">
+                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#2B85FF]"></span>Wave</span>
+                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#FF5B60]"></span>Orange Money</span>
+                                    </div>
+                                </div>
+                                <div class="h-44 flex items-end justify-between gap-2 px-2" id="dash-clustered-bars-container">
+                                    <!-- Injected clustered bars -->
+                                </div>
+                            </div>
+
+                            <!-- Right: Dual Circular Donuts (Expenses / Revenue) (5 cols) -->
+                            <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                    <div class="flex items-center justify-between w-full">
+                                        <span class="text-xs font-black uppercase tracking-wider text-slate-500 font-mono">Expenses</span>
+                                        <span class="text-xs font-black uppercase tracking-wider text-slate-500 font-mono">Revenue</span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 items-center pt-1" id="dash-dual-donuts-container">
+                                    <!-- Injected two donuts side by side -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </main>
                 </div>
 
-                <!-- Émargement & Contrôle d'Accès Détaillé -->
-                <div class="bg-white p-6 sm:p-7 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-5">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black">
-                                <i data-lucide="user-check" class="h-5 w-5"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-display font-black text-lg text-slate-900">Émargement & Présence aux Portes</h3>
-                                <p class="text-xs text-slate-500">Contrôle d'accès en direct le soir du Gala Noces d'Or</p>
-                            </div>
-                        </div>
-                        <span id="dash-checkin-global-pct" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-mono font-black text-xs">
-                            0% Présents
-                        </span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3" id="dash-checkin-breakdown-cards">
-                        <!-- Populated dynamically -->
-                    </div>
-
-                    <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600"></i>
-                            <span class="text-slate-600 font-medium">Contrôle QR Code & Billets Papier</span>
-                        </div>
-                        <span id="dash-checkin-detail-ratio" class="font-mono font-black text-slate-900">0 / 210 festivaliers</span>
-                    </div>
-                </div>
             </div>
-
-            <!-- 4. PODIUM DE MOBILISATION DES COMMUNAUTÉS & ÉGLISES -->
-            <div class="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/90 shadow-sm space-y-5">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-black shadow-xs">
-                            <i data-lucide="trophy" class="h-5 w-5 text-amber-600"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-display font-black text-lg text-slate-900">Podium de Mobilisation</h3>
-                            <p class="text-xs text-slate-500">Communautés et églises les plus mobilisées pour la Célébration des 10 Ans</p>
-                        </div>
-                    </div>
-                    <span class="px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-black font-mono self-start sm:self-auto">
-                        Top Mobilisation
-                    </span>
-                </div>
-
-                <div id="top-churches-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Filled dynamically -->
-                </div>
-            </div>
-
         </section>
 
         <!-- ========================================== -->

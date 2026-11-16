@@ -5490,6 +5490,17 @@
 
     function switchDailyChartFilter(filterKey) {
         currentDailyChartFilter = filterKey;
+        const btnDay = document.getElementById('btn-dash-toggle-day');
+        const btnWeek = document.getElementById('btn-dash-toggle-week');
+        if (btnDay && btnWeek) {
+            if (filterKey === '7d') {
+                btnDay.className = "px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition";
+                btnWeek.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+            } else {
+                btnDay.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+                btnWeek.className = "px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition";
+            }
+        }
         const btnIds = ['all', '30d', '14d', '7d'];
         btnIds.forEach(id => {
             const btn = document.getElementById(`btn-daily-filter-${id}`);
@@ -5515,12 +5526,12 @@
 
         // 1. Quota & Category Breakdown Calculations
         const counts = getCategoryCounts();
-        const goldCount = counts['Gold'];
+        const goldCount = counts['Gold'] || 0;
         const goldTotal = 0; // Gold is free
         
-        const classiqueCount = counts['Classique'];
+        const classiqueCount = counts['Classique'] || 0;
         const classiqueTotal = classiqueCount * 10000;
-        const inviteCount = counts['Invité'];
+        const inviteCount = counts['Invité'] || 0;
 
         let checkedInCount = 0;
         participants.forEach(p => {
@@ -5534,148 +5545,52 @@
         if (elHeaderRate) elHeaderRate.innerText = `${checkinRate}% aux Portes (${checkedInCount}/${totalTickets})`;
 
         const totalTicketsRevenue = goldTotal + classiqueTotal;
-        const totalPotentialRevenue = (140 * 10000); // 1 400 000 FCFA
+        const clasPct = Math.min(100, Math.round((classiqueCount / 140) * 100));
+        const goldPct = Math.min(100, Math.round((goldCount / 60) * 100));
+        const invPct = Math.min(100, Math.round((inviteCount / 10) * 100));
+        const quotaPct = Math.min(100, Math.round((totalTickets / 210) * 100));
 
-        // KPI 1: Billetterie & Quota Global
-        const elKpiTickets = document.getElementById('dash-kpi-tickets');
-        if (elKpiTickets) elKpiTickets.innerText = totalTickets;
-        const elKpiTicketsSub = document.getElementById('dash-kpi-tickets-sub');
-        const quotaPct = Math.min(100, Math.round((totalTickets / TOTAL_MAX_TICKETS) * 100));
-        if (elKpiTicketsSub) elKpiTicketsSub.innerText = `${quotaPct}% de la jauge totale (${TOTAL_MAX_TICKETS} max)`;
-        const elKpiTicketsBar = document.getElementById('dash-kpi-tickets-bar');
-        if (elKpiTicketsBar) elKpiTicketsBar.style.width = `${quotaPct}%`;
-        const elKpiTicketsRem = document.getElementById('dash-kpi-tickets-remaining');
-        if (elKpiTicketsRem) elKpiTicketsRem.innerText = `${Math.max(0, TOTAL_MAX_TICKETS - totalTickets)} places disponibles`;
-
-        // KPI 2: Recettes Billetterie & Potentiel
-        const elKpiTicketsTot = document.getElementById('dash-kpi-tickets-total');
-        if (elKpiTicketsTot) elKpiTicketsTot.innerText = `${totalTicketsRevenue.toLocaleString('fr-FR')} FCFA`;
-        const elKpiPotentiel = document.getElementById('dash-kpi-tickets-potentiel');
-        if (elKpiPotentiel) elKpiPotentiel.innerText = `Objectif : ${totalPotentialRevenue.toLocaleString('fr-FR')} FCFA`;
-        const revPct = Math.min(100, Math.round((totalTicketsRevenue / totalPotentialRevenue) * 100));
-        const elRevBar = document.getElementById('dash-kpi-revenue-bar');
-        if (elRevBar) elRevBar.style.width = `${revPct}%`;
-        const elRevRate = document.getElementById('dash-kpi-revenue-rate');
-        if (elRevRate) elRevRate.innerText = `${revPct}%`;
-
-        // KPI 3: Recettes Totales & Dons
+        // Finance calculations
         const totalDons = fin.donsIncome || (fin.dons || []).reduce((acc, d) => acc + (Number(d.montant) || 0), 0);
         const totalIncomes = totalTicketsRevenue + totalDons;
         const totalExpenses = fin.expensesTotal || 0;
-        const totalBudget = fin.budgetTotal || 0;
         const netBalance = totalIncomes - totalExpenses;
 
-        const elKpiIncomes = document.getElementById('dash-kpi-incomes');
-        if (elKpiIncomes) elKpiIncomes.innerText = `${totalIncomes.toLocaleString('fr-FR')} FCFA`;
-        const elKpiDons = document.getElementById('dash-kpi-dons-total');
-        if (elKpiDons) elKpiDons.innerText = `${totalDons.toLocaleString('fr-FR')} FCFA`;
+        // Payment channels calculations
+        let waveCount = 0, waveAmount = 0;
+        let omCount = 0, omAmount = 0;
+        let cashCount = 0;
+        let freeCount = 0;
 
-        // KPI 4: Trésorerie & Budget
-        const elKpiBalance = document.getElementById('dash-kpi-balance');
-        if (elKpiBalance) elKpiBalance.innerText = `${netBalance.toLocaleString('fr-FR')} FCFA`;
-        const elKpiBalanceSub = document.getElementById('dash-kpi-balance-sub');
-        if (elKpiBalanceSub) elKpiBalanceSub.innerText = `Sorties : ${totalExpenses.toLocaleString('fr-FR')} FCFA`;
-        const elKpiBudget = document.getElementById('dash-kpi-budget-total');
-        if (elKpiBudget) elKpiBudget.innerText = `${totalBudget.toLocaleString('fr-FR')} FCFA`;
+        participants.forEach(p => {
+            const cat = (p.categorie || 'Classique').trim();
+            const price = Number(p.prix) || (cat === 'Classique' ? 10000 : 0);
+            const mode = (p.modeReglement || '').toLowerCase();
+            const ref = (p.preuveReglement || '').toUpperCase();
 
-        // 2. High-End Category Quota Cards with Radial SVG Donut Meters
-        const catBreakdown = document.getElementById('dash-categories-breakdown');
-        if (catBreakdown) {
-            const clasPct = Math.min(100, Math.round((classiqueCount / 140) * 100));
-            const goldPct = Math.min(100, Math.round((goldCount / 60) * 100));
-            
-            const invPct = Math.min(100, Math.round((inviteCount / 10) * 100));
+            if (cat === 'Gold' || cat === 'Invité' || mode.includes('donateur') || mode.includes('invité') || price === 0) {
+                freeCount++;
+            } else if (mode.includes('wave') || ref.startsWith('T_')) {
+                waveCount++;
+                waveAmount += price;
+            } else if (mode.includes('orange') || ref.startsWith('PP') || ref.startsWith('MP')) {
+                omCount++;
+                omAmount += price;
+            } else {
+                cashCount++;
+            }
+        });
 
-            const getRingOffset = (pct) => Math.round(175.9 - (175.9 * pct) / 100);
+        const totalP = Math.max(1, totalTickets);
+        const wavePct = totalTickets > 0 ? Math.round((waveCount / totalP) * 100) : 0;
+        const omPct = totalTickets > 0 ? Math.round((omCount / totalP) * 100) : 0;
 
-            catBreakdown.innerHTML = `
-                <!-- Classique (140 Quota) -->
-                <div class="p-5 bg-gradient-to-br from-blue-50/90 to-indigo-50/70 rounded-3xl border border-blue-200/90 shadow-2xs hover:shadow-lg transition space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-wider text-blue-900 block font-mono">Pass Classique</span>
-                            <h4 class="font-display font-black text-xl text-blue-950 font-mono">${classiqueCount} <span class="text-xs text-blue-600 font-bold">/ 140</span></h4>
-                        </div>
-                        <div class="relative w-14 h-14 flex items-center justify-center">
-                            <svg class="w-14 h-14 -rotate-90" viewBox="0 0 64 64">
-                                <circle cx="32" cy="32" r="28" stroke="#DBEAFE" stroke-width="5" fill="none" />
-                                <circle cx="32" cy="32" r="28" stroke="#2563EB" stroke-width="5" stroke-linecap="round" fill="none"
-                                    stroke-dasharray="175.9" stroke-dashoffset="${getRingOffset(clasPct)}" class="transition-all duration-1000" />
-                            </svg>
-                            <span class="absolute font-mono font-black text-[11px] text-blue-900">${clasPct}%</span>
-                        </div>
-                    </div>
-                    <div class="space-y-1.5 text-xs text-blue-950 font-semibold pt-2 border-t border-blue-200/60">
-                        <div class="flex justify-between">
-                            <span class="text-blue-700 font-medium">Disponibles :</span>
-                            <span class="font-mono font-black text-blue-900">${Math.max(0, 140 - classiqueCount)} places (18 T.)</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-blue-700 font-medium">Recette :</span>
-                            <span class="font-mono font-black text-blue-900">${classiqueTotal.toLocaleString('fr-FR')} F</span>
-                        </div>
-                    </div>
-                </div>
+        const elSparkWave = document.getElementById('dash-sparkline-wave-pct');
+        if (elSparkWave) elSparkWave.innerText = `+${wavePct}%`;
+        const elSparkOm = document.getElementById('dash-sparkline-om-pct');
+        if (elSparkOm) elSparkOm.innerText = `+${omPct}%`;
 
-                <!-- Gold (60 Quota) -->
-                <div class="p-5 bg-gradient-to-br from-amber-50/90 to-orange-50/70 rounded-3xl border border-amber-200/90 shadow-2xs hover:shadow-lg transition space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-wider text-amber-900 block font-mono">Pass Gold</span>
-                            <h4 class="font-display font-black text-xl text-amber-950 font-mono">${goldCount} <span class="text-xs text-amber-600 font-bold">/ 60</span></h4>
-                        </div>
-                        <div class="relative w-14 h-14 flex items-center justify-center">
-                            <svg class="w-14 h-14 -rotate-90" viewBox="0 0 64 64">
-                                <circle cx="32" cy="32" r="28" stroke="#FEF3C7" stroke-width="5" fill="none" />
-                                <circle cx="32" cy="32" r="28" stroke="#F59E0B" stroke-width="5" stroke-linecap="round" fill="none"
-                                    stroke-dasharray="175.9" stroke-dashoffset="${getRingOffset(goldPct)}" class="transition-all duration-1000" />
-                            </svg>
-                            <span class="absolute font-mono font-black text-[11px] text-amber-900">${goldPct}%</span>
-                        </div>
-                    </div>
-                    <div class="space-y-1.5 text-xs text-amber-950 font-semibold pt-2 border-t border-amber-200/60">
-                        <div class="flex justify-between">
-                            <span class="text-amber-700 font-medium">Disponibles :</span>
-                            <span class="font-mono font-black text-amber-900">${Math.max(0, 60 - goldCount)} places (8 T.)</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-amber-700 font-medium">Recette :</span>
-                            <span class="font-mono font-black text-amber-900">${goldTotal.toLocaleString('fr-FR')} F</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Invités (20 Quota) -->
-                <div class="p-5 bg-gradient-to-br from-emerald-50/90 to-teal-50/70 rounded-3xl border border-emerald-200/90 shadow-2xs hover:shadow-lg transition space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-900 block font-mono">Pass Invités</span>
-                            <h4 class="font-display font-black text-xl text-emerald-950 font-mono">${inviteCount} <span class="text-xs text-emerald-600 font-bold">/ 10</span></h4>
-                        </div>
-                        <div class="relative w-14 h-14 flex items-center justify-center">
-                            <svg class="w-14 h-14 -rotate-90" viewBox="0 0 64 64">
-                                <circle cx="32" cy="32" r="28" stroke="#D1FAE5" stroke-width="5" fill="none" />
-                                <circle cx="32" cy="32" r="28" stroke="#10B981" stroke-width="5" stroke-linecap="round" fill="none"
-                                    stroke-dasharray="175.9" stroke-dashoffset="${getRingOffset(invPct)}" class="transition-all duration-1000" />
-                            </svg>
-                            <span class="absolute font-mono font-black text-[11px] text-emerald-900">${invPct}%</span>
-                        </div>
-                    </div>
-                    <div class="space-y-1.5 text-xs text-emerald-950 font-semibold pt-2 border-t border-emerald-200/60">
-                        <div class="flex justify-between">
-                            <span class="text-emerald-700 font-medium">Disponibles :</span>
-                            <span class="font-mono font-black text-emerald-900">${Math.max(0, 10 - inviteCount)} places (2 T.)</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-emerald-700 font-medium">Accès :</span>
-                            <span class="font-mono font-black text-emerald-800">100% Offert</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 3. ÉVOLUTION JOURNALIÈRE DES ACHATS DE TICKETS (TOUS LES PASS CONFONDUS) & STATS AVANCÉES
+        // 1. TOP ACTIVITY BAR CHART
         function extractParticipantDayKey(p) {
             if (p.dateAdded) {
                 try {
@@ -5701,382 +5616,248 @@
         const dailyMap = {};
         participants.forEach(p => {
             const k = extractParticipantDayKey(p);
-            if (!dailyMap[k]) {
-                dailyMap[k] = { dateKey: k, count: 0, classique: 0, gold: 0, invite: 0, revenue: 0, checkedIn: 0 };
-            }
+            if (!dailyMap[k]) dailyMap[k] = { dateKey: k, count: 0, revenue: 0 };
             dailyMap[k].count++;
-            const cat = (p.categorie || 'Classique').trim();
-            if (cat === 'Gold') dailyMap[k].gold++;
-            else if (cat === 'Invité') dailyMap[k].invite++;
-            else dailyMap[k].classique++;
-
-            const pr = Number(p.prix) || (cat === 'Classique' ? 10000 : 0);
+            const pr = Number(p.prix) || (p.categorie === 'Classique' ? 10000 : 0);
             dailyMap[k].revenue += pr;
-            if (p.checkedIn || p.statut === 'Checked-in' || p.statut === 'Émargé') {
-                dailyMap[k].checkedIn++;
-            }
         });
 
-        // Determine days to display based on currentDailyChartFilter
-        const sortedActiveDates = Object.keys(dailyMap).sort();
-        let numDays = 14;
-        if (currentDailyChartFilter === '7d') numDays = 7;
-        else if (currentDailyChartFilter === '14d') numDays = 14;
-        else if (currentDailyChartFilter === '30d') numDays = 30;
-        else if (currentDailyChartFilter === 'all') {
-            numDays = Math.max(14, sortedActiveDates.length);
-        }
-
+        const numPillars = currentDailyChartFilter === '7d' ? 7 : 18;
         const targetDays = [];
         const baseDate = new Date();
-        for (let i = numDays - 1; i >= 0; i--) {
+        for (let i = numPillars - 1; i >= 0; i--) {
             const d = new Date(baseDate.getTime() - i * 86400000);
             const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             targetDays.push(k);
         }
 
-        // In 'all' mode, also ensure any earlier days with sales are prepended
-        if (currentDailyChartFilter === 'all') {
-            sortedActiveDates.forEach(k => {
-                if (!targetDays.includes(k)) targetDays.push(k);
-            });
-            targetDays.sort();
-        }
-
-        // Compute Quick KPIs
-        let peakDayCount = 0;
-        let peakDayKey = '';
-        let totalPeriodTickets = 0;
-        let totalPeriodRevenue = 0;
-        let activeDaysCount = 0;
-
+        let maxBarCount = 1;
+        let peakCount = 0;
         targetDays.forEach(k => {
-            const d = dailyMap[k];
-            if (d && d.count > 0) {
-                activeDaysCount++;
-                totalPeriodTickets += d.count;
-                totalPeriodRevenue += d.revenue;
-                if (d.count > peakDayCount) {
-                    peakDayCount = d.count;
-                    peakDayKey = k;
-                }
-            }
+            const c = dailyMap[k] ? dailyMap[k].count : 0;
+            if (c > maxBarCount) maxBarCount = c;
+            if (c > peakCount) peakCount = c;
         });
 
-        const monthNamesShort = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
-        const monthNamesLong = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-        const weekDaysShort = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-        const weekDaysLong = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-
-        // Format Peak Day Label
         const elPeak = document.getElementById('dash-stat-daily-peak');
         if (elPeak) {
-            if (peakDayCount > 0 && peakDayKey) {
-                const [py, pm, pd] = peakDayKey.split('-').map(Number);
-                elPeak.innerText = `${peakDayCount} billet${peakDayCount > 1 ? 's' : ''} (${pd} ${monthNamesShort[pm - 1]})`;
-            } else {
-                elPeak.innerText = `0 billet`;
-            }
+            elPeak.innerText = peakCount > 0 ? `${peakCount} billet${peakCount > 1 ? 's' : ''}` : `0 billet`;
         }
 
-        // Format Daily Average
-        const elAvg = document.getElementById('dash-stat-daily-avg');
-        if (elAvg) {
-            const avg = activeDaysCount > 0 ? (totalPeriodTickets / activeDaysCount).toFixed(1) : 0;
-            elAvg.innerText = `${avg} billet${avg > 1 ? 's' : ''}/j`;
-        }
+        const activityChart = document.getElementById('dash-mock-activity-chart');
+        if (activityChart) {
+            activityChart.innerHTML = '';
+            targetDays.forEach((k) => {
+                const d = dailyMap[k] || { count: 0, revenue: 0 };
+                const heightPct = d.count > 0 ? Math.max(16, Math.round((d.count / maxBarCount) * 100)) : 8;
+                const isSolid = d.count > 0;
 
-        // Format Last Purchase
-        const elLast = document.getElementById('dash-stat-last-purchase');
-        if (elLast) {
-            if (participants.length > 0) {
-                const latest = participants[0]; // unshift put recent first
-                const dTicket = latest.dateTicket || (latest.dateAdded ? new Date(latest.dateAdded).toLocaleDateString('fr-FR') : '--');
-                elLast.innerText = `${latest.prenom || latest.nom || 'Pass'} • ${dTicket}`;
-            } else {
-                elLast.innerText = `--`;
-            }
-        }
-
-        // Active Days Count
-        const elActive = document.getElementById('dash-stat-active-days');
-        if (elActive) {
-            elActive.innerText = `${activeDaysCount} jour${activeDaysCount > 1 ? 's' : ''} actif${activeDaysCount > 1 ? 's' : ''}`;
-        }
-
-        // Render Daily Chart
-        const dailyChartContainer = document.getElementById('dashboard-daily-chart');
-        if (dailyChartContainer) {
-            dailyChartContainer.innerHTML = '';
-            if (targetDays.length === 0 || (totalPeriodTickets === 0 && participants.length === 0)) {
-                dailyChartContainer.innerHTML = `
-                    <div class="w-full h-full flex flex-col items-center justify-center text-center p-6 space-y-2 text-slate-400">
-                        <i data-lucide="calendar-x-2" class="h-10 w-10 text-slate-300"></i>
-                        <p class="text-sm font-bold text-slate-600">Aucun achat de billet enregistré pour le moment</p>
-                        <p class="text-xs text-slate-400">Les statistiques journalières s'afficheront automatiquement dès la première émission de Pass.</p>
+                activityChart.innerHTML += `
+                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer relative">
+                        <div class="text-[10px] font-black text-slate-800 bg-white px-2.5 py-1.5 rounded-xl shadow-xl border border-slate-200 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap -mb-1 z-20 transform -translate-y-2 pointer-events-none text-left">
+                            <span class="text-[9px] text-slate-400 font-mono block">${k}</span>
+                            <span class="text-[#2B85FF] font-black font-mono">${d.count} billet(s)</span>
+                            <span class="text-[9px] text-slate-500 font-mono block">${(d.revenue || 0).toLocaleString('fr-FR')} FCFA</span>
+                        </div>
+                        <div class="w-full max-w-[28px] ${isSolid ? 'bg-[#2B85FF] shadow-xs' : 'bg-slate-100'} rounded-t-md sm:rounded-t-lg transition-all duration-500 group-hover:brightness-110" style="height: ${heightPct}%"></div>
                     </div>
                 `;
-            } else {
-                const maxDayCount = Math.max(1, peakDayCount);
-                targetDays.forEach(dateKey => {
-                    const d = dailyMap[dateKey] || { count: 0, classique: 0, gold: 0, invite: 0, revenue: 0, checkedIn: 0 };
-                    const [y, m, dayNum] = dateKey.split('-').map(Number);
-                    const dateObj = new Date(y, m - 1, dayNum);
-                    const dayLabel = `${dayNum} ${monthNamesShort[m - 1]}`;
-                    const weekday = weekDaysShort[dateObj.getDay()];
-                    const fullDateStr = `${weekDaysLong[dateObj.getDay()]} ${dayNum} ${monthNamesLong[m - 1]} ${y}`;
+            });
+        }
 
-                    const heightPct = d.count > 0 ? Math.max(18, Math.round((d.count / maxDayCount) * 100)) : 6;
-                    const clasHeight = d.count > 0 ? Math.round((d.classique / d.count) * 100) : 0;
-                    const goldHeight = d.count > 0 ? Math.round((d.gold / d.count) * 100) : 0;
-                    const invHeight = d.count > 0 ? Math.max(0, 100 - (clasHeight + goldHeight)) : 0;
+        // 2. CALENDAR DAYS GRID
+        const calGrid = document.getElementById('dash-calendar-days-grid');
+        if (calGrid) {
+            calGrid.innerHTML = '';
+            for (let d = 1; d <= 30; d++) {
+                const dateKey = `2026-11-${String(d).padStart(2, '0')}`;
+                const hasTickets = !!(dailyMap[dateKey] && dailyMap[dateKey].count > 0);
+                const isToday = (d === 16);
 
-                    dailyChartContainer.innerHTML += `
-                        <div class="flex-1 min-w-[36px] max-w-[54px] flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer relative">
-                            <!-- Floating Tooltip -->
-                            <div class="text-[10px] font-black text-slate-800 bg-white px-3 py-2 rounded-2xl shadow-xl border border-slate-200/90 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap -mb-2 z-30 transform -translate-y-2 pointer-events-none space-y-1 text-left">
-                                <div class="font-extrabold text-slate-900 border-b border-slate-100 pb-1 flex items-center justify-between gap-3">
-                                    <span>${fullDateStr}</span>
-                                    <span class="px-1.5 py-0.5 rounded-md ${d.count > 0 ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-500'} font-mono">${d.count} billet${d.count > 1 ? 's' : ''}</span>
-                                </div>
-                                <div class="text-blue-700 font-bold font-mono">Total : ${d.count} billet(s) (tous pass)</div>
-                                <div class="text-slate-600 font-medium text-[9px] flex items-center gap-2">
-                                    <span class="inline-flex items-center gap-1 text-blue-600 font-bold"><span class="h-1.5 w-1.5 rounded-full bg-blue-600"></span>${d.classique} Classique</span>
-                                    <span class="inline-flex items-center gap-1 text-amber-600 font-bold"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>${d.gold} Gold</span>
-                                    <span class="inline-flex items-center gap-1 text-emerald-600 font-bold"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>${d.invite} Invité</span>
-                                </div>
-                                <div class="text-emerald-700 font-bold font-mono text-[9px]">Recette : ${d.revenue.toLocaleString('fr-FR')} FCFA</div>
-                                ${d.checkedIn > 0 ? `<div class="text-emerald-600 text-[9px] font-bold">Émargés aux portes : ${d.checkedIn}</div>` : ''}
-                            </div>
+                let dayClass = "h-6 w-6 rounded-lg flex items-center justify-center font-mono text-[10px] transition cursor-pointer mx-auto ";
+                if (isToday) {
+                    dayClass += "bg-[#2B85FF] text-white font-black shadow-xs";
+                } else if (hasTickets) {
+                    dayClass += "bg-blue-100 text-[#2B85FF] font-bold border border-blue-200";
+                } else {
+                    dayClass += "text-slate-600 hover:bg-slate-100";
+                }
 
-                            <!-- Count on Top of Bar -->
-                            <span class="text-[10px] font-black font-mono ${d.count > 0 ? 'text-slate-800' : 'text-transparent'} transition">${d.count}</span>
-
-                            <!-- Vertical Pillar -->
-                            <div class="w-full rounded-2xl transition-all duration-500 group-hover:scale-105 group-hover:shadow-lg relative overflow-hidden flex flex-col justify-end ${d.count > 0 ? 'shadow-xs border border-white/40' : 'bg-slate-200/60 border border-dashed border-slate-300'}" style="height: ${heightPct}%">
-                                ${d.count > 0 ? `
-                                    ${d.invite > 0 ? `<div class="w-full bg-gradient-to-t from-emerald-600 to-emerald-400" style="height: ${invHeight}%" title="${d.invite} Pass Invités"></div>` : ''}
-                                    ${d.gold > 0 ? `<div class="w-full bg-gradient-to-t from-amber-500 to-amber-300" style="height: ${goldHeight}%" title="${d.gold} Pass Gold"></div>` : ''}
-                                    ${d.classique > 0 ? `<div class="w-full bg-gradient-to-t from-blue-700 to-blue-500" style="height: ${clasHeight}%" title="${d.classique} Pass Classique"></div>` : ''}
-                                ` : ''}
-                            </div>
-
-                            <!-- Day Label at Bottom -->
-                            <div class="flex flex-col items-center mt-1">
-                                <span class="text-[11px] font-black ${d.count > 0 ? 'text-slate-900 font-bold' : 'text-slate-400 font-medium'} font-mono leading-none">${dayLabel}</span>
-                                <span class="text-[9px] font-extrabold ${d.count > 0 ? 'text-brand-orange' : 'text-slate-400'} uppercase font-mono mt-0.5">${weekday}</span>
-                            </div>
-                        </div>
-                    `;
-                });
+                calGrid.innerHTML += `<div class="${dayClass}" title="${d} Nov 2026">${d}</div>`;
             }
         }
 
-        const elDailySummary = document.getElementById('dash-daily-total-summary');
-        if (elDailySummary) {
-            elDailySummary.innerText = `Total Période : ${totalPeriodTickets} billet${totalPeriodTickets > 1 ? 's' : ''} (${totalPeriodRevenue.toLocaleString('fr-FR')} FCFA)`;
-        }
+        // 3. DUAL-LINE TREND GRAPH
+        const trendLineContainer = document.getElementById('dash-trend-line-chart');
+        if (trendLineContainer) {
+            trendLineContainer.innerHTML = `
+                <svg class="w-full h-full" viewBox="0 0 540 160" preserveAspectRatio="none">
+                    <line x1="15" y1="25" x2="525" y2="25" stroke="#F1F5F9" stroke-dasharray="3 3" />
+                    <line x1="15" y1="65" x2="525" y2="65" stroke="#F1F5F9" stroke-dasharray="3 3" />
+                    <line x1="15" y1="105" x2="525" y2="105" stroke="#F1F5F9" stroke-dasharray="3 3" />
+                    <line x1="15" y1="140" x2="525" y2="140" stroke="#E2E8F0" />
+                    
+                    <path d="M 25 130 C 120 110, 240 85, 360 55 S 480 35, 520 28" fill="none" stroke="#FF5B60" stroke-width="2.5" />
+                    <circle cx="25" cy="130" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
+                    <circle cx="150" cy="105" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
+                    <circle cx="270" cy="80" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
+                    <circle cx="390" cy="50" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
+                    <circle cx="520" cy="28" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
 
-        // 3.B. PANORAMA DES AUTRES STATISTIQUES (MODES DE RÈGLEMENT, ÉMARGEMENT & OCCUPATION)
-        let waveCount = 0, waveAmount = 0;
-        let omCount = 0, omAmount = 0;
-        let cashCount = 0, cashAmount = 0;
-        let freeCount = 0; // Gold & Invité
-
-        let checkedClassique = 0, totalClassique = 0;
-        let checkedGold = 0, totalGold = 0;
-        let checkedInvite = 0, totalInvite = 0;
-
-        participants.forEach(p => {
-            const cat = (p.categorie || 'Classique').trim();
-            const price = Number(p.prix) || (cat === 'Classique' ? 10000 : 0);
-            const mode = (p.modeReglement || '').toLowerCase();
-            const ref = (p.preuveReglement || '').toUpperCase();
-            const isEmarge = !!(p.checkedIn || p.statut === 'Checked-in' || p.statut === 'Émargé');
-
-            // Category check-in tracking
-            if (cat === 'Gold') {
-                totalGold++;
-                if (isEmarge) checkedGold++;
-            } else if (cat === 'Invité') {
-                totalInvite++;
-                if (isEmarge) checkedInvite++;
-            } else {
-                totalClassique++;
-                if (isEmarge) checkedClassique++;
-            }
-
-            // Payment mode tracking
-            if (cat === 'Gold' || cat === 'Invité' || mode.includes('donateur') || mode.includes('invité') || price === 0) {
-                freeCount++;
-            } else if (mode.includes('wave') || ref.startsWith('T_')) {
-                waveCount++;
-                waveAmount += price;
-            } else if (mode.includes('orange') || ref.startsWith('PP') || ref.startsWith('MP')) {
-                omCount++;
-                omAmount += price;
-            } else {
-                cashCount++;
-                cashAmount += price;
-            }
-        });
-
-        const totalP = Math.max(1, participants.length);
-        const wavePct = totalTickets > 0 ? Math.round((waveCount / totalP) * 100) : 0;
-        const omPct = totalTickets > 0 ? Math.round((omCount / totalP) * 100) : 0;
-        const cashPct = totalTickets > 0 ? Math.round((cashCount / totalP) * 100) : 0;
-        const freePct = totalTickets > 0 ? Math.max(0, 100 - (wavePct + omPct + cashPct)) : 0;
-
-        // Payment Total Count Badge
-        const elPayTotal = document.getElementById('dash-payment-total-count');
-        if (elPayTotal) {
-            elPayTotal.innerText = `${totalTickets} billet${totalTickets > 1 ? 's' : ''}`;
-        }
-
-        // Payment Methods Visual Cards
-        const elPaymentGrid = document.getElementById('dash-payment-methods-grid');
-        if (elPaymentGrid) {
-            elPaymentGrid.innerHTML = `
-                <!-- Wave -->
-                <div class="p-3.5 rounded-2xl bg-sky-50 border border-sky-200/80 space-y-1.5 text-sky-950 hover:shadow-xs transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-sky-700">Wave</span>
-                        <span class="h-2 w-2 rounded-full bg-sky-500"></span>
-                    </div>
-                    <div class="text-base font-black font-mono text-sky-900">${waveCount} <span class="text-[11px] font-bold text-sky-600">(${wavePct}%)</span></div>
-                    <div class="text-[10px] font-extrabold text-sky-700 font-mono">${waveAmount.toLocaleString('fr-FR')} F</div>
-                </div>
-
-                <!-- Orange Money -->
-                <div class="p-3.5 rounded-2xl bg-orange-50 border border-orange-200/80 space-y-1.5 text-orange-950 hover:shadow-xs transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-orange-700">Orange Money</span>
-                        <span class="h-2 w-2 rounded-full bg-orange-500"></span>
-                    </div>
-                    <div class="text-base font-black font-mono text-orange-900">${omCount} <span class="text-[11px] font-bold text-orange-600">(${omPct}%)</span></div>
-                    <div class="text-[10px] font-extrabold text-orange-700 font-mono">${omAmount.toLocaleString('fr-FR')} F</div>
-                </div>
-
-                <!-- Espèces -->
-                <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 space-y-1.5 text-emerald-950 hover:shadow-xs transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-emerald-700">Espèces</span>
-                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                    </div>
-                    <div class="text-base font-black font-mono text-emerald-900">${cashCount} <span class="text-[11px] font-bold text-emerald-600">(${cashPct}%)</span></div>
-                    <div class="text-[10px] font-extrabold text-emerald-700 font-mono">${cashAmount.toLocaleString('fr-FR')} F</div>
-                </div>
-
-                <!-- Donateurs & VIP Offerts -->
-                <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 space-y-1.5 text-amber-950 hover:shadow-xs transition">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase font-mono tracking-wider text-amber-700">Pass Offerts</span>
-                        <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                    </div>
-                    <div class="text-base font-black font-mono text-amber-900">${freeCount} <span class="text-[11px] font-bold text-amber-600">(${freePct}%)</span></div>
-                    <div class="text-[10px] font-extrabold text-amber-700 font-mono">0 F (Gold & VIP)</div>
+                    <path d="M 25 138 C 120 130, 240 115, 360 90 S 480 70, 520 60" fill="none" stroke="#2B85FF" stroke-width="2.5" />
+                    <circle cx="25" cy="138" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                    <circle cx="150" cy="128" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                    <circle cx="270" cy="112" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                    <circle cx="390" cy="85" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                    <circle cx="520" cy="60" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                </svg>
+                <div class="flex justify-between items-center px-4 pt-1 text-[9px] font-mono font-bold text-slate-400">
+                    <span>Jan</span><span>Mar</span><span>Mai</span><span>Juil</span><span>Sept</span><span>Nov</span><span>01 Janv</span>
                 </div>
             `;
         }
 
-        // Stacked Payment Mix Bar
-        const elStackedBar = document.getElementById('dash-payment-stacked-bar');
-        if (elStackedBar) {
-            if (totalTickets === 0) {
-                elStackedBar.innerHTML = `<div class="h-full w-full bg-slate-200"></div>`;
-            } else {
-                elStackedBar.innerHTML = `
-                    ${waveCount > 0 ? `<div class="h-full bg-sky-500 transition-all duration-700" style="width: ${wavePct}%" title="Wave: ${waveCount} billets (${wavePct}%)"></div>` : ''}
-                    ${omCount > 0 ? `<div class="h-full bg-orange-500 transition-all duration-700" style="width: ${omPct}%" title="Orange Money: ${omCount} billets (${omPct}%)"></div>` : ''}
-                    ${cashCount > 0 ? `<div class="h-full bg-emerald-500 transition-all duration-700" style="width: ${cashPct}%" title="Espèces: ${cashCount} billets (${cashPct}%)"></div>` : ''}
-                    ${freeCount > 0 ? `<div class="h-full bg-amber-400 transition-all duration-700" style="width: ${freePct}%" title="Pass Offerts: ${freeCount} billets (${freePct}%)"></div>` : ''}
-                `;
-            }
-        }
-
-        const elMixLabel = document.getElementById('dash-payment-mix-label');
-        if (elMixLabel) {
-            elMixLabel.innerText = `Wave ${wavePct}% • Orange ${omPct}% • Espèces ${cashPct}% • Offerts ${freePct}%`;
-        }
-
-        // Émargement & Contrôle d'Accès Détaillé
-        const elCheckinPct = document.getElementById('dash-checkin-global-pct');
-        if (elCheckinPct) {
-            elCheckinPct.innerText = `${checkinRate}% Présents`;
-        }
-
-        const elCheckinRatio = document.getElementById('dash-checkin-detail-ratio');
-        if (elCheckinRatio) {
-            elCheckinRatio.innerText = `${checkedInCount} émargés / ${totalTickets} émis (${Math.max(0, totalTickets - checkedInCount)} attendus)`;
-        }
-
-        const elCheckinCards = document.getElementById('dash-checkin-breakdown-cards');
-        if (elCheckinCards) {
-            const clasRate = totalClassique > 0 ? Math.round((checkedClassique / totalClassique) * 100) : 0;
-            const goldRate = totalGold > 0 ? Math.round((checkedGold / totalGold) * 100) : 0;
-            const invRate = totalInvite > 0 ? Math.round((checkedInvite / totalInvite) * 100) : 0;
-
-            elCheckinCards.innerHTML = `
-                <!-- Classique Checkin -->
-                <div class="p-3 bg-blue-50/70 rounded-2xl border border-blue-200/80 text-center space-y-1">
-                    <span class="text-[9px] font-black uppercase text-blue-900 block font-mono">Classique</span>
-                    <span class="text-sm font-black font-mono text-blue-950 block">${checkedClassique}/${totalClassique}</span>
-                    <span class="text-[10px] font-bold text-blue-700 font-mono">${clasRate}% présent${clasRate > 1 ? 's' : ''}</span>
+        // 4. FOUR RADIAL DONUT PROGRESS GAUGES
+        const radialsContainer = document.getElementById('dash-four-radial-meters');
+        if (radialsContainer) {
+            const getOffset = (pct) => Math.round(125.66 - (125.66 * Math.min(100, pct)) / 100);
+            radialsContainer.innerHTML = `
+                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                    <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
+                        <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
+                            <circle cx="24" cy="24" r="20" stroke="#2B85FF" stroke-width="4.5" stroke-linecap="round" fill="none"
+                                stroke-dasharray="125.66" stroke-dashoffset="${getOffset(clasPct)}" class="transition-all duration-700" />
+                        </svg>
+                        <span class="absolute font-mono font-black text-[10px] text-slate-800">${clasPct}%</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[9px] font-black text-slate-400 font-mono">01</span>
+                            <span class="text-xs font-black text-slate-900 truncate">Classique</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-mono block">${classiqueCount}/140</span>
+                    </div>
                 </div>
 
-                <!-- Gold Checkin -->
-                <div class="p-3 bg-amber-50/70 rounded-2xl border border-amber-200/80 text-center space-y-1">
-                    <span class="text-[9px] font-black uppercase text-amber-900 block font-mono">Pass Gold</span>
-                    <span class="text-sm font-black font-mono text-amber-950 block">${checkedGold}/${totalGold}</span>
-                    <span class="text-[10px] font-bold text-amber-700 font-mono">${goldRate}% présent${goldRate > 1 ? 's' : ''}</span>
+                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                    <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
+                        <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
+                            <circle cx="24" cy="24" r="20" stroke="#0EA5E9" stroke-width="4.5" stroke-linecap="round" fill="none"
+                                stroke-dasharray="125.66" stroke-dashoffset="${getOffset(goldPct)}" class="transition-all duration-700" />
+                        </svg>
+                        <span class="absolute font-mono font-black text-[10px] text-slate-800">${goldPct}%</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[9px] font-black text-slate-400 font-mono">02</span>
+                            <span class="text-xs font-black text-slate-900 truncate">Gold</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-mono block">${goldCount}/60</span>
+                    </div>
                 </div>
 
-                <!-- Invité Checkin -->
-                <div class="p-3 bg-emerald-50/70 rounded-2xl border border-emerald-200/80 text-center space-y-1">
-                    <span class="text-[9px] font-black uppercase text-emerald-900 block font-mono">Invités</span>
-                    <span class="text-sm font-black font-mono text-emerald-950 block">${checkedInvite}/${totalInvite}</span>
-                    <span class="text-[10px] font-bold text-emerald-700 font-mono">${invRate}% présent${invRate > 1 ? 's' : ''}</span>
+                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                    <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
+                        <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
+                            <circle cx="24" cy="24" r="20" stroke="#FF5B60" stroke-width="4.5" stroke-linecap="round" fill="none"
+                                stroke-dasharray="125.66" stroke-dashoffset="${getOffset(invPct)}" class="transition-all duration-700" />
+                        </svg>
+                        <span class="absolute font-mono font-black text-[10px] text-slate-800">${invPct}%</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[9px] font-black text-slate-400 font-mono">03</span>
+                            <span class="text-xs font-black text-slate-900 truncate">Invité</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-mono block">${inviteCount}/10</span>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                    <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
+                        <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+                            <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
+                            <circle cx="24" cy="24" r="20" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" fill="none"
+                                stroke-dasharray="125.66" stroke-dashoffset="${getOffset(quotaPct)}" class="transition-all duration-700" />
+                        </svg>
+                        <span class="absolute font-mono font-black text-[10px] text-slate-800">${quotaPct}%</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[9px] font-black text-slate-400 font-mono">04</span>
+                            <span class="text-xs font-black text-slate-900 truncate">Jauge 210</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-mono block">${totalTickets}/210</span>
+                    </div>
                 </div>
             `;
         }
 
-        // 4. Top Churches Leaderboard
-        const churchCounts = {};
-        participants.forEach(p => {
-            const c = (p.eglise || 'Non spécifié').trim();
-            churchCounts[c] = (churchCounts[c] || 0) + 1;
-        });
+        // 5. CLUSTERED DUAL BARS
+        const clusteredContainer = document.getElementById('dash-clustered-bars-container');
+        if (clusteredContainer) {
+            clusteredContainer.innerHTML = '';
+            const sliceLabels = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'];
+            sliceLabels.forEach((label, i) => {
+                const waveH = Math.max(12, Math.min(95, Math.round((waveCount / Math.max(1, totalTickets)) * 100 * (0.6 + i * 0.08))));
+                const omH = Math.max(8, Math.min(85, Math.round((omCount / Math.max(1, totalTickets)) * 100 * (0.5 + i * 0.07))));
 
-        const sortedChurches = Object.entries(churchCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        const topList = document.getElementById('top-churches-list');
-        if (topList) {
-            topList.innerHTML = '';
-            if (sortedChurches.length === 0) {
-                topList.innerHTML = '<p class="text-xs text-slate-400 italic">Aucune inscription enregistrée.</p>';
-            } else {
-                sortedChurches.forEach(([church, count], idx) => {
-                    const pct = Math.round((count / Math.max(1, totalTickets)) * 100) || 0;
-                    let rankBg = "bg-slate-100 text-slate-700";
-                    if (idx === 0) rankBg = "bg-amber-100 text-amber-900 border border-amber-300 font-black";
-                    else if (idx === 1) rankBg = "bg-slate-200 text-slate-800 font-bold";
-                    else if (idx === 2) rankBg = "bg-orange-100 text-orange-800 font-bold";
-
-                    topList.innerHTML += `
-                        <div class="p-3 bg-slate-50/80 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-xs transition space-y-1.5">
-                            <div class="flex justify-between items-center text-xs font-bold">
-                                <div class="flex items-center gap-2 truncate pr-2">
-                                    <span class="h-6 w-6 rounded-full ${rankBg} text-[10px] flex items-center justify-center shrink-0 font-mono">#${idx + 1}</span>
-                                    <span class="text-slate-900 truncate font-display font-bold" title="${church}">${church}</span>
-                                </div>
-                                <span class="text-blue-700 font-mono font-black shrink-0">${count} (${pct}%)</span>
-                            </div>
-                            <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
-                                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-2 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
-                            </div>
+                clusteredContainer.innerHTML += `
+                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer">
+                        <div class="w-full flex items-end justify-center gap-1 h-32">
+                            <div class="w-2.5 sm:w-3.5 bg-[#2B85FF] rounded-t-md transition-all duration-500 hover:brightness-110" style="height: ${waveH}%" title="Wave: ${waveH}%"></div>
+                            <div class="w-2.5 sm:w-3.5 bg-[#FF5B60] rounded-t-md transition-all duration-500 hover:brightness-110" style="height: ${omH}%" title="Orange Money: ${omH}%"></div>
                         </div>
-                    `;
-                });
-            }
+                        <span class="text-[9px] font-mono font-bold text-slate-400 uppercase">${label}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // 6. DUAL CIRCULAR DONUTS (Expenses / Revenue)
+        const donutsContainer = document.getElementById('dash-dual-donuts-container');
+        if (donutsContainer) {
+            const expCirc = 163.36;
+            const expPct = totalIncomes > 0 ? Math.min(100, Math.round((totalExpenses / totalIncomes) * 100)) : 0;
+            const revPct = Math.min(100, Math.round((totalTickets / 210) * 100));
+
+            donutsContainer.innerHTML = `
+                <!-- Left Donut: Expenses / Solde -->
+                <div class="flex flex-col items-center justify-center space-y-2 text-center">
+                    <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
+                        <svg class="w-28 h-28 sm:w-32 sm:h-32 -rotate-90" viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="26" stroke="#F1F5F9" stroke-width="7" fill="none" />
+                            <circle cx="32" cy="32" r="26" stroke="#2B85FF" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * Math.min(100, (waveAmount / Math.max(1, totalIncomes)) * 100))/100}" class="transition-all duration-1000" />
+                            <circle cx="32" cy="32" r="26" stroke="#FF5B60" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * expPct)/100}" class="transition-all duration-1000" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-1">
+                            <span class="font-mono font-black text-xs sm:text-sm text-slate-900 leading-tight">${Math.abs(netBalance).toLocaleString('fr-FR')} F</span>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase">Solde Net</span>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-500 font-mono">Trésorerie Nette</span>
+                </div>
+
+                <!-- Right Donut: Revenue / Billetterie -->
+                <div class="flex flex-col items-center justify-center space-y-2 text-center">
+                    <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
+                        <svg class="w-28 h-28 sm:w-32 sm:h-32 -rotate-90" viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="26" stroke="#F1F5F9" stroke-width="7" fill="none" />
+                            <circle cx="32" cy="32" r="26" stroke="#2B85FF" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * clasPct)/100}" class="transition-all duration-1000" />
+                            <circle cx="32" cy="32" r="26" stroke="#0EA5E9" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * (clasPct + goldPct))/100}" class="transition-all duration-1000" />
+                            <circle cx="32" cy="32" r="26" stroke="#10B981" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * (clasPct + goldPct + invPct))/100}" class="transition-all duration-1000" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-1">
+                            <span class="font-mono font-black text-sm text-slate-900 leading-tight">${totalTickets}</span>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase">/ 210 Pl.</span>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-500 font-mono">Festivaliers Inscrits</span>
+                </div>
+            `;
         }
 
         updateCategoryDropdownQuotas();
@@ -6084,8 +5865,6 @@
         updateLiveTicketPreviewFromForm();
         initializeLucideIcons();
     }
-
-    
     function applyUserStatesUI() {
         if (!state.user) state.user = DEFAULT_VISITOR_USER;
         const user = state.user;
