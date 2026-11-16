@@ -4181,20 +4181,19 @@
     }
 
     function switchFinanceTab(tabName) {
-        ['budgets', 'decaissements', 'dons', 'consolidation', 'wave'].forEach(t => {
+        ['budgets', 'decaissements', 'dons', 'consolidation'].forEach(t => {
             const btn = document.getElementById(`fin-tab-${t}`);
             const content = document.getElementById(`fin-content-${t}`);
-            if (t === tabName) {
-                btn.className = "pb-3 border-b-2 border-brand-orange text-brand-orange font-bold transition flex items-center gap-1.5";
-                if (content) content.classList.remove('hidden');
-            } else {
-                btn.className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5";
-                if (content) content.classList.add('hidden');
+            if (btn) {
+                if (t === tabName) {
+                    btn.className = "pb-3 border-b-2 border-brand-orange text-brand-orange font-bold transition flex items-center gap-1.5";
+                    if (content) content.classList.remove('hidden');
+                } else {
+                    btn.className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5";
+                    if (content) content.classList.add('hidden');
+                }
             }
         });
-        if (tabName === 'wave' && typeof loadWaveAdminDashboard === 'function') {
-            loadWaveAdminDashboard();
-        }
         initializeLucideIcons();
     }
 

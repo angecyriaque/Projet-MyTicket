@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=13" as="script">
+    <link rel="preload" href="assets/app.js?v=14" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=13" defer></script>
+    <script src="assets/app.js?v=14" defer></script>
 
 
 
@@ -425,11 +425,6 @@
                 <button onclick="switchFinanceTab('consolidation')" id="fin-tab-consolidation" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">
                     Consolidation Budgétaire
                 </button>
-                <button onclick="switchFinanceTab('wave')" id="fin-tab-wave" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5">
-                    <span class="h-2 w-2 rounded-full bg-[#1DA1F2]"></span>
-                    <span>Passerelle Wave</span>
-                    <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-mono">Auto</span>
-                </button>
             </div>
 
             <!-- TAB 1: GESTION DES BUDGETS PAR COMITÉ -->
@@ -536,157 +531,6 @@
                 </div>
             </div>
 
-            <!-- ============================================================== -->
-            <!-- TAB 5: PASSERELLE WAVE MOBILE MONEY (SECTIONS 4, 5 & 9 DU CDC)  -->
-            <!-- ============================================================== -->
-            <div id="fin-content-wave" class="hidden space-y-6">
-                
-                <!-- Header with Action Buttons -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-full bg-sky-100 text-[#1DA1F2] border border-sky-300 font-mono text-[10px] font-black uppercase">
-                                Intégration Officielle Wave Checkout
-                            </span>
-                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                        </div>
-                        <h2 class="font-display font-black text-xl text-slate-900 mt-1">Passerelle Wave & Suivi des Transactions</h2>
-                        <p class="text-xs text-slate-500">Supervision en direct des paiements automatisés de 10 000 FCFA et rapprochement bancaire.</p>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="reconcileWaveTransactions()" type="button" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer" title="Interroger Wave pour synchroniser les transactions en attente">
-                            <i data-lucide="refresh-cw" class="h-3.5 w-3.5 text-sky-400"></i>
-                            <span>Actualiser & Rapprocher</span>
-                        </button>
-                        <button onclick="exportWaveTransactionsCSV()" type="button" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                            <i data-lucide="download" class="h-3.5 w-3.5"></i>
-                            <span>Exporter Relevé CSV</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- SECTION 9 : PARAMÉTRAGE ADMINISTRATEUR WAVE -->
-                <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white border border-slate-800 shadow-xl space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 rounded-2xl bg-[#1DA1F2] text-white flex items-center justify-center font-black shadow-md">
-                                <span class="text-lg">W</span>
-                            </div>
-                            <div>
-                                <h3 class="font-display font-black text-base text-white">Paramétrage Officiel Wave Business</h3>
-                                <p class="text-[11px] text-slate-400">Clés API et point de terminaison Webhook sécurisé</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase font-mono">
-                                ● Passerelle Active
-                            </span>
-                            <span id="wave-admin-env-badge" class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase font-mono">
-                                Environnement Prêt
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                        <!-- Rule 1: Fixed Server Amount -->
-                        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1">
-                            <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 font-mono block">Règle Côté Serveur (Section 2.2)</span>
-                            <p class="font-black text-sm text-emerald-400 font-mono">10 000 FCFA (Strict)</p>
-                            <p class="text-[10px] text-slate-400">Verrouillé sur le backend. Aucun montant différent n'est accepté.</p>
-                        </div>
-
-                        <!-- Rule 2: Webhook Endpoint URL -->
-                        <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1 md:col-span-2">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[9px] font-black uppercase tracking-wider text-slate-400 font-mono block">URL Officielle du Webhook (À copier dans Wave Business)</span>
-                                <button onclick="copyWaveWebhookUrl()" type="button" class="text-[10px] font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 cursor-pointer">
-                                    <i data-lucide="copy" class="h-3 w-3"></i> Copier
-                                </button>
-                            </div>
-                            <p id="wave-webhook-url-display" class="font-mono text-xs text-sky-300 truncate bg-black/40 px-2 py-1 rounded-lg border border-slate-700/80">
-                                https://projet-myticket.vercel.app/api/wave-webhook
-                            </p>
-                            <p class="text-[10px] text-slate-400">Réception des notifications de paiement avec signature cryptographique HMAC-SHA256.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 5 : KPIS & STATISTIQUES DES PAIEMENTS WAVE -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <!-- Total Encaissé -->
-                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">TOTAL ENCAISSÉ WAVE</span>
-                        <h3 id="wave-kpi-total-volume" class="font-display font-black text-xl sm:text-2xl text-emerald-600 font-mono">0 FCFA</h3>
-                        <p class="text-[10px] text-slate-500 font-semibold">100% automatisé</p>
-                    </div>
-
-                    <!-- Confirmés (Payé) -->
-                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">PAIEMENTS VALIDÉS</span>
-                        <h3 id="wave-kpi-count-paid" class="font-display font-black text-xl sm:text-2xl text-slate-900 font-mono">0</h3>
-                        <p class="text-[10px] text-emerald-600 font-bold">Billets émis automatiquement</p>
-                    </div>
-
-                    <!-- En attente -->
-                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">EN COURS / EN ATTENTE</span>
-                        <h3 id="wave-kpi-count-pending" class="font-display font-black text-xl sm:text-2xl text-sky-600 font-mono">0</h3>
-                        <p class="text-[10px] text-slate-500">Sessions ouvertes</p>
-                    </div>
-
-                    <!-- Échoués / Anomalies -->
-                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">ÉCHOUÉS / À VÉRIFIER</span>
-                        <h3 id="wave-kpi-count-failed" class="font-display font-black text-xl sm:text-2xl text-rose-600 font-mono">0</h3>
-                        <p class="text-[10px] text-slate-500">Refusés ou annulés</p>
-                    </div>
-                </div>
-
-                <!-- TABLEAU DE SUIVI DES TRANSACTIONS (SECTIONS 4 & 5 DU CAHIER DES CHARGES) -->
-                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-4 sm:p-6">
-                    <!-- Filters & Search Toolbar -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="relative flex-1 max-w-sm">
-                            <i data-lucide="search" class="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="wave-tx-search-input" oninput="filterWaveTransactionsUI()" placeholder="Rechercher par référence, ID Wave T_..., nom..." class="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-sky-500">
-                        </div>
-
-                        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
-                            <button onclick="setWaveStatusFilter('ALL')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white transition" data-filter="ALL">Tous</button>
-                            <button onclick="setWaveStatusFilter('Payé')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="Payé">Payés</button>
-                            <button onclick="setWaveStatusFilter('En attente')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="En attente">En attente</button>
-                            <button onclick="setWaveStatusFilter('À vérifier')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="À vérifier">À vérifier</button>
-                            <button onclick="setWaveStatusFilter('Échoué')" class="wave-status-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-filter="Échoué">Échoués</button>
-                        </div>
-                    </div>
-
-                    <!-- Transactions Table -->
-                    <div class="overflow-x-auto no-scrollbar border border-slate-100 rounded-2xl">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="bg-slate-900 text-white text-[10px] font-extrabold uppercase tracking-wider">
-                                <tr>
-                                    <th class="py-3 px-3.5">Réf. Interne</th>
-                                    <th class="py-3 px-3.5">ID Wave (T_...)</th>
-                                    <th class="py-3 px-3.5">Participant</th>
-                                    <th class="py-3 px-3.5 text-right font-mono">Montant</th>
-                                    <th class="py-3 px-3.5 text-center">Statut</th>
-                                    <th class="py-3 px-3.5">Date Initiation</th>
-                                    <th class="py-3 px-3.5">Billet Émis</th>
-                                </tr>
-                            </thead>
-                            <tbody id="wave-transactions-table-body" class="divide-y divide-slate-100 font-medium">
-                                <tr>
-                                    <td colspan="7" class="py-8 text-center text-slate-400">
-                                        <i data-lucide="loader" class="h-6 w-6 animate-spin mx-auto text-sky-500 mb-2"></i>
-                                        <span>Chargement des transactions Wave...</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
         </section>
 
         <!-- ========================================== -->
