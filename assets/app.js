@@ -5576,16 +5576,13 @@
         });
 
         const checkinRate = totalTickets > 0 ? Math.round((checkedInCount / totalTickets) * 100) : 0;
-        const elHeaderRate = document.getElementById('dash-header-checkin-rate');
-        if (elHeaderRate) elHeaderRate.innerText = `${checkinRate}% aux Portes (${checkedInCount}/${totalTickets})`;
-
-        const totalTicketsRevenue = goldTotal + classiqueTotal;
+        const quotaPct = Math.min(100, Math.round((totalTickets / 210) * 100));
         const clasPct = Math.min(100, Math.round((classiqueCount / 140) * 100));
         const goldPct = Math.min(100, Math.round((goldCount / 60) * 100));
         const invPct = Math.min(100, Math.round((inviteCount / 10) * 100));
-        const quotaPct = Math.min(100, Math.round((totalTickets / 210) * 100));
 
         // Finance calculations
+        const totalTicketsRevenue = goldTotal + classiqueTotal;
         const totalDons = fin.donsIncome || (fin.dons || []).reduce((acc, d) => acc + (Number(d.montant) || 0), 0);
         const totalIncomes = totalTicketsRevenue + totalDons;
         const totalExpenses = fin.expensesTotal || 0;
@@ -5594,8 +5591,7 @@
         // Payment channels calculations
         let waveCount = 0, waveAmount = 0;
         let omCount = 0, omAmount = 0;
-        let cashCount = 0;
-        let freeCount = 0;
+        let cashCount = 0, cashAmount = 0;
 
         participants.forEach(p => {
             const cat = (p.categorie || 'Classique').trim();
@@ -5604,7 +5600,7 @@
             const ref = (p.preuveReglement || '').toUpperCase();
 
             if (cat === 'Gold' || cat === 'Invité' || mode.includes('donateur') || mode.includes('invité') || price === 0) {
-                freeCount++;
+                // Free pass
             } else if (mode.includes('wave') || ref.startsWith('T_')) {
                 waveCount++;
                 waveAmount += price;
@@ -5613,6 +5609,7 @@
                 omAmount += price;
             } else {
                 cashCount++;
+                cashAmount += price;
             }
         });
 
@@ -5620,12 +5617,33 @@
         const wavePct = totalTickets > 0 ? Math.round((waveCount / totalP) * 100) : 0;
         const omPct = totalTickets > 0 ? Math.round((omCount / totalP) * 100) : 0;
 
-        const elSparkWave = document.getElementById('dash-sparkline-wave-pct');
-        if (elSparkWave) elSparkWave.innerText = `+${wavePct}%`;
-        const elSparkOm = document.getElementById('dash-sparkline-om-pct');
-        if (elSparkOm) elSparkOm.innerText = `+${omPct}%`;
+        // 2. POPULATE HEADER & 4 TOP KPIS
+        const elHeaderRate = document.getElementById('dash-header-checkin-rate');
+        if (elHeaderRate) elHeaderRate.innerHTML = `<span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span><span>${checkinRate}% aux Portes (${checkedInCount}/${totalTickets})</span>`;
 
-        // 1. TOP ACTIVITY BAR CHART
+        const elTopTickets = document.getElementById('dash-top-tickets');
+        if (elTopTickets) elTopTickets.innerText = totalTickets;
+        const elTopTicketsBar = document.getElementById('dash-top-tickets-bar');
+        if (elTopTicketsBar) elTopTicketsBar.style.width = `${quotaPct}%`;
+
+        const elTopRev = document.getElementById('dash-top-revenue');
+        if (elTopRev) elTopRev.innerText = `${totalTicketsRevenue.toLocaleString('fr-FR')} F`;
+        const elTopRevSub = document.getElementById('dash-top-revenue-sub');
+        if (elTopRevSub) elTopRevSub.innerText = `${classiqueCount}/140 payants (${clasPct}%)`;
+
+        const elTopNet = document.getElementById('dash-top-net');
+        if (elTopNet) elTopNet.innerText = `${netBalance.toLocaleString('fr-FR')} F`;
+        const elTopNetSub = document.getElementById('dash-top-net-sub');
+        if (elTopNetSub) elTopNetSub.innerText = totalDons > 0 ? `Billets + ${totalDons.toLocaleString('fr-FR')} F dons` : 'Trésorerie nette active';
+
+        const elTopCheck = document.getElementById('dash-top-checkin');
+        if (elTopCheck) elTopCheck.innerText = checkedInCount;
+        const elTopCheckPct = document.getElementById('dash-top-checkin-pct');
+        if (elTopCheckPct) elTopCheckPct.innerText = `(${checkinRate}%)`;
+        const elTopCheckBar = document.getElementById('dash-top-checkin-bar');
+        if (elTopCheckBar) elTopCheckBar.style.width = `${checkinRate}%`;
+
+        // 3. DAILY ACTIVITY BAR CHART (SCALED & CLEAN)
         function extractParticipantDayKey(p) {
             if (p.dateAdded) {
                 try {
@@ -5657,7 +5675,7 @@
             dailyMap[k].revenue += pr;
         });
 
-        const numPillars = currentDailyChartFilter === '7d' ? 7 : 18;
+        const numPillars = currentDailyChartFilter === '7d' ? 7 : 14;
         const targetDays = [];
         const baseDate = new Date();
         for (let i = numPillars - 1; i >= 0; i--) {
@@ -5674,9 +5692,15 @@
             if (c > peakCount) peakCount = c;
         });
 
+        // Set realistic Y-Axis labels
+        const elYMax = document.getElementById('dash-y-max');
+        if (elYMax) elYMax.innerText = Math.max(5, Math.ceil(maxBarCount * 1.2));
+        const elYMid = document.getElementById('dash-y-mid');
+        if (elYMid) elYMid.innerText = Math.max(2, Math.round(maxBarCount / 2));
+
         const elPeak = document.getElementById('dash-stat-daily-peak');
         if (elPeak) {
-            elPeak.innerText = peakCount > 0 ? `${peakCount} billet${peakCount > 1 ? 's' : ''}` : `0 billet`;
+            elPeak.innerText = peakCount > 0 ? `Pic: ${peakCount} billet${peakCount > 1 ? 's' : ''}/j` : `0 billet/j`;
         }
 
         const activityChart = document.getElementById('dash-mock-activity-chart');
@@ -5684,8 +5708,10 @@
             activityChart.innerHTML = '';
             targetDays.forEach((k) => {
                 const d = dailyMap[k] || { count: 0, revenue: 0 };
-                const heightPct = d.count > 0 ? Math.max(16, Math.round((d.count / maxBarCount) * 100)) : 8;
+                const heightPct = d.count > 0 ? Math.max(16, Math.min(100, Math.round((d.count / maxBarCount) * 92))) : 8;
                 const isSolid = d.count > 0;
+                const parts = k.split('-');
+                const shortDate = `${parts[2]}/${parts[1]}`;
 
                 activityChart.innerHTML += `
                     <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer relative">
@@ -5694,37 +5720,41 @@
                             <span class="text-[#2B85FF] font-black font-mono">${d.count} billet(s)</span>
                             <span class="text-[9px] text-slate-500 font-mono block">${(d.revenue || 0).toLocaleString('fr-FR')} FCFA</span>
                         </div>
-                        <div class="w-full max-w-[28px] ${isSolid ? 'bg-[#2B85FF] shadow-xs' : 'bg-slate-100'} rounded-t-md sm:rounded-t-lg transition-all duration-500 group-hover:brightness-110" style="height: ${heightPct}%"></div>
+                        <div class="w-full max-w-[32px] ${isSolid ? 'bg-[#2B85FF] shadow-xs' : 'bg-slate-100'} rounded-t-lg transition-all duration-500 group-hover:brightness-110" style="height: ${heightPct}%"></div>
+                        <span class="text-[9px] font-mono text-slate-400 font-bold">${shortDate}</span>
                     </div>
                 `;
             });
         }
 
-        // 2. CALENDAR DAYS GRID
+        // 4. CALENDAR DAYS GRID
         const calGrid = document.getElementById('dash-calendar-days-grid');
         if (calGrid) {
             calGrid.innerHTML = '';
+            const todayDate = new Date().getDate();
             for (let d = 1; d <= 30; d++) {
                 const dateKey = `2026-11-${String(d).padStart(2, '0')}`;
                 const hasTickets = !!(dailyMap[dateKey] && dailyMap[dateKey].count > 0);
-                const isToday = (d === 16);
+                const isToday = (d === todayDate || d === 17);
 
                 let dayClass = "h-6 w-6 rounded-lg flex items-center justify-center font-mono text-[10px] transition cursor-pointer mx-auto ";
                 if (isToday) {
-                    dayClass += "bg-[#2B85FF] text-white font-black shadow-xs";
+                    dayClass += "bg-[#2B85FF] text-white font-black shadow-xs ring-2 ring-blue-300/60";
                 } else if (hasTickets) {
                     dayClass += "bg-blue-100 text-[#2B85FF] font-bold border border-blue-200";
                 } else {
                     dayClass += "text-slate-600 hover:bg-slate-100";
                 }
 
-                calGrid.innerHTML += `<div class="${dayClass}" title="${d} Nov 2026">${d}</div>`;
+                calGrid.innerHTML += `<div class="${dayClass}" title="${d} Nov 2026 : ${dailyMap[dateKey] ? dailyMap[dateKey].count : 0} billet(s)">${d}</div>`;
             }
         }
 
-        // 3. DUAL-LINE TREND GRAPH
+        // 5. PROGRESSION CUMULÉE DUAL LINE CHART (CLEAN VECTOR PATH)
         const trendLineContainer = document.getElementById('dash-trend-line-chart');
         if (trendLineContainer) {
+            const realY = Math.max(25, 140 - Math.min(115, Math.round((totalTickets / 210) * 115)));
+            
             trendLineContainer.innerHTML = `
                 <svg class="w-full h-full" viewBox="0 0 540 160" preserveAspectRatio="none">
                     <line x1="15" y1="25" x2="525" y2="25" stroke="#F1F5F9" stroke-dasharray="3 3" />
@@ -5732,32 +5762,31 @@
                     <line x1="15" y1="105" x2="525" y2="105" stroke="#F1F5F9" stroke-dasharray="3 3" />
                     <line x1="15" y1="140" x2="525" y2="140" stroke="#E2E8F0" />
                     
-                    <path d="M 25 130 C 120 110, 240 85, 360 55 S 480 35, 520 28" fill="none" stroke="#FF5B60" stroke-width="2.5" />
-                    <circle cx="25" cy="130" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
-                    <circle cx="150" cy="105" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
+                    <!-- Target Objective Path (Red/Coral) -->
+                    <path d="M 25 140 C 150 115, 300 70, 520 25" fill="none" stroke="#FF5B60" stroke-width="2.5" stroke-dasharray="4 4" />
+                    <circle cx="25" cy="140" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
                     <circle cx="270" cy="80" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
-                    <circle cx="390" cy="50" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
-                    <circle cx="520" cy="28" r="4" fill="white" stroke="#FF5B60" stroke-width="2.5" />
+                    <circle cx="520" cy="25" r="5" fill="#FF5B60" stroke="white" stroke-width="2" />
 
-                    <path d="M 25 138 C 120 130, 240 115, 360 90 S 480 70, 520 60" fill="none" stroke="#2B85FF" stroke-width="2.5" />
-                    <circle cx="25" cy="138" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
-                    <circle cx="150" cy="128" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
-                    <circle cx="270" cy="112" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
-                    <circle cx="390" cy="85" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
-                    <circle cx="520" cy="60" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                    <!-- Real Achievement Path (Blue) -->
+                    <path d="M 25 140 C 150 135, 300 ${realY + 15}, 520 ${realY}" fill="none" stroke="#2B85FF" stroke-width="3" />
+                    <circle cx="25" cy="140" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                    <circle cx="270" cy="${Math.round((140 + realY) / 2)}" r="4" fill="white" stroke="#2B85FF" stroke-width="2.5" />
+                    <circle cx="520" cy="${realY}" r="6" fill="#2B85FF" stroke="white" stroke-width="2" />
                 </svg>
                 <div class="flex justify-between items-center px-4 pt-1 text-[9px] font-mono font-bold text-slate-400">
-                    <span>Jan</span><span>Mar</span><span>Mai</span><span>Juil</span><span>Sept</span><span>Nov</span><span>01 Janv</span>
+                    <span>Lancement</span><span>Sept</span><span>Oct</span><span>Nov (En cours)</span><span>01 Janv 2027</span>
                 </div>
             `;
         }
 
-        // 4. FOUR RADIAL DONUT PROGRESS GAUGES
+        // 6. FOUR RADIAL DONUT PROGRESS GAUGES
         const radialsContainer = document.getElementById('dash-four-radial-meters');
         if (radialsContainer) {
             const getOffset = (pct) => Math.round(125.66 - (125.66 * Math.min(100, pct)) / 100);
             radialsContainer.innerHTML = `
-                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                <!-- 01 Classique -->
+                <div class="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-100 flex items-center gap-3 hover:bg-white hover:shadow-xs transition">
                     <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
                         <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
                             <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
@@ -5767,130 +5796,166 @@
                         <span class="absolute font-mono font-black text-[10px] text-slate-800">${clasPct}%</span>
                     </div>
                     <div class="min-w-0">
-                        <div class="flex items-center gap-1">
-                            <span class="text-[9px] font-black text-slate-400 font-mono">01</span>
-                            <span class="text-xs font-black text-slate-900 truncate">Classique</span>
-                        </div>
-                        <span class="text-[10px] text-slate-500 font-mono block">${classiqueCount}/140</span>
+                        <span class="text-[9px] font-black text-blue-600 font-mono block">01 CLASSIQUE</span>
+                        <span class="text-xs font-black text-slate-900 truncate block">10 000 FCFA</span>
+                        <span class="text-[10px] text-slate-500 font-mono block font-bold">${classiqueCount} / 140</span>
                     </div>
                 </div>
 
-                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                <!-- 02 Gold -->
+                <div class="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-100 flex items-center gap-3 hover:bg-white hover:shadow-xs transition">
                     <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
                         <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
                             <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
-                            <circle cx="24" cy="24" r="20" stroke="#0EA5E9" stroke-width="4.5" stroke-linecap="round" fill="none"
+                            <circle cx="24" cy="24" r="20" stroke="#F59E0B" stroke-width="4.5" stroke-linecap="round" fill="none"
                                 stroke-dasharray="125.66" stroke-dashoffset="${getOffset(goldPct)}" class="transition-all duration-700" />
                         </svg>
                         <span class="absolute font-mono font-black text-[10px] text-slate-800">${goldPct}%</span>
                     </div>
                     <div class="min-w-0">
-                        <div class="flex items-center gap-1">
-                            <span class="text-[9px] font-black text-slate-400 font-mono">02</span>
-                            <span class="text-xs font-black text-slate-900 truncate">Gold</span>
-                        </div>
-                        <span class="text-[10px] text-slate-500 font-mono block">${goldCount}/60</span>
+                        <span class="text-[9px] font-black text-amber-600 font-mono block">02 GOLD</span>
+                        <span class="text-xs font-black text-slate-900 truncate block">Donateurs</span>
+                        <span class="text-[10px] text-slate-500 font-mono block font-bold">${goldCount} / 60</span>
                     </div>
                 </div>
 
-                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                <!-- 03 Invité -->
+                <div class="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-100 flex items-center gap-3 hover:bg-white hover:shadow-xs transition">
                     <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
                         <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
                             <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
-                            <circle cx="24" cy="24" r="20" stroke="#FF5B60" stroke-width="4.5" stroke-linecap="round" fill="none"
+                            <circle cx="24" cy="24" r="20" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" fill="none"
                                 stroke-dasharray="125.66" stroke-dashoffset="${getOffset(invPct)}" class="transition-all duration-700" />
                         </svg>
                         <span class="absolute font-mono font-black text-[10px] text-slate-800">${invPct}%</span>
                     </div>
                     <div class="min-w-0">
-                        <div class="flex items-center gap-1">
-                            <span class="text-[9px] font-black text-slate-400 font-mono">03</span>
-                            <span class="text-xs font-black text-slate-900 truncate">Invité</span>
-                        </div>
-                        <span class="text-[10px] text-slate-500 font-mono block">${inviteCount}/10</span>
+                        <span class="text-[9px] font-black text-emerald-600 font-mono block">03 INVITÉ</span>
+                        <span class="text-xs font-black text-slate-900 truncate block">VIP Honneur</span>
+                        <span class="text-[10px] text-slate-500 font-mono block font-bold">${inviteCount} / 10</span>
                     </div>
                 </div>
 
-                <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-center gap-2.5 hover:bg-white hover:shadow-xs transition">
+                <!-- 04 Total Quota 210 -->
+                <div class="p-3.5 rounded-2xl bg-slate-50/90 border border-slate-100 flex items-center gap-3 hover:bg-white hover:shadow-xs transition">
                     <div class="relative w-12 h-12 flex items-center justify-center shrink-0">
                         <svg class="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
                             <circle cx="24" cy="24" r="20" stroke="#E2E8F0" stroke-width="4.5" fill="none" />
-                            <circle cx="24" cy="24" r="20" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" fill="none"
+                            <circle cx="24" cy="24" r="20" stroke="#6366F1" stroke-width="4.5" stroke-linecap="round" fill="none"
                                 stroke-dasharray="125.66" stroke-dashoffset="${getOffset(quotaPct)}" class="transition-all duration-700" />
                         </svg>
                         <span class="absolute font-mono font-black text-[10px] text-slate-800">${quotaPct}%</span>
                     </div>
                     <div class="min-w-0">
-                        <div class="flex items-center gap-1">
-                            <span class="text-[9px] font-black text-slate-400 font-mono">04</span>
-                            <span class="text-xs font-black text-slate-900 truncate">Jauge 210</span>
-                        </div>
-                        <span class="text-[10px] text-slate-500 font-mono block">${totalTickets}/210</span>
+                        <span class="text-[9px] font-black text-indigo-600 font-mono block">04 GLOBAL</span>
+                        <span class="text-xs font-black text-slate-900 truncate block">Jauge 210 Pl.</span>
+                        <span class="text-[10px] text-slate-500 font-mono block font-bold">${totalTickets} / 210</span>
                     </div>
                 </div>
             `;
         }
 
-        // 5. CLUSTERED DUAL BARS
+        // 7. PAYMENT CHANNELS COMPARISON BARS
+        const elSparkWave = document.getElementById('dash-sparkline-wave-pct');
+        if (elSparkWave) elSparkWave.innerText = `+${wavePct}%`;
+        const elSparkOm = document.getElementById('dash-sparkline-om-pct');
+        if (elSparkOm) elSparkOm.innerText = `+${omPct}%`;
+
         const clusteredContainer = document.getElementById('dash-clustered-bars-container');
         if (clusteredContainer) {
-            clusteredContainer.innerHTML = '';
-            const sliceLabels = ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'];
-            sliceLabels.forEach((label, i) => {
-                const waveH = Math.max(12, Math.min(95, Math.round((waveCount / Math.max(1, totalTickets)) * 100 * (0.6 + i * 0.08))));
-                const omH = Math.max(8, Math.min(85, Math.round((omCount / Math.max(1, totalTickets)) * 100 * (0.5 + i * 0.07))));
-
-                clusteredContainer.innerHTML += `
-                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer">
-                        <div class="w-full flex items-end justify-center gap-1 h-32">
-                            <div class="w-2.5 sm:w-3.5 bg-[#2B85FF] rounded-t-md transition-all duration-500 hover:brightness-110" style="height: ${waveH}%" title="Wave: ${waveH}%"></div>
-                            <div class="w-2.5 sm:w-3.5 bg-[#FF5B60] rounded-t-md transition-all duration-500 hover:brightness-110" style="height: ${omH}%" title="Orange Money: ${omH}%"></div>
+            clusteredContainer.innerHTML = `
+                <!-- Channel 1: Wave -->
+                <div class="flex-1 flex flex-col justify-end space-y-2 text-center group cursor-pointer">
+                    <div class="text-[10px] font-black text-blue-700 font-mono">${waveAmount.toLocaleString('fr-FR')} F</div>
+                    <div class="w-full bg-slate-100 rounded-2xl h-24 sm:h-28 flex items-end p-1.5">
+                        <div class="w-full bg-[#2B85FF] rounded-xl transition-all duration-700 group-hover:brightness-110 flex items-center justify-center text-white text-[10px] font-black font-mono"
+                             style="height: ${Math.max(18, wavePct)}%">
+                            ${wavePct}%
                         </div>
-                        <span class="text-[9px] font-mono font-bold text-slate-400 uppercase">${label}</span>
                     </div>
-                `;
-            });
+                    <span class="text-xs font-black text-slate-800 block">Wave Mobile</span>
+                    <span class="text-[10px] text-slate-400 font-mono font-bold block">${waveCount} règlement(s)</span>
+                </div>
+
+                <!-- Channel 2: Orange Money -->
+                <div class="flex-1 flex flex-col justify-end space-y-2 text-center group cursor-pointer">
+                    <div class="text-[10px] font-black text-rose-700 font-mono">${omAmount.toLocaleString('fr-FR')} F</div>
+                    <div class="w-full bg-slate-100 rounded-2xl h-24 sm:h-28 flex items-end p-1.5">
+                        <div class="w-full bg-[#FF5B60] rounded-xl transition-all duration-700 group-hover:brightness-110 flex items-center justify-center text-white text-[10px] font-black font-mono"
+                             style="height: ${Math.max(18, omPct)}%">
+                            ${omPct}%
+                        </div>
+                    </div>
+                    <span class="text-xs font-black text-slate-800 block">Orange Money</span>
+                    <span class="text-[10px] text-slate-400 font-mono font-bold block">${omCount} règlement(s)</span>
+                </div>
+
+                <!-- Channel 3: Espèces & Dons -->
+                <div class="flex-1 flex flex-col justify-end space-y-2 text-center group cursor-pointer">
+                    <div class="text-[10px] font-black text-emerald-700 font-mono">${(cashAmount + totalDons).toLocaleString('fr-FR')} F</div>
+                    <div class="w-full bg-slate-100 rounded-2xl h-24 sm:h-28 flex items-end p-1.5">
+                        <div class="w-full bg-emerald-500 rounded-xl transition-all duration-700 group-hover:brightness-110 flex items-center justify-center text-white text-[10px] font-black font-mono"
+                             style="height: ${Math.max(18, Math.round(((cashAmount + totalDons) / Math.max(1, totalIncomes)) * 100))}%">
+                            ${Math.round(((cashAmount + totalDons) / Math.max(1, totalIncomes)) * 100)}%
+                        </div>
+                    </div>
+                    <span class="text-xs font-black text-slate-800 block">Espèces / Dons</span>
+                    <span class="text-[10px] text-slate-400 font-mono font-bold block">${cashCount + (fin.dons || []).length} opération(s)</span>
+                </div>
+            `;
         }
 
-        // 6. DUAL CIRCULAR DONUTS (Expenses / Revenue)
+        // 8. DUAL CIRCULAR FINANCIAL DONUTS (EXPENSES / REVENUE)
         const donutsContainer = document.getElementById('dash-dual-donuts-container');
         if (donutsContainer) {
-            const expCirc = 163.36;
             const expPct = totalIncomes > 0 ? Math.min(100, Math.round((totalExpenses / totalIncomes) * 100)) : 0;
-            const revPct = Math.min(100, Math.round((totalTickets / 210) * 100));
 
             donutsContainer.innerHTML = `
-                <!-- Left Donut: Expenses / Solde -->
+                <!-- Left Donut: Trésorerie Nette -->
                 <div class="flex flex-col items-center justify-center space-y-2 text-center">
                     <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
                         <svg class="w-28 h-28 sm:w-32 sm:h-32 -rotate-90" viewBox="0 0 64 64">
                             <circle cx="32" cy="32" r="26" stroke="#F1F5F9" stroke-width="7" fill="none" />
-                            <circle cx="32" cy="32" r="26" stroke="#2B85FF" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * Math.min(100, (waveAmount / Math.max(1, totalIncomes)) * 100))/100}" class="transition-all duration-1000" />
-                            <circle cx="32" cy="32" r="26" stroke="#FF5B60" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * expPct)/100}" class="transition-all duration-1000" />
+                            <circle cx="32" cy="32" r="26" stroke="#2B85FF" stroke-width="7" fill="none"
+                                stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * Math.min(100, Math.round((totalTicketsRevenue / Math.max(1, totalIncomes)) * 100))) / 100}" class="transition-all duration-1000" />
+                            <circle cx="32" cy="32" r="26" stroke="#FF5B60" stroke-width="7" fill="none"
+                                stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * expPct) / 100}" class="transition-all duration-1000" />
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-1">
                             <span class="font-mono font-black text-xs sm:text-sm text-slate-900 leading-tight">${Math.abs(netBalance).toLocaleString('fr-FR')} F</span>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase">Solde Net</span>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase font-mono">Solde Net</span>
                         </div>
                     </div>
-                    <span class="text-[10px] font-bold text-slate-500 font-mono">Trésorerie Nette</span>
+                    <div>
+                        <span class="text-xs font-black text-slate-900 block">Trésorerie Nette</span>
+                        <span class="text-[10px] text-slate-500 font-mono block">${totalIncomes.toLocaleString('fr-FR')} F recettes</span>
+                    </div>
                 </div>
 
-                <!-- Right Donut: Revenue / Billetterie -->
+                <!-- Right Donut: Remplissage Salle -->
                 <div class="flex flex-col items-center justify-center space-y-2 text-center">
                     <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
                         <svg class="w-28 h-28 sm:w-32 sm:h-32 -rotate-90" viewBox="0 0 64 64">
                             <circle cx="32" cy="32" r="26" stroke="#F1F5F9" stroke-width="7" fill="none" />
-                            <circle cx="32" cy="32" r="26" stroke="#2B85FF" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * clasPct)/100}" class="transition-all duration-1000" />
-                            <circle cx="32" cy="32" r="26" stroke="#0EA5E9" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * (clasPct + goldPct))/100}" class="transition-all duration-1000" />
-                            <circle cx="32" cy="32" r="26" stroke="#10B981" stroke-width="7" fill="none" stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * (clasPct + goldPct + invPct))/100}" class="transition-all duration-1000" />
+                            <!-- Classique segment -->
+                            <circle cx="32" cy="32" r="26" stroke="#2B85FF" stroke-width="7" fill="none"
+                                stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * clasPct) / 100}" class="transition-all duration-1000" />
+                            <!-- Gold segment -->
+                            <circle cx="32" cy="32" r="26" stroke="#F59E0B" stroke-width="7" fill="none"
+                                stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * (clasPct + goldPct)) / 100}" class="transition-all duration-1000" />
+                            <!-- Invité segment -->
+                            <circle cx="32" cy="32" r="26" stroke="#10B981" stroke-width="7" fill="none"
+                                stroke-dasharray="163.36" stroke-dashoffset="${163.36 - (163.36 * (clasPct + goldPct + invPct)) / 100}" class="transition-all duration-1000" />
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-1">
                             <span class="font-mono font-black text-sm text-slate-900 leading-tight">${totalTickets}</span>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase">/ 210 Pl.</span>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase font-mono">/ 210 Pl.</span>
                         </div>
                     </div>
-                    <span class="text-[10px] font-bold text-slate-500 font-mono">Festivaliers Inscrits</span>
+                    <div>
+                        <span class="text-xs font-black text-slate-900 block">Jauge de Salle</span>
+                        <span class="text-[10px] text-slate-500 font-mono block">${Math.max(0, 210 - totalTickets)} restants</span>
+                    </div>
                 </div>
             `;
         }
@@ -5900,6 +5965,7 @@
         updateLiveTicketPreviewFromForm();
         initializeLucideIcons();
     }
+
     function applyUserStatesUI() {
         if (!state.user) state.user = DEFAULT_VISITOR_USER;
         const user = state.user;

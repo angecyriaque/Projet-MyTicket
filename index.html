@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=15" as="script">
+    <link rel="preload" href="assets/app.js?v=16" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=15" defer></script>
+    <script src="assets/app.js?v=16" defer></script>
 
 
 
@@ -660,231 +660,265 @@
         <!-- ========================================== -->
         <!-- 4. TABLEAU DE BORD EXEC SAAS (MOCKUP DESIGN)-->
         <!-- ========================================== -->
+        <!-- ========================================== -->
+        <!-- 4. TABLEAU DE BORD EXÉCUTIF PRESTIGE (NET & STRUCTURÉ) -->
+        <!-- ========================================== -->
         <section id="view-dashboard" class="view-section" style="display:none;">
-            <!-- Outer Canvas Shell Matching Mockup (soft gray/blue tint, rounded-3xl, shadow) -->
-            <div class="bg-[#F0F4FA] rounded-[2.5rem] p-4 sm:p-6 lg:p-8 border border-slate-200/80 shadow-2xl space-y-6">
+            <!-- Outer Executive Canvas Shell (Clean, Sharp, High Contrast) -->
+            <div class="bg-[#F0F4FA] rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-8 border border-slate-200/90 shadow-xl space-y-6">
                 
-                <!-- Main Layout: Left Sidebar + Right Dashboard Canvas -->
-                <div class="flex flex-col lg:flex-row gap-6 items-stretch">
-                    
-                    <!-- Left Sidebar (Desktop Rail) -->
-                    <aside class="w-full lg:w-48 bg-white rounded-3xl p-4 border border-slate-200/70 shadow-sm flex lg:flex-col items-center lg:items-stretch justify-between gap-4 shrink-0">
-                        <div class="flex lg:flex-col items-center lg:items-stretch gap-2.5 w-full">
-                            <!-- User Profile Avatar with Notification Badge '2' -->
-                            <div class="flex items-center gap-3 p-1.5 lg:mb-3">
-                                <div class="relative">
-                                    <div class="h-12 w-12 rounded-2xl bg-[#2B85FF] text-white flex items-center justify-center font-black shadow-md shadow-blue-500/25">
-                                        <i data-lucide="user" class="h-6 w-6"></i>
-                                    </div>
-                                    <span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-600 text-white font-mono text-[9px] font-black flex items-center justify-center border-2 border-white">2</span>
-                                </div>
-                                <div class="hidden lg:block min-w-0">
-                                    <span class="text-xs font-black text-slate-900 block truncate">Direction</span>
-                                    <span class="text-[10px] text-slate-400 font-mono block">10 Ans Horeb</span>
-                                </div>
-                            </div>
-
-                            <!-- Nav Links -->
-                            <button onclick="switchView('accueil')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
-                                <i data-lucide="home" class="h-4 w-4 text-slate-500 shrink-0"></i>
-                                <span class="hidden lg:inline">Home</span>
-                            </button>
-                            <button class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl bg-[#2B85FF] text-white shadow-md shadow-blue-500/25 text-xs font-bold transition">
-                                <i data-lucide="layout-dashboard" class="h-4 w-4 text-white shrink-0"></i>
-                                <span class="hidden lg:inline">Dashboard</span>
-                            </button>
-                            <button onclick="switchView('organisation')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
-                                <i data-lucide="users" class="h-4 w-4 text-slate-500 shrink-0"></i>
-                                <span class="hidden lg:inline">Admin</span>
-                            </button>
-                            <button onclick="switchView('chronogramme')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
-                                <i data-lucide="message-square" class="h-4 w-4 text-slate-500 shrink-0"></i>
-                                <span class="hidden lg:inline">Messages</span>
-                            </button>
-                            <button onclick="switchView('finance')" class="flex-1 lg:flex-initial flex items-center gap-2.5 px-3 py-2.5 rounded-2xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-bold transition">
-                                <i data-lucide="settings" class="h-4 w-4 text-slate-500 shrink-0"></i>
-                                <span class="hidden lg:inline">Settings</span>
-                            </button>
+                <!-- 1. HEADER ROW : TITLE, SUBTITLE & LIVE BADGES -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2.5">
+                            <span class="h-3 w-3 rounded-full bg-[#2B85FF] shadow-xs"></span>
+                            <h1 class="font-display font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">Tableau de Bord Exécutif</h1>
                         </div>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium">Cockpit de supervision & billetterie — Célébration des 10 Ans EMCI Horeb</p>
+                    </div>
 
-                        <!-- Logout / Return Accueil at bottom -->
-                        <div class="lg:pt-4 lg:border-t border-slate-100 w-full">
-                            <button onclick="switchView('accueil')" class="w-full flex items-center justify-center lg:justify-start gap-2.5 px-3 py-2 rounded-2xl text-slate-400 hover:text-red-600 hover:bg-red-50 text-xs font-bold transition">
-                                <i data-lucide="power" class="h-4 w-4 shrink-0"></i>
-                                <span class="hidden lg:inline">Logout</span>
-                            </button>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition duration-200 cursor-pointer shadow-2xs">
+                            <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                            <span>Retour Accueil</span>
+                        </button>
+                        <span id="dash-header-checkin-rate" class="px-3.5 py-2 rounded-2xl bg-emerald-50 text-emerald-800 font-mono text-xs font-black border border-emerald-200 shadow-2xs flex items-center gap-1.5">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>0% aux Portes</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 2. FOUR RAZOR-SHARP TOP KPI METRICS STRIP -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+                    <!-- KPI 1: Inscriptions & Jauge -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400 font-mono">Inscriptions</span>
+                            <span class="h-8 w-8 rounded-xl bg-blue-50 text-[#2B85FF] flex items-center justify-center">
+                                <i data-lucide="ticket" class="h-4 w-4"></i>
+                            </span>
                         </div>
-                    </aside>
-
-                    <!-- Main Dashboard Work Area -->
-                    <main class="flex-1 min-w-0 space-y-6">
-                        
-                        <!-- Top Header Row -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-5 rounded-3xl border border-slate-200/70 shadow-sm">
-                            <div>
-                                <h1 class="font-display font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">Dashboard</h1>
-                                <p class="text-xs text-slate-400 font-medium">Cockpit exécutif & billetterie — 10 Ans EMCI Horeb (210 festivaliers)</p>
-                            </div>
-                            <div class="flex items-center gap-2.5 self-start sm:self-auto">
-                                <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
-                                    <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
-                                    <span>Accueil</span>
-                                </button>
-                                <span id="dash-header-checkin-rate" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 font-mono text-xs font-black border border-emerald-200 shadow-2xs">0% aux Portes</span>
-                            </div>
+                        <div class="flex items-baseline gap-2">
+                            <h3 id="dash-top-tickets" class="font-display font-black text-xl sm:text-3xl text-slate-900 font-mono">0</h3>
+                            <span class="text-xs font-bold text-slate-400">/ 210 places</span>
                         </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div id="dash-top-tickets-bar" class="bg-[#2B85FF] h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
 
-                        <!-- ============================================== -->
-                        <!-- ROW 1 : ACTIVITY BAR CHART + CALENDAR & EVENTS -->
-                        <!-- ============================================== -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                            <!-- Left: Activity Bar Chart (8 cols) -->
-                            <div class="lg:col-span-8 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm flex flex-col justify-between space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div class="flex items-center gap-3">
-                                        <h3 class="font-display font-black text-lg text-slate-900">Activity</h3>
-                                        <div class="flex items-center gap-1 p-0.5 bg-slate-100 rounded-xl text-[11px] font-bold font-mono">
-                                            <button onclick="switchDailyChartFilter('7d')" id="btn-dash-toggle-day" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Day</button>
-                                            <button onclick="switchDailyChartFilter('all')" id="btn-dash-toggle-week" class="px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition">Weekly</button>
-                                        </div>
-                                    </div>
-                                    <span id="dash-stat-daily-peak" class="text-xs font-black text-slate-700 font-mono bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-xl">0 billet</span>
+                    <!-- KPI 2: Recettes Billetterie -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400 font-mono">Recettes Billets</span>
+                            <span class="h-8 w-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <i data-lucide="wallet" class="h-4 w-4"></i>
+                            </span>
+                        </div>
+                        <h3 id="dash-top-revenue" class="font-display font-black text-xl sm:text-3xl text-emerald-600 font-mono">0 F</h3>
+                        <p id="dash-top-revenue-sub" class="text-[10px] font-bold text-slate-400 font-mono">0 / 1 400 000 FCFA</p>
+                    </div>
+
+                    <!-- KPI 3: Trésorerie Nette -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400 font-mono">Solde Net</span>
+                            <span class="h-8 w-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                                <i data-lucide="pie-chart" class="h-4 w-4"></i>
+                            </span>
+                        </div>
+                        <h3 id="dash-top-net" class="font-display font-black text-xl sm:text-3xl text-slate-900 font-mono">0 F</h3>
+                        <p id="dash-top-net-sub" class="text-[10px] font-bold text-slate-400 font-mono">Billetterie + Dons</p>
+                    </div>
+
+                    <!-- KPI 4: Pointage Portes -->
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400 font-mono">Émargés Portes</span>
+                            <span class="h-8 w-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                                <i data-lucide="scan-line" class="h-4 w-4"></i>
+                            </span>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <h3 id="dash-top-checkin" class="font-display font-black text-xl sm:text-3xl text-slate-900 font-mono">0</h3>
+                            <span id="dash-top-checkin-pct" class="text-xs font-bold text-amber-600 font-mono">(0%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div id="dash-top-checkin-bar" class="bg-gradient-to-r from-amber-500 to-emerald-500 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- ROW 1 : DAILY PURCHASES BAR CHART + CALENDAR -->
+                <!-- ============================================== -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    <!-- Left: Daily Activity Bar Chart (8 cols) -->
+                    <div class="lg:col-span-8 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-xl bg-blue-50 text-[#2B85FF] flex items-center justify-center">
+                                    <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
                                 </div>
-
-                                <!-- Bars Canvas Container with Y-Axis Gridlines -->
-                                <div class="relative pt-6 pb-2 min-h-[190px] flex items-end">
-                                    <!-- Y-axis Guidelines -->
-                                    <div class="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none text-[9px] font-mono text-slate-300 font-bold">
-                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>500</span></div>
-                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>400</span></div>
-                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>300</span></div>
-                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>200</span></div>
-                                        <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span>100</span></div>
-                                        <div class="border-b border-slate-200 w-full flex justify-between pr-2"><span>0</span></div>
-                                    </div>
-                                    <!-- Daily Activity Bars Container -->
-                                    <div class="w-full h-44 flex items-end justify-between gap-1.5 sm:gap-2 px-2 relative z-10" id="dash-mock-activity-chart">
-                                        <!-- Populated dynamically via JS -->
-                                    </div>
+                                <div>
+                                    <h3 class="font-display font-black text-base sm:text-lg text-slate-900">Évolution Journalière des Achats</h3>
+                                    <p class="text-[11px] text-slate-400">Inscriptions tous pass confondus par date</p>
                                 </div>
                             </div>
-
-                            <!-- Right: Calendar & Scheduled Events (4 cols) -->
-                            <div class="lg:col-span-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                                    <span class="font-mono font-bold text-xs text-slate-400">2026/11</span>
-                                    <span class="font-display font-black text-sm text-slate-900">Novembre</span>
-                                    <button class="h-6 w-6 rounded-lg bg-blue-50 text-[#2B85FF] flex items-center justify-center font-black text-xs hover:bg-[#2B85FF] hover:text-white transition">+</button>
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-xl text-[11px] font-bold font-mono">
+                                    <button onclick="switchDailyChartFilter('7d')" id="btn-dash-toggle-day" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition cursor-pointer">7 Jours</button>
+                                    <button onclick="switchDailyChartFilter('all')" id="btn-dash-toggle-week" class="px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition cursor-pointer">Vue Globale</button>
                                 </div>
-
-                                <!-- Calendar Month Grid -->
-                                <div class="space-y-1">
-                                    <div class="grid grid-cols-7 gap-1 text-center font-mono text-[9px] font-bold text-slate-400 pb-1">
-                                        <span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
-                                    </div>
-                                    <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px]" id="dash-calendar-days-grid">
-                                        <!-- Injected dynamically -->
-                                    </div>
-                                </div>
-
-                                <!-- Schedule Events Side Pills -->
-                                <div class="space-y-2 pt-2 border-t border-slate-100 text-xs">
-                                    <div class="p-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-[#2B85FF] text-white shadow-xs flex items-center justify-between">
-                                        <div class="space-y-0.5">
-                                            <span class="text-[9px] font-black uppercase tracking-wider text-blue-200 block font-mono">VEN 01 JANV • 20:00</span>
-                                            <span class="font-black text-xs block">Gala Noces d'Or 10 Ans</span>
-                                        </div>
-                                        <span class="h-7 w-7 rounded-xl bg-white/20 flex items-center justify-center text-xs font-bold font-mono">210</span>
-                                    </div>
-                                    <div class="p-2.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-xs flex items-center justify-between">
-                                        <div class="space-y-0.5">
-                                            <span class="text-[9px] font-black uppercase tracking-wider text-teal-200 block font-mono">DIM 15 DÉC • 18:00</span>
-                                            <span class="font-black text-xs block">Clôture des Réservations</span>
-                                        </div>
-                                        <i data-lucide="check-circle" class="h-4 w-4 text-white"></i>
-                                    </div>
-                                </div>
+                                <span id="dash-stat-daily-peak" class="text-xs font-black text-slate-700 font-mono bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl">0 billet</span>
                             </div>
                         </div>
 
-                        <!-- ============================================== -->
-                        <!-- ROW 2 : TREND LINE GRAPH + 4 DONUT METERS 2X2 -->
-                        <!-- ============================================== -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                            <!-- Left: Dual Line Curve Chart (7 cols) -->
-                            <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div class="flex items-center gap-3">
-                                        <h3 class="font-display font-black text-lg text-slate-900">Activity</h3>
-                                        <div class="flex items-center gap-1 p-0.5 bg-slate-100 rounded-xl text-[11px] font-bold font-mono">
-                                            <button class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Day</button>
-                                            <button class="px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition">Weekly</button>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3 text-[10px] font-mono font-bold">
-                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#FF5B60]"></span>Objectif (210)</span>
-                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#2B85FF]"></span>Réel 2026</span>
-                                    </div>
-                                </div>
-                                <div class="w-full h-48 relative overflow-hidden" id="dash-trend-line-chart">
-                                    <!-- Injected SVG curve lines -->
-                                </div>
+                        <!-- Pillars Container with Dynamic Scaled Gridlines -->
+                        <div class="relative pt-6 pb-2 min-h-[200px] flex items-end">
+                            <div id="dash-y-axis-labels" class="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none text-[9px] font-mono text-slate-300 font-bold">
+                                <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span id="dash-y-max">20</span></div>
+                                <div class="border-b border-dashed border-slate-100 w-full flex justify-between pr-2"><span id="dash-y-mid">10</span></div>
+                                <div class="border-b border-slate-200 w-full flex justify-between pr-2"><span>0</span></div>
                             </div>
+                            <div class="relative z-10 w-full flex items-end justify-between gap-1.5 sm:gap-2.5 px-3 h-44" id="dash-mock-activity-chart">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
 
-                            <!-- Right: 4 Radial Donut Meters 2x2 (5 cols) -->
-                            <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <h3 class="font-display font-black text-lg text-slate-900">Activity</h3>
-                                    <span class="text-xs text-slate-400 font-mono font-bold">Quotas & Portes</span>
-                                </div>
-                                <div class="grid grid-cols-2 gap-3" id="dash-four-radial-meters">
-                                    <!-- Injected 4 radial meters -->
-                                </div>
+                    <!-- Right: Mini-Calendar & Countdown Agenda (4 cols) -->
+                    <div class="lg:col-span-4 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="calendar" class="h-4 w-4 text-[#2B85FF]"></i>
+                                <span class="font-display font-black text-sm text-slate-900">Agenda & Calendrier</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 font-mono">Nov 2026</span>
+                        </div>
+
+                        <!-- Calendar Month Grid -->
+                        <div class="space-y-1">
+                            <div class="grid grid-cols-7 gap-1 text-center font-mono text-[9px] font-bold text-slate-400 pb-1">
+                                <span>DIM</span><span>LUN</span><span>MAR</span><span>MER</span><span>JEU</span><span>VEN</span><span>SAM</span>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px]" id="dash-calendar-days-grid">
+                                <!-- Injected dynamically -->
                             </div>
                         </div>
 
-                        <!-- ============================================== -->
-                        <!-- ROW 3 : CLUSTERED DUAL BARS + DUAL DONUTS      -->
-                        <!-- ============================================== -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                            <!-- Left: Clustered Comparative Bars (7 cols) -->
-                            <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
-                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                                    <div class="flex items-center gap-3">
-                                        <div class="px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-200 flex items-center gap-2">
-                                            <span class="text-[10px] font-bold text-blue-700 font-mono">Wave</span>
-                                            <span id="dash-sparkline-wave-pct" class="text-xs font-black text-[#2B85FF] font-mono">+34.4%</span>
-                                        </div>
-                                        <div class="px-3 py-1.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-2">
-                                            <span class="text-[10px] font-bold text-rose-700 font-mono">Orange</span>
-                                            <span id="dash-sparkline-om-pct" class="text-xs font-black text-[#FF5B60] font-mono">+18.2%</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3 text-[10px] font-mono font-bold">
-                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#2B85FF]"></span>Wave</span>
-                                        <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#FF5B60]"></span>Orange Money</span>
-                                    </div>
+                        <!-- Schedule Events Side Pills -->
+                        <div class="space-y-2 pt-2 border-t border-slate-100 text-xs">
+                            <div class="p-3 rounded-2xl bg-gradient-to-r from-blue-600 to-[#2B85FF] text-white shadow-xs flex items-center justify-between">
+                                <div class="space-y-0.5">
+                                    <span class="text-[9px] font-black uppercase tracking-wider text-blue-200 block font-mono">01 JANV 2027 • 00h00</span>
+                                    <span class="font-black text-xs block">Gala des Noces d'Or (10 Ans)</span>
                                 </div>
-                                <div class="h-44 flex items-end justify-between gap-2 px-2" id="dash-clustered-bars-container">
-                                    <!-- Injected clustered bars -->
+                                <span class="h-7 px-2 rounded-xl bg-white/20 flex items-center justify-center text-[10px] font-bold font-mono">210 Pl.</span>
+                            </div>
+                            <div class="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-xs flex items-center justify-between">
+                                <div class="space-y-0.5">
+                                    <span class="text-[9px] font-black uppercase tracking-wider text-emerald-200 block font-mono">15 DÉC 2026 • 18h00</span>
+                                    <span class="font-black text-xs block">Clôture des Réservations</span>
+                                </div>
+                                <i data-lucide="check-circle" class="h-4 w-4 text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- ROW 2 : CUMULATIVE SALES CURVE + 4 RADIAL METERS -->
+                <!-- ============================================== -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    <!-- Left: Cumulative Trend Line Curve Chart (7 cols) -->
+                    <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-xl bg-rose-50 text-[#FF5B60] flex items-center justify-center">
+                                    <i data-lucide="trending-up" class="h-4 w-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-display font-black text-base sm:text-lg text-slate-900">Progression Cumulée vs Objectif</h3>
+                                    <p class="text-[11px] text-slate-400">Courbe de mobilisation vers la jauge maximale de 210 festivaliers</p>
                                 </div>
                             </div>
+                            <div class="flex items-center gap-3 text-[10px] font-mono font-bold">
+                                <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#FF5B60]"></span>Objectif (210)</span>
+                                <span class="flex items-center gap-1.5 text-slate-700"><span class="h-2.5 w-2.5 rounded-full bg-[#2B85FF]"></span>Réalisé</span>
+                            </div>
+                        </div>
+                        <div class="w-full h-48 relative overflow-hidden" id="dash-trend-line-chart">
+                            <!-- Injected SVG curve lines -->
+                        </div>
+                    </div>
 
-                            <!-- Right: Dual Circular Donuts (Expenses / Revenue) (5 cols) -->
-                            <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/70 shadow-sm space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                                    <div class="flex items-center justify-between w-full">
-                                        <span class="text-xs font-black uppercase tracking-wider text-slate-500 font-mono">Expenses</span>
-                                        <span class="text-xs font-black uppercase tracking-wider text-slate-500 font-mono">Revenue</span>
-                                    </div>
+                    <!-- Right: 4 Radial Donut Meters 2x2 (5 cols) -->
+                    <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="pie-chart" class="h-4 w-4 text-[#0EA5E9]"></i>
+                                <h3 class="font-display font-black text-base sm:text-lg text-slate-900">Quotas par Catégorie</h3>
+                            </div>
+                            <span class="text-xs text-slate-400 font-mono font-bold">Jauges en %</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3" id="dash-four-radial-meters">
+                            <!-- Injected 4 radial meters -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- ROW 3 : PAYMENT CHANNELS + FINANCIAL DONUTS   -->
+                <!-- ============================================== -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    <!-- Left: Payment Channels Comparison (7 cols) -->
+                    <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                                    <i data-lucide="credit-card" class="h-4 w-4"></i>
                                 </div>
-                                <div class="grid grid-cols-2 gap-4 items-center pt-1" id="dash-dual-donuts-container">
-                                    <!-- Injected two donuts side by side -->
+                                <div>
+                                    <h3 class="font-display font-black text-base sm:text-lg text-slate-900">Canaux de Règlement</h3>
+                                    <p class="text-[11px] text-slate-400">Répartition des paiements Wave vs Orange Money vs Espèces</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="px-3 py-1.5 rounded-2xl bg-blue-50 border border-blue-200 flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full bg-[#2B85FF]"></span>
+                                    <span class="text-[10px] font-bold text-blue-700 font-mono">Wave</span>
+                                    <span id="dash-sparkline-wave-pct" class="text-xs font-black text-[#2B85FF] font-mono">+0%</span>
+                                </div>
+                                <div class="px-3 py-1.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full bg-[#FF5B60]"></span>
+                                    <span class="text-[10px] font-bold text-rose-700 font-mono">Orange</span>
+                                    <span id="dash-sparkline-om-pct" class="text-xs font-black text-[#FF5B60] font-mono">+0%</span>
                                 </div>
                             </div>
                         </div>
+                        <div class="h-44 flex items-end justify-between gap-3 px-2" id="dash-clustered-bars-container">
+                            <!-- Injected clustered bars -->
+                        </div>
+                    </div>
 
-                    </main>
+                    <!-- Right: Dual Circular Financial Donuts (5 cols) -->
+                    <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="circle-dollar-sign" class="h-4 w-4 text-emerald-600"></i>
+                                <h3 class="font-display font-black text-base sm:text-lg text-slate-900">Bilan Synthétique</h3>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs font-mono font-black text-slate-400">
+                                <span>Trésorerie</span>
+                                <span>Affluence</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 items-center pt-2" id="dash-dual-donuts-container">
+                            <!-- Injected two donuts side by side -->
+                        </div>
+                    </div>
                 </div>
 
             </div>
