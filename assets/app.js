@@ -41,17 +41,17 @@
                 orangeMoney: 0
             },
             committees: [
-                { id: "strat", name: "Coordination Stratégique", resp: "", type: "Coordination", color: "amber", lignesBudget: [] },
-                { id: "ops", name: "Coordination Opérationnelle", resp: "", type: "Coordination", color: "sky", lignesBudget: [] },
-                { id: "supervision", name: "Comité Supervision", resp: "", type: "Comité", color: "purple", lignesBudget: [] },
-                { id: "spirituel", name: "Comité Spirituel", resp: "", type: "Comité", color: "violet", lignesBudget: [] },
-                { id: "communication", name: "Comité Communication & Mobilisation", resp: "", type: "Comité", color: "blue", lignesBudget: [] },
-                { id: "animation", name: "Comité Animation & Jeux", resp: "", type: "Comité", color: "pink", lignesBudget: [] },
-                { id: "administratif", name: "Comité Administratif", resp: "", type: "Comité", color: "teal", lignesBudget: [] },
-                { id: "logistique", name: "Comité Logistique", resp: "", type: "Comité", color: "cyan", lignesBudget: [] },
-                { id: "financier", name: "Comité Financier", resp: "", type: "Comité", color: "emerald", lignesBudget: [] },
-                { id: "restauration", name: "Comité Restauration", resp: "", type: "Comité", color: "amber", lignesBudget: [] },
-                { id: "accueil", name: "Comité Accueil & Sécurité", resp: "", type: "Comité", color: "red", lignesBudget: [] }
+                { id: "strat", name: "Coordination Stratégique", resp: "Yao Marc-Emmanuel", type: "Coordination", color: "amber", lignesBudget: [] },
+                { id: "ops", name: "Coordination Opérationnelle", resp: "Sarah Kouadio", type: "Coordination", color: "sky", lignesBudget: [] },
+                { id: "supervision", name: "Comité Supervision", resp: "Pasteur David N'Guessan", type: "Comité", color: "purple", lignesBudget: [] },
+                { id: "spirituel", name: "Comité Spirituel", resp: "Pasteur Jérémie Brou", type: "Comité", color: "violet", lignesBudget: [] },
+                { id: "communication", name: "Comité Communication & Mobilisation", resp: "Emmanuel Kra", type: "Comité", color: "blue", lignesBudget: [] },
+                { id: "animation", name: "Comité Animation & Jeux", resp: "Chantre Esther Aka", type: "Comité", color: "pink", lignesBudget: [] },
+                { id: "administratif", name: "Comité Administratif", resp: "Kouassi Ange", type: "Comité", color: "teal", lignesBudget: [] },
+                { id: "logistique", name: "Comité Logistique", resp: "Franck Gnagne", type: "Comité", color: "cyan", lignesBudget: [] },
+                { id: "financier", name: "Comité Financier", resp: "Aude-Eunice Koffi", type: "Comité", color: "emerald", lignesBudget: [] },
+                { id: "restauration", name: "Comité Restauration", resp: "Marie-Laure Koffi", type: "Comité", color: "amber", lignesBudget: [] },
+                { id: "accueil", name: "Comité Accueil & Sécurité", resp: "Capitaine Alain Bamba", type: "Comité", color: "red", lignesBudget: [] }
             ],
             decaissements: [],
             dons: []
@@ -990,13 +990,27 @@
                     if (parsed.accounts) state.finance.accounts = parsed.accounts;
                     if (parsed.decaissements) state.finance.decaissements = parsed.decaissements;
                     if (parsed.dons) state.finance.dons = parsed.dons;
+                    if (state.finance.dons && Array.isArray(state.finance.dons)) {
+                        const defaultOperators = [
+                            'Aude-Eunice Koffi (Comité Financier)',
+                            'Sarah Kouadio (Coordination Opérationnelle)',
+                            'Aude-Eunice Koffi (Comité Financier)',
+                            'Yao Marc-Emmanuel (Coordination Stratégique)',
+                            'Kouassi Ange (Comité Administratif)'
+                        ];
+                        state.finance.dons.forEach((don, idx) => {
+                            if (!don.enregistrePar || don.enregistrePar === 'Comité PCO' || don.enregistrePar === 'Direction' || don.enregistrePar === 'Admin') {
+                                don.enregistrePar = defaultOperators[idx % defaultOperators.length];
+                            }
+                        });
+                    }
                     if (!state.finance.dons || state.finance.dons.length === 0) {
                         state.finance.dons = [
-                            { date: '2026-11-01', donateur: 'Dr. Bamba Seydou', type: 'Don Partenaire', montant: 150000, compte: 'Orange Money', enregistrePar: 'Comité PCO' },
-                            { date: '2026-11-02', donateur: 'Famille Kouassi Konan', type: 'Soutien Particulier', montant: 100000, compte: 'Wave', enregistrePar: 'Comité PCO' },
-                            { date: '2026-11-03', donateur: 'Mme Marie-Claire Akissi', type: 'Don Partenaire', montant: 50000, compte: 'Wave', enregistrePar: 'Comité PCO' },
-                            { date: '2026-11-04', donateur: 'M. Emmanuel Yao Kouassi', type: 'Sponsoring', montant: 200000, compte: 'Virement', enregistrePar: 'Comité PCO' },
-                            { date: '2026-11-05', donateur: 'Pasteur David Koffi', type: 'Don Partenaire', montant: 80000, compte: 'Espèces', enregistrePar: 'Comité PCO' }
+                            { date: '2026-11-01', donateur: 'Dr. Bamba Seydou', type: 'Don Partenaire', montant: 150000, compte: 'Orange Money', enregistrePar: 'Aude-Eunice Koffi (Comité Financier)' },
+                            { date: '2026-11-02', donateur: 'Famille Kouassi Konan', type: 'Soutien Particulier', montant: 100000, compte: 'Wave', enregistrePar: 'Sarah Kouadio (Coordination Opérationnelle)' },
+                            { date: '2026-11-03', donateur: 'Mme Marie-Claire Akissi', type: 'Don Partenaire', montant: 50000, compte: 'Wave', enregistrePar: 'Aude-Eunice Koffi (Comité Financier)' },
+                            { date: '2026-11-04', donateur: 'M. Emmanuel Yao Kouassi', type: 'Sponsoring', montant: 200000, compte: 'Virement', enregistrePar: 'Yao Marc-Emmanuel (Coordination Stratégique)' },
+                            { date: '2026-11-05', donateur: 'Pasteur David Koffi', type: 'Don Partenaire', montant: 80000, compte: 'Espèces', enregistrePar: 'Kouassi Ange (Comité Administratif)' }
                         ];
                     }
 
@@ -1608,6 +1622,40 @@
     // ==========================================
     // TICKET QUOTAS & CAPACITY CONFIGURATION
     // ==========================================
+    // 30 Peuples du Nigeria (Sélection Officielle - Ministère Nigérian des Affaires Étrangères)
+    const NIGERIA_TRIBES = [
+        { id: 1, name: "Hausa" },
+        { id: 2, name: "Fulani (Peul)" },
+        { id: 3, name: "Yoruba" },
+        { id: 4, name: "Igbo (Ibo)" },
+        { id: 5, name: "Ijaw (Ijo)" },
+        { id: 6, name: "Kanuri" },
+        { id: 7, name: "Ibibio" },
+        { id: 8, name: "Tiv" },
+        { id: 9, name: "Edo (Bini)" },
+        { id: 10, name: "Nupe" },
+        { id: 11, name: "Gbagyi (Gwari)" },
+        { id: 12, name: "Idoma" },
+        { id: 13, name: "Igala" },
+        { id: 14, name: "Urhobo" },
+        { id: 15, name: "Itsekiri" },
+        { id: 16, name: "Efik" },
+        { id: 17, name: "Annang" },
+        { id: 18, name: "Ejagham (Ekoi)" },
+        { id: 19, name: "Jukun" },
+        { id: 20, name: "Goemai" },
+        { id: 21, name: "Berom" },
+        { id: 22, name: "Tangale" },
+        { id: 23, name: "Mumuye" },
+        { id: 24, name: "Kilba (Huba)" },
+        { id: 25, name: "Margi (Marghi)" },
+        { id: 26, name: "Bachama (Bwatiye)" },
+        { id: 27, name: "Isoko" },
+        { id: 28, name: "Ogoni (Kana)" },
+        { id: 29, name: "Ebira (Egbira)" },
+        { id: 30, name: "Bade" }
+    ];
+
     const TICKET_QUOTAS = {
         'Classique': { max: 140, price: 10000, tables: 18, color: 'slate' },
         'Gold': { max: 60, price: 0, tables: 8, color: 'amber' },
@@ -3596,17 +3644,11 @@
         const dateStr = ticket.dateTicket || new Date().toLocaleDateString('fr-FR');
         document.getElementById('ticket-display-date').innerText = dateStr;
 
-        let tableName = "Table 11 (Béthel)";
-        let seatNum = "Siège 01";
-        if (ticket.categorie === 'Gold') {
-            tableName = "Table 01 (Gold)";
-            seatNum = "Siège 01";
-        
-            seatNum = "Siège 01";
-        } else if (ticket.categorie === 'Invité') {
-            tableName = "Table d'Honneur";
-            seatNum = "Place d'Honneur";
-        }
+        const tableInfo = typeof getParticipantTableInfo === 'function' 
+            ? getParticipantTableInfo(ticket) 
+            : { tableName: "Table 10 (Nupe)", seatNum: "Siège 01" };
+        let tableName = tableInfo.tableName;
+        let seatNum = tableInfo.seatNum;
 
         const tableStub = document.getElementById('ticket-display-table-stub');
         if (tableStub) tableStub.innerText = tableName.toUpperCase();
@@ -3700,8 +3742,11 @@
         const reglement = ticket.modeReglement || 'Wave';
         const dateStr = ticket.dateTicket || new Date().toLocaleDateString('fr-FR');
 
-        let tableName = "TABLE 11 (BÉTHEL)";
-        let seatName = "SIÈGE 01";
+        const tableInfo = typeof getParticipantTableInfo === 'function' 
+            ? getParticipantTableInfo(ticket) 
+            : { tableName: "Table 10 (Nupe)", seatNum: "Siège 01" };
+        let tableName = (tableInfo.tableName || 'TABLE 10 (NUPE)').toUpperCase();
+        let seatName = (tableInfo.seatNum || 'SIÈGE 01').toUpperCase();
         let stubBgColor = "#cbd5e1"; // Classique: Gris clair
         let stubTextColor = "#0f172a";
         let badgeBgColor = "#e2e8f0";
@@ -3709,24 +3754,18 @@
 
         if (cat === 'Gold') {
             // Gold: Or
-            tableName = "TABLE 01 (GOLD)";
-            seatName = "SIÈGE 01";
             stubBgColor = "#d97706";
             stubTextColor = "#0f172a";
             badgeBgColor = "#fef3c7";
             badgeTextColor = "#78350f";
         } else if (cat === 'VIP') {
             // VIP: Bleu
-            tableName = "TABLE 06 (VIP)";
-            seatName = "SIÈGE 01";
             stubBgColor = "#2563eb";
             stubTextColor = "#ffffff";
             badgeBgColor = "#dbeafe";
             badgeTextColor = "#1e40af";
         } else if (cat === 'Invité') {
             // Invité: Vert
-            tableName = "TABLE D'HONNEUR";
-            seatName = "PLACE D'HONNEUR";
             stubBgColor = "#059669";
             stubTextColor = "#ffffff";
             badgeBgColor = "#d1fae5";
@@ -4113,30 +4152,27 @@
         const stubBg = document.getElementById('print-stub-bg');
         
         // Colors for A4 Print: Classique (Gris clair), VIP (Bleu), Gold (Or), Invité (Vert)
+        const tableInfo = typeof getParticipantTableInfo === 'function' 
+            ? getParticipantTableInfo(ticket) 
+            : { tableName: "Table 10 (Nupe)", seatNum: "Siège 01" };
         let colorBg = '#cbd5e1';
         let pillTextColor = '#0f172a';
         let catText = 'PASS CLASSIQUE';
-        let tableName = 'TABLE 11 (BÉTHEL)';
-        let seatName = 'SIÈGE 01';
+        let tableName = (tableInfo.tableName || 'TABLE 10 (NUPE)').toUpperCase();
+        let seatName = (tableInfo.seatNum || 'SIÈGE 01').toUpperCase();
 
         if (ticket.categorie === 'Gold') {
             colorBg = '#d97706';
             pillTextColor = '#0f172a';
             catText = 'PASS GOLD';
-            tableName = 'TABLE 01 (GOLD)';
-            seatName = 'SIÈGE 01';
         } else if (ticket.categorie === 'VIP') {
             colorBg = '#2563eb';
             pillTextColor = '#ffffff';
             catText = 'PASS VIP';
-            tableName = 'TABLE 06 (VIP)';
-            seatName = 'SIÈGE 01';
         } else if (ticket.categorie === 'Invité') {
             colorBg = '#059669';
             pillTextColor = '#ffffff';
             catText = 'INVITÉ SPÉCIAL';
-            tableName = 'TABLE D\'HONNEUR';
-            seatName = 'PLACE D\'HONNEUR';
         }
 
         if (pill) {
@@ -4894,7 +4930,7 @@
                             <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">${don.type || 'Don'}</span></td>
                             <td class="py-3 px-4 font-black text-emerald-700 font-mono">${Number(don.montant || 0).toLocaleString('fr-FR')} FCFA</td>
                             <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-[10px] font-bold">${don.compte || 'Espèces'}</span></td>
-                            <td class="py-3 px-4 text-slate-600 text-xs">${don.enregistrePar || 'Direction'}</td>
+                            <td class="py-3 px-4 text-slate-600 text-xs">${don.enregistrePar || 'Aude-Eunice Koffi (Comité Financier)'}</td>
                             <td class="py-3 px-4 text-right">
                                 <button onclick="deleteDonation(${idx})" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Supprimer (mot de passe requis)">
                                     <i data-lucide="trash-2" class="h-4 w-4"></i>
@@ -6137,21 +6173,20 @@
     ];
 
     const DEFAULT_SEED_USERS = [
-        { id: "USR-01", name: "Responsable Coordination Stratégique", comite: "Coordination Stratégique", contact1: "+225 07 00 00 01", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-02", name: "Responsable Coordination Opérationnelle", comite: "Coordination Opérationnelle", contact1: "+225 07 00 00 02", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-03", name: "Responsable Comité Supervision", comite: "Comité Supervision", contact1: "+225 07 00 00 03", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-04", name: "Responsable Comité Spirituel", comite: "Comité Spirituel", contact1: "+225 07 00 00 04", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-05", name: "Responsable Communication & Mobilisation", comite: "Comité Communication & Mobilisation", contact1: "+225 07 00 00 05", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-06", name: "Responsable Animation & Jeux", comite: "Comité Animation & Jeux", contact1: "+225 07 00 00 06", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-07", name: "Responsable Comité Administratif", comite: "Comité Administratif", contact1: "+225 07 00 00 07", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-08", name: "Responsable Comité Logistique", comite: "Comité Logistique", contact1: "+225 07 00 00 08", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-09", name: "Responsable Comité Financier", comite: "Comité Financier", contact1: "+225 07 00 00 09", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-10", name: "Responsable Comité Restauration", comite: "Comité Restauration", contact1: "+225 07 00 00 10", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-11", name: "Responsable Accueil & Sécurité", comite: "Comité Accueil & Sécurité", contact1: "+225 07 00 00 11", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" }
+        { id: "USR-01", name: "Yao Marc-Emmanuel", role: "Coordination Stratégique", comite: "Coordination Stratégique", contact1: "+225 07 45 89 65 32", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-02", name: "Sarah Kouadio", role: "Coordination Opérationnelle", comite: "Coordination Opérationnelle", contact1: "+225 07 12 34 56 78", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-03", name: "Pasteur David N'Guessan", role: "Comité Supervision", comite: "Comité Supervision", contact1: "+225 07 00 00 03", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-04", name: "Pasteur Jérémie Brou", role: "Comité Spirituel", comite: "Comité Spirituel", contact1: "+225 07 00 00 04", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-05", name: "Emmanuel Kra", role: "Comité Communication & Mobilisation", comite: "Comité Communication & Mobilisation", contact1: "+225 07 00 00 05", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-06", name: "Chantre Esther Aka", role: "Comité Animation & Jeux", comite: "Comité Animation & Jeux", contact1: "+225 07 00 00 06", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-07", name: "Kouassi Ange", role: "Comité Administratif", comite: "Comité Administratif", contact1: "+225 07 59 80 37 24", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-08", name: "Franck Gnagne", role: "Comité Logistique", comite: "Comité Logistique", contact1: "+225 07 00 00 08", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-09", name: "Aude-Eunice Koffi", role: "Comité Financier", comite: "Comité Financier", contact1: "+225 01 23 45 67 89", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-10", name: "Marie-Laure Koffi", role: "Comité Restauration", comite: "Comité Restauration", contact1: "+225 07 00 00 10", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-11", name: "Capitaine Alain Bamba", role: "Comité Accueil & Sécurité", comite: "Comité Accueil & Sécurité", contact1: "+225 07 00 00 11", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" }
     ];
 
-    
-    // ==========================================
+        // ==========================================
     // ADMINISTRATIVE ACTION: PURGE ALL USER ACCOUNTS (WITH ADMIN PWD MODAL)
     // ==========================================
     function openDeleteAllUsersModal() {
@@ -7060,14 +7095,23 @@
         const tableNum = Math.floor(index / seatsPerTable) + 1;
         const seatNum = (index % seatsPerTable) + 1;
         
-        let tableName = "";
-        if (cat === 'Gold') {
-            tableName = `Table ${String(tableNum).padStart(2, '0')} (Gold)`;
+        let globalTableNum = 1;
+        let tribeName = "";
         
-        } else if (cat === 'Invité') {
-            tableName = `Table d'Honneur ${String(tableNum).padStart(2, '0')}`;
+        if (cat === 'Invité') {
+            globalTableNum = 1;
+            tribeName = (NIGERIA_TRIBES[0] && NIGERIA_TRIBES[0].name) || "Hausa";
+            tableName = `Table 01 (${tribeName})`;
+        } else if (cat === 'Gold') {
+            globalTableNum = 1 + tableNum; // Tables 02 à 09 (Fulani à Edo)
+            const tribe = NIGERIA_TRIBES[globalTableNum - 1] || { name: `Tribu ${globalTableNum}` };
+            tribeName = tribe.name;
+            tableName = `Table ${String(globalTableNum).padStart(2, '0')} (${tribeName})`;
         } else {
-            tableName = `Table ${String(tableNum + 10).padStart(2, '0')} (Béthel)`;
+            globalTableNum = 9 + tableNum; // Tables 10 à 27 (Nupe à Isoko)
+            const tribe = NIGERIA_TRIBES[globalTableNum - 1] || { name: `Tribu ${globalTableNum}` };
+            tribeName = tribe.name;
+            tableName = `Table ${String(globalTableNum).padStart(2, '0')} (${tribeName})`;
         }
         
         return {
@@ -8960,14 +9004,18 @@
                     catBadgeBg = 'bg-amber-100 text-amber-950 border-amber-400 font-black'; 
                     activeSeatBg = 'bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 font-black shadow-xs';
                     catBorder = 'border-amber-300/80';
-                    fullCatName = `Table ${String(tableNum).padStart(2, '0')} (Gold)`;
+                    const globalTableNumGold = 1 + tableNum;
+                    const tribeGold = (NIGERIA_TRIBES[globalTableNumGold - 1] && NIGERIA_TRIBES[globalTableNumGold - 1].name) || `Tribu ${globalTableNumGold}`;
+                    fullCatName = `Table ${String(globalTableNumGold).padStart(2, '0')} (${tribeGold})`;
                 } else if (cat === 'Invité') { 
                     catBadgeBg = 'bg-emerald-100 text-emerald-950 border-emerald-400 font-bold'; 
                     activeSeatBg = 'bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold shadow-xs';
                     catBorder = 'border-emerald-300/80';
-                    fullCatName = `Table d'Honneur ${String(tableNum).padStart(2, '0')}`;
+                    fullCatName = `Table 01 (${(NIGERIA_TRIBES[0] && NIGERIA_TRIBES[0].name) || 'Hausa'})`;
                 } else {
-                    fullCatName = `Table ${String(tableNum + 10).padStart(2, '0')} (Béthel)`;
+                    const globalTableNum = (cat === 'Invité' ? 1 : (cat === 'Gold' ? 1 + tableNum : 9 + tableNum));
+                const tribeName = (NIGERIA_TRIBES[globalTableNum - 1] && NIGERIA_TRIBES[globalTableNum - 1].name) || `Tribu ${globalTableNum}`;
+                fullCatName = `Table ${String(globalTableNum).padStart(2, '0')} (${tribeName})`;
                 }
 
                 // Visual 2x4 Seat Matrix
