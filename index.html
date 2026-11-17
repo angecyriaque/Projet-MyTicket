@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=16" as="script">
+    <link rel="preload" href="assets/app.js?v=17" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=16" defer></script>
+    <script src="assets/app.js?v=17" defer></script>
 
 
 
@@ -317,9 +317,6 @@
         <section id="view-finance" class="view-section space-y-8" style="display:none;">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
-                        <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
-                    </button>
                     <h1 class="font-display font-black text-2xl sm:text-3xl text-slate-900 tracking-tight mt-3">Gestion Financière & Trésorerie</h1>
                     <p class="text-xs text-slate-500">Supervision multi-comptes, budgets prévisionnels et suivi des décaissements en temps réel.</p>
                 </div>
@@ -538,9 +535,6 @@
         <!-- ========================================== -->
         <section id="view-reception" class="view-section space-y-8" style="display:none;">
             <div>
-                <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
-                    <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
-                </button>
                 <div class="mt-4">
                     <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Réception & Émargement</h1>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1">Pointage en direct des festivaliers à Noces d'Or le 01 Janvier 2027.</p>
@@ -678,10 +672,6 @@
                     </div>
 
                     <div class="flex items-center gap-3 flex-wrap">
-                        <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition duration-200 cursor-pointer shadow-2xs">
-                            <i data-lucide="arrow-left" class="h-4 w-4"></i>
-                            <span>Retour Accueil</span>
-                        </button>
                         <span id="dash-header-checkin-rate" class="px-3.5 py-2 rounded-2xl bg-emerald-50 text-emerald-800 font-mono text-xs font-black border border-emerald-200 shadow-2xs flex items-center gap-1.5">
                             <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             <span>0% aux Portes</span>
@@ -932,9 +922,6 @@
             <!-- Top Navigation & Title Bar -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="space-y-1">
-                    <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition duration-200 transform hover:-translate-y-0.5">
-                        <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Retour à l'Accueil
-                    </button>
                     <div class="pt-1">
                         <h1 class="font-display text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                             Billetterie Officielle <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2E00] via-[#FF5A36] to-[#FF8C00]">& Verset 2027</span>
@@ -1489,9 +1476,6 @@
         <!-- ========================================== -->
         <section id="view-historique" class="view-section space-y-6" style="display:none;">
             <div>
-                <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
-                    <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
-                </button>
                 <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-brand-dark tracking-tight">Historique des Inscriptions</h1>
@@ -1532,9 +1516,6 @@
         <!-- ========================================== -->
         <section id="view-liste" class="view-section space-y-6" style="display:none;">
             <div>
-                <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
-                    <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
-                </button>
                 <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-brand-dark tracking-tight">Liste des Participants</h1>
@@ -1589,9 +1570,6 @@
         <!-- ========================================== -->
         <section id="view-organisation" class="view-section space-y-8" style="display:none;">
             <div>
-                <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
-                    <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
-                </button>
                 <div class="mt-4">
                     <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-brand-dark tracking-tight">Organisation & Lieu</h1>
                     <p class="text-xs sm:text-sm text-slate-500 mt-1"><strong class="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2E00] via-[#FF5A36] to-[#FF8C00] font-black">Nuit de JACOB à Israel</strong> • 01 Janvier 2027 à Noces d'Or.</p>
@@ -1766,9 +1744,6 @@
         <section id="view-utilisateur" class="view-section space-y-8" style="display:none;">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF5A36] hover:bg-orange-600 text-white font-bold text-xs shadow-md transition duration-200 transform hover:-translate-y-0.5">
-                        <i data-lucide="arrow-left" class="h-4 w-4"></i> Retour à l'Accueil
-                    </button>
                     <div class="mt-4">
                         <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Espace Utilisateur & Profils Organisateur</h1>
                         <p class="text-xs sm:text-sm text-slate-500 mt-1">Créez votre profil officiel, connectez-vous et gérez vos accès organisateur pour toutes les rubriques.</p>
@@ -2287,9 +2262,6 @@
 
                 <div class="relative z-10 max-w-3xl space-y-4">
                     <div class="flex flex-wrap items-center gap-2">
-                        <button onclick="switchView('accueil')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 transition transform hover:-translate-y-0.5 cursor-pointer">
-                            <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i> Retour Accueil
-                        </button>
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 via-brand-orange to-purple-600 text-white shadow-md border border-amber-300/40">
                             <i data-lucide="sparkles" class="h-3.5 w-3.5 text-amber-200"></i> Célébration Historique
                         </span>
