@@ -19,7 +19,7 @@
     <!-- High-Performance Precompiled Stylesheet (0ms Main-Thread Compilation) -->
         <!-- Preload Critical CSS and JS for ultra-fast load -->
     <link rel="preload" href="assets/tailwind.css?v=3" as="style">
-    <link rel="preload" href="assets/app.js?v=20" as="script">
+    <link rel="preload" href="assets/app.js?v=21" as="script">
     <link rel="stylesheet" href="assets/tailwind.css?v=3">
     
     <!-- Lightweight UI Libraries with Defer (Non-blocking) -->
@@ -34,7 +34,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js" defer></script>
         <!-- Core Application Bundle (Fast Cached Asset) -->
-    <script src="assets/app.js?v=20" defer></script>
+    <script src="assets/app.js?v=21" defer></script>
 
 
 
@@ -1748,11 +1748,12 @@
                         <p class="text-xs text-slate-500 mt-1">Remplissage séquentiel et automatique des tables de 8 personnes par catégorie de ticket.</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="filterTablePlan('all')" id="btn-table-all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-sm">Toutes les Tables</button>
-                        <button onclick="filterTablePlan('Gold')" id="btn-table-gold" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Tables Gold</button>
+                        <button onclick="filterTablePlan('all')" id="btn-table-all" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-brand-orange text-white shadow-sm cursor-pointer">Toutes les Tables</button>
+                        <button onclick="filterTablePlan('full')" id="btn-table-full" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition cursor-pointer flex items-center gap-1.5"><i data-lucide="check-circle" class="h-3.5 w-3.5 text-emerald-600"></i> Tables Pleines</button>
+                        <button onclick="filterTablePlan('Gold')" id="btn-table-gold" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Tables Gold</button>
                         
-                        <button onclick="filterTablePlan('Classique')" id="btn-table-classique" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Tables Classique</button>
-                        <button onclick="filterTablePlan('Invité')" id="btn-table-invite" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Tables Invitations</button>
+                        <button onclick="filterTablePlan('Classique')" id="btn-table-classique" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Tables Classique</button>
+                        <button onclick="filterTablePlan('Invité')" id="btn-table-invite" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Tables Invitations</button>
                     </div>
                 </div>
 
@@ -1767,12 +1768,12 @@
                             <i data-lucide="grid" class="h-5 w-5"></i>
                         </div>
                     </div>
-                    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                    <div onclick="filterTablePlan('full')" class="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 flex items-center justify-between cursor-pointer hover:shadow-md hover:scale-[1.02] transition" title="Cliquer pour afficher uniquement les tables pleines">
                         <div>
-                            <span class="text-[10px] font-extrabold uppercase text-emerald-600">Tables Pleines (8/8)</span>
-                            <h4 id="kpi-tables-full" class="text-2xl font-black text-emerald-700">0</h4>
+                            <span class="text-[10px] font-extrabold uppercase text-emerald-700 font-mono">Tables Pleines (8/8)</span>
+                            <h4 id="kpi-tables-full" class="text-2xl font-black text-emerald-800">0</h4>
                         </div>
-                        <div class="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black">
+                        <div class="h-10 w-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black shadow-xs">
                             <i data-lucide="check-circle" class="h-5 w-5"></i>
                         </div>
                     </div>

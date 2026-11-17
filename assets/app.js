@@ -8937,21 +8937,29 @@
 
     function filterTablePlan(category) {
         currentTableFilter = category;
-        const buttons = ['all', 'gold', 'classique', 'invite'];
+        const buttons = ['all', 'full', 'gold', 'classique', 'invite'];
         buttons.forEach(b => {
             const btn = document.getElementById(`btn-table-${b}`);
             if (btn) {
                 if ((b === 'all' && category === 'all') || (b.toLowerCase() === category.toLowerCase())) {
-                    btn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-[#FF5A36] to-amber-500 text-white shadow-md shadow-orange-500/25 ring-1 ring-white/30 transition cursor-pointer transform scale-105";
+                    if (b === 'full') {
+                        btn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-md shadow-emerald-500/25 ring-2 ring-emerald-300 transition cursor-pointer transform scale-105 flex items-center gap-1.5";
+                    } else {
+                        btn.className = "px-4 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-[#FF5A36] to-amber-500 text-white shadow-md shadow-orange-500/25 ring-1 ring-white/30 transition cursor-pointer transform scale-105";
+                    }
                 } else {
-                    btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60 transition cursor-pointer";
+                    if (b === 'full') {
+                        btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-300 transition cursor-pointer flex items-center gap-1.5";
+                    } else {
+                        btn.className = "px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60 transition cursor-pointer";
+                    }
                 }
             }
         });
         renderTablePlan();
     }
 
-        function renderTablePlan() {
+    function renderTablePlan() {
         const container = document.getElementById('table-plan-grid') || document.getElementById('tables-grid-container');
         if (!container) return;
 
@@ -8959,7 +8967,7 @@
         const categories = ['Gold', 'Classique', 'Invité'];
         
         let filteredCats = categories;
-        if (currentTableFilter !== 'all') {
+        if (currentTableFilter !== 'all' && currentTableFilter !== 'full') {
             filteredCats = categories.filter(c => c.toLowerCase() === currentTableFilter.toLowerCase());
         }
 
@@ -8974,20 +8982,27 @@
             const numTablesForCat = (TICKET_QUOTAS[cat] && TICKET_QUOTAS[cat].tables) || Math.max(1, Math.ceil(catParticipants.length / seatsPerTable));
 
             for (let tableNum = 1; tableNum <= numTablesForCat; tableNum++) {
-                totalTables++;
                 const startIdx = (tableNum - 1) * seatsPerTable;
                 const tableGuests = catParticipants.slice(startIdx, startIdx + seatsPerTable);
                 const occupiedCount = tableGuests.length;
                 const checkedInCount = tableGuests.filter(g => g.checkedIn).length;
-                totalOccupiedSeats += occupiedCount;
+                const isFull = (occupiedCount === seatsPerTable && occupiedCount > 0);
 
-                if (occupiedCount === seatsPerTable) fullTables++;
+                totalTables++;
+                totalOccupiedSeats += occupiedCount;
+                if (isFull) fullTables++;
                 else if (occupiedCount > 0) fillingTables++;
 
+                // If filter is 'full', only display full tables
+                if (currentTableFilter === 'full' && !isFull) {
+                    continue;
+                }
+
+                let fullCatName = `Table ${cat}`;
                 let catBadgeBg = 'bg-blue-100 text-blue-900 border-blue-300';
                 let activeSeatBg = 'bg-blue-600 text-white font-bold shadow-xs';
-                let catBorder = 'border-blue-200';
-                let fullCatName = `Table ${cat}`;
+                let catBorder = 'border-slate-200/80';
+                let cardBg = 'bg-white';
                 
                 if (cat === 'Gold') { 
                     catBadgeBg = 'bg-amber-100 text-amber-950 border-amber-400 font-black'; 
@@ -9003,18 +9018,26 @@
                     fullCatName = `Table 01 (${(NIGERIA_TRIBES[0] && NIGERIA_TRIBES[0].name) || 'Hausa'})`;
                 } else {
                     const globalTableNum = (cat === 'Invité' ? 1 : (cat === 'Gold' ? 1 + tableNum : 9 + tableNum));
-                const tribeName = (NIGERIA_TRIBES[globalTableNum - 1] && NIGERIA_TRIBES[globalTableNum - 1].name) || `Tribu ${globalTableNum}`;
-                fullCatName = `Table ${String(globalTableNum).padStart(2, '0')} (${tribeName})`;
+                    const tribeName = (NIGERIA_TRIBES[globalTableNum - 1] && NIGERIA_TRIBES[globalTableNum - 1].name) || `Tribu ${globalTableNum}`;
+                    fullCatName = `Table ${String(globalTableNum).padStart(2, '0')} (${tribeName})`;
                 }
 
-                // Visual 2x4 Seat Matrix
+                // DISTINCTIVE COLOR SCHEME FOR FULL TABLES (Table Pleine)
+                if (isFull) {
+                    cardBg = 'bg-gradient-to-b from-emerald-50/90 via-emerald-50/20 to-white';
+                    catBorder = 'border-2 border-emerald-500 shadow-xl ring-4 ring-emerald-400/25';
+                    catBadgeBg = 'bg-emerald-600 text-white border-emerald-400 shadow-sm';
+                }
+
+                // Visual Seat Matrix
                 let seatChips = '';
                 for (let seat = 1; seat <= seatsPerTable; seat++) {
                     const guest = tableGuests[seat - 1];
                     if (guest) {
                         const tooltipText = `Siège ${String(seat).padStart(2, '0')} : ${guest.prenom} ${guest.nom} (${guest.eglise || 'EMCI Horeb'}) • #${guest.id} [${guest.checkedIn ? 'Émargé' : 'En attente'}]`;
+                        const seatColor = isFull ? 'bg-emerald-600 text-white font-black shadow-xs' : activeSeatBg;
                         seatChips += `
-                                                        <div title="${tooltipText}" class="group relative flex flex-col items-center justify-center h-8 sm:h-7 rounded-full ${activeSeatBg} cursor-pointer transition transform hover:scale-105 border ${guest.checkedIn ? 'border-emerald-300 ring-2 ring-emerald-400/60' : 'border-white/20 shadow-inner'}">
+                            <div title="${tooltipText}" class="group relative flex flex-col items-center justify-center h-8 sm:h-7 rounded-full ${seatColor} cursor-pointer transition transform hover:scale-105 border ${guest.checkedIn ? 'border-emerald-300 ring-2 ring-emerald-400/60' : 'border-white/20 shadow-inner'}">
                                 <span class="text-[11px] sm:text-[10px] font-mono font-bold leading-none">S${String(seat).padStart(2, '0')}</span>
                                 ${guest.checkedIn ? '<span class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white shadow-xs"></span>' : ''}
                             </div>
@@ -9022,45 +9045,64 @@
                     } else {
                         const tooltipText = `Siège ${String(seat).padStart(2, '0')} : Place Libre`;
                         seatChips += `
-                                                        <div title="${tooltipText}" class="flex items-center justify-center h-8 sm:h-7 rounded-full bg-slate-50 text-slate-300 text-[10px] font-mono border border-dashed border-slate-200 cursor-default">
+                            <div title="${tooltipText}" class="flex items-center justify-center h-8 sm:h-7 rounded-full bg-slate-50 text-slate-300 text-[10px] font-mono border border-dashed border-slate-200 cursor-default">
                                 S${String(seat).padStart(2, '0')}
                             </div>
                         `;
                     }
                 }
 
-                // Explicit, Legible List of Seated Attendees on the Table Card (Perfect for Mobile & Touch)
+                // DIRECTLY VISIBLE LIST OF PARTICIPANTS PER TABLE (Avec le nom des participants par table)
                 let guestsListHtml = '';
                 if (tableGuests.length > 0) {
-                    guestsListHtml = '<div class="space-y-1.5 pt-2 border-t border-slate-100">';
-                    guestsListHtml += '<span class="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider block">Festivaliers Installés :</span>';
-                    tableGuests.forEach((g, gIdx) => {
-                        guestsListHtml += `
-                            <div class="flex items-center justify-between text-xs p-1.5 rounded-lg bg-slate-50 border border-slate-200/70">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="font-mono font-black text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">S${String(gIdx + 1).padStart(2, '0')}</span>
-                                    <div class="min-w-0">
-                                        <p class="font-bold text-slate-900 truncate text-xs">${g.prenom} ${g.nom}</p>
-                                        <p class="text-[10px] text-slate-500 truncate">${g.eglise || 'EMCI Horeb'} • #${g.id}</p>
-                                    </div>
-                                </div>
-                                ${g.checkedIn ? `
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 flex items-center gap-1">
-                                        <i data-lucide="check" class="h-3 w-3"></i> Émargé
+                    guestsListHtml = `
+                        <div class="space-y-1.5 pt-3 border-t ${isFull ? 'border-emerald-200' : 'border-slate-100'}">
+                            <div class="flex items-center justify-between text-[11px] font-black uppercase tracking-wider ${isFull ? 'text-emerald-950' : 'text-slate-600'}">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="users" class="h-3.5 w-3.5 ${isFull ? 'text-emerald-600' : 'text-slate-400'}"></i>
+                                    <span>Participants installés (${occupiedCount}/${seatsPerTable}) :</span>
+                                </span>
+                                ${isFull ? `
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-600 text-white font-mono flex items-center gap-1 shadow-2xs">
+                                        <i data-lucide="check" class="h-2.5 w-2.5"></i> COMPLÈTE
                                     </span>
                                 ` : `
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-300 shrink-0">
-                                        En attente
-                                    </span>
+                                    <span class="text-[10px] font-bold text-slate-400 font-mono">${seatsPerTable - occupiedCount} libre(s)</span>
                                 `}
                             </div>
-                        `;
-                    });
-                    guestsListHtml += '</div>';
+                            <div class="space-y-1.5 pt-1 max-h-60 overflow-y-auto pr-1">
+                                ${tableGuests.map((g, gIdx) => `
+                                    <div class="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-xl ${isFull ? 'bg-white/95 border border-emerald-200/90 shadow-2xs' : 'bg-slate-50 border border-slate-200/70'}">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <span class="font-mono font-black text-[10px] px-2 py-0.5 rounded-md ${isFull ? 'bg-emerald-100 text-emerald-900 border border-emerald-200' : 'bg-slate-200 text-slate-700'} shrink-0">S${String(gIdx + 1).padStart(2, '0')}</span>
+                                            <div class="min-w-0">
+                                                <p class="font-black ${isFull ? 'text-emerald-950' : 'text-slate-900'} truncate text-xs leading-tight">${g.prenom} ${g.nom}</p>
+                                                <p class="text-[10px] text-slate-500 truncate leading-tight">${g.eglise || 'EMCI Horeb'} • <span class="font-mono font-bold text-slate-600">#${g.id}</span></p>
+                                            </div>
+                                        </div>
+                                        ${g.checkedIn ? `
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500 text-white shadow-2xs shrink-0 flex items-center gap-1 font-mono">
+                                                <i data-lucide="check" class="h-2.5 w-2.5"></i> ÉMARGÉ
+                                            </span>
+                                        ` : `
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shrink-0 font-mono">
+                                                En attente
+                                            </span>
+                                        `}
+                                    </div>
+                                `).join('')}
+                                ${occupiedCount < seatsPerTable ? `
+                                    <div class="text-center py-2 px-3 rounded-xl border border-dashed border-slate-200 text-slate-400 text-[11px] font-medium bg-slate-50/50">
+                                        + ${seatsPerTable - occupiedCount} siège(s) libre(s) sur cette table
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
                 } else {
                     guestsListHtml = `
-                        <div class="pt-2 border-t border-slate-100 text-center py-2 text-xs text-slate-400 italic">
-                            Aucun festivalier affecté pour le moment (${seatsPerTable} places libres).
+                        <div class="pt-2 border-t border-slate-100 text-center py-3 px-3 rounded-xl border border-dashed border-slate-200/80 bg-slate-50/60 text-xs text-slate-400 italic">
+                            Aucun participant installé pour le moment (${seatsPerTable} places libres).
                         </div>
                     `;
                 }
@@ -9068,46 +9110,47 @@
                 const occupancyPct = Math.round((occupiedCount / seatsPerTable) * 100);
 
                 container.innerHTML += `
-                    <div class="bg-white p-3 sm:p-4 rounded-[20px] border ${catBorder} shadow-sm hover:shadow-md transition space-y-2.5">
-                        <div class="flex items-start justify-between border-b border-slate-100 pb-3 gap-2">
+                    <div class="${cardBg} p-4 sm:p-5 rounded-[22px] border ${catBorder} transition space-y-3">
+                        <div class="flex items-start justify-between border-b ${isFull ? 'border-emerald-200/80' : 'border-slate-100'} pb-3 gap-2">
                             <div>
-                                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Catégorie ${cat}</span>
-                                <h4 class="font-display font-black text-base sm:text-lg text-slate-900">${fullCatName}</h4>
+                                ${isFull ? `
+                                    <div class="flex items-center gap-1.5 mb-0.5">
+                                        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-700 font-mono">TABLE PLEINE • ${cat}</span>
+                                    </div>
+                                    <h4 class="font-display font-black text-base sm:text-lg text-emerald-950">${fullCatName}</h4>
+                                ` : `
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Catégorie ${cat}</span>
+                                    <h4 class="font-display font-black text-base sm:text-lg text-slate-900">${fullCatName}</h4>
+                                `}
                             </div>
-                            <span class="px-3 py-1 rounded-full text-xs font-mono font-black border ${catBadgeBg} shrink-0">
-                                ${occupiedCount}/${seatsPerTable} (${checkedInCount} présent${checkedInCount > 1 ? 's' : ''})
+                            <span class="px-3 py-1 rounded-full text-xs font-mono font-black border ${catBadgeBg} shrink-0 flex items-center gap-1">
+                                ${isFull ? `<i data-lucide="check-circle" class="h-3.5 w-3.5"></i>` : ''}
+                                ${occupiedCount}/${seatsPerTable} ${isFull ? 'PLEINE' : `(${checkedInCount} présent${checkedInCount > 1 ? 's' : ''})`}
                             </span>
                         </div>
 
                         <!-- Progress Bar -->
                         <div class="space-y-1">
-                            <div class="flex justify-between text-[10px] font-bold text-slate-500">
-                                <span>Remplissage de la table</span>
-                                <span>${occupancyPct}%</span>
+                            <div class="flex justify-between text-[10px] font-bold ${isFull ? 'text-emerald-800 font-mono' : 'text-slate-500'}">
+                                <span>${isFull ? 'Statut : 100% COMPLET' : 'Remplissage de la table'}</span>
+                                <span class="font-black">${occupancyPct}%</span>
                             </div>
-                            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                                <div class="h-2 rounded-full ${cat === 'Gold' ? 'bg-amber-500' : (cat === 'Invité' ? 'bg-emerald-500' : 'bg-blue-600')}" style="width: ${occupancyPct}%;"></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                                <div class="h-2.5 rounded-full ${isFull ? 'bg-emerald-500 shadow-xs' : (cat === 'Gold' ? 'bg-amber-500' : (cat === 'Invité' ? 'bg-emerald-500' : 'bg-blue-600'))}" style="width: ${occupancyPct}%;"></div>
                             </div>
                         </div>
 
-                        <!-- 2x4 Seat Matrix -->
+                        <!-- 2x4 Seat Matrix Overview -->
                         <div class="space-y-1.5">
-                            <span class="text-[10px] text-slate-500 font-bold block uppercase">Disposition des ${seatsPerTable} Sièges :</span>
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider font-mono">Sièges :</span>
                             <div class="grid ${seatsPerTable === 10 ? 'grid-cols-5' : 'grid-cols-4'} gap-1.5 sm:gap-2">
                                 ${seatChips}
                             </div>
                         </div>
 
-                        <!-- Accordion Button for Mobile UI -->
-                        <button type="button" onclick="toggleTableDetails('${cat}-${tableNum}')" class="w-full mt-1 py-2 flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-xl transition border border-slate-100">
-                            <span>Voir les détails des places</span>
-                            <i id="table-icon-${cat}-${tableNum}" data-lucide="chevron-down" class="h-3 w-3"></i>
-                        </button>
-
-                        <!-- Hidden Seated Attendees List (Accordion Content) -->
-                        <div id="table-details-${cat}-${tableNum}" class="hidden pt-1">
-                            ${guestsListHtml}
-                        </div>
+                        <!-- Directly Visible Attendees with Full Names -->
+                        ${guestsListHtml}
                     </div>
                 `;
             }
