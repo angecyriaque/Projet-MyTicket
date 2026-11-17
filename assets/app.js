@@ -42,7 +42,7 @@
             },
             committees: [
                 { id: "strat", name: "Coordination Stratégique", resp: "Yao Marc-Emmanuel", type: "Coordination", color: "amber", lignesBudget: [] },
-                { id: "ops", name: "Coordination Opérationnelle", resp: "Sarah Kouadio", type: "Coordination", color: "sky", lignesBudget: [] },
+                { id: "ops", name: "Coordination Opérationnelle", resp: "Charlemagne Agnero", type: "Coordination", color: "sky", lignesBudget: [] },
                 { id: "supervision", name: "Comité Supervision", resp: "Pasteur David N'Guessan", type: "Comité", color: "purple", lignesBudget: [] },
                 { id: "spirituel", name: "Comité Spirituel", resp: "Pasteur Jérémie Brou", type: "Comité", color: "violet", lignesBudget: [] },
                 { id: "communication", name: "Comité Communication & Mobilisation", resp: "Emmanuel Kra", type: "Comité", color: "blue", lignesBudget: [] },
@@ -967,13 +967,16 @@
     function formatRealOperatorName(rawName, fallbackIdx = 0) {
         const REAL_FINANCE_OPERATORS = [
             "Aude-Eunice Koffi (Comité Financier)",
-            "Sarah Kouadio (Coordination Opérationnelle)",
+            "Charlemagne Agnero (PCO Opérationnel)",
             "Aude-Eunice Koffi (Comité Financier)",
             "Yao Marc-Emmanuel (Coordination Stratégique)",
             "Kouassi Ange (Comité Administratif)"
         ];
         if (!rawName) return REAL_FINANCE_OPERATORS[fallbackIdx % REAL_FINANCE_OPERATORS.length];
         const s = String(rawName).trim();
+        if (s.includes("Sarah Kouadio")) {
+            return "Charlemagne Agnero (PCO Opérationnel)";
+        }
         if (s === "Comité PCO" || s === "Direction" || s === "Admin" || s === "PCO" || s === "Visiteur / Invité" || s.startsWith("Responsable ")) {
             return REAL_FINANCE_OPERATORS[fallbackIdx % REAL_FINANCE_OPERATORS.length];
         }
@@ -982,7 +985,7 @@
 
     function saveFinanceState() {
         try {
-            localStorage.setItem('myticket_finance_v15', JSON.stringify(state.finance));
+            localStorage.setItem('myticket_finance_v16', JSON.stringify(state.finance));
             if (typeof MyTicketCloudDB !== 'undefined') MyTicketCloudDB.syncFinance(state.finance);
         } catch (e) {}
     }
@@ -994,7 +997,7 @@
 
     function loadFinanceData() {
         try {
-            const storedFin = localStorage.getItem('myticket_finance_v15');
+            const storedFin = localStorage.getItem('myticket_finance_v16') || localStorage.getItem('myticket_finance_v15');
             if (storedFin) {
                 const parsed = JSON.parse(storedFin);
                 if (parsed && Array.isArray(parsed.committees)) {
@@ -1015,7 +1018,7 @@
                     if (state.finance.dons && Array.isArray(state.finance.dons)) {
                         const defaultOperators = [
                             'Aude-Eunice Koffi (Comité Financier)',
-                            'Sarah Kouadio (Coordination Opérationnelle)',
+                            'Charlemagne Agnero (PCO Opérationnel)',
                             'Aude-Eunice Koffi (Comité Financier)',
                             'Yao Marc-Emmanuel (Coordination Stratégique)',
                             'Kouassi Ange (Comité Administratif)'
@@ -1029,7 +1032,7 @@
                     if (!state.finance.dons || state.finance.dons.length === 0) {
                         state.finance.dons = [
                             { date: '2026-11-01', donateur: 'Dr. Bamba Seydou', type: 'Don Partenaire', montant: 150000, compte: 'Orange Money', enregistrePar: 'Aude-Eunice Koffi (Comité Financier)' },
-                            { date: '2026-11-02', donateur: 'Famille Kouassi Konan', type: 'Soutien Particulier', montant: 100000, compte: 'Wave', enregistrePar: 'Sarah Kouadio (Coordination Opérationnelle)' },
+                            { date: '2026-11-02', donateur: 'Famille Kouassi Konan', type: 'Soutien Particulier', montant: 100000, compte: 'Wave', enregistrePar: 'Charlemagne Agnero (PCO Opérationnel)' },
                             { date: '2026-11-03', donateur: 'Mme Marie-Claire Akissi', type: 'Don Partenaire', montant: 50000, compte: 'Wave', enregistrePar: 'Aude-Eunice Koffi (Comité Financier)' },
                             { date: '2026-11-04', donateur: 'M. Emmanuel Yao Kouassi', type: 'Sponsoring', montant: 200000, compte: 'Virement', enregistrePar: 'Yao Marc-Emmanuel (Coordination Stratégique)' },
                             { date: '2026-11-05', donateur: 'Pasteur David Koffi', type: 'Don Partenaire', montant: 80000, compte: 'Espèces', enregistrePar: 'Kouassi Ange (Comité Administratif)' }
@@ -1037,6 +1040,7 @@
                     }
 
                     state.finance.committees.forEach(c => {
+                        if (c.id === 'ops') c.resp = 'Charlemagne Agnero';
                         const savedC = parsed.committees.find(sc => sc.id === c.id);
                         if (savedC && Array.isArray(savedC.lignesBudget) && savedC.lignesBudget.length > 0) {
                             c.lignesBudget = savedC.lignesBudget;
@@ -4897,7 +4901,7 @@
                         statutText = 'Rejeté';
                     }
 
-                    const demandeur = formatRealOperatorName(d.demandePar || (comm ? comm.resp : 'Sarah Kouadio (Coordination Opérationnelle)'), 1);
+                    const demandeur = formatRealOperatorName(d.demandePar || (comm ? comm.resp : 'Charlemagne Agnero (PCO Opérationnel)'), 1);
 
                     disbTbody.innerHTML += `
                         <tr class="hover:bg-slate-50 transition">
@@ -6159,8 +6163,8 @@
 
     const DEFAULT_SEED_USERS = [
         { id: "USR-01", name: "Yao Marc-Emmanuel", role: "Coordination Stratégique", comite: "Coordination Stratégique", contact1: "+225 07 45 89 65 32", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-02", name: "Sarah Kouadio", role: "Coordination Opérationnelle", comite: "Coordination Opérationnelle", contact1: "+225 07 12 34 56 78", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
-        { id: "USR-03", name: "Pasteur David N'Guessan", role: "Comité Supervision", comite: "Comité Supervision", contact1: "+225 07 00 00 03", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-02", name: "Charlemagne Agnero", role: "Coordination Opérationnelle", comite: "Coordination Opérationnelle", contact1: "+225 07 12 34 56 78", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
+        { id: "USR-03", name: "Pasteur David N'Guessan", role: "Comité Supervision", comite: "Comité Supervision", contact1: "+225 07 00 00 03", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
         { id: "USR-04", name: "Pasteur Jérémie Brou", role: "Comité Spirituel", comite: "Comité Spirituel", contact1: "+225 07 00 00 04", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
         { id: "USR-05", name: "Emmanuel Kra", role: "Comité Communication & Mobilisation", comite: "Comité Communication & Mobilisation", contact1: "+225 07 00 00 05", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
         { id: "USR-06", name: "Chantre Esther Aka", role: "Comité Animation & Jeux", comite: "Comité Animation & Jeux", contact1: "+225 07 00 00 06", contact2: "", password: "ADMIN", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=210&q=80", dateCreation: "2026-01-01" },
