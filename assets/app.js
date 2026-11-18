@@ -5551,33 +5551,22 @@
 
     function switchDailyChartFilter(filterKey) {
         currentDailyChartFilter = filterKey;
-        const btnDay = document.getElementById('btn-dash-toggle-day');
-        const btnWeek = document.getElementById('btn-dash-toggle-week');
-        if (btnDay && btnWeek) {
+        const btn7d = document.getElementById('btn-smart-filter-7d');
+        const btnAll = document.getElementById('btn-smart-filter-all');
+        if (btn7d && btnAll) {
             if (filterKey === '7d') {
-                btnDay.className = "px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition";
-                btnWeek.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+                btn7d.className = "px-2.5 py-1 rounded-lg bg-blue-600 text-white shadow-xs transition cursor-pointer";
+                btnAll.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition cursor-pointer";
             } else {
-                btnDay.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
-                btnWeek.className = "px-2.5 py-1 rounded-lg bg-[#2B85FF] text-white shadow-xs transition";
+                btn7d.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition cursor-pointer";
+                btnAll.className = "px-2.5 py-1 rounded-lg bg-blue-600 text-white shadow-xs transition cursor-pointer";
             }
         }
-        const btnIds = ['all', '30d', '14d', '7d'];
-        btnIds.forEach(id => {
-            const btn = document.getElementById(`btn-daily-filter-${id}`);
-            if (btn) {
-                if (id === filterKey) {
-                    btn.className = "px-3 py-1.5 rounded-xl bg-white text-slate-900 shadow-xs transition font-bold";
-                } else {
-                    btn.className = "px-3 py-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-white/60 transition";
-                }
-            }
-        });
         updateDashboardStats();
     }
 
     function switchWeeklyChartFilter(filterKey) {
-        switchDailyChartFilter(filterKey === 'all' ? 'all' : '30d');
+        switchDailyChartFilter(filterKey === 'all' ? 'all' : '7d');
     }
 
     function updateDashboardStats() {
@@ -5585,13 +5574,23 @@
         const totalTickets = participants.length;
         const fin = state.finance || {};
 
-        // 1. Quota & Category Breakdown Calculations
+        // 1. Live Countdown Calculation
+        const targetEventDate = new Date("2027-01-01T00:00:00").getTime();
+        const now = new Date().getTime();
+        const diff = targetEventDate - now;
+        let countdownStr = "01 Janvier 2027";
+        if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            countdownStr = `J-${days} (${hours}h restantes)`;
+        }
+        const elCountdown = document.getElementById('dash-live-countdown-text');
+        if (elCountdown) elCountdown.innerText = countdownStr;
+
+        // 2. Quota & Category Breakdown Calculations
         const counts = getCategoryCounts();
         const goldCount = counts['Gold'] || 0;
-        const goldTotal = 0; // Gold is free
-        
         const classiqueCount = counts['Classique'] || 0;
-        const classiqueTotal = classiqueCount * 10000;
         const inviteCount = counts['Invité'] || 0;
 
         let checkedInCount = 0;
@@ -5603,273 +5602,436 @@
 
         const checkinRate = totalTickets > 0 ? Math.round((checkedInCount / totalTickets) * 100) : 0;
         const quotaPct = Math.min(100, Math.round((totalTickets / 210) * 100));
-        const clasPct = Math.min(100, Math.round((classiqueCount / 140) * 100));
-        const goldPct = Math.min(100, Math.round((goldCount / 60) * 100));
-        const invPct = Math.min(100, Math.round((inviteCount / 10) * 100));
+        const remainingTickets = Math.max(0, 210 - totalTickets);
 
         // Finance calculations
-        const totalTicketsRevenue = goldTotal + classiqueTotal;
+        const classiqueTotal = classiqueCount * 10000;
+        const totalTicketsRevenue = classiqueTotal; // Gold and Invité are offered / partners
         const totalDons = fin.donsIncome || (fin.dons || []).reduce((acc, d) => acc + (Number(d.montant) || 0), 0);
         const totalIncomes = totalTicketsRevenue + totalDons;
         const totalExpenses = fin.expensesTotal || 0;
         const netBalance = totalIncomes - totalExpenses;
 
-        // 2. ROW 1 LEFT: ACTIVITY BAR CHART (~26 Royal Blue Bars matching Shutterstock mockup)
-        const activityChart = document.getElementById('dash-mock-activity-chart');
+        // Payment channels calculations
+        let waveCount = 0, waveAmount = 0;
+        let omCount = 0, omAmount = 0;
+        let cashCount = 0, cashAmount = 0;
+
+        participants.forEach(p => {
+            const cat = (p.categorie || 'Classique').trim();
+            const price = Number(p.prix) || (cat === 'Classique' ? 10000 : 0);
+            const mode = (p.modeReglement || '').toLowerCase();
+            const ref = (p.preuveReglement || '').toUpperCase();
+
+            if (cat === 'Gold' || cat === 'Invité' || mode.includes('donateur') || mode.includes('invité') || price === 0) {
+                // Free pass
+            } else if (mode.includes('wave') || ref.startsWith('T_')) {
+                waveCount++;
+                waveAmount += price;
+            } else if (mode.includes('orange') || ref.startsWith('PP') || ref.startsWith('MP')) {
+                omCount++;
+                omAmount += price;
+            } else {
+                cashCount++;
+                cashAmount += price;
+            }
+        });
+
+        const totalPayants = Math.max(1, waveCount + omCount + cashCount);
+        const wavePct = Math.round((waveCount / totalPayants) * 100);
+        const omPct = Math.round((omCount / totalPayants) * 100);
+        const cashPct = Math.max(0, 100 - (wavePct + omPct));
+
+        // 3. Table Calculations (28 Tables)
+        let fullTables = 0;
+        let fillingTables = 0;
+        let mostAdvancedFillingTable = null;
+        let maxFillingCount = 0;
+
+        const tableStatusList = [];
+
+        for (let i = 1; i <= 28; i++) {
+            const tribe = (typeof NIGERIA_TRIBES !== 'undefined' && NIGERIA_TRIBES[i - 1]) ? NIGERIA_TRIBES[i - 1].name : `Tribu ${i}`;
+            let cat = 'Classique';
+            let seatsMax = 8;
+            if (i === 1) {
+                cat = 'Invité';
+                seatsMax = 10;
+            } else if (i >= 2 && i <= 9) {
+                cat = 'Gold';
+                seatsMax = 8;
+            }
+
+            // Count participants assigned to this table
+            let tableParticipantsCount = 0;
+            if (cat === 'Invité') {
+                tableParticipantsCount = Math.min(seatsMax, inviteCount);
+            } else if (cat === 'Gold') {
+                const goldIndex = (i - 2) * 8;
+                tableParticipantsCount = Math.max(0, Math.min(8, goldCount - goldIndex));
+            } else {
+                const classIndex = (i - 10) * 8;
+                tableParticipantsCount = Math.max(0, Math.min(8, classiqueCount - classIndex));
+            }
+
+            const isFull = (tableParticipantsCount >= seatsMax);
+            const isFilling = (tableParticipantsCount > 0 && tableParticipantsCount < seatsMax);
+
+            if (isFull) fullTables++;
+            else if (isFilling) {
+                fillingTables++;
+                if (tableParticipantsCount > maxFillingCount) {
+                    maxFillingCount = tableParticipantsCount;
+                    mostAdvancedFillingTable = {
+                        num: i,
+                        tribe: tribe,
+                        count: tableParticipantsCount,
+                        max: seatsMax,
+                        needed: seatsMax - tableParticipantsCount
+                    };
+                }
+            }
+
+            tableStatusList.push({
+                num: i,
+                tribe: tribe,
+                cat: cat,
+                count: tableParticipantsCount,
+                max: seatsMax,
+                isFull: isFull,
+                isFilling: isFilling
+            });
+        }
+
+        // 4. SMART AI / PCO DIAGNOSTIC INSIGHTS
+        const insightsContainer = document.getElementById('dash-smart-insights-container');
+        if (insightsContainer) {
+            // Insight 1 : Vélocité
+            const velocityBadge = quotaPct >= 80 ? 'Phase Finale' : (quotaPct >= 50 ? 'Rythme Soutenu' : 'Mobilisation Active');
+            const velocityColor = quotaPct >= 80 ? 'text-rose-600 bg-rose-50 border-rose-200' : 'text-blue-600 bg-blue-50 border-blue-200';
+            
+            // Insight 2 : Tables
+            let tableInsightText = `<strong>${fullTables} tables pleines</strong> sur 28.`;
+            if (mostAdvancedFillingTable) {
+                tableInsightText += ` Table active : <strong>Table ${String(mostAdvancedFillingTable.num).padStart(2, '0')} (${mostAdvancedFillingTable.tribe})</strong> avec ${mostAdvancedFillingTable.count}/${mostAdvancedFillingTable.max} places (${mostAdvancedFillingTable.needed} pour compléter).`;
+            } else if (fullTables === 28) {
+                tableInsightText = 'Toutes les 28 tables sont complètes à 100% !';
+            } else {
+                tableInsightText += ' Attribution des premières tables en cours.';
+            }
+
+            // Insight 3 : Trésorerie
+            const financeStatus = netBalance >= 0 ? `Solde positif (+ ${netBalance.toLocaleString('fr-FR')} F)` : `Déficit (${netBalance.toLocaleString('fr-FR')} F)`;
+            const financeBadgeColor = netBalance >= 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-rose-700 bg-rose-50 border-rose-200';
+
+            insightsContainer.innerHTML = `
+                <!-- Insight 1: Vélocité & Remplissage -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5">
+                    <div class="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <i data-lucide="trending-up" class="h-4 w-4"></i>
+                    </div>
+                    <div class="min-w-0 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Vélocité Salle</span>
+                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black font-mono border ${velocityColor}">${velocityBadge}</span>
+                        </div>
+                        <p class="text-xs text-slate-800 leading-snug">
+                            <strong>${totalTickets} / 210 festivaliers</strong> inscrits (${quotaPct}%). Plus que <strong>${remainingTickets} places</strong> avant guichet fermé.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Insight 2: Affectation des Tables -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5">
+                    <div class="h-9 w-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <i data-lucide="layout-grid" class="h-4 w-4"></i>
+                    </div>
+                    <div class="min-w-0 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Optimisation Tables</span>
+                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black font-mono text-amber-700 bg-amber-50 border border-amber-200">${fullTables}/28 Complètes</span>
+                        </div>
+                        <p class="text-xs text-slate-800 leading-snug">
+                            ${tableInsightText}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Insight 3: Santé Financière -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-start gap-3.5">
+                    <div class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <i data-lucide="shield-check" class="h-4 w-4"></i>
+                    </div>
+                    <div class="min-w-0 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">Santé Trésorerie</span>
+                            <span class="px-2 py-0.5 rounded-md text-[9px] font-black font-mono border ${financeBadgeColor}">${financeStatus}</span>
+                        </div>
+                        <p class="text-xs text-slate-800 leading-snug">
+                            <strong>${totalIncomes.toLocaleString('fr-FR')} FCFA</strong> collectés (Billetterie + Dons). Dépenses comités : ${totalExpenses.toLocaleString('fr-FR')} F.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 5. UPDATE 4 HERO KPI METRICS
+        const elTotalTickets = document.getElementById('dash-kpi-total-tickets');
+        if (elTotalTickets) elTotalTickets.innerText = totalTickets;
+
+        const elRemaining = document.getElementById('dash-kpi-remaining-tickets');
+        if (elRemaining) elRemaining.innerText = remainingTickets > 0 ? `${remainingTickets} place${remainingTickets > 1 ? 's' : ''} disponible${remainingTickets > 1 ? 's' : ''}` : 'Guichet fermé • 100% complet';
+
+        const elBarClas = document.getElementById('dash-kpi-bar-classique');
+        if (elBarClas) elBarClas.style.width = `${(classiqueCount / 210) * 100}%`;
+        const elBarGold = document.getElementById('dash-kpi-bar-gold');
+        if (elBarGold) elBarGold.style.width = `${(goldCount / 210) * 100}%`;
+        const elBarInv = document.getElementById('dash-kpi-bar-invite');
+        if (elBarInv) elBarInv.style.width = `${(inviteCount / 210) * 100}%`;
+
+        const elPctClas = document.getElementById('dash-kpi-pct-classique');
+        if (elPctClas) elPctClas.innerText = `Clas: ${classiqueCount}/140`;
+        const elPctGold = document.getElementById('dash-kpi-pct-gold');
+        if (elPctGold) elPctGold.innerText = `Gold: ${goldCount}/60`;
+        const elPctInv = document.getElementById('dash-kpi-pct-invite');
+        if (elPctInv) elPctInv.innerText = `Inv: ${inviteCount}/10`;
+
+        const elRev = document.getElementById('dash-kpi-total-revenue');
+        if (elRev) elRev.innerText = `${totalIncomes.toLocaleString('fr-FR')} FCFA`;
+        const elNet = document.getElementById('dash-kpi-net-balance');
+        if (elNet) elNet.innerText = `Solde net: ${netBalance.toLocaleString('fr-FR')} FCFA`;
+        const elDons = document.getElementById('dash-kpi-dons-amount');
+        if (elDons) elDons.innerText = `${totalDons.toLocaleString('fr-FR')} F`;
+
+        const elTablesFull = document.getElementById('dash-kpi-tables-full');
+        if (elTablesFull) elTablesFull.innerText = fullTables;
+        const elTablesFilling = document.getElementById('dash-kpi-tables-filling');
+        if (elTablesFilling) elTablesFilling.innerText = `${fillingTables} table${fillingTables > 1 ? 's' : ''} en cours • ${Math.max(0, 28 - (fullTables + fillingTables))} libres`;
+        const elTablesBar = document.getElementById('dash-kpi-tables-bar');
+        if (elTablesBar) elTablesBar.style.width = `${Math.round((fullTables / 28) * 100)}%`;
+
+        const elCheckCount = document.getElementById('dash-kpi-checkin-count');
+        if (elCheckCount) elCheckCount.innerText = checkedInCount;
+        const elCheckPct = document.getElementById('dash-kpi-checkin-rate-pct');
+        if (elCheckPct) elCheckPct.innerText = `(${checkinRate}%)`;
+        const elCheckStatus = document.getElementById('dash-kpi-checkin-status');
+        if (elCheckStatus) elCheckStatus.innerText = `${Math.max(0, totalTickets - checkedInCount)} en attente aux portes`;
+        const elCheckBar = document.getElementById('dash-kpi-checkin-bar');
+        if (elCheckBar) elCheckBar.style.width = `${checkinRate}%`;
+
+        // 6. REAL ACTIVITY TEMPORAL BAR CHART
+        function extractParticipantDayKey(p) {
+            if (p.dateAdded) {
+                try {
+                    const d = new Date(p.dateAdded);
+                    if (!isNaN(d.getTime())) {
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        return `${y}-${m}-${day}`;
+                    }
+                } catch(e) {}
+            }
+            if (p.dateTicket && typeof p.dateTicket === 'string') {
+                const parts = p.dateTicket.split('/');
+                if (parts.length === 3) {
+                    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                }
+            }
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        const dailyMap = {};
+        participants.forEach(p => {
+            const k = extractParticipantDayKey(p);
+            if (!dailyMap[k]) dailyMap[k] = { dateKey: k, count: 0, revenue: 0, guests: [] };
+            dailyMap[k].count++;
+            const pr = Number(p.prix) || (p.categorie === 'Classique' ? 10000 : 0);
+            dailyMap[k].revenue += pr;
+            dailyMap[k].guests.push(`${p.prenom} ${p.nom}`);
+        });
+
+        const numPillars = currentDailyChartFilter === '7d' ? 7 : 14;
+        const targetDays = [];
+        const baseDate = new Date();
+        for (let i = numPillars - 1; i >= 0; i--) {
+            const d = new Date(baseDate.getTime() - i * 86400000);
+            const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            targetDays.push(k);
+        }
+
+        let maxBarCount = 1;
+        let peakCount = 0;
+        targetDays.forEach(k => {
+            const c = dailyMap[k] ? dailyMap[k].count : 0;
+            if (c > maxBarCount) maxBarCount = c;
+            if (c > peakCount) peakCount = c;
+        });
+
+        const elYMax = document.getElementById('dash-smart-y-max');
+        if (elYMax) elYMax.innerText = Math.max(5, Math.ceil(maxBarCount * 1.2));
+        const elYMid = document.getElementById('dash-smart-y-mid');
+        if (elYMid) elYMid.innerText = Math.max(2, Math.round(maxBarCount / 2));
+
+        const elPeak = document.getElementById('dash-smart-daily-peak');
+        if (elPeak) elPeak.innerText = peakCount > 0 ? `Pic: ${peakCount} billet${peakCount > 1 ? 's' : ''}/j` : `0 billet/j`;
+
+        const activityChart = document.getElementById('dash-smart-activity-chart');
         if (activityChart) {
             activityChart.innerHTML = '';
-            // Rhythm pattern modeled exactly on the Shutterstock design bar heights
-            const mockupBarHeights = [
-                38, 55, 70, 28, 48, 62, 85, 30, 42, 58, 
-                75, 92, 40, 52, 68, 82, 35, 60, 78, 95, 
-                88, 50, 65, 80, 45, 90
-            ];
+            targetDays.forEach(k => {
+                const d = dailyMap[k] || { count: 0, revenue: 0, guests: [] };
+                const heightPct = d.count > 0 ? Math.max(16, Math.min(100, Math.round((d.count / maxBarCount) * 92))) : 8;
+                const isSolid = d.count > 0;
+                const parts = k.split('-');
+                const shortDate = `${parts[2]}/${parts[1]}`;
 
-            mockupBarHeights.forEach((h, idx) => {
-                // If there are real participants, elevate the first few bars dynamically
-                const realCount = (idx < participants.length) ? (idx + 1) : 0;
                 activityChart.innerHTML += `
-                    <div class="flex-1 flex flex-col items-center justify-end h-full group cursor-pointer relative">
-                        <div class="text-[9px] font-black text-slate-800 bg-white px-2 py-1 rounded-lg shadow-xl border border-slate-200 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap -mb-1 z-20 transform -translate-y-2 pointer-events-none text-left">
-                            <span class="text-[#2B85FF] font-black font-mono">${Math.round(h * 5)} activités</span>
+                    <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group cursor-pointer relative">
+                        <!-- Rich Tooltip -->
+                        <div class="text-[10px] font-black text-slate-800 bg-white px-2.5 py-1.5 rounded-xl shadow-xl border border-slate-200 opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap -mb-1 z-20 transform -translate-y-2 pointer-events-none text-left">
+                            <span class="text-[9px] text-slate-400 font-mono block">${k}</span>
+                            <span class="text-blue-600 font-black font-mono block">${d.count} billet(s)</span>
+                            <span class="text-[9px] text-emerald-600 font-mono block font-bold">${(d.revenue || 0).toLocaleString('fr-FR')} FCFA</span>
                         </div>
-                        <div class="w-full max-w-[8px] bg-[#2B85FF] rounded-t-[3px] transition-all duration-500 group-hover:brightness-125 group-hover:scale-y-105 origin-bottom" style="height: ${h}%"></div>
+                        <div class="w-full max-w-[28px] ${isSolid ? 'bg-gradient-to-t from-blue-600 to-indigo-500 shadow-xs' : 'bg-slate-100'} rounded-t-lg transition-all duration-500 group-hover:brightness-110" style="height: ${heightPct}%"></div>
+                        <span class="text-[9px] font-mono text-slate-400 font-bold">${shortDate}</span>
                     </div>
                 `;
             });
         }
 
-        // 3. ROW 1 RIGHT: CALENDAR DAYS GRID (With days 26 to 31 highlighted in continuous solid blue)
-        const calGrid = document.getElementById('dash-calendar-days-grid');
-        if (calGrid) {
-            calGrid.innerHTML = '';
-            // Days 1 to 31
-            for (let d = 1; d <= 31; d++) {
-                const isHighlightWeek = (d >= 26 && d <= 31);
-                let cellClass = "h-5 w-5 flex items-center justify-center font-mono text-[9px] transition cursor-pointer mx-auto ";
-                
-                if (isHighlightWeek) {
-                    // Continuous solid blue bar across days 26 to 31 exactly as in Shutterstock mockup
-                    cellClass += "bg-[#2B85FF] text-white font-black ";
-                    if (d === 26) cellClass += "rounded-l-md ";
-                    else if (d === 31) cellClass += "rounded-r-md ";
-                } else {
-                    cellClass += "text-slate-600 hover:bg-slate-100 rounded-md ";
+        // 7. PAYMENT CHANNELS BREAKDOWN
+        const paymentContainer = document.getElementById('dash-smart-payment-channels');
+        const digitalShareBadge = document.getElementById('dash-smart-digital-share');
+        if (digitalShareBadge) digitalShareBadge.innerText = `${wavePct + omPct}% Mobile`;
+
+        if (paymentContainer) {
+            paymentContainer.innerHTML = `
+                <!-- Wave Mobile Money -->
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-[#1DC4FE]"></span>
+                            <span class="font-bold text-slate-900">Wave Mobile Money</span>
+                        </div>
+                        <span class="font-mono font-black text-[#1DC4FE]">${wavePct}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
+                        <div class="bg-[#1DC4FE] h-2 rounded-full transition-all duration-700" style="width: ${wavePct}%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                        <span>${waveCount} transactions</span>
+                        <span class="font-bold text-slate-700">${waveAmount.toLocaleString('fr-FR')} FCFA</span>
+                    </div>
+                </div>
+
+                <!-- Orange Money -->
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-[#FF7900]"></span>
+                            <span class="font-bold text-slate-900">Orange Money</span>
+                        </div>
+                        <span class="font-mono font-black text-[#FF7900]">${omPct}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
+                        <div class="bg-[#FF7900] h-2 rounded-full transition-all duration-700" style="width: ${omPct}%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                        <span>${omCount} transactions</span>
+                        <span class="font-bold text-slate-700">${omAmount.toLocaleString('fr-FR')} FCFA</span>
+                    </div>
+                </div>
+
+                <!-- Espèces & Dons -->
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="font-bold text-slate-900">Espèces & Dons Libres</span>
+                        </div>
+                        <span class="font-mono font-black text-emerald-600">${cashPct}%</span>
+                    </div>
+                    <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
+                        <div class="bg-emerald-500 h-2 rounded-full transition-all duration-700" style="width: ${cashPct}%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                        <span>${cashCount + (fin.dons || []).length} opérations</span>
+                        <span class="font-bold text-slate-700">${(cashAmount + totalDons).toLocaleString('fr-FR')} FCFA</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 8. SYNOPTIC RADAR OF THE 28 TABLES (TRIBUS)
+        const tablesRadarContainer = document.getElementById('dash-smart-tables-radar');
+        if (tablesRadarContainer) {
+            tablesRadarContainer.innerHTML = '';
+            tableStatusList.forEach(t => {
+                let badgeClass = "bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300";
+                let textClass = "text-slate-600";
+                let countBadge = `${t.count}/${t.max}`;
+
+                if (t.isFull) {
+                    badgeClass = "bg-emerald-500 text-white border-emerald-600 shadow-xs hover:brightness-110";
+                    textClass = "text-white";
+                } else if (t.isFilling) {
+                    badgeClass = "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200";
+                    textClass = "text-amber-950 font-black";
                 }
 
-                calGrid.innerHTML += `<div class="${cellClass}">${d}</div>`;
-            }
-        }
-
-        // 4. ROW 2 LEFT: DUAL-LINE ACTIVITY CHART (Coral with hollow nodes, Blue with solid nodes)
-        const trendLineContainer = document.getElementById('dash-trend-line-chart');
-        if (trendLineContainer) {
-            trendLineContainer.innerHTML = `
-                <svg class="w-full h-full" viewBox="0 0 520 110" preserveAspectRatio="none">
-                    <!-- Light Grid Lines -->
-                    <line x1="5" y1="20" x2="515" y2="20" stroke="#F8FAFC" />
-                    <line x1="5" y1="50" x2="515" y2="50" stroke="#F8FAFC" />
-                    <line x1="5" y1="80" x2="515" y2="80" stroke="#F8FAFC" />
-                    
-                    <!-- Top Line: Coral Red (#FF5B60) with Hollow Circles -->
-                    <path d="M 10 25 C 60 70, 110 30, 160 55 C 210 75, 260 25, 310 45 C 360 65, 410 20, 460 35 C 485 45, 505 20, 515 22" 
-                          fill="none" stroke="#FF5B60" stroke-width="2" stroke-linecap="round" />
-                    <circle cx="10" cy="25" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="60" cy="55" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="110" cy="30" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="160" cy="55" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="210" cy="65" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="260" cy="30" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="310" cy="45" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="360" cy="55" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="410" cy="25" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="460" cy="35" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-                    <circle cx="515" cy="22" r="3.5" fill="white" stroke="#FF5B60" stroke-width="2" />
-
-                    <!-- Bottom Line: Royal Blue (#2B85FF) with Solid Circles -->
-                    <path d="M 10 65 C 60 90, 110 70, 160 85 C 210 95, 260 60, 310 75 C 360 85, 410 55, 460 70 C 485 80, 505 60, 515 55" 
-                          fill="none" stroke="#2B85FF" stroke-width="2" stroke-linecap="round" />
-                    <circle cx="10" cy="65" r="3.5" fill="#2B85FF" />
-                    <circle cx="60" cy="80" r="3.5" fill="#2B85FF" />
-                    <circle cx="110" cy="72" r="3.5" fill="#2B85FF" />
-                    <circle cx="160" cy="85" r="3.5" fill="#2B85FF" />
-                    <circle cx="210" cy="90" r="3.5" fill="#2B85FF" />
-                    <circle cx="260" cy="65" r="3.5" fill="#2B85FF" />
-                    <circle cx="310" cy="75" r="3.5" fill="#2B85FF" />
-                    <circle cx="360" cy="80" r="3.5" fill="#2B85FF" />
-                    <circle cx="410" cy="60" r="3.5" fill="#2B85FF" />
-                    <circle cx="460" cy="70" r="3.5" fill="#2B85FF" />
-                    <circle cx="515" cy="55" r="3.5" fill="#2B85FF" />
-                </svg>
-            `;
-        }
-
-        // 5. ROW 2 RIGHT: 4 CIRCULAR GAUGES (01 25%, 02 50%, 03 75%, 04 100%)
-        const radialsContainer = document.getElementById('dash-four-radial-meters');
-        if (radialsContainer) {
-            const getOffset = (pct) => Math.round(100.53 - (100.53 * Math.min(100, pct)) / 100);
-            radialsContainer.innerHTML = `
-                <!-- 01 : 25% (Blue) -->
-                <div class="flex items-center gap-2">
-                    <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
-                        <svg class="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
-                            <circle cx="18" cy="18" r="16" stroke="#F1F5F9" stroke-width="3" fill="none" />
-                            <circle cx="18" cy="18" r="16" stroke="#2B85FF" stroke-width="3" stroke-linecap="round" fill="none"
-                                stroke-dasharray="100.53" stroke-dashoffset="${getOffset(25)}" />
-                        </svg>
-                        <span class="absolute font-mono font-black text-[8px] text-slate-800">25%</span>
-                    </div>
-                    <div class="min-w-0">
-                        <span class="text-[9px] font-bold text-slate-800 font-mono block leading-tight">01</span>
-                        <span class="text-[7.5px] text-slate-400 block truncate">Lorem ipsum</span>
-                    </div>
-                </div>
-
-                <!-- 02 : 50% (Green) -->
-                <div class="flex items-center gap-2">
-                    <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
-                        <svg class="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
-                            <circle cx="18" cy="18" r="16" stroke="#F1F5F9" stroke-width="3" fill="none" />
-                            <circle cx="18" cy="18" r="16" stroke="#22C55E" stroke-width="3" stroke-linecap="round" fill="none"
-                                stroke-dasharray="100.53" stroke-dashoffset="${getOffset(50)}" />
-                        </svg>
-                        <span class="absolute font-mono font-black text-[8px] text-slate-800">50%</span>
-                    </div>
-                    <div class="min-w-0">
-                        <span class="text-[9px] font-bold text-slate-800 font-mono block leading-tight">02</span>
-                        <span class="text-[7.5px] text-slate-400 block truncate">Lorem ipsum</span>
-                    </div>
-                </div>
-
-                <!-- 03 : 75% (Coral Red) -->
-                <div class="flex items-center gap-2">
-                    <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
-                        <svg class="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
-                            <circle cx="18" cy="18" r="16" stroke="#F1F5F9" stroke-width="3" fill="none" />
-                            <circle cx="18" cy="18" r="16" stroke="#FF5B60" stroke-width="3" stroke-linecap="round" fill="none"
-                                stroke-dasharray="100.53" stroke-dashoffset="${getOffset(75)}" />
-                        </svg>
-                        <span class="absolute font-mono font-black text-[8px] text-slate-800">75%</span>
-                    </div>
-                    <div class="min-w-0">
-                        <span class="text-[9px] font-bold text-slate-800 font-mono block leading-tight">03</span>
-                        <span class="text-[7.5px] text-slate-400 block truncate">Lorem ipsum</span>
-                    </div>
-                </div>
-
-                <!-- 04 : 100% (Teal Green) -->
-                <div class="flex items-center gap-2">
-                    <div class="relative w-10 h-10 flex items-center justify-center shrink-0">
-                        <svg class="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
-                            <circle cx="18" cy="18" r="16" stroke="#F1F5F9" stroke-width="3" fill="none" />
-                            <circle cx="18" cy="18" r="16" stroke="#10B981" stroke-width="3" stroke-linecap="round" fill="none"
-                                stroke-dasharray="100.53" stroke-dashoffset="0" />
-                        </svg>
-                        <span class="absolute font-mono font-black text-[8px] text-slate-800">100%</span>
-                    </div>
-                    <div class="min-w-0">
-                        <span class="text-[9px] font-bold text-slate-800 font-mono block leading-tight">04</span>
-                        <span class="text-[7.5px] text-slate-400 block truncate">Lorem ipsum</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 6. ROW 3 LEFT: CLUSTERED PAIRED BARS (Red & Blue Pairs)
-        const clusteredContainer = document.getElementById('dash-clustered-bars-container');
-        if (clusteredContainer) {
-            clusteredContainer.innerHTML = '';
-            // 8 paired bars matching the Shutterstock mockup heights
-            const pairedData = [
-                { red: 75, blue: 35 },
-                { red: 85, blue: 45 },
-                { red: 40, blue: 65 },
-                { red: 90, blue: 50 },
-                { red: 60, blue: 80 },
-                { red: 85, blue: 55 },
-                { red: 45, blue: 70 },
-                { red: 70, blue: 35 }
-            ];
-
-            pairedData.forEach(pair => {
-                clusteredContainer.innerHTML += `
-                    <div class="flex-1 flex items-end justify-center gap-1 h-full group cursor-pointer">
-                        <!-- Coral Red Bar -->
-                        <div class="w-2 sm:w-2.5 bg-[#FF5B60] rounded-t-[3px] transition-all duration-500 group-hover:brightness-110" style="height: ${pair.red}%"></div>
-                        <!-- Royal Blue Bar -->
-                        <div class="w-2 sm:w-2.5 bg-[#2B85FF] rounded-t-[3px] transition-all duration-500 group-hover:brightness-110" style="height: ${pair.blue}%"></div>
+                tablesRadarContainer.innerHTML += `
+                    <div onclick="switchView('organisation')" class="p-2 rounded-xl border ${badgeClass} transition cursor-pointer text-center group" title="Table ${String(t.num).padStart(2, '0')} (${t.tribe}) : ${t.count}/${t.max} places. Cliquer pour voir les détails.">
+                        <span class="text-[9px] font-mono font-black block leading-none">T${String(t.num).padStart(2, '0')}</span>
+                        <span class="text-[10px] font-bold truncate block ${textClass} mt-0.5 leading-tight">${t.tribe}</span>
+                        <span class="text-[8px] font-mono font-bold block mt-0.5 opacity-90">${countBadge}</span>
                     </div>
                 `;
             });
         }
 
-        // 7. ROW 3 RIGHT: DUAL DONUT CHARTS (Expenses 21.424$ & Revenue 940 February)
-        const donutsContainer = document.getElementById('dash-dual-donuts-container');
-        if (donutsContainer) {
-            donutsContainer.innerHTML = `
-                <!-- Left Donut: Expenses 21.424$ -->
-                <div class="flex flex-col items-center justify-center space-y-1 text-center">
-                    <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
-                        <svg class="w-28 h-28 sm:w-32 sm:h-32 -rotate-90" viewBox="0 0 64 64">
-                            <!-- Background Track -->
-                            <circle cx="32" cy="32" r="25" stroke="#F1F5F9" stroke-width="8" fill="none" />
-                            
-                            <!-- Segment 1: Royal Blue (#2B85FF) ~50% -->
-                            <circle cx="32" cy="32" r="25" stroke="#2B85FF" stroke-width="8" fill="none"
-                                stroke-dasharray="157.08" stroke-dashoffset="78.54" />
-                            
-                            <!-- Segment 2: Coral Red (#FF5B60) ~25% -->
-                            <circle cx="32" cy="32" r="25" stroke="#FF5B60" stroke-width="8" fill="none"
-                                stroke-dasharray="157.08" stroke-dashoffset="117.81" class="origin-center rotate-180" />
-                            
-                            <!-- Segment 3: Light Blue (#93C5FD) ~15% -->
-                            <circle cx="32" cy="32" r="25" stroke="#93C5FD" stroke-width="8" fill="none"
-                                stroke-dasharray="157.08" stroke-dashoffset="133.52" class="origin-center rotate-[270deg]" />
-                        </svg>
-                        
-                        <!-- Centered Number: 21.424$ -->
-                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-1">
-                            <span class="font-sans font-black text-sm sm:text-base text-slate-900 tracking-tight leading-none">21.424$</span>
-                            <div class="flex items-center gap-1 pt-1 text-[8px] font-bold font-mono">
-                                <span class="text-slate-400">+3.44</span>
-                                <span class="text-emerald-500">+1.88%</span>
+        // 9. RECENT REGISTRATIONS LIVE ACTIVITY STREAM
+        const recentActivityContainer = document.getElementById('dash-smart-recent-activity');
+        if (recentActivityContainer) {
+            recentActivityContainer.innerHTML = '';
+            const recent = participants.slice(-4).reverse();
+            if (recent.length === 0) {
+                recentActivityContainer.innerHTML = `
+                    <div class="py-8 text-center text-xs text-slate-400 italic">
+                        Aucune inscription récente pour le moment.
+                    </div>
+                `;
+            } else {
+                recent.forEach(p => {
+                    const cat = p.categorie || 'Classique';
+                    let catBadge = 'bg-blue-50 text-blue-700 border-blue-200';
+                    if (cat === 'Gold') catBadge = 'bg-amber-50 text-amber-800 border-amber-200';
+                    else if (cat === 'Invité') catBadge = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+
+                    const tableInfo = (typeof getParticipantTableInfo === 'function') ? getParticipantTableInfo(p) : { fullTableName: 'Table en cours' };
+                    const mode = p.modeReglement || 'Mobile';
+
+                    recentActivityContainer.innerHTML += `
+                        <div class="p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 transition flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="h-8 w-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                    ${(p.prenom || 'F')[0]}${(p.nom || 'H')[0]}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-xs text-slate-900 truncate leading-tight">${p.prenom} ${p.nom}</p>
+                                    <p class="text-[10px] text-slate-500 truncate leading-tight">${tableInfo.fullTableName}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-black border ${catBadge}">${cat}</span>
+                                <span class="text-[9px] font-mono font-bold text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200">${mode}</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Right Donut: Revenue 940 February -->
-                <div class="flex flex-col items-center justify-center space-y-1 text-center">
-                    <div class="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
-                        <svg class="w-28 h-28 sm:w-32 sm:h-32 -rotate-90" viewBox="0 0 64 64">
-                            <!-- Background Track -->
-                            <circle cx="32" cy="32" r="25" stroke="#F1F5F9" stroke-width="8" fill="none" />
-                            
-                            <!-- Segment 1: Emerald Green (#22C55E) ~45% -->
-                            <circle cx="32" cy="32" r="25" stroke="#22C55E" stroke-width="8" fill="none"
-                                stroke-dasharray="157.08" stroke-dashoffset="86.39" />
-                            
-                            <!-- Segment 2: Amber Gold (#FBBF24) ~25% -->
-                            <circle cx="32" cy="32" r="25" stroke="#FBBF24" stroke-width="8" fill="none"
-                                stroke-dasharray="157.08" stroke-dashoffset="117.81" class="origin-center rotate-[160deg]" />
-                            
-                            <!-- Segment 3: Coral Red (#FF5B60) ~20% -->
-                            <circle cx="32" cy="32" r="25" stroke="#FF5B60" stroke-width="8" fill="none"
-                                stroke-dasharray="157.08" stroke-dashoffset="125.66" class="origin-center rotate-[250deg]" />
-                            
-                            <!-- Segment 4: Sky Blue (#38BDF8) ~10% -->
-                            <circle cx="32" cy="32" r="25" stroke="#38BDF8" stroke-width="8" fill="none"
-                                stroke-dasharray="157.08" stroke-dashoffset="141.37" class="origin-center rotate-[320deg]" />
-                        </svg>
-                        
-                        <!-- Centered Number: 940 February -->
-                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-1">
-                            <span class="font-sans font-black text-base sm:text-lg text-slate-900 tracking-tight leading-none">940</span>
-                            <span class="text-[9px] font-bold text-slate-400 font-sans pt-1">February</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+                    `;
+                });
+            }
         }
 
         // Reinitialize Lucide icons
@@ -5879,7 +6041,6 @@
     }
 
     function filterParticipantsDashboard(query) {
-        // Search handler for the search pill in the dashboard
         if (!query) return;
         const q = query.trim().toLowerCase();
         const inputListSearch = document.getElementById('search-participant-input');
